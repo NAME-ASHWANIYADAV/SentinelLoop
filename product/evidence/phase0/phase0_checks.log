@@ -1,0 +1,41 @@
+phase0 checks started 2026-10-18T10:11:03 on MINGW64_NT-10.0-26200 git 43050c6 branch product/platform
+== 1 doctor
+python 3.12.1  numpy 2.2.6  pandas 2.3.3  scikit-learn 1.7.2  mlflow 3.0.1  streamlit 1.66.0
+data: all 12 C-MAPSS files present in data\raw
+archive pcoe_turbofan.zip: checksum OK
+archive CMAPSSData.zip: checksum OK
+doctor: OK
+exit=0 time=14s
+== 2 full test suite
+........................................................................ [ 63%]
+..........................................                               [100%]
+114 passed in 132.58s (0:02:12)
+exit=0 time=137s
+== 3 pipeline fast FD001 into scratch dir
+[FD001] loading and preparing data
+[FD001] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD001] fitting anomaly detector and drift monitor on training data
+[FD001] running the Triage Agent on 100 test engines (batch) and 3 engines (stream); max_width 102.6
+[FD001] done in 28.9 s: HGBR RMSE 14.54 capped / 15.84 raw, PICP 0.910, MPIW 80.2, orders 23, escalation share 0.13
+exit=0 time=33s
+== 4 pipeline fast FD004 (multi-regime) into scratch dir
+[FD004] done in 45.0 s: HGBR RMSE 16.80 capped / 28.57 raw, PICP 0.879, MPIW 67.8, orders 76, escalation share 0.07
+exit=0 time=48s
+== 5 retrain flow (simulated new data) into scratch dir
+[FD003] training champion on 50 engines (validation 20 engines held out)
+[FD003] new data: product\evidence\phase0\tmp_artifacts\incoming\FD003_new_engines.txt (simulated: 30 training engines the champion was never trained on); training challenger on 50 + 30 engines
+[FD003] challenger PROMOTE: rmse 14.95->13.98 picp 0.910->0.940 late@10 0.000->0.000 (all gates passed); log product\evidence\phase0\tmp_artifacts\FD003\retrain_log.json
+ "decision": "PROMOTE",
+exit=0 time=25s
+== 6 audit on the shipped evidence artifacts
+n 3409 mismatches 0 chain_valid True
+exit=0 time=1s
+== 7 audit on the scratch run
+n 937 mismatches 0 chain_valid True
+== 8 dashboard boots and serves HTTP
+dashboard health http=200 after 1s
+== 9 code size
+src/sentinelloop: 27 files, 2539 lines
+tests: 31 files, 1362 lines
+experiments: 11 files, 1231 lines
+phase0 checks finished 2026-10-18T10:15:28
