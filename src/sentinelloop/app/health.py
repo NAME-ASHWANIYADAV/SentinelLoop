@@ -6,10 +6,16 @@ Order of checks: generic data quality (required signals present and fresh, missi
 selection (approved, checksum-verified), then scope (history length, operating envelope, regime), then model-specific
 data quality (stuck sensors, conflicting redundant sensors), then scoring. A prediction is exposed only when data
 quality and scope pass; otherwise the state says why and the RUL fields stay empty.
+
+Instants: an assessment instant later than now (plus a small clock skew) is refused. An assessment for an instant
+earlier than the last one applied to the asset is stored as a historical replay (applied_to_state = 0): it never moves
+the live state, and `latest_assessment` ignores it. Replays therefore cannot silence recommendations or clear a data
+failure; a forward replay after a data gap (oldest instant first) is applied normally.
 """
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 
 import numpy as np
@@ -23,6 +29,12 @@ from .timeutil import HOUR_MS, iso, now_iso, now_ms, parse_ts
 
 class AssessmentError(ValueError):
     pass
+
+
+log = logging.getLogger("sentinelloop.health")
+MAX_FUTURE_SKEW_MS = 5 * 60 * 1000
+MAX_RANGE_STEPS = 2000
+DQ_CODES = ("missing_signal", "stale_data", "excessive_missing", "out_of_range", "stuck_signal", "conflicting_readings", "data_delivery_delay")
 
 
 _BUNDLE_CACHE: dict[str, object] = {}
@@ -57,8 +69,9 @@ def _last_seen(db, asset_id: str, as_of: int) -> dict:
                                                           (asset_id, as_of))}
 
 
-def _default_as_of(db, asset, atype) -> int:
-    if atype.time_basis == "cycle_index":            # replayed simulation: "now" is the asset's latest reading
+def _default_as_of(db, asset, atype, pol=None) -> int:
+    latest = pol is not None and pol.assessment.get("assess_at", "now") == "latest_reading"
+    if atype.time_basis == "cycle_index" or latest:   # replayed simulation, or a site that delivers periodic exports
         with db.connect() as c:
             r = c.execute("SELECT MAX(ts_ms) FROM readings WHERE asset_id = ?", (asset.asset_id,)).fetchone()[0]
         if r is None:
@@ -70,6 +83,13 @@ def _default_as_of(db, asset, atype) -> int:
 def generic_quality(window: pd.DataFrame, last_seen: dict, required: list[str], as_of: int, pol: dict) -> dict:
     reasons, detail = [], {"missing_frac": {}, "suspect_frac": {}, "age_hours": {}}
     n = len(window)
+    limit = float(pol["max_data_age_hours"])
+    ages = {s: (as_of - last_seen[s]) / HOUR_MS for s in required if last_seen.get(s) is not None}
+    if required and len(ages) == len(required) and all(a > limit for a in ages.values()):
+        # every required signal stopped together: the feed is late, not the sensors (a data-path problem, not a site job)
+        detail["age_hours"] = {s: round(a, 3) for s, a in ages.items()}
+        return {"ok": False, "reasons": [f"data_delivery_delay: no reading for any required signal in the last {min(ages.values()):.1f} h before the "
+                                         f"assessment instant (limit {limit} h); check the data feed, not the asset"], "detail": detail}
     for s in required:
         last = last_seen.get(s)
         if last is None:
@@ -97,7 +117,9 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
         raise AssessmentError(f"unknown asset {asset_id}")
     atype = registry.get_asset_type(db, asset.asset_type_id)
     pol = policy.for_type(atype.asset_type_id)
-    as_of = int(as_of_ms) if as_of_ms is not None else _default_as_of(db, asset, atype)
+    as_of = int(as_of_ms) if as_of_ms is not None else _default_as_of(db, asset, atype, pol)
+    if as_of > now_ms() + MAX_FUTURE_SKEW_MS:
+        raise AssessmentError(f"assessment instant {iso(as_of)} is in the future; assessments are for now or the past")
     required = [s.name for s in atype.signals if s.required]
     model_ok, in_scope, reasons = True, True, []
     dq_generic = {"ok": True, "reasons": [], "detail": {}}
@@ -126,7 +148,8 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
             try:
                 b = _load(m)
             except modelpack.ModelIntegrityError as e:
-                failures.append(f"{m['model_id']}: {e}")
+                log.warning("model %s unavailable: %s", m["model_id"], e)      # details (paths) stay in the server log
+                failures.append(m["model_id"])
                 continue
             if len(raw) < int(pol.assessment["min_history_points"]):
                 a = {"in_scope": False, "reasons": [f"insufficient_history: {len(raw)} points, the policy requires {pol.assessment['min_history_points']}"],
@@ -150,10 +173,11 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
         if bundle is None and candidate is not None and dq_generic["ok"] and getattr(candidate, "quality_independent_of_scope", False):
             # checks that hold whatever the operating regime (e.g. a stuck temperature on an idle turbine) are still reported
             dq_model = candidate.quality(raw, int(pol.assessment["stuck_min_run"]), float(pol.assessment["max_conflict_frac"]))
+        if failures:            # an integrity failure is always reported, whatever the other models' scope (precedence: model first)
+            reasons += [f"model_unavailable: {f}: artefact missing or failed its integrity check (details in the server log)" for f in failures]
         if bundle is None:
-            if failures and not any(r for r in app.get("reasons", []) if "insufficient_history" in r or "operating_envelope" in r or "regime" in r):
+            if failures:
                 model_ok = False
-                reasons += [f"model_unavailable: {f}" for f in failures]
             in_scope = False
         elif dq_generic["ok"] and in_scope:
             dq_model = bundle.quality(raw, int(pol.assessment["stuck_min_run"]), float(pol.assessment["max_conflict_frac"]))
@@ -166,7 +190,8 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
                     scored = bundle.score(raw, baseline=baseline["offsets"]) if baseline is not None else bundle.score(raw)
                 except Exception as e:                      # a failed model service never produces a number
                     model_ok, scored = False, None
-                    reasons.append(f"model_unavailable: scoring failed ({type(e).__name__}: {e})")
+                    log.exception("scoring failed for %s with %s", asset.asset_id, chosen["model_id"])
+                    reasons.append(f"model_unavailable: scoring failed ({type(e).__name__}); details in the server log")
     data_ok = dq_generic["ok"] and dq_model["ok"]
     reasons += dq_generic["reasons"] + dq_model["reasons"] + ([] if in_scope else app.get("reasons", []))
 
@@ -210,25 +235,66 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
                    "applicability": app, "inputs": inputs, "policy": pol.to_record()})
 
     with db.tx() as c:
+        prev = _state_from_conn(c, asset.asset_id) or AssetState()
+        applied = prev.last_applied_as_of_ms is None or as_of > prev.last_applied_as_of_ms
+        record["applied_to_state"] = applied
+        if not applied:
+            record["reasons"] = record["reasons"] + [f"historical replay: stored, not applied to the live state (an assessment for "
+                                                     f"{iso(prev.last_applied_as_of_ms)} is already applied)"]
         c.execute("INSERT INTO assessments (assessment_id, asset_id, as_of_ms, created_at, model_id, health_state, reasons_json, data_quality_json, "
                   "applicability_json, rul_unit, rul_point, rul_lower, rul_upper, interval_level, rul_point_hours, rul_lower_hours, rul_upper_hours, "
-                  "risk_json, anomaly_score, anomaly_flag, top_deviations_json, inputs_json, policy_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                  "risk_json, anomaly_score, anomaly_flag, top_deviations_json, inputs_json, policy_json, applied_to_state) "
+                  "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                   (record["assessment_id"], record["asset_id"], as_of, record["created_at"], record["model_id"], record["health_state"],
                    json.dumps(record["reasons"]), json.dumps(record["data_quality"], default=str), json.dumps(record["applicability"], default=str),
                    record["rul_unit"], record["rul_point"], record["rul_lower"], record["rul_upper"], record["interval_level"], record["rul_point_hours"],
                    record["rul_lower_hours"], record["rul_upper_hours"], json.dumps(record["risk"]), record["anomaly_score"],
                    None if record["anomaly_flag"] is None else int(record["anomaly_flag"]), json.dumps(record["top_deviations"]),
-                   json.dumps(inputs), json.dumps(record["policy"])))
-        prev = _state_from_conn(c, asset.asset_id) or AssetState()
-        new = states.advance(prev, cl, pol.states)
-        _store_state(c, asset.asset_id, new, record["assessment_id"])
+                   json.dumps(inputs), json.dumps(record["policy"]), int(applied)))
+        if applied:
+            t = now_ms()
+            new = states.advance(prev, cl, pol.states, now_ms=t)
+            new = states.replace(new, last_applied_as_of_ms=as_of, last_applied_at_ms=t)
+            _store_state(c, asset.asset_id, new, record["assessment_id"])
+        else:
+            new = prev
         auditlog.append(c, actor=actor, action="assessment.created", entity="assessment", entity_id=record["assessment_id"],
                         payload={"asset_id": asset.asset_id, "as_of": iso(as_of), "health_state": record["health_state"], "model_id": record["model_id"],
                                  "rul": [record["rul_lower"], record["rul_point"], record["rul_upper"]], "p_fail_decision_horizon": p_fail,
                                  "reasons": record["reasons"], "feature_sha256": inputs.get("feature_sha256"), "policy_sha256": pol.sha256,
-                                 "asset_state": new.labels()}, key=db.audit_key, key_id=db.audit_key_id)
+                                 "asset_state": new.labels(), "applied_to_state": applied}, key=db.audit_key, key_id=db.audit_key_id)
     record["asset_state"] = new.labels()
     return record
+
+
+def assess_range(db, asset_id: str, policy, start_ms: int, end_ms: int, step_ms: int, actor: str = "system") -> dict:
+    """Assess at every step from start to end (oldest first), e.g. after a periodic export arrives. Bounded."""
+    if step_ms < 60_000 or end_ms < start_ms:
+        raise AssessmentError("assess_range needs end >= start and a step of at least one minute")
+    n = (end_ms - start_ms) // step_ms + 1
+    if n > MAX_RANGE_STEPS:
+        raise AssessmentError(f"{n} steps requested; at most {MAX_RANGE_STEPS} per call")
+    counts, applied = {}, 0
+    for k in range(int(n)):
+        r = assess(db, asset_id, policy, as_of_ms=start_ms + k * step_ms, actor=actor)
+        counts[r["health_state"]] = counts.get(r["health_state"], 0) + 1
+        applied += int(r["applied_to_state"])
+    return {"asset_id": asset_id, "assessments": int(n), "applied": applied, "states": counts, "asset_state": asset_state(db, asset_id).labels()}
+
+
+def asset_view(db, asset, policy, now: int | None = None) -> dict:
+    """What a person should see for an asset: its labels, when it was last assessed, and ASSESSMENT_OVERDUE when the
+    assessment job has not run within the policy limit (a stopped job must never leave a fleet looking healthy)."""
+    s = asset_state(db, asset.asset_id)
+    now = int(now if now is not None else now_ms())
+    labels = s.labels() if s else ["NOT_ASSESSED"]
+    last_at = s.last_applied_at_ms if s else None
+    if last_at is not None:
+        limit_h = float(policy.for_type(asset.asset_type_id).assessment.get("max_assessment_age_hours", 6.0))
+        if now - last_at > limit_h * HOUR_MS:
+            labels = labels + ["ASSESSMENT_OVERDUE"]
+    return {"state": labels, "last_assessed_at": iso(last_at) if last_at else None,
+            "last_assessment_instant": iso(s.last_applied_as_of_ms) if s and s.last_applied_as_of_ms else None}
 
 
 # -- asset state persistence -------------------------------------------------------------------------------------
@@ -238,17 +304,23 @@ def _state_from_conn(c, asset_id: str) -> AssetState | None:
         return None
     return AssetState(effective=H(r["effective"]), latched_risk=r["latched_risk"], dq_failure_active=bool(r["dq_failure_active"]),
                       dq_ok_streak=int(r["dq_ok_streak"]), last_health=H(r["last_health"]) if r["last_health"] else None,
-                      approval_pending=bool(r["approval_pending"]), notes=tuple(json.loads(r["notes_json"])))
+                      approval_pending=bool(r["approval_pending"]), notes=tuple(json.loads(r["notes_json"])),
+                      latched_since_ms=r["latched_since_ms"], awaiting_assessment=bool(r["awaiting_assessment"]),
+                      last_applied_as_of_ms=r["last_applied_as_of_ms"], last_applied_at_ms=r["last_applied_at_ms"])
 
 
 def _store_state(c, asset_id: str, s: AssetState, assessment_id: str | None):
     c.execute("INSERT INTO asset_states (asset_id, effective, latched_risk, dq_failure_active, dq_ok_streak, last_health, approval_pending, notes_json, "
-              "last_assessment_id, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(asset_id) DO UPDATE SET effective = excluded.effective, "
+              "last_assessment_id, updated_at, latched_since_ms, awaiting_assessment, last_applied_as_of_ms, last_applied_at_ms) "
+              "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(asset_id) DO UPDATE SET effective = excluded.effective, "
               "latched_risk = excluded.latched_risk, dq_failure_active = excluded.dq_failure_active, dq_ok_streak = excluded.dq_ok_streak, "
               "last_health = excluded.last_health, approval_pending = excluded.approval_pending, notes_json = excluded.notes_json, "
-              "last_assessment_id = COALESCE(excluded.last_assessment_id, asset_states.last_assessment_id), updated_at = excluded.updated_at",
+              "last_assessment_id = COALESCE(excluded.last_assessment_id, asset_states.last_assessment_id), updated_at = excluded.updated_at, "
+              "latched_since_ms = excluded.latched_since_ms, awaiting_assessment = excluded.awaiting_assessment, "
+              "last_applied_as_of_ms = excluded.last_applied_as_of_ms, last_applied_at_ms = excluded.last_applied_at_ms",
               (asset_id, s.effective.value, s.latched_risk, int(s.dq_failure_active), s.dq_ok_streak, s.last_health.value if s.last_health else None,
-               int(s.approval_pending), json.dumps(list(s.notes)), assessment_id, now_iso()))
+               int(s.approval_pending), json.dumps(list(s.notes)), assessment_id, now_iso(), s.latched_since_ms, int(s.awaiting_assessment),
+               s.last_applied_as_of_ms, s.last_applied_at_ms))
 
 
 def asset_state(db, asset_id: str) -> AssetState | None:
@@ -281,7 +353,8 @@ def set_approval_pending(db, asset_id: str, pending: bool, c=None):
 
 def latest_assessment(db, asset_id: str) -> dict | None:
     with db.connect() as c:
-        r = c.execute("SELECT * FROM assessments WHERE asset_id = ? ORDER BY as_of_ms DESC, created_at DESC LIMIT 1", (asset_id,)).fetchone()
+        r = c.execute("SELECT * FROM assessments WHERE asset_id = ? AND applied_to_state = 1 ORDER BY as_of_ms DESC, created_at DESC LIMIT 1",
+                      (asset_id,)).fetchone()
     if r is None:
         return None
     d = dict(r)

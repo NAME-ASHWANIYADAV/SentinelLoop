@@ -68,7 +68,8 @@ def test_a_model_that_crashes_while_scoring_gives_model_unavailable_and_no_numbe
     a = health.assess(d, "WT01", POL, as_of_ms=t, actor="svc")
     assert a["health_state"] == "MODEL_UNAVAILABLE"
     assert a["anomaly_score"] is None and a["rul_point"] is None and a["risk"] == {}
-    assert any("scoring failed" in r and "simulated scoring crash" in r for r in a["reasons"])
+    assert any("scoring failed (RuntimeError)" in r for r in a["reasons"])
+    assert not any("simulated scoring crash" in r for r in a["reasons"])           # exception text stays in the server log
 
 
 def test_a_model_file_deleted_after_approval_gives_model_unavailable(plant, fleet):

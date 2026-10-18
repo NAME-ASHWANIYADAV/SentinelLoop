@@ -124,5 +124,6 @@ def test_one_bad_asset_never_stops_generation_for_the_others(plant):
     # P-103's order was rejected by a person: the same assessment must not resurrect it
     wo.transition(plant, first["P-103"]["wo_id"], "reject", actor="re1", role="reliability_engineer", reason="known transient after start-up")
     out = {o["asset_id"]: o for o in decision.generate(plant, CFG, actor="system", now_ms=NOW + 3_600_000)}
-    assert out["P-101"]["action"] == "unchanged" and "in progress" in out["P-101"]["note"]
+    # an urgent condition during lower-priority work gets its own P1 (adversarial review safety-1), not "unchanged"
+    assert out["P-101"]["action"] == "created" and out["P-101"]["priority_class"] == "P1"
     assert out["P-103"]["action"] == "already_decided"

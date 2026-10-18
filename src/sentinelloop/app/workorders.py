@@ -35,6 +35,8 @@ TRANSITIONS = {
     "reactivate": ({"DEFERRED"}, "PENDING_APPROVAL", APPROVERS | {"system"}, True),
     "schedule": ({"APPROVED", "SCHEDULED"}, "SCHEDULED", {"planner", "admin"}, False),
     "unschedule": ({"SCHEDULED"}, "APPROVED", {"planner", "admin"}, True),
+    # the crew could not do the job (weather, access, sickness): back to the planner with a reason, schedule cleared
+    "hand_back": ({"SCHEDULED", "IN_PROGRESS"}, "APPROVED", {"technician", "planner", "admin"}, True),
     "start": ({"SCHEDULED"}, "IN_PROGRESS", {"technician", "planner", "admin"}, False),
     "complete": ({"IN_PROGRESS"}, "COMPLETED", {"technician", "planner", "admin", "integration"}, False),
     "close": ({"COMPLETED"}, "CLOSED", APPROVERS, False),
@@ -186,8 +188,12 @@ def _apply(db, c, o, action: str, actor: str, role: str, reason: str, data: dict
         techs = list(data.get("technicians") or [])
         if e <= s or not techs:
             raise WorkflowError("schedule needs end > start and at least one technician")
+        site = c.execute("SELECT site_id FROM assets WHERE asset_id = ?", (o["asset_id"],)).fetchone()["site_id"]
+        known = {r[0] for r in c.execute("SELECT tech_id FROM technicians WHERE site_id = ? AND active = 1", (site,))}
+        if known and not set(techs) <= known:        # sites with a recorded crew list: only registered, active technicians
+            raise WorkflowError(f"unknown or inactive technicians for site {site}: {sorted(set(techs) - known)}")
         sets.update({"scheduled_start_ms": s, "scheduled_end_ms": e, "assigned_json": json.dumps(techs)})
-    if action == "unschedule":
+    if action in ("unschedule", "hand_back"):
         sets.update({"scheduled_start_ms": None, "scheduled_end_ms": None, "assigned_json": "[]"})
     ts = now_iso()
     sets.update({"state": to, "version": o["version"] + 1, "updated_at": ts})
@@ -242,6 +248,25 @@ def _flags(o, out: Outcome) -> list[str]:
     return f
 
 
+CLEARING_FINDINGS = {"degradation_found", "failure_found", "no_fault_found"}     # an inspection actually took place
+NON_CLEARING_JOBS = {"instrument_check", "desk_review"}                          # they do not address the equipment
+HUMAN_CLEARERS = {"technician", "planner", "reliability_engineer", "admin"}
+
+
+def _latch_keep_reasons(o, out: "Outcome", role: str, s) -> list[str]:
+    """Why completing this order must NOT clear the asset's latched risk (empty list: it may)."""
+    keep = []
+    if out.findings_code not in CLEARING_FINDINGS:
+        keep.append(f"outcome '{out.findings_code}' does not record an inspection")
+    if o["job_type"] in NON_CLEARING_JOBS:
+        keep.append(f"a {o['job_type']} does not address a latched equipment risk")
+    if role not in HUMAN_CLEARERS:
+        keep.append(f"completed by the '{role}' role, not by a person")
+    if s.latched_since_ms and parse_ts(o["created_at"]) < s.latched_since_ms:
+        keep.append("the order was raised before the latched condition began")
+    return keep
+
+
 def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_version: int | None = None, idempotency_key: str | None = None) -> dict:
     out = Outcome(**outcome)
     if out.returned_to_service_at:
@@ -259,6 +284,10 @@ def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_vers
         if expected_version is not None and int(expected_version) != o["version"]:
             raise ConcurrencyConflict(f"work order {wo_id} is at version {o['version']}, request expected {expected_version}")
         flags = _flags(o, out)
+        s = health._state_from_conn(c, o["asset_id"])
+        keep = _latch_keep_reasons(o, out, role, s) if s is not None and s.latched_risk != "NONE" else []
+        if keep:
+            flags.append("latch_kept")
         _apply(db, c, o, "complete", actor, role, "", {"outcome": out.model_dump(), "flags": flags}, idempotency_key)
         ts = now_iso()
         c.execute("INSERT INTO outcomes (wo_id, recorded_by, recorded_at, findings_code, failure_confirmed, root_cause, actions_taken, parts_used_json, "
@@ -266,9 +295,12 @@ def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_vers
                   (wo_id, actor, ts, out.findings_code, out.failure_confirmed, out.root_cause, out.actions_taken, json.dumps(out.parts_used),
                    out.downtime_hours, out.returned_to_service_at, out.notes, json.dumps(flags)))
         c.execute("UPDATE assets SET last_maintenance_at = ?, updated_at = ? WHERE asset_id = ?", (ts, ts, o["asset_id"]))
-        s = health._state_from_conn(c, o["asset_id"])
-        if s is not None and s.latched_risk != "NONE":
-            new = states.clear_risk(s, event="maintenance_completed", actor=actor, role=role if role in states.CLEAR_EVENTS["maintenance_completed"] else "integration",
+        if s is not None and s.latched_risk != "NONE" and keep:
+            kept = states.replace(s, notes=tuple(list(s.notes) + [f"latch kept after {wo_id} completed: " + "; ".join(keep)]))
+            health._store_state(c, o["asset_id"], kept, None)
+            _audit(db, c, actor, "asset_state.latch_kept", o["asset_id"], {"wo_id": wo_id, "reasons": keep, "state": s.labels()})
+        elif s is not None and s.latched_risk != "NONE":
+            new = states.clear_risk(s, event="maintenance_completed", actor=actor, role=role,
                                     reason=f"{wo_id} completed: {out.findings_code}; {out.actions_taken}")
             health._store_state(c, o["asset_id"], new, None)
             _audit(db, c, actor, "asset_state.maintenance_completed", o["asset_id"], {"wo_id": wo_id, "before": s.labels(), "after": new.labels()})
@@ -306,6 +338,19 @@ def reprioritise(db, wo_id: str, priority_class: str, priority_score: float | No
             o2 = c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone()
             _apply(db, c, o2, "reactivate", actor, "system", f"escalated to P1 while deferred: {reason}", {}, None)
         return _row(c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone(), c)
+
+
+def reactivate_due(db, now_ms: int, actor: str = "system", asset_ids: set | None = None) -> list[dict]:
+    """Deferred orders whose 'back for approval' date has passed return to PENDING_APPROVAL (audited)."""
+    out = []
+    with db.connect() as c:
+        due = [r["wo_id"] for r in c.execute("SELECT wo_id, asset_id FROM work_orders WHERE state = 'DEFERRED' AND deferred_until_ms IS NOT NULL "
+                                             "AND deferred_until_ms <= ?", (int(now_ms),)) if asset_ids is None or r["asset_id"] in asset_ids]
+    for w in due:
+        o = transition(db, w, "reactivate", actor=actor, role="system", reason="deferral period ended; back for approval",
+                       idempotency_key=f"reactivate:{w}:{int(now_ms) // 60000}")
+        out.append({"asset_id": o["asset_id"], "action": "reactivated", "wo_id": w, "priority_class": o["priority_class"]})
+    return out
 
 
 def missing_outcomes(db) -> list[dict]:

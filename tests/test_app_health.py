@@ -117,7 +117,8 @@ def test_missing_signal_stale_data_and_stuck_sensor_are_data_quality_failures(en
     assert a["health_state"] == H.DATA_QUALITY_FAILURE.value and any("stuck" in r and "s11" in r for r in a["reasons"])
     late = cmapss.END_MS + int(40 * HPC * 3_600_000)              # 40 cycles after the fleet was last observed
     a = health.assess(d, env["ids"][2], as_of_ms=late, policy=pol, actor="system")
-    assert a["health_state"] == H.DATA_QUALITY_FAILURE.value and any("stale" in r for r in a["reasons"])
+    # every signal stopped together: a late feed (data path), reported as data_delivery_delay rather than per-signal staleness
+    assert a["health_state"] == H.DATA_QUALITY_FAILURE.value and any(r.startswith("data_delivery_delay") for r in a["reasons"])
 
 
 def test_conflicting_redundant_sensors_are_a_data_quality_failure(env):

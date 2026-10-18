@@ -107,6 +107,18 @@ class AssessBody(BaseModel):
     as_of: str | None = None
 
 
+class AssessRangeBody(BaseModel):
+    start: str
+    end: str
+    step_minutes: int = Field(default=60, ge=1, le=24 * 60)
+
+
+class ReprioritiseBody(BaseModel):
+    priority_class: str
+    reason: str = Field(min_length=1)
+    due_by: str | None = None
+
+
 class ClearRiskBody(BaseModel):
     event: str
     reason: str
@@ -232,7 +244,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
         if cl and cl.isdigit() and int(cl) > max_body_bytes:
             resp = JSONResponse({"error": f"request body larger than {max_body_bytes} bytes", "request_id": rid}, status_code=413)
         else:
-            if request.url.path.endswith(("/health", "/ready")):
+            if request.url.path in (f"{API}/health", f"{API}/ready"):
                 ok, retry = True, 0
             else:
                 u = security.authenticate_key(db, _presented_key(request.headers))
@@ -322,11 +334,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     # -- registry -------------------------------------------------------------------------------------------------------
     @app.get(f"{API}/assets")
     def assets(site_id: str | None = None, status: str | None = None, u: dict = Depends(need("read"))):
-        out = []
-        for a in registry.list_assets(db, site_id=site_id, status=status):
-            st = health.asset_state(db, a.asset_id)
-            out.append({**a.model_dump(), "state": st.labels() if st else ["NOT_ASSESSED"]})
-        return out
+        return [{**a.model_dump(), **health.asset_view(db, a, policy_set)} for a in registry.list_assets(db, site_id=site_id, status=status)]
 
     @app.get(f"{API}/assets/{{asset_id}}")
     def asset(asset_id: str, u: dict = Depends(need("read"))):
@@ -334,7 +342,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
         if a is None:
             raise HTTPException(404, f"unknown asset {asset_id}")
         st = health.asset_state(db, a.asset_id)
-        return {**a.model_dump(), "state": st.labels() if st else ["NOT_ASSESSED"], "state_notes": list(st.notes) if st else []}
+        return {**a.model_dump(), **health.asset_view(db, a, policy_set), "state_notes": list(st.notes) if st else []}
 
     @app.post(f"{API}/assets", status_code=201)
     def create_asset(spec: AssetSpec, u: dict = Depends(need("assets.write"))):
@@ -355,7 +363,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
 
     # -- resources ------------------------------------------------------------------------------------------------------
     @app.get(f"{API}/sites/{{site_id}}/technicians")
-    def techs(site_id: str, u: dict = Depends(need("read"))):
+    def techs(site_id: str, u: dict = Depends(need("resources.read"))):
         return resources.technicians(db, site_id)
 
     @app.post(f"{API}/sites/{{site_id}}/technicians")
@@ -463,6 +471,10 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     def assess(asset_id: str, body: AssessBody = Body(default_factory=AssessBody), u: dict = Depends(need("assess"))):
         return health.assess(db, asset_id, policy=policy_set, as_of_ms=parse_ts(body.as_of) if body.as_of else None, actor=u["user_id"])
 
+    @app.post(f"{API}/assets/{{asset_id}}/assess-range")
+    def assess_range(asset_id: str, body: AssessRangeBody, u: dict = Depends(need("assess"))):
+        return health.assess_range(db, asset_id, policy_set, parse_ts(body.start), parse_ts(body.end), body.step_minutes * 60_000, actor=u["user_id"])
+
     @app.get(f"{API}/assets/{{asset_id}}/assessment")
     def latest(asset_id: str, u: dict = Depends(need("read"))):
         a = health.latest_assessment(db, asset_id)
@@ -472,6 +484,9 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
 
     @app.post(f"{API}/assets/{{asset_id}}/clear-risk")
     def clear_risk(asset_id: str, body: ClearRiskBody, u: dict = Depends(need("asset_state.clear"))):
+        if body.event != "dismissed":
+            raise HTTPException(422, "maintenance is recorded by completing its work order with an outcome; only 'dismissed' (with a reason) "
+                                     "can be recorded here")
         return {"state": health.clear_latched_risk(db, asset_id, body.event, actor=u["user_id"], role=u["role"], reason=body.reason).labels()}
 
     @app.post(f"{API}/decisions/generate")
@@ -512,6 +527,15 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     def transition(wo_id: str, body: TransitionBody, idempotency_key: str | None = Header(default=None), u: dict = Depends(need("workorders.write"))):
         return workorders.transition(db, wo_id, body.action, actor=u["user_id"], role=u["role"], reason=body.reason, data=body.data,
                                      expected_version=body.expected_version, idempotency_key=idempotency_key)
+
+    @app.post(f"{API}/work-orders/{{wo_id}}/reprioritise")
+    def reprioritise(wo_id: str, body: ReprioritiseBody, u: dict = Depends(need("workorders.write"))):
+        o = workorders.get(db, wo_id)
+        if o is None:
+            raise HTTPException(404, f"unknown work order {wo_id}")
+        return workorders.reprioritise(db, wo_id, body.priority_class, None, parse_ts(body.due_by) if body.due_by else None,
+                                       {**(o.get("explanation") or {}), "manual_reprioritisation": body.reason}, actor=u["user_id"], role=u["role"],
+                                       reason=body.reason)
 
     @app.post(f"{API}/work-orders/{{wo_id}}/complete")
     def complete(wo_id: str, body: CompleteBody, idempotency_key: str | None = Header(default=None), u: dict = Depends(need("workorders.write"))):

@@ -22,13 +22,14 @@ PERMISSIONS = {
     "read": set(ROLES),
     "assets.write": {"admin"},
     "resources.write": {"admin", "planner"},
+    "resources.read": {"admin", "planner", "reliability_engineer"},          # technician names and shifts are personal data
     "ingest": {"integration", "admin"},
     "assess": {"integration", "admin", "reliability_engineer", "planner"},
     "decisions.generate": {"integration", "admin", "reliability_engineer", "planner"},
     "workorders.write": {"technician", "planner", "reliability_engineer", "admin", "integration"},
     "schedules": {"planner", "admin"},
     "models.decide": {"reliability_engineer", "admin"},
-    "asset_state.clear": {"technician", "planner", "reliability_engineer", "admin"},
+    "asset_state.clear": {"planner", "reliability_engineer", "admin"},     # dismissal only; maintenance clears via its work order
     "assets.commission": {"reliability_engineer", "admin"},
     "audit.read": {"admin", "reliability_engineer"},
     "users.admin": {"admin"},

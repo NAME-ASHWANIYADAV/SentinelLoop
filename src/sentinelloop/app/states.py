@@ -18,11 +18,15 @@ MODEL_UNAVAILABLE       the approved model could not be loaded (missing or integ
 HUMAN_APPROVAL_REQUIRED a flag, shown next to the state, set while a system recommendation for the asset waits
                         for an authorised person to approve, defer or reject it. Nothing is executed before that.
 
-Evolution rules (tested exhaustively in tests/test_app_states.py):
-- URGENT_REVIEW latches: later assessments, however benign, do not clear it. Only completed maintenance or a
-  dismissal with a written reason by an authorised role clears it. Bad data or a model problem never hides it.
-- INSPECTION_RECOMMENDED latches the same way and upgrades to URGENT_REVIEW when the risk grows.
+Evolution rules (tests/test_app_states.py, tests/test_app_remediation.py):
+- URGENT_REVIEW latches: later assessments, however benign, do not clear it. Only (a) completion of a work order that
+  was raised after the latch, addresses the equipment and records an actual inspection, by a person, or (b) a dismissal
+  with a written reason by a reliability engineer, planner or admin clears it. Bad data or a model problem never hides it.
+- INSPECTION_RECOMMENDED latches the same way and upgrades to URGENT_REVIEW when the risk grows. While a data, scope or
+  model problem is shown instead, the label INSPECTION_PENDING stays next to it.
 - DATA_QUALITY_FAILURE clears only after `dq_clear_after` consecutive assessments without a data failure.
+- After a latch is cleared the asset shows AWAITING_ASSESSMENT, not NORMAL_MONITORING, until it is assessed again.
+- Only assessments for an instant later than the last applied one move the state; earlier instants are replays.
 A warning, an escalation or a cleared state is information for people; none of them makes a machine safe.
 """
 from __future__ import annotations
@@ -42,9 +46,12 @@ class HealthState(str, Enum):
 
 APPROVAL_LABEL = "HUMAN_APPROVAL_REQUIRED"
 NOT_ASSESSED_LABEL = "NOT_ASSESSED"
+AWAITING_LABEL = "AWAITING_ASSESSMENT"
+INSPECTION_PENDING_LABEL = "INSPECTION_PENDING"
 CLEAR_EVENTS = {
     "dismissed": {"reliability_engineer", "planner", "admin"},
-    "maintenance_completed": {"technician", "planner", "reliability_engineer", "admin", "integration"},
+    # recorded only by the work-order completion path (workorders.complete), never as a free-standing event
+    "maintenance_completed": {"technician", "planner", "reliability_engineer", "admin"},
 }
 
 
@@ -118,11 +125,23 @@ class AssetState:
     last_health: HealthState | None = None
     approval_pending: bool = False
     notes: tuple = ()
+    latched_since_ms: int | None = None
+    awaiting_assessment: bool = False
+    last_applied_as_of_ms: int | None = None
+    last_applied_at_ms: int | None = None
 
     def labels(self) -> list[str]:
-        # a state record can exist before any assessment (e.g. an order created by hand awaits approval); that is not health
-        never = self.last_health is None and self.latched_risk == "NONE" and not self.dq_failure_active
-        return [NOT_ASSESSED_LABEL if never else self.effective.value] + ([APPROVAL_LABEL] if self.approval_pending else [])
+        quiet = self.latched_risk == "NONE" and not self.dq_failure_active
+        if quiet and self.awaiting_assessment:
+            first = AWAITING_LABEL                       # a latch was cleared: not healthy until assessed again
+        elif quiet and self.last_health is None:
+            first = NOT_ASSESSED_LABEL                   # a state record can exist before any assessment; that is not health
+        else:
+            first = self.effective.value
+        out = [first]
+        if self.latched_risk == "INSPECTION" and self.effective != HealthState.INSPECTION_RECOMMENDED:
+            out.append(INSPECTION_PENDING_LABEL)         # a data, scope or model problem must not hide a pending inspection
+        return out + ([APPROVAL_LABEL] if self.approval_pending else [])
 
 
 def _effective(latched: str, dq_active: bool, last: HealthState | None) -> tuple[HealthState, list[str]]:
@@ -148,12 +167,16 @@ def _effective(latched: str, dq_active: bool, last: HealthState | None) -> tuple
     return HealthState.NORMAL_MONITORING, notes
 
 
-def advance(s: AssetState, cl: Classification, thr: Thresholds) -> AssetState:
+def advance(s: AssetState, cl: Classification, thr: Thresholds, now_ms: int | None = None) -> AssetState:
+    """`now_ms`: wall-clock time of this assessment; recorded as the start of a new or escalated latch."""
     latched = s.latched_risk
     if cl.state == HealthState.URGENT_REVIEW:
         latched = "URGENT"
     elif cl.state == HealthState.INSPECTION_RECOMMENDED and latched == "NONE":
         latched = "INSPECTION"
+    since = s.latched_since_ms
+    if latched != s.latched_risk:
+        since = int(now_ms) if now_ms is not None else 0
     if cl.state == HealthState.DATA_QUALITY_FAILURE:
         dq_active, streak = True, 0
     else:
@@ -161,7 +184,8 @@ def advance(s: AssetState, cl: Classification, thr: Thresholds) -> AssetState:
         dq_active = s.dq_failure_active and streak < thr.dq_clear_after
     eff, notes = _effective(latched, dq_active, cl.state)
     return replace(s, effective=eff, latched_risk=latched, dq_failure_active=dq_active, dq_ok_streak=min(streak, 10_000),
-                   last_health=cl.state, notes=tuple(notes + list(cl.reasons)))
+                   last_health=cl.state, notes=tuple(notes + list(cl.reasons)), latched_since_ms=since if latched != "NONE" else None,
+                   awaiting_assessment=False)
 
 
 def clear_risk(s: AssetState, event: str, actor: str, role: str, reason: str) -> AssetState:
@@ -175,7 +199,8 @@ def clear_risk(s: AssetState, event: str, actor: str, role: str, reason: str) ->
         raise TransitionError("there is no latched risk to clear")
     last = s.last_health if s.last_health not in (HealthState.URGENT_REVIEW, HealthState.INSPECTION_RECOMMENDED) else None
     eff, notes = _effective("NONE", s.dq_failure_active, last)
-    return replace(s, effective=eff, latched_risk="NONE", notes=tuple(notes + [f"{s.latched_risk.lower()} cleared by {actor} ({event}): {reason}"]))
+    return replace(s, effective=eff, latched_risk="NONE", latched_since_ms=None, awaiting_assessment=True,
+                   notes=tuple(notes + [f"{s.latched_risk.lower()} cleared by {actor} ({event}): {reason}; awaiting the next assessment"]))
 
 
 def set_approval_pending(s: AssetState, pending: bool) -> AssetState:

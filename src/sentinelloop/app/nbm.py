@@ -63,6 +63,9 @@ def _ewma(x: np.ndarray, tau: float) -> np.ndarray:
     return y
 
 
+MODEL_SIGNALS = ["wind_speed", "active_power", "rotor_speed", "generator_speed", "ambient_temp", "nacelle_temp"] + TARGETS
+
+
 def _fill(df: pd.DataFrame, cols: list) -> tuple[pd.DataFrame, int]:
     sub = df[cols].astype(float)
     n_missing = int(sub.isna().sum().sum())
@@ -71,7 +74,7 @@ def _fill(df: pd.DataFrame, cols: list) -> tuple[pd.DataFrame, int]:
 
 def design(df: pd.DataFrame, rated_kw: float = RATED_KW) -> tuple[np.ndarray, np.ndarray, int]:
     """Feature matrix for time-ordered rows of ONE turbine (causal: row i uses rows <= i). Returns (X, operating, n_imputed)."""
-    f, n_imp = _fill(df, SIGNALS)
+    f, n_imp = _fill(df, MODEL_SIGNALS)
     p = f["active_power"].to_numpy() / rated_kw
     cols = [np.ones(len(f)), p, p ** 2] + [_ewma(np.clip(p, 0, None), t) for t in TAUS]
     cols += [f["ambient_temp"].to_numpy(), f["nacelle_temp"].to_numpy(), f["wind_speed"].to_numpy(), f["rotor_speed"].to_numpy() / 16.8]
@@ -123,7 +126,7 @@ class WindNBMBundle:
 
     @property
     def required_signals(self) -> list[str]:
-        return list(SIGNALS)
+        return list(MODEL_SIGNALS)
 
     @property
     def history_points(self) -> int:

@@ -13,6 +13,9 @@ defaults:
     max_out_of_envelope_frac: 0.20   # share of window rows outside the operating envelope -> MODEL_OUT_OF_SCOPE
     max_conflict_frac: 0.20          # share of recent rows breaking a learned redundant-sensor relation -> DATA_QUALITY_FAILURE
     stuck_min_run: 5                 # a sensor is stuck when its trailing constant run exceeds max(this, longest run seen in training)
+    assess_at: now                   # default assessment instant: "now" (live feeds) or "latest_reading" (periodic exports; then replay
+                                     # each export with assess-range, oldest instant first)
+    max_assessment_age_hours: 6.0    # an asset whose last applied assessment is older than this is labelled ASSESSMENT_OVERDUE
   risk:
     decision_horizon_hours: 72.0     # P(failure before this) drives INSPECTION/URGENT; should be >= the time to act
     horizons_hours: [24, 72, 168, 336]
@@ -35,3 +38,4 @@ asset_types:
       max_data_age_hours: 1.0        # six 10-minute intervals
       min_history_points: 60
       stuck_min_run: 6               # one hour of identical 10-minute values
+      max_assessment_age_hours: 26.0 # daily OEM-portal exports are common (review finding om_manager-1); tighten for live feeds

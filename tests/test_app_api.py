@@ -199,7 +199,8 @@ def test_resources_can_be_managed_by_planners_only(ctx):
     assert c.post("/api/v1/sites/site1/technicians", json=body, headers=H(ctx, "planner")).status_code == 200
     r = c.put("/api/v1/technicians/T1/shifts", json={"shifts": [["2026-10-20T06:00:00Z", "2026-10-20T14:00:00Z"]]}, headers=H(ctx, "planner"))
     assert r.status_code == 200
-    techs = c.get("/api/v1/sites/site1/technicians", headers=H(ctx, "viewer")).json()
+    assert c.get("/api/v1/sites/site1/technicians", headers=H(ctx, "viewer")).status_code == 403     # names and shifts are personal data
+    techs = c.get("/api/v1/sites/site1/technicians", headers=H(ctx, "planner")).json()
     assert techs[0]["tech_id"] == "T1" and len(techs[0]["shifts"]) == 1
     assert c.post("/api/v1/sites/site1/parts", json={"part_id": "K1", "name": "Kit", "on_hand": 2, "lead_time_h": 72}, headers=H(ctx, "planner")).status_code == 200
     assert c.post("/api/v1/sites/site1/parts/K1/deliveries", json={"qty": 3, "eta": "2026-10-25T00:00:00Z", "reference": "PO-1"},

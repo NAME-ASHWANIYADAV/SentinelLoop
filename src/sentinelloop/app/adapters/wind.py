@@ -40,6 +40,7 @@ SIGNAL_META = {
 }
 SIGNALS = list(SIGNAL_META)
 TARGETS = ["gearbox_bearing_temp", "gearbox_oil_temp", "generator_bearing_temp"]
+OPTIONAL_SIGNALS = {"pitch_angle"}            # carried in the contract, not read by the model: its absence is not a data failure
 
 CONSEQUENCE = {   # illustrative only: relative units, not an operator's figures
     "A": ConsequenceSpec(downtime_hours=1440, cost_per_failure=300.0, safety_impact=False, environmental_impact=False, cost_unit="illustrative units"),
@@ -49,8 +50,9 @@ CONSEQUENCE = {   # illustrative only: relative units, not an operator's figures
 
 
 def asset_type_spec() -> AssetTypeSpec:
-    signals = [SignalSpec(name=n, unit=u, min=lo, max=hi, required=True, description=d) for n, (u, lo, hi, d) in SIGNAL_META.items()]
+    signals = [SignalSpec(name=n, unit=u, min=lo, max=hi, required=n not in OPTIONAL_SIGNALS, description=d) for n, (u, lo, hi, d) in SIGNAL_META.items()]
     jobs = {"inspect": JobSpec(duration_h=4.0, skill="wtg_technician", crew_size=2),
+            "desk_review": JobSpec(duration_h=0.5, skill="reliability_engineer"),       # no climb: a person reviews data and context
             "instrument_check": JobSpec(duration_h=2.0, skill="scada_technician"),
             "hss_bearing_exchange": JobSpec(duration_h=12.0, skill="wtg_technician", parts={"hss_bearing_kit": 1}, crew_size=3),
             "generator_bearing_exchange": JobSpec(duration_h=24.0, skill="wtg_technician", parts={"generator_bearing_kit": 1}, crew_size=3),
