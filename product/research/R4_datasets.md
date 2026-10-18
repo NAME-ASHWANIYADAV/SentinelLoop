@@ -1,0 +1,629 @@
+# R4: Public datasets for sim-to-real validation of SentinelLoop
+
+Research stream R4. Accessed and written on 2026-10-18.
+
+**Method.** I opened each dataset's official landing page (or the closest primary page) with WebFetch, `curl` or the Zenodo, GitHub and Kaggle JSON APIs during this session. For the main candidates I checked download sizes with HTTP HEAD requests, and once listed a zip's contents with HTTP range reads. I downloaded no large data files. The only things I fetched in full were two small challenge-description PDFs (0.97 MB and 2.3 MB), one schema CSV and three small text files from the 3W repository. Every claim below cites a source listed under "Sources", using the [Sn] tags. A claim I could not check against a page I opened is marked **UNVERIFIED**.
+
+**Tools.** WebSearch and WebFetch were available and worked. Some pages refused automated access (EDP Open Data returned HTTP 403, MDPI 403, HAL showed a bot wall, the IDA 2024 site had a TLS error). Those items are marked partially verified.
+
+**This is not legal advice.** The "commercial evaluation" verdicts below just read the license as written on the landing page. Get counsel or the licensor to confirm before any paid engagement.
+
+---
+
+## 1. Bottom line
+
+1. **Only one public dataset has real field data, per-unit repair (time-to-event) labels with censoring, and a permissive license: SCANIA Component X.** It covers a truck fleet under CC BY 4.0, about 1.65 GB in total [S9][S10][S11]. It is the closest real-world analogue to SentinelLoop's RUL-with-censoring setup. Its operational data are anonymized histograms and counters sampled at irregular intervals, not dense sensor streams [S10].
+2. **Real field data with failure or fault labels under CC BY 4.0 or CC BY-SA 4.0:**
+   - MetroPT-3 (UCI) and MetroPT/MetroPT2 (Zenodo): air production unit of Porto metro trains. Each release has only 2 to 4 failure events, taken from company maintenance or failure reports [S12][S13][S14][S15].
+   - CARE to Compare: 36 wind turbines, 45 labelled anomaly events that led to faults. CC BY-SA 4.0 [S33].
+   - APS Failure at Scania Trucks (UCI): failure-class labels, snapshots only. CC BY 4.0 [S38].
+   - Petrobras 3W: expert-labelled undesirable events in offshore oil wells, mixing real, simulated and hand-drawn instances. Data CC BY 4.0 [S39][S40].
+   - Backblaze Drive Stats: daily failure flag on about 354k drives. Custom open terms: derivative works may be sold, the data itself may not [S30].
+3. **Real field SCADA with event or alarm logs but no curated failure labels:**
+   - Kelmarsh and Penmanshiel (CC BY 4.0) [S31][S32].
+   - Hill of Towie: CC BY 4.0, with alarm logs and per-10-minute downtime derived from operator logs [S43].
+   - Bosch CNC (CC BY 4.0) has manually labelled good/bad process vibration. These labels mark process anomalies, not equipment failures [S41].
+   - These sets suit SentinelLoop's drift monitor and healthy-baseline anomaly index. They cannot validate RUL.
+4. **Real laboratory run-to-failure or seeded-fault data:**
+   - IMS, FEMTO/PRONOSTIA, XJTU-SY, CWRU, Paderborn and UCI Hydraulic are all lab data.
+   - Of these, only UCI Hydraulic (CC BY 4.0) carries a clearly permissive, commercially usable license [S24].
+   - Paderborn is CC BY-NC 4.0, so commercial use needs the author's permission [S21].
+   - IMS is tagged "U.S. Government Works" on data.gov, although the data came from a university [S17].
+   - FEMTO, XJTU-SY and CWRU state no license [S19][S20][S22].
+   - SKAB is GPL-3.0 on GitHub but AGPL-3.0 on Kaggle [S23].
+5. **Simulated or synthetic, so not sim-to-real evidence:**
+   - C-MAPSS and N-CMAPSS: simulated. N-CMAPSS is simulated degradation driven by real recorded flight conditions [S1][S8].
+   - AI4I 2020: synthetic, CC BY 4.0 [S25].
+   - Microsoft Azure PdM sample: simulated per Microsoft [S26]. It has no stated license, and its original download host no longer resolves [S27][S29].
+   - The PHM Society servomotor dataset: simulated [S37d].
+6. **Asset classes with no adequate public data among those checked:**
+   - Real jet or gas-turbine engine run-to-failure.
+   - Field rotating machinery (motors, pumps, fans, gearboxes) with work-order labels.
+   - Plant process compressors and pumps.
+   - Machine-tool RUL.
+   - Any dataset that pairs sensor time series with full CMMS work orders (parts, labour, cost).
+
+   Details are in section 6.
+
+---
+
+## 2. Data-type definitions used in this report
+
+| Term | Meaning here |
+|---|---|
+| **Real field** | Measured on assets in normal commercial or public service (fleet trucks, metro trains, wind farms, data-centre drives, oil wells, production CNC machines). |
+| **Real laboratory** | Measured on a physical test rig. Faults are seeded (e.g., EDM, drilled teeth) or accelerated (overload run-to-failure). |
+| **Simulated** | Produced by a physics or system model (e.g., NASA C-MAPSS), possibly driven by real inputs. |
+| **Synthetic** | Generated by a statistical or rule-based process meant to resemble real data (e.g., AI4I 2020). |
+
+---
+
+## 3. Summary matrix
+
+The "commercial-evaluation verdict" column reads the license as stated on the landing page:
+- **GREEN**: the license explicitly permits commercial use.
+- **AMBER**: permitted, but with obligations or ambiguity.
+- **RED**: non-commercial, or no license stated (treat as all rights reserved until the provider confirms).
+
+| # | Dataset | Data type | Asset | Units | Failure / maintenance labels | License as stated | Download size (checked) | Access | Verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | NASA C-MAPSS | Simulated | Turbofan engine | 100/260/100/249 train engines (FD001-4; local copy) | Simulated run-to-failure; true RUL for test | "License not specified" [S3]; NASA terms: use at own risk, acknowledge [S1] | 12,429,152 B zip (HEAD) [S4] | Direct, no account | RED (no license) |
+| 2 | NASA N-CMAPSS | Simulated (real flight conditions) | Turbofan engine | 90 development units in challenge subset; 9 sets [S8] | Simulated run-to-failure, RUL, health state | Not stated; NASA repo terms [S1] | 15,760,443,389 B zip (HEAD) [S5] | Direct, no account | RED |
+| 3 | SCANIA Component X (v3) | **Real field** | Truck engine component (anonymized) | 23,550 / 5,046 / 5,045 vehicles (train/val/test, arXiv v1) [S10] | **Repair records** (`in_study_repair`), time-to-event, censoring; val/test class labels | **CC BY 4.0** [S9] | ~1.65 GB total (per-file bytes) [S9]; HEAD on 2 files [S11] | Direct HTTPS, no account seen | **GREEN** |
+| 4 | MetroPT-3 (UCI) | **Real field** | Metro train air production unit (compressor) | 1 APU [S12] | 4 air-leak events from company failure reports [S12] | **CC BY 4.0** [S12] | 208.3 MB zip (landing) [S12] | Direct, `ucimlrepo` | **GREEN** (few events) |
+| 5 | MetroPT / MetroPT2 (Zenodo) | **Real field** | Metro train APU | 1 APU | MetroPT: 3 failures from maintenance reports [S13]; MetroPT2: 2 failures (air leak, oil leak) [S15] | **CC BY 4.0** [S14][S15] | MetroPT2.csv 1,209,663,443 B (HEAD); record 2.9 GB [S15] | Direct, no account | **GREEN** (few events) |
+| 6 | APS Failure at Scania Trucks (UCI) | **Real field** | Truck air pressure system | 60,000 train + 16,000 test examples [S38] | Class label: APS component failure vs other failure | **CC BY 4.0** [S38] | 54 MB zip (landing) [S38] | Direct | **GREEN** (no time series stated) |
+| 7 | CARE to Compare (Zenodo v6) | **Real field** | Wind turbines (3 farms; Farm A = EDP Portugal) | 36 turbines, 95 datasets [S33] | 45 datasets with labelled anomaly event leading to a fault; status labels from EDP failure logbook (Farm A) [S33] | **CC BY-SA 4.0** [S33] | 5,503,439,673 B (HEAD) [S33h] | Direct, no account | **GREEN/AMBER** (share-alike) |
+| 8 | EDP Open Data, Wind Farm 1 | **Real field** | Wind turbines | 5 turbines (signals/logs) [S35] | Failure logbook: 23 records (2016-03 to 2017-08), plus 2016/2017 files [S35] | CC BY-SA per IEA Wind summary [S35]; EDP page blocked (HTTP 403) [S34] | UNVERIFIED | Sign-in required per IEA summary [S35] | AMBER (partially verified) |
+| 9 | Kelmarsh (Zenodo v4) | **Real field** | Wind turbines (6 Senvion MM92) | 6 | 10-min SCADA + "events data"; no curated failure list stated [S31] | **CC BY 4.0** [S31] | 3.8 GB record; 2024 zip 704,598,245 B (HEAD) [S31h] | Direct | **GREEN** (no failure labels) |
+| 10 | Penmanshiel (Zenodo v3) | **Real field** | Wind turbines (14 Senvion MM82) | 14 | 10-min SCADA + events; no curated failure list stated [S32] | **CC BY 4.0** [S32] | ~7.5 GB [S32] | Direct | **GREEN** (no failure labels) |
+| 11 | Hill of Towie (Zenodo v2.1.0) | **Real field** | Wind turbines (21 Siemens SWT-2.3-VS-82) | 21 | Alarm logs; per-10-min downtime from SCADA + operator logs; no failure records stated [S43] | **CC BY 4.0** [S43] | 29.7 GB [S43] | Direct | **GREEN** (no failure labels) |
+| 12 | Backblaze Drive Stats | **Real field** | Hard disk drives | 354,415 drives in Q2 2026 [S30] | Daily `failure` column [S30s]; 21,609 lifetime failures [S30] | Custom terms: cite Backblaze; you may sell derivative works but not the data [S30] | Q2 2026 zip 2,092,757,685 B (HEAD) [S30h] | Direct | **GREEN** (custom terms) |
+| 13 | Petrobras 3W (dataset 2.0.0) | **Real field** + simulated + hand-drawn | Offshore oil wells (process events) | 1,119 real, 1,089 simulated, 20 hand-drawn instances (repo tree count) [S40t] | Expert-labelled event class per observation (9 undesirable event types + normal) [S40] | Data **CC BY 4.0**; code Apache-2.0 [S39] | ~1.87 GB Parquet in repo (tree sizes) [S40t] | Git clone, no account | **GREEN** (process events, not only equipment) |
+| 14 | Bosch CNC Machining | **Real field** (production) | CNC milling machines | 3 machines, 15 operations [S41] | Manual good/bad vibration labels (anomaly, not failure) [S41] | Data **CC BY 4.0**; code BSD-3 [S41] | Not stated; repo ~0.9 GB (API size) [S46] | Git clone | **GREEN** (no failure labels) |
+| 15 | UCI Hydraulic systems | **Real laboratory** | Hydraulic test rig | 2,205 cycles, 1 rig [S24] | Condition grades: cooler, valve, pump leakage, accumulator [S24] | **CC BY 4.0** [S24] | 73.1 MB zip [S24] | Direct | **GREEN** (lab) |
+| 16 | IMS bearings (NASA mirror) | **Real laboratory** | Rolling bearings | 4 bearings x 3 tests (secondary) [S18] | Run-to-failure (per-test failure details UNVERIFIED) | data.gov: "https://www.usa.gov/government-works" [S17] | 1,075,597,174 B zip containing IMS.7z (HEAD, range listing) [S6] | Direct | AMBER (see section 4.6) |
+| 17 | FEMTO-ST PRONOSTIA | **Real laboratory** | Rolling bearings | 17 bearings (6 learning + 11 test), 3 conditions [S19p] | Run-to-failure; failure = vibration > 20 g [S19p] | Not stated (repo README: "I don't know if there was any license") [S19] | 1,157,035,288 B zip (HEAD) [S7] | Direct (NASA S3), GitHub copy | RED |
+| 18 | XJTU-SY bearings | **Real laboratory** | Rolling bearings (LDK UER204) | 15 bearings, 3 conditions [S20] | Run-to-failure; failure location per bearing (table image) [S20] | Not stated; "anyone can use them" [S20]; GitHub repo has no license [S46] | Not stated | Google Drive / Dropbox / MEGA / Baidu etc. [S20] | RED (intent permissive, no license) |
+| 19 | Paderborn (KAt) bearings | **Real laboratory** | Ball bearings 6203 + motor current | 32 bearing states: 6 healthy, 12 artificial, 14 accelerated-life real damage [S21] | Damage class/type per bearing | **CC BY-NC 4.0**; commercial use: contact author [S21] | Not stated | Direct (groups.uni-paderborn.de) [S21] | **RED** (non-commercial) |
+| 20 | CWRU bearings | **Real laboratory** | Motor bearings (seeded EDM faults) | n/a (fault conditions) | Seeded fault location/size, 0.007 to 0.040 in [S22] | Not stated [S22] | Not stated | Direct per-file | RED |
+| 21 | SKAB | **Real laboratory** testbed | Water-circulation testbed (pump etc.) | 34-35 experiment files [S23] | Point `anomaly` and `changepoint` labels [S23] | GPL-3.0 (GitHub) vs AGPL-3.0 (Kaggle) [S23][S23k] | 5,292,798 B (Kaggle API) [S23k] | GitHub / Kaggle | AMBER (copyleft, conflicting) |
+| 22 | AI4I 2020 (UCI) | **Synthetic** | Milling process (abstracted) | 10,000 rows [S25] | 5 synthetic failure modes [S25] | **CC BY 4.0** [S25] | 509.9 KB zip [S25] | Direct | GREEN, but synthetic |
+| 23 | Microsoft Azure PdM sample | **Simulated** [S26] | 100 generic machines [S27] | 100 | Simulated failures, maintenance, errors | Not stated; Kaggle mirror "Unknown" [S27] | Kaggle mirror 80,402,227 B [S27]; original blob host does not resolve [S29] | Kaggle (account) | RED, and simulated |
+| 24 | Kaggle "pump_sensor_data" | Claimed real field (anonymous) | Water pump system | 1 system, 52 sensors [S36] | 7 system failures claimed by uploader [S36] | "Unknown" [S36] | 124,058,460 B [S36] | Kaggle account | RED (provenance unverifiable) |
+| 25 | MIMII (Hitachi) | **Real laboratory** recordings + real factory noise | Valves, pumps, fans, slide rails | 4 model IDs per type [S42] | Normal vs anomalous sound (contamination, leakage, unbalance, rail damage) [S42] | **CC BY-SA 4.0** [S42] | 100.2 GB [S42] | Direct | GREEN/AMBER (share-alike; lab) |
+| 26 | PHM Society data challenges (2021-2025) | Mixed: sim (2021), lab rig (2023), origin not stated (2022, 2024, 2025) | Turbofan, rock drill, gearbox, helicopter turbine, jet engines | Varies | 2025 has maintenance-event targets (HPT/HPC shop visits, water wash) for 8 engines [S37c] | No license text; "Terms of Use" link broken (404) [S37][S37t] | Varies | Direct S3 zips; submissions need account [S37a-c] | RED |
+| 27 | LBNL HVAC FDD datasets | Origin not stated on landing page [S44] | Commercial HVAC (7 systems) | n/a | "ground-truth verified" fault labels [S44] | Not stated on landing page [S44] | Not stated | "Access now" link | UNVERIFIED |
+
+---
+
+## 4. Dataset cards
+
+Each card covers: provider; URL; data type; asset; units; sensors and sampling; time index; operating conditions; failure labels; maintenance records; censoring; size and format; license; download; citation.
+
+### 4.1 NASA C-MAPSS (Turbofan Engine Degradation Simulation)
+- **Provider:** NASA Ames Prognostics Center of Excellence (PCoE) [S1][S2].
+- **URL:** https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data (catalogued at [S2]). Repository entry #6 at [S1].
+- **Data type:** **Simulated**, using the C-MAPSS engine model [S1][S2].
+- **Asset:** Commercial turbofan engine.
+- **Units:** Verified on the project's local copy (`data/raw`): train_FD001 = 100 engines, FD002 = 260, FD003 = 100, FD004 = 249. Test sets: 100, 259, 100 and 248 engines. Every file has 26 columns. The catalogue also gives 26 space-separated columns per row [S2].
+- **Sensors / sampling:** 3 operational settings and 21 sensor channels per row (from the 26 columns). The data have one row per operational cycle and no physical sampling rate [S2].
+- **Time index:** Engine id and cycle number [S2].
+- **Operating conditions:** The four subsets vary operating conditions and fault modes [S1][S2].
+- **Failure labels:** Training series run to failure. Test series stop before failure, and the true RUL is provided [S2].
+- **Maintenance records:** None.
+- **Censoring:** The test series are right-truncated, with the true RUL given [S2].
+- **Size / format:** Zip of 12,429,152 bytes (HEAD on the NASA S3 mirror) [S4]. Plain text inside.
+- **License:** data.nasa.gov resource page says "License not specified" [S3]. data.gov has no license field [S2]. The NASA repository says "Users employ the data at their own risk" and asks publications to acknowledge the repository and the data donors [S1]. A Kaggle mirror labels it "CC0: Public Domain" [S45]. A mirror's label is not authoritative.
+- **Download:** Direct, no account: https://data.nasa.gov/docs/legacy/CMAPSSData.zip [S2], or the S3 mirror [S1].
+- **Citation:** A. Saxena and K. Goebel (2008), "Turbofan Engine Degradation Simulation Data Set", NASA Prognostics Data Repository [S1]. data.gov also suggests Saxena, Goebel, Simon and Eklund, "Damage Propagation Modeling for Aircraft Engine Run-to-Failure Simulation", PHM08 [S2].
+
+### 4.2 NASA N-CMAPSS (Turbofan Engine Degradation Simulation Data Set-2)
+- **Provider:** NASA PCoE with ETH Zurich and PARC [S1].
+- **URL:** [S1], entry #17.
+- **Data type:** **Simulated**. The challenge document describes "synthetic run-to-failure degradation trajectories" generated with CMAPSS, under "real flight conditions as recorded on board a commercial jet" [S8]. The flight inputs are real, but the degradation and the sensor responses are simulated.
+- **Asset:** High-bypass twin-spool turbofan [S8].
+- **Units:** Nine sets: DS01 (10 units), DS03 (15), DS04 (10), DS05 (10), DS06 (10), DS07 (10), DS08a (15), DS08c (10), DS08d (10). These cover 7 failure modes affecting flow and/or efficiency of the fan, LPC, HPC, HPT and LPT [S8]. DS02 is in the repository but was excluded from the 2021 challenge [S8].
+- **Sensors / sampling:** 4 scenario descriptors (alt, Mach, TRA, T2) and 14 measured signals (Wf, Nf, Nc, T24, T30, T48, T50, P15, P2, P21, P24, Ps30, P40, P50) [S8]. Secondary sources give 1 Hz sampling (**UNVERIFIED** against a primary page).
+- **Time index:** Unit, flight cycle, flight class (1: 1-3 h, 2: 3-5 h, 3: >5 h) and health state [S8].
+- **Failure labels:** RUL in cycles and health state [S8].
+- **Maintenance records:** None.
+- **Censoring:** Development units run to failure. The challenge test and validation data contain partially degraded units [S37a].
+- **Size / format:** HDF5 files [S8]. The zip is 15,760,443,389 bytes (HEAD) [S5], so it is large: plan for 16 GB+ of disk.
+- **License:** Not stated. The NASA repository terms apply [S1].
+- **Download:** Direct S3 link, no account [S1].
+- **Citation:** M. Chao, C. Kulkarni, K. Goebel and O. Fink (2021), "Aircraft Engine Run-to-Failure Dataset under real flight conditions", NASA Prognostics Data Repository [S1].
+
+### 4.3 SCANIA Component X (2024; v3 published 2025-04-09)
+- **Provider:** Scania CV AB (Sweden). Authors: Kharazian, Lindgren, Magnússon, Steinert and Andersson Reyna [S9].
+- **URL:** https://doi.org/10.5878/bnh5-ka77, which resolves to https://researchdata.se/catalogue/dataset/2024-34/3 [S9].
+- **Data type:** **Real field**: "real-world" fleet data from an anonymized engine component [S9][S10].
+- **Asset:** One anonymized engine component ("Component X") on Scania trucks [S9].
+- **Units:** 23,550 train, 5,046 validation and 5,045 test vehicles, per arXiv v1 [S10]. **UNVERIFIED** whether v3 changed these counts.
+- **Sensors / sampling:** 14 anonymized attributes: 6 histograms (10 to 36 bins) and 8 numerical counters. Sampling frequency varies by vehicle [S10].
+- **Time index:** `time_step`, the relative operating time of Component X. No absolute timestamps [S10].
+- **Operating conditions:** Anonymized categorical specification features per vehicle (train/validation/test specification files) [S9][S10].
+- **Failure labels:** `train_tte.csv` holds `length_of_study_time_step` and `in_study_repair`: 2,272 repaired and 21,278 not repaired in train [S10]. `validation_labels.csv` and `test_labels.csv` hold 5-class proximity-to-failure labels [S9][S10]. In v1 the test labels were withheld until the IDA 2024 challenge ended [S10]. v3 lists `test_labels.csv` [S9].
+- **Maintenance records:** Yes: in-study repair events [S9][S10]. Repair records are the basis of the labels; there is no separate CMMS-style work-order table [S9][S10].
+- **Censoring:** Yes. Vehicles without a repair are treated as censored [S10].
+- **Size / format:** CSV. train_operational_readouts.csv is 1,219,209,878 B; validation 215,593,159 B; test 214,897,259 B; plus small specification, TTE and label files and two PDFs [S9]. HEAD confirmed train_tte.csv = 345,412 B and train_operational_readouts.csv = 1,219,209,878 B [S11].
+- **License:** **CC BY 4.0** (https://creativecommons.org/licenses/by/4.0/). Access condition: "PUBLIC" / "openAccess" [S9].
+- **Download:** Direct HTTPS. api.researchdata.se redirects to scania.open.care.snd.se, and no login was required for the HEAD requests [S11].
+- **Citation:** Kharazian et al., "SCANIA Component X dataset: a real-world multivariate time series dataset for predictive maintenance", *Scientific Data* 12, 493 (2025), doi:10.1038/s41597-025-04802-6 [S9].
+
+### 4.4 MetroPT-3 (UCI) and MetroPT / MetroPT2 (Zenodo)
+- **Provider:** INESC TEC / University of Porto, working with the Porto metro operator [S12][S13][S14].
+- **URLs:**
+  - MetroPT-3: https://archive.ics.uci.edu/dataset/791/metropt+3+dataset [S12].
+  - MetroPT: https://zenodo.org/records/6854240 [S14].
+  - MetroPT2: https://zenodo.org/records/7766691 [S15].
+- **Data type:** **Real field**: onboard data from metro trains in service [S12][S13].
+- **Asset:** Air production unit (APU) / compressor of a metro train [S12][S13].
+- **MetroPT-3 details:**
+  - Period and size: February to August 2020; 1,516,948 instances; 15 signals (7 analogue, 8 digital) [S12].
+  - Sampling is stated inconsistently on the page: 1 Hz in one section, 0.1 Hz in another [S12].
+  - Failures: four air-leak events from company failure reports, dated 2020-04-18, 2020-05-29/30, 2020-06-05 to 07 and 2020-07-15 [S12].
+  - Labels: the dataset itself is "unlabeled". Labels must be built from the report windows [S12].
+  - Format: CSV, 208.2 MB (zip 208.3 MB) [S12].
+- **MetroPT (Scientific Data 2022):**
+  - Data: January to June 2022; 8 analog, 8 digital and 4 GPS variables at 1 Hz; 10,979,547 points [S13].
+  - Failures: three catastrophic failures (two air leaks, one oil leak). "The ground truth was provided by the company using maintenance reports" [S13].
+  - File: Zenodo dataset_train.csv, 1.6 GB [S14].
+- **MetroPT2 (Zenodo V2):**
+  - Data: 2022-04-28 to 2022-07-28; 7,116,940 instances; 16 signals at 1 Hz [S15].
+  - Failures: air leak 2022-06-04 and oil leak 2022-07-11 to 14 [S15].
+  - Files: MetroPT2.csv is 1,209,663,443 B (HEAD). The record also includes dataset_train.csv, 2.9 GB in total [S15].
+- **Maintenance records:** Failure and maintenance report windows only [S12][S13][S15].
+- **Censoring:** Not applicable. Each release covers one APU stream, not a population of units.
+- **License:** **CC BY 4.0** on all three [S12][S14][S15].
+- **Download:** Direct, no account. MetroPT-3 can also be fetched with `ucimlrepo` id 791 [S12].
+- **Citation:**
+  - MetroPT-3: Davari, Veloso, Ribeiro and Gama (2021), doi:10.24432/C5VW3R [S12].
+  - MetroPT: Veloso et al., *Scientific Data* 9, 764 (2022), doi:10.1038/s41597-022-01877-3 [S13][S15].
+- **Caveat:** The releases have very few events (2 to 4 each). That suits anomaly-detection case studies, but it is far too few for any statistical claim about failure-prediction accuracy.
+
+### 4.5 APS Failure at Scania Trucks (UCI, 2016)
+- **Provider:** Scania CV AB. Donors: Tony Lindgren and Jonas Biteus [S38].
+- **URL:** https://archive.ics.uci.edu/dataset/421/aps+failure+at+scania+trucks [S38].
+- **Data type:** **Real field**: heavy trucks "in everyday usage" [S38].
+- **Asset:** Truck air pressure system.
+- **Units:** 60,000 training examples (1,000 positive) and 16,000 test examples [S38].
+- **Sensors:** 171 anonymized counters and histogram bins [S38].
+- **Time index:** None stated [S38]. Treat it as a snapshot classification set, not a time series.
+- **Failure labels:** The positive class is a failure of a specific APS component; the negative class is a failure unrelated to the APS [S38].
+- **Maintenance records:** None beyond the class label.
+- **Censoring:** Not applicable.
+- **Size / format:** CSV, 54 MB zip [S38].
+- **License:** **CC BY 4.0** [S38].
+- **Download:** Direct.
+- **Citation:** doi:10.24432/C51S51 [S38].
+
+### 4.6 IMS bearing dataset (NASA / University of Cincinnati)
+- **Provider:** Center for Intelligent Maintenance Systems (IMS), University of Cincinnati. Distributed by NASA PCoE [S1][S17].
+- **URL:** [S1] entry #4. Also https://catalog.data.gov/dataset/ims-bearings [S17].
+- **Data type:** **Real laboratory**: test-to-failure rig experiments.
+- **Asset:** Rolling bearings.
+- **Units:** A secondary source (community list) describes four bearings on one shaft, run in three test-to-failure experiments [S18].
+- **Sensors / sampling:** Per [S18]: vibration at 20 kHz, 1-second snapshots every 10 minutes, ASCII files. **UNVERIFIED** against the dataset's own readme, which sits inside a nested IMS.7z [S6].
+- **Operating conditions:** 2000 RPM and a 6000 lb radial load, per [S18] (secondary).
+- **Failure labels:** Run-to-failure. Per-test failure locations are **UNVERIFIED**, because the readme is in the nested 7z that was not opened.
+- **Maintenance records:** None.
+- **Censoring:** None. All three experiments run to failure (secondary [S18]).
+- **Size / format:** The NASA S3 zip is 1,075,597,174 bytes and holds one entry, `4. Bearings/IMS.7z`, of 1,075,320,408 bytes. Checked by HEAD and a range read of the zip directory [S6].
+- **License:** data.gov lists the license as "https://www.usa.gov/government-works" [S17]. Two cautions:
+  - The data came from a university and Rexnord [S1], so whether it really is a federal government work is doubtful (**UNVERIFIED**).
+  - usa.gov itself notes that U.S. copyright law "may not protect U.S. government works outside the country" and that the government may assert copyright abroad [S47]. That matters for a team based in India.
+- **Download:** Direct, no account [S1][S17].
+- **Citation:** J. Lee, H. Qiu, G. Yu, J. Lin and Rexnord Technical Services (2007), "Bearing Data Set", NASA Prognostics Data Repository [S1].
+
+### 4.7 FEMTO-ST PRONOSTIA (IEEE PHM 2012 challenge)
+- **Provider:** FEMTO-ST Institute, Besançon, France [S19p].
+- **URL:** The original FEMTO-ST page is no longer online, according to the GitHub mirror README [S19]. Copies: NASA repository entry #10 [S1] and https://github.com/wkzs111/phm-ieee-2012-data-challenge-dataset [S19].
+- **Data type:** **Real laboratory**: accelerated degradation on the PRONOSTIA platform. The bearings were "normally degraded"; defects were not seeded beforehand [S19p].
+- **Asset:** Ball bearings.
+- **Units:** 6 learning (run-to-failure) and 11 test bearings (truncated) [S19p].
+- **Operating conditions:** 1800 rpm / 4000 N, 1650 rpm / 4200 N and 1500 rpm / 5000 N [S19p].
+- **Sensors / sampling:**
+  - Horizontal and vertical vibration at 25.6 kHz: 2,560 samples (0.1 s) recorded every 10 s [S19p].
+  - Temperature at 10 Hz: 600 samples every minute [S19p].
+- **Time index:** Hour, minute, second and microsecond columns [S19p].
+- **Failure labels:** A test was stopped when vibration amplitude exceeded 20 g, and RUL is defined as the time to reach that threshold [S19p].
+- **Maintenance records:** None.
+- **Censoring:** The 11 test bearings are truncated [S19p].
+- **Size / format:** CSV ASCII files inside 7z archives [S19p]. NASA zip: 1,157,035,288 B (HEAD) [S7].
+- **License:** Not stated. The GitHub mirror says "I don't know if there was any license to this" [S19], and the repository has no license file [S46]. The challenge document says the datasets "are being made publicly available" and asks users to cite the PRONOSTIA paper [S19p].
+- **Download:** Direct (NASA S3) or git [S1][S19].
+- **Citation:** Nectoux et al., "PRONOSTIA: An Experimental Platform for Bearings Accelerated Life Test", IEEE PHM 2012, Denver [S1][S19p].
+
+### 4.8 XJTU-SY bearings
+- **Provider:** Xi'an Jiaotong University and Changxing Sumyoung Technology Co. [S20].
+- **URL:** https://biaowang.tech/xjtu-sy-bearing-datasets/ [S20].
+- **Data type:** **Real laboratory**: accelerated run-to-failure.
+- **Asset:** LDK UER204 rolling bearings.
+- **Units:** 15 bearings, 5 per condition [S20].
+- **Operating conditions:** 2100 rpm / 12 kN, 2250 rpm / 11 kN and 2400 rpm / 10 kN [S20].
+- **Sensors / sampling:** Horizontal and vertical vibration at 25.6 kHz; 32,768 points (1.28 s) every minute [S20].
+- **Time index:** One CSV per minute [S20].
+- **Failure labels:** Failure modes include inner race wear, cage fracture and outer race wear or fracture. The per-bearing mapping is only in a table image [S20].
+- **Maintenance records:** None.
+- **Censoring:** None (run to failure).
+- **Size / format:** CSV. Size not stated [S20].
+- **License:** Not stated. The page says only that the data "are publicly available and anyone can use them to validate prognostics algorithms" [S20]. The GitHub repository has no license [S46].
+- **Download:** Google Drive, Dropbox, MediaFire, MEGA, Baidu Netdisk or the personal site [S20].
+- **Citation:** B. Wang, Y. Lei, N. Li and N. Li, *IEEE Trans. Reliability* 69(1):401-412, 2020 [S20].
+
+### 4.9 Paderborn University (KAt) bearing datacenter
+- **Provider:** Chair of Design and Drive Technology (KAt), Paderborn University [S21].
+- **URL:** https://mb.uni-paderborn.de/en/kat/research/bearing-datacenter. The older URL .../kat-datacenter/bearing-datacenter now returns 404 [S21].
+- **Data type:** **Real laboratory**.
+- **Asset:** Type 6203 ball bearings in an electromechanical drive (vibration plus motor current).
+- **Units:** 32 bearing states: 6 healthy, 12 artificially damaged and 14 with real damage from accelerated lifetime tests [S21].
+- **Sensors:** Synchronized motor current and vibration, plus speed, torque, radial load and temperature. 20 measurements of 4 s per setting [S21].
+- **Sampling rate:** Not stated on the opened page [S21]. A secondary source gives 64 kHz [S18] (**UNVERIFIED**).
+- **Operating conditions:** Four [S21].
+- **Failure labels:** Damage type and class per bearing, with fact sheets and measurement logs [S21].
+- **Maintenance records:** None.
+- **Censoring:** Not applicable.
+- **Size / format:** MATLAB .mat files. Size not stated [S21].
+- **License:** **"Creative Commons Attribution-NonCommercial 4.0 International Licence"**. Non-commercial academic use only; for commercial use, contact the author [S21].
+- **Download:** https://groups.uni-paderborn.de/kat/BearingDataCenter/ [S21].
+- **Citation:** Lessmeier, Kimotho, Zimmer and Sextro, PHME 2016, Bilbao [S21].
+
+### 4.10 CWRU bearing data center
+- **Provider:** Case Western Reserve University [S22].
+- **URL:** https://engineering.case.edu/bearingdatacenter [S22].
+- **Data type:** **Real laboratory** with seeded faults.
+- **Asset:** Bearings of a 2 hp Reliance Electric motor.
+- **Faults:** Single-point EDM faults of 0.007 to 0.040 in. on the inner race, ball and outer race [S22].
+- **Operating conditions:** 0 to 3 hp load, 1797 to 1720 RPM [S22].
+- **Sampling:** 12 kHz, and 48 kHz for some drive-end data [S22].
+- **Format:** MATLAB [S22].
+- **Failure labels:** Seeded fault class and size. Not run-to-failure.
+- **Maintenance records:** None.
+- **Censoring:** Not applicable.
+- **License:** Not stated. The page shows only "© 2024 Case Western Reserve University" and generic legal and privacy links [S22].
+- **Download:** Per-file direct links [S22].
+- **Citation:** None requested on the page [S22].
+
+### 4.11 SKAB (Skoltech Anomaly Benchmark)
+- **Provider:** Skoltech. Authors: I. Katser and V. Kozitsin [S23].
+- **URL:** https://github.com/waico/SKAB [S23].
+- **Data type:** **Real laboratory** testbed. The page says the testbed is currently under repair [S23].
+- **Units:** 34 to 35 CSV experiment files (the page gives both numbers) [S23].
+- **Sensors:** 8 channels: two accelerometer RMS signals, current, pressure, temperature, thermocouple, voltage and RateRMS [S23]. Sampling rate not stated.
+- **Time index:** Datetime [S23].
+- **Labels:** Point `anomaly` and collective `changepoint` [S23].
+- **Maintenance records:** None.
+- **Censoring:** Not applicable.
+- **Size:** 5,292,798 B (Kaggle API) [S23k].
+- **License:** GitHub shows GPL-3.0 [S23][S46], but Kaggle shows "GNU Affero General Public License 3.0" [S23k]. The two disagree, and a copyleft software license applied to data is legally unusual. Needs clarification before commercial use.
+- **Citation:** Katser and Kozitsin (2020), doi:10.34740/KAGGLE/DSV/1693952 [S23].
+
+### 4.12 UCI Condition monitoring of hydraulic systems
+- **Provider:** Helwig, Pignanelli and Schütze (ZeMA / Saarland University; affiliation **UNVERIFIED**, not shown on the page) [S24].
+- **URL:** https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems [S24].
+- **Data type:** **Real laboratory** ("experimentally obtained with a hydraulic test rig") [S24].
+- **Units:** One rig, 2,205 load cycles of 60 s each [S24].
+- **Sensors / sampling:**
+  - PS1-6 pressure and EPS1 motor power at 100 Hz.
+  - FS1-2 flow at 10 Hz.
+  - TS1-4 temperature and VS1 vibration at 1 Hz.
+  - Virtual CE, CP and SE at 1 Hz [S24].
+- **Labels:** Per-cycle condition grades for the cooler (3/20/100 %), valve (100/90/80/73 %), internal pump leakage (0/1/2) and accumulator (130/115/100/90 bar), plus a stable flag [S24].
+- **Maintenance records:** None.
+- **Censoring:** Not applicable.
+- **Size / format:** Tab-delimited text, 73.1 MB zip [S24].
+- **License:** **CC BY 4.0** ("for any purpose, provided that the appropriate credit is given") [S24].
+- **Citation:** doi:10.24432/C5CW21 [S24].
+
+### 4.13 AI4I 2020 Predictive Maintenance (UCI)
+- **Data type:** **Synthetic**. The page says it is a synthetic dataset reflecting real predictive maintenance data [S25].
+- **Units:** 10,000 rows [S25].
+- **Features:** Air and process temperature, rotational speed, torque and tool wear [S25].
+- **Labels:** Machine failure plus five rule-generated failure modes (TWF, HDF, PWF, OSF, RNF), each with an explicit generating rule [S25]. The failure rules are known, so a model can "learn" the generator.
+- **Size:** 509.9 KB zip [S25].
+- **License:** **CC BY 4.0** [S25].
+- **Citation:** doi:10.24432/C5HS5C; Matzka (2020) [S25].
+- **Use:** Unit tests and UI demos only. It is not evidence of real-world performance.
+
+### 4.14 Microsoft Azure predictive maintenance sample (PdM_telemetry, errors, maint, failures, machines)
+- **Provider:** Microsoft, as part of the "Predictive Maintenance Modelling Guide" by Fidan Boylu Uz (2016) [S26].
+- **Data type:** **Simulated**. Microsoft describes "simulated historical data that includes telemetry, error logs, maintenance records, machine properties and failure records" for a scenario "based on a synthesis of multiple real-world business problems" [S26].
+- **Units:** 100 machines; hourly voltage, rotation, pressure and vibration for 2015; maintenance records for 2014-2015 [S27].
+- **Labels:** Component replacement records, of which failures are a subset; error events [S27].
+- **Size:** Kaggle mirror 80,402,227 B [S27].
+- **License:** Not stated by Microsoft. The Kaggle mirror says "Unknown" [S27]. The GitHub solution template Azure/AI-PredictiveMaintenance is CC BY 4.0 (docs) and MIT (code), but it contains no PdM CSV files (repo tree checked). It is archived [S28].
+- **Download:** The original blob host azuremlsampleexperiments.blob.core.windows.net did not resolve (DNS failure) on 2026-10-18 [S29]. Kaggle requires an account.
+- **Verdict:** Simulated, with no license. Useful only for checking how a work-order and maintenance schema maps.
+
+### 4.15 Backblaze Drive Stats (hard-drive SMART)
+- **Provider:** Backblaze [S30].
+- **URL:** https://www.backblaze.com/cloud-storage/resources/hard-drive-test-data [S30].
+- **Data type:** **Real field**: production data-centre drives.
+- **Units:** 354,415 drives in Q2 2026. Lifetime totals: 558,148,607 drive-days and 21,609 failures [S30].
+- **Sensors / sampling:** A daily snapshot per drive of SMART attributes (raw and normalized), plus model, capacity and datacenter fields [S30][S30s].
+- **Time index:** Calendar date, one CSV per day [S30].
+- **Failure labels:** A `failure` column in the schema [S30s].
+- **Maintenance records:** None beyond the failure flag.
+- **Censoring:** Drives that leave the fleet or are still running are right-censored. This is my inference from the daily-snapshot design, not a statement on the page.
+- **Size / format:** Quarterly zips, for example 2026 Q2 = 2,092,757,685 B (HEAD) [S30h], 11.7 GB on disk [S30]. Data start in 2013 [S30].
+- **License / terms:** "The Drive Stats dataset is open source". Users must cite Backblaze and accept responsibility for their use. "You may sell derivative works based on the data, but you can not sell the data itself" [S30].
+- **Download:** Direct; an Iceberg copy is also offered [S30].
+- **Relevance:** IT hardware, not industrial machinery. Still the largest real survival-analysis benchmark with censoring checked here, and a good stress test for SentinelLoop's conformal and calibration code.
+
+### 4.16 Kelmarsh and Penmanshiel wind farms (Cubico, Zenodo)
+- **Provider:** Cubico Sustainable Investments. Creators: C. Plumley and R. Takeuchi [S31][S32].
+- **URLs:** https://zenodo.org/records/16807551 (Kelmarsh v4, 2025-08-12) [S31] and https://zenodo.org/records/16807304 (Penmanshiel v3, 2025-08-13) [S32].
+- **Data type:** **Real field**.
+- **Assets:** Kelmarsh: 6 Senvion MM92 (12.3 MW). Penmanshiel: 14 Senvion MM82 (28.7 MW) [S31][S32].
+- **Sensors / sampling:** 10-minute SCADA and "events data" extracted from Greenbyte, plus PMU and grid meter data. Not all signals cover the full period [S31][S32].
+- **Time index:** Timestamps, 2016 to end of 2024 [S31][S32].
+- **Failure labels:** None curated on the landing pages. Only events data [S31][S32].
+- **Maintenance records:** Not stated.
+- **Censoring:** Not applicable.
+- **Size / format:** CSV inside yearly zips. Kelmarsh 3.8 GB; its 2024 zip is 704,598,245 B (HEAD) [S31h]. Penmanshiel about 7.5 GB [S32].
+- **License:** **CC BY 4.0**, "provided as is" [S31][S32].
+- **Caveat:** A third-party Zenodo record dated 2026-10-06, "Structural defects in the Kelmarsh open SCADA dataset: a provenance audit with file reconstruction...", reports defects in the 2023-2024 files and publishes reconstructed files [S48]. I did not check its findings.
+
+### 4.17 Hill of Towie wind farm (RES / TRIG, Zenodo)
+- **URL:** https://zenodo.org/records/22662930, v2.1.0, 2026-09-08 [S43].
+- **Data type:** **Real field**.
+- **Asset:** 21 Siemens SWT-2.3-VS-82 turbines [S43].
+- **Sensors / sampling:** 10-minute SCADA and alarm logs, Jan 2016 to Apr 2026. About 1 Hz fastlog and LiDAR for Jan to Apr 2026 [S43].
+- **Labels:** Alarm codes, with a description file. Per-10-minute shutdown duration derived from SCADA plus RES operator logs, up to Aug 2024. Retrofit install dates (AeroUp) [S43].
+- **Maintenance records:** No dedicated failure or maintenance records stated [S43].
+- **Censoring:** Not applicable.
+- **Size:** 29.7 GB [S43].
+- **License:** **CC BY 4.0** [S43].
+
+### 4.18 CARE to Compare (Fraunhofer IEE, Zenodo)
+- **URL:** https://zenodo.org/records/15846963 (v6) [S33].
+- **Data type:** **Real field**. Farm A is an EDP onshore farm in Portugal (from EDP open data). Farms B and C are anonymized offshore farms in Germany [S33].
+- **Units:** 36 turbines in 95 datasets (89 turbine-years). 45 datasets contain a labelled anomaly event leading to a turbine fault; 50 are normal [S33].
+- **Sensors:** 86, 257 and 957 features for farms A, B and C [S33]. Sampling interval not stated on the page (**UNVERIFIED**).
+- **Failure labels:** Turbine-status labels per point. Event information for some faults. Farm A status IDs come from the EDP failure logbook [S33].
+- **Maintenance records:** Not stated.
+- **Censoring:** Not applicable.
+- **Size:** CARE_To_Compare.zip of 5,503,439,673 B (HEAD) [S33h], containing CSVs.
+- **License:** **CC BY-SA 4.0** [S33]. Commercial use is allowed. Adapted material that is shared must carry the same license.
+- **Citation:** Gück et al., "CARE to Compare: A real-world dataset for anomaly detection in wind turbine data", *Data* 9(12):138, doi:10.3390/data9120138 [S33].
+
+### 4.19 EDP Open Data (Wind Farm 1)
+- **Primary page:** https://www.edp.com/en/innovation/open-data/data and the dataset pages returned HTTP 403 to automated access [S34]. Everything below comes from an IEA Wind summary [S35] (secondary) and is **partially verified**.
+- **Data type:** **Real field**.
+- **Contents:** 5 turbines. 10-minute SCADA signals for 2016-01 to 2017-12, met mast data, operation logs (256,231 records for training, 62,604 for testing) and failure logbooks: 23 records for 2016-03-03 to 2017-08-21, plus separate 2016 (16) and 2017 (12) files. Each failure record has Turbine_ID, Component, Timestamp and Remarks [S35].
+- **License:** CC-BY-SA on each dataset; the turbine location file is under NDA [S35].
+- **Access:** "Yes, but a sign-in is needed" [S35].
+
+### 4.20 Petrobras 3W (dataset 2.0.0)
+- **Provider:** Petrobras [S39].
+- **URL:** https://github.com/petrobras/3W [S39].
+- **Data type:** **Real field**, plus **simulated** and **hand-drawn** instances. The source type is encoded in each file name [S40].
+- **Asset:** Offshore oil wells: subsea and topside valves, chokes and gauges [S40].
+- **Instance counts:** From the repository tree on 2026-10-18 [S40t]:
+  - 1,119 real (594 normal, 525 undesirable events).
+  - 1,089 simulated.
+  - 20 hand-drawn.
+- **Variables:** 27 variables (pressures, temperatures, valve states, flows) plus `class` and `state` [S40].
+- **Event classes:** NORMAL, ABRUPT_INCREASE_OF_BSW, SPURIOUS_CLOSURE_OF_DHSV, SEVERE_SLUGGING, FLOW_INSTABILITY, RAPID_PRODUCTIVITY_LOSS, QUICK_RESTRICTION_IN_PCK, SCALING_IN_PCK, HYDRATE_IN_PRODUCTION_LINE, HYDRATE_IN_SERVICE_LINE [S40].
+- **Time index:** Timestamp index per observation [S40]. Sampling rate not stated in the files I opened (**UNVERIFIED**).
+- **Labels:** Per-observation class labels, including transient labels (offset 100) [S40].
+- **Maintenance records:** None.
+- **Censoring:** Not applicable.
+- **Size / format:** Parquet (pyarrow, brotli), about 1.87 GB by tree sizes [S40t].
+- **License:** Data **CC BY 4.0**; code Apache 2.0 [S39].
+- **Citation:** Vaz Vargas et al., "3W Dataset 2.0.0...", *Scientific Data* 13, 949 (2026), doi:10.1038/s41597-026-07225-z [S40c].
+- **Caveat:** Most events are process or flow-assurance events. Only some are equipment malfunctions (e.g., spurious DHSV closure).
+
+### 4.21 Bosch CNC Machining
+- **URL:** https://github.com/boschresearch/CNC_Machining (archived 2026-02-19) [S41].
+- **Data type:** **Real field**: "real-world industrial vibration data collected from a brownfield CNC milling machine" [S41].
+- **Units:** 3 machines (M01-M03), 15 operations, six timeframes of about 6 months each between Oct 2018 and Aug 2021 [S41].
+- **Sensors:** Tri-axial accelerometer at 2 kHz [S41].
+- **Labels:** Manually annotated good/bad (anomalous) per process run [S41].
+- **Maintenance records:** None.
+- **Format:** HDF5 [S41].
+- **License:** Data **CC BY 4.0**; code BSD-3-Clause [S41][S46].
+- **Citation:** Tnani, Feil and Diepold, *Procedia CIRP* 107 (2022) 131-136 [S41].
+
+### 4.22 MIMII (Hitachi)
+- **URL:** https://zenodo.org/records/3384388 [S42].
+- **Data type:** **Real laboratory** sound recordings mixed with real factory background noise [S42].
+- **Asset:** Valves, pumps, fans and slide rails [S42].
+- **Sensors:** 8-channel microphone array at 16 kHz [S42].
+- **Labels:** Normal vs anomalous: contamination, leakage, rotating unbalance, rail damage [S42].
+- **Size:** 100.2 GB [S42].
+- **License:** **CC BY-SA 4.0** [S42].
+
+### 4.23 Kaggle "pump_sensor_data"
+- **URL:** Kaggle dataset nphantawee/pump-sensor-data (API metadata) [S36].
+- **Data type:** Claimed real field. The uploader says a friend's team supplied the data, covering 52 sensors and 7 system failures in the last year [S36]. Provider, site and asset type are anonymous and cannot be verified.
+- **Size:** 124,058,460 B [S36].
+- **License:** "Unknown" [S36].
+- **Verdict:** Do not use in a commercial evaluation.
+
+### 4.24 PHM Society data challenges
+- **Portal:** https://data.phmsociety.org/ [S37].
+- **2021:** A subset of N-CMAPSS, so **simulated** [S37a][S8].
+- **2022:** Rock drill pressure signals, 11 classes (10 failure modes). Origin not stated [S37b].
+- **2023:** Spur gearbox pitting with faults made "manually ... using a drill bit" on a test rig, so **real laboratory**. 20,480 Hz tri-axial acceleration [S37e].
+- **2024:** Helicopter turbine engines (7 engines), torque-margin health labels. Origin not stated [S37f].
+- **2025:** Commercial jet engines (8 engines). Targets are cycles to HPT and HPC shop visits and to water wash, i.e. **maintenance-event labels**. Origin not stated [S37c].
+- **Servomotor ballscrew (GE / UTK):** **Simulation** in Simulink. 21.3 GB [S37d].
+- **License:** None of these pages states a license. The footer "Terms of Use" link points to the site root, and https://data.phmsociety.org/terms-of-use/ and https://phmsociety.org/terms-of-use/ return 404 [S37t].
+- **Download:** Direct S3 zips. Submitting results requires an account and organizer approval [S37a][S37b].
+
+### 4.25 LBNL HVAC fault detection and diagnostics datasets
+- **URL:** https://faultdetection.lbl.gov/ [S44].
+- **Contents:** 7 HVAC systems, 257 faulted or fault-free states over a year, and "ground-truth verified" labels [S44].
+- **Not stated on the landing page:** whether the data is simulated, lab or field, and the license [S44]. Not investigated further (**UNVERIFIED**).
+
+---
+
+## 5. Download sizes checked (HTTP HEAD, 2026-10-18)
+
+| File | Bytes | Source |
+|---|---|---|
+| NASA C-MAPSS zip (S3 mirror) | 12,429,152 | [S4] |
+| NASA N-CMAPSS zip (S3 mirror) | 15,760,443,389 | [S5] |
+| NASA IMS Bearings zip (contains IMS.7z of 1,075,320,408 B) | 1,075,597,174 | [S6] |
+| NASA FEMTO Bearing zip | 1,157,035,288 | [S7] |
+| SCANIA train_tte.csv | 345,412 | [S11] |
+| SCANIA train_operational_readouts.csv | 1,219,209,878 | [S11] |
+| MetroPT2.csv (Zenodo 7766691) | 1,209,663,443 | [S15] |
+| CARE_To_Compare.zip | 5,503,439,673 | [S33h] |
+| Kelmarsh_SCADA_2024_5962.zip | 704,598,245 | [S31h] |
+| Backblaze data_Q2_2026.zip | 2,092,757,685 | [S30h] |
+| MetroPT-3 zip (UCI): HEAD returned 200 but no length; 208.3 MB per landing page | n/a | [S12] |
+| UCI Hydraulic, UCI APS zips: HEAD 200, no length; 73.1 MB and 54 MB per landing pages | n/a | [S24][S38] |
+
+---
+
+## 6. Conclusions
+
+### 6.1 Real failure or maintenance labels under a license that permits commercial product evaluation (as written)
+
+| Rank | Dataset | Why | Fit to SentinelLoop component |
+|---|---|---|---|
+| 1 | **SCANIA Component X** (CC BY 4.0) | Real fleet, per-vehicle repair events, explicit censoring, 33k+ vehicles, direct download [S9][S10][S11] | RUL / time-to-event with censoring, conformal interval coverage on real labels, gated retraining across train/val/test splits |
+| 2 | **Backblaze Drive Stats** (custom open terms: derivative works may be sold) | Real, very large, daily failure flag [S30][S30s] | Survival and calibration stress test, drift across drive models and quarters, age-matched drift monitor |
+| 3 | **CARE to Compare** (CC BY-SA 4.0) | Real wind fleet, 45 fault-leading anomaly events vs 50 normal, with an evaluation score [S33] | Healthy-baseline anomaly index, early-warning lead time, false-alarm rate on normal datasets |
+| 4 | **MetroPT-3 / MetroPT / MetroPT2** (CC BY 4.0) | Real metro APU, failures from company reports [S12][S13][S15] | Anomaly index and triage case study. Too few events (2 to 4 per release) for accuracy statistics |
+| 5 | **APS Failure at Scania Trucks** (CC BY 4.0) | Real, labelled failure class [S38] | Classification and triage-threshold cost analysis only. No time series stated |
+| 6 | **Petrobras 3W** (data CC BY 4.0) | 525 real labelled undesirable events plus normal operation [S40t] | Anomaly and event detection under real noise. Mostly process events, not RUL |
+| 7 | **EDP Wind Farm 1 failure logbook** (CC-BY-SA per secondary source; sign-in) | Real component failure log with remarks [S35] | Work-order text mapping and failure-to-SCADA alignment. **Partially verified** (primary page 403) |
+
+Real field data with no curated failure labels but useful for drift and baseline validation under CC BY 4.0: Kelmarsh, Penmanshiel, Hill of Towie (alarm logs plus operator-derived downtime), and Bosch CNC (process anomalies) [S31][S32][S43][S41].
+
+Real laboratory data with a clearly permissive license: UCI Hydraulic (CC BY 4.0) [S24] and MIMII (CC BY-SA 4.0) [S42].
+
+**Not cleared for commercial evaluation without permission or legal review:**
+- Paderborn: CC BY-NC [S21].
+- No license stated: FEMTO, XJTU-SY and CWRU [S19][S20][S22]; C-MAPSS and N-CMAPSS [S1][S3]; PHM Society challenges [S37]; Azure PdM [S27]; Kaggle pump [S36].
+- SKAB: conflicting GPL/AGPL [S23][S23k].
+- IMS: the "government works" tag is doubtful for university-generated data, and its standing outside the U.S. is uncertain [S17][S47].
+
+### 6.2 Implications for the SentinelLoop claims
+- **The current evidence is simulated only.** C-MAPSS is simulated [S1][S2]. N-CMAPSS is simulated degradation under real flight inputs [S8], so moving to it would not count as sim-to-real either.
+- **No public dataset matches the C-MAPSS setup with real data.** None checked gives dense multivariate sensor streams with real run-to-failure RUL labels for many industrial units under a permissive license. SCANIA Component X comes closest, with real labels and censoring, but its features are anonymized histograms and counters at irregular sampling [S10]. The feature pipeline and the age-matched drift monitor would need adapting.
+- **Lab run-to-failure data are licence-blocked.** The bearing sets (XJTU-SY, FEMTO, IMS) give real degradation physics, but their licenses are absent or unclear [S17][S19][S20]. Use them for internal research only until the providers confirm terms in writing.
+
+### 6.3 Asset classes with no adequate public data (among the sources checked)
+1. **Real jet or gas-turbine engine run-to-failure with real degradation:**
+   - All turbofan run-to-failure sets checked are simulated [S1][S8].
+   - The PHM 2024 and 2025 engine challenges do not state where their data came from, and they carry no license [S37c][S37f].
+2. **Field rotating machinery with work-order labels: motors, pumps, fans, gearboxes, bearings.**
+   - Public bearing and gearbox data are lab rigs [S19p][S20][S21][S22][S37e].
+   - The only "field pump" set is anonymous, with an unknown license [S36].
+   - MIMII is lab-recorded [S42].
+3. **Process compressors, pumps and blowers in fixed plants** with maintenance history. MetroPT covers a mobile train APU, not a plant asset [S12].
+4. **Machine-tool spindle or tool RUL in production.** Bosch CNC gives process anomaly labels only [S41]. Tool-wear sets in the NASA repository are lab sets (milling, BEST Lab) [S1].
+5. **Sensor time series linked to full CMMS work orders** (parts, labour, cost, failure codes):
+   - None found.
+   - Closest: SCANIA, with a binary repair event [S10], and the EDP logbook, with component plus remarks [S35].
+   - The Azure sample has this structure but is simulated [S26].
+6. **HVAC:** The LBNL FDD landing page does not state whether the data is simulated, lab or field, nor the license [S44] (**UNVERIFIED**).
+7. **Not searched in this stream, so absence is UNVERIFIED rather than confirmed:**
+   - Electrical grid assets: transformers (DGA), switchgear, cables.
+   - Elevators and escalators, conveyors, rail track and points.
+   - Fleets operating in India.
+
+### 6.4 Suggested validation plan (free tools, no special hardware)
+1. **Primary sim-to-real test: SCANIA Component X.**
+   - Fit the existing RUL and conformal stack to time-to-repair.
+   - Report coverage under censoring on the official validation and test splits.
+   - The largest file is 1.2 GB CSV, so it fits on a laptop with chunked reading [S9].
+2. **Anomaly index and drift monitor: CARE to Compare and MetroPT-3.**
+   - CARE (5.5 GB): report lead time and false alarms on the 50 normal datasets [S33].
+   - MetroPT-3 (208 MB): one real-world case study with failure-report windows [S12].
+3. **Scale and calibration stress test: one or two Backblaze quarters** (about 1-2 GB zip each) [S30].
+4. **Physics sanity check (internal only until licences are confirmed): XJTU-SY or FEMTO run-to-failure.**
+   - Email the providers for written permission before showing these results to any customer.
+   - The same applies to Paderborn for any commercial use [S21].
+5. **Drop AI4I and the Azure sample from any accuracy claims.** Both are synthetic or simulated [S25][S26].
+
+---
+
+## 7. Gaps and UNVERIFIED items
+- **EDP Open Data:** The primary pages returned HTTP 403. Licence, sign-in requirement and failure counts come from an IEA Wind summary [S35] and CARE [S33].
+- **IMS:** Per-test failure locations, the 20 kHz sampling and the 2000 RPM / 6000 lb conditions come only from a secondary community list [S18]. The original readme is inside a nested 7z that was not opened [S6].
+- **N-CMAPSS:** The 1 Hz sampling rate was not confirmed on a primary page.
+- **SCANIA v3 vehicle counts:** Taken from arXiv v1 [S10]. The *Scientific Data* article was behind a login redirect.
+- **Sampling intervals not stated:** CARE to Compare and 3W.
+- **MetroPT-3:** The page itself is inconsistent about sampling (1 Hz vs 0.1 Hz) [S12].
+- **Kelmarsh audit:** The third-party audit's findings [S48] were not checked.
+- **PHM Society:** Terms of Use could not be read (404) [S37t]. Data origin is not stated for the 2022, 2024 and 2025 challenges.
+- **LBNL FDD:** Origin and license not stated on the landing page [S44].
+- **Not searched:** Electrical grid assets, elevators, rail infrastructure and India-specific datasets.
+- **Microsoft Azure sample:** The original host no longer resolves [S29]. Its license has never been stated by Microsoft in anything I opened.
+
+---
+
+## Sources
+
+All accessed 2026-10-18. Tags match the citations above. "HEAD" means an HTTP HEAD request was used to read size or headers; "API" means the provider's JSON API.
+
+- [S1] NASA PCoE Data Set Repository: https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/
+- [S2] data.gov, CMAPSS Jet Engine Simulated Data: https://catalog.data.gov/dataset/cmapss-jet-engine-simulated-data
+- [S3] data.nasa.gov CMAPSS resource page: https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data/resource/5224bcd1-ad61-490b-93b9-2817288accb8 (the parent page https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data returned HTTP 200 to curl, but WebFetch failed)
+- [S4] HEAD: https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip
+- [S5] HEAD: https://phm-datasets.s3.amazonaws.com/NASA/17.+Turbofan+Engine+Degradation+Simulation+Data+Set+2.zip
+- [S6] HEAD and zip directory range read: https://phm-datasets.s3.amazonaws.com/NASA/4.+Bearings.zip
+- [S7] HEAD: https://phm-datasets.s3.amazonaws.com/NASA/10.+FEMTO+Bearing.zip
+- [S8] PHM Society Data Challenge 2021 description (Arias Chao, Kulkarni, Goebel, Fink): https://data.phmsociety.org/wp-content/uploads/sites/9/2021/08/2021_Data_Challenge.pdf
+- [S9] SCANIA Component X landing page: https://researchdata.se/catalogue/dataset/2024-34/3 (via https://doi.org/10.5878/bnh5-ka77)
+- [S10] SCANIA Component X paper: https://arxiv.org/abs/2401.15199 and https://arxiv.org/html/2401.15199v1
+- [S11] HEAD: https://api.researchdata.se/dataset/2024-34/3/file/data/train_tte.csv, which redirects to https://scania.open.care.snd.se/downloads/public/2024-34/3/data/train_tte.csv; HEAD: https://scania.open.care.snd.se/downloads/public/2024-34/3/data/train_operational_readouts.csv
+- [S12] UCI MetroPT-3: https://archive.ics.uci.edu/dataset/791/metropt+3+dataset (HEAD on https://archive.ics.uci.edu/static/public/791/metropt+3+dataset.zip)
+- [S13] The MetroPT dataset for predictive maintenance (Scientific Data 2022, PMC): https://pmc.ncbi.nlm.nih.gov/articles/PMC9747912/
+- [S14] Zenodo MetroPT v1: https://zenodo.org/records/6854240
+- [S15] Zenodo MetroPT2 V2: https://zenodo.org/records/7766691 (HEAD on https://zenodo.org/records/7766691/files/MetroPT2.csv?download=1)
+- [S16] Zenodo API search for MetroPT: https://zenodo.org/api/records?q=MetroPT&size=20
+- [S17] data.gov IMS Bearings: https://catalog.data.gov/dataset/ims-bearings
+- [S18] awesome-bearing-dataset (secondary community list): https://github.com/VictorBauler/awesome-bearing-dataset and https://raw.githubusercontent.com/VictorBauler/awesome-bearing-dataset/main/docs/datasets.md
+- [S19] PRONOSTIA GitHub mirror: https://github.com/wkzs111/phm-ieee-2012-data-challenge-dataset
+- [S19p] IEEE PHM 2012 challenge details PDF: https://raw.githubusercontent.com/wkzs111/phm-ieee-2012-data-challenge-dataset/master/IEEEPHM2012-Challenge-Details.pdf
+- [S20] XJTU-SY bearing datasets: https://biaowang.tech/xjtu-sy-bearing-datasets/
+- [S21] Paderborn KAt Bearing DataCenter: https://mb.uni-paderborn.de/en/kat/research/bearing-datacenter and https://mb.uni-paderborn.de/en/kat/research/bearing-datacenter/data-sets-and-download (old URL https://mb.uni-paderborn.de/kat/forschung/kat-datacenter/bearing-datacenter returned 404; https://mb.uni-paderborn.de/kat/forschung/bearing-datacenter/ returned 200)
+- [S22] CWRU Bearing Data Center: https://engineering.case.edu/bearingdatacenter and https://engineering.case.edu/bearingdatacenter/download-data-file
+- [S23] SKAB GitHub: https://github.com/waico/SKAB
+- [S23k] SKAB Kaggle API: https://www.kaggle.com/api/v1/datasets/view/yuriykatser/skoltech-anomaly-benchmark-skab
+- [S24] UCI Hydraulic systems: https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems
+- [S25] UCI AI4I 2020: https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset
+- [S26] Microsoft, Predictive Maintenance Modelling Guide (archived blog, 2016): https://learn.microsoft.com/en-us/archive/blogs/machinelearning/predictive-maintenance-modelling-guide-in-the-cortana-intelligence-gallery
+- [S27] Kaggle API, Microsoft Azure Predictive Maintenance mirror: https://www.kaggle.com/api/v1/datasets/view/arnabbiswas1/microsoft-azure-predictive-maintenance
+- [S28] Azure/AI-PredictiveMaintenance: https://github.com/Azure/AI-PredictiveMaintenance (tree via https://api.github.com/repos/Azure/AI-PredictiveMaintenance/git/trees/master?recursive=1; LICENSE via https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/LICENSE)
+- [S29] Original Azure sample blob (DNS did not resolve): https://azuremlsampleexperiments.blob.core.windows.net/datasets/PdM_failures.csv
+- [S30] Backblaze Drive Stats: https://www.backblaze.com/cloud-storage/resources/hard-drive-test-data
+- [S30h] HEAD: https://f001.backblazeb2.com/file/Backblaze-Hard-Drive-Data/data_Q2_2026.zip
+- [S30s] Backblaze schema: https://f001.backblazeb2.com/file/Backblaze-Hard-Drive-Data/Drive_Stats_Schema_Current.csv
+- [S31] Zenodo Kelmarsh v4: https://zenodo.org/records/16807551
+- [S31h] HEAD: https://zenodo.org/records/16807551/files/Kelmarsh_SCADA_2024_5962.zip?download=1
+- [S32] Zenodo Penmanshiel v3: https://zenodo.org/records/16807304
+- [S33] Zenodo CARE to Compare v6: https://zenodo.org/records/15846963
+- [S33h] HEAD: https://zenodo.org/records/15846963/files/CARE_To_Compare.zip?download=1
+- [S34] EDP Open Data (HTTP 403): https://www.edp.com/en/innovation/open-data/data and https://edp.com/en/wind-farm-1-wind-turbine-scada-signals-2017
+- [S35] IEA Wind, EDP OpenData Details (PDF): https://iea-wind.org/wp-content/uploads/2024/07/EDP-OpenData-Details.pdf
+- [S36] Kaggle API, pump_sensor_data: https://www.kaggle.com/api/v1/datasets/view/nphantawee/pump-sensor-data
+- [S37] PHM Society data portal: https://data.phmsociety.org/
+- [S37a] 2021 PHM Conference Data Challenge: https://data.phmsociety.org/2021-phm-conference-data-challenge/
+- [S37b] 2022 PHM Conference Data Challenge: https://data.phmsociety.org/2022-phm-conference-data-challenge/
+- [S37c] PHM North America 2025 Data Challenge: https://data.phmsociety.org/phm-north-america-2025-conference-data-challenge/
+- [S37d] Servomotor-Driven Ballscrew dataset: https://data.phmsociety.org/servomotor_dataset/
+- [S37e] PHM North America 2023 Data Challenge: https://data.phmsociety.org/phm2023-conference-data-challenge/
+- [S37f] PHM North America 2024 Data Challenge: https://data.phmsociety.org/phm2024-conference-data-challenge/
+- [S37t] Terms-of-use URLs that returned 404: https://data.phmsociety.org/terms-of-use/ and https://phmsociety.org/terms-of-use/
+- [S38] UCI APS Failure at Scania Trucks: https://archive.ics.uci.edu/dataset/421/aps+failure+at+scania+trucks
+- [S39] Petrobras 3W: https://github.com/petrobras/3W and https://github.com/petrobras/3W/blob/main/README.md
+- [S40] 3W structure and configuration: https://raw.githubusercontent.com/petrobras/3W/main/3W_DATASET_STRUCTURE.md and https://raw.githubusercontent.com/petrobras/3W/main/dataset/dataset.ini
+- [S40c] 3W citation file: https://raw.githubusercontent.com/petrobras/3W/main/CITATION.md
+- [S40t] 3W repository tree (instance counts and sizes): https://api.github.com/repos/petrobras/3W/git/trees/main?recursive=1
+- [S41] Bosch CNC Machining: https://github.com/boschresearch/CNC_Machining
+- [S42] Zenodo MIMII: https://zenodo.org/records/3384388
+- [S43] Zenodo Hill of Towie v2.1.0: https://zenodo.org/records/22662930 (also via API https://zenodo.org/api/records?q=Hill%20of%20Towie&size=6)
+- [S44] LBNL FDD datasets: https://faultdetection.lbl.gov/
+- [S45] Kaggle API, NASA CMAPSS mirror: https://www.kaggle.com/api/v1/datasets/view/behrad3d/nasa-cmaps
+- [S46] GitHub repo license metadata (API): https://api.github.com/repos/WangBiaoXJTU/xjtu-sy-bearing-datasets, https://api.github.com/repos/waico/SKAB, https://api.github.com/repos/wkzs111/phm-ieee-2012-data-challenge-dataset, https://api.github.com/repos/boschresearch/CNC_Machining, https://api.github.com/repos/petrobras/3W, https://api.github.com/repos/Azure/AI-PredictiveMaintenance
+- [S47] usa.gov, Government copyright: https://www.usa.gov/government-copyright (redirected from https://www.usa.gov/government-works)
+- [S48] Zenodo, Kelmarsh provenance audit (third party) API record: https://zenodo.org/api/records/23196733 (found via https://zenodo.org/api/records?q=Kelmarsh%20wind%20farm&size=8)
+- Local verification (not a web source): C-MAPSS unit and column counts computed from `C:\Users\HP\OneDrive\Desktop\tata\data\raw\{train,test,RUL}_FD00{1-4}.txt`.
