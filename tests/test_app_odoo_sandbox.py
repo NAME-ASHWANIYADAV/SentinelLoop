@@ -30,14 +30,14 @@ def test_connector_against_real_odoo(tmp_path, monkeypatch):
     serial = f"SL-{run}"
     eq_id = raw("maintenance.equipment", "create", {"vals_list": [{"name": f"Sandbox pump {run}", "serial_no": serial}]})[0]
     monkeypatch.setenv("SENTINELLOOP_INTEGRATION_HOSTS", "localhost")
-    monkeypatch.setenv("SL_SANDBOX_KEY", APIKEY)
+    monkeypatch.setenv("SENTINELLOOP_CRED_SANDBOX", APIKEY)
     d = dbmod.Database(tmp_path / "s.db", audit_key=KEY, audit_key_id="test")
     d.migrate()
     registry.create_site(d, "site1", "Plant 1", "UTC", actor="admin")
     registry.create_asset_type(d, pump_type(), actor="admin")
     registry.create_asset(d, pump("P-101"), actor="admin")
     registry.update_asset(d, "P-101", {"config": {"cmms_equipment_ref": serial}}, actor="admin", reason="sandbox mapping")
-    integration.register_target(d, "odoo", "odoo_json2", URL, {"database": DB, "api_key_env": "SL_SANDBOX_KEY"}, actor="ada", role="admin")
+    integration.register_target(d, "odoo", "odoo_json2", URL, {"database": DB, "api_key_env": "SENTINELLOOP_CRED_SANDBOX"}, actor="ada", role="admin")
 
     o = workorders.create(d, asset_id="P-101", job_type="inspect", priority_class="P1", title=f"Inspect P-101 ({run})", origin="system",
                           actor="sys", role="system", idempotency_key=f"sb-{run}")
@@ -64,7 +64,7 @@ def test_connector_against_real_odoo(tmp_path, monkeypatch):
                                                        "fields": ["id", "schedule_date"]})
     assert len(found) == 1 and found[0]["schedule_date"].startswith("2026-10-19 08:00")
 
-    monkeypatch.setenv("SL_SANDBOX_KEY", "wrong-key")                          # a rejected credential becomes a dead letter
+    monkeypatch.setenv("SENTINELLOOP_CRED_SANDBOX", "wrong-key")                          # a rejected credential becomes a dead letter
     workorders.reprioritise(d, o["wo_id"], "P2", None, None, {}, actor="sys", role="system", reason="sandbox")
     integration.dispatch(d, "odoo", now_ms=now + 3000)
     it = integration.items(d, "odoo")[0]

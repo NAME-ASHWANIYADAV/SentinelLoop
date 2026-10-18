@@ -1,0 +1,765 @@
+{
+ "queried_at": "2026-10-18T07:08:25.038305+00:00",
+ "source": "https://api.osv.dev (OSV.dev)",
+ "packages": 94,
+ "findings": [
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-2cm6-r77w-6g96",
+   "aliases": [
+    "BIT-mlflow-2026-8147",
+    "CVE-2026-8147",
+    "PYSEC-2026-3686"
+   ],
+   "summary": "MLflow: trace API endpoints lack proper authorization validators",
+   "fixed_in": [
+    "3.13.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-42h5-h8qh-vv9v",
+   "aliases": [
+    "BIT-mlflow-2026-2614",
+    "CVE-2026-2614",
+    "PYSEC-2026-2654"
+   ],
+   "summary": "MLflow allows an unauthenticated remote attacker to read arbitrary files from the server's filesystem",
+   "fixed_in": [
+    "3.10.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-46r5-x6jq-v8g6",
+   "aliases": [
+    "BIT-mlflow-2026-33866",
+    "CVE-2026-33866",
+    "PYSEC-2026-94"
+   ],
+   "summary": "MLflow is vulnerable to an authorization bypass affecting the AJAX endpoint",
+   "fixed_in": [
+    "3.11.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-4x5p-f36r-mxxr",
+   "aliases": [
+    "BIT-mlflow-2025-10279",
+    "CVE-2025-10279",
+    "PYSEC-2026-1639"
+   ],
+   "summary": "mlflow Creates of Temporary File in Directory with Insecure Permissions",
+   "fixed_in": [
+    "3.4.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-5qmp-p3c4-72qj",
+   "aliases": [
+    "BIT-mlflow-2026-10803",
+    "CVE-2026-10803",
+    "PYSEC-2026-195"
+   ],
+   "summary": "MLflow: Deterministic sampling in dataset digest enables predictable collisions",
+   "fixed_in": [
+    "3.10.1"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-65h7-c7c4-mghx",
+   "aliases": [
+    "BIT-mlflow-2026-2393",
+    "CVE-2026-2393",
+    "PYSEC-2026-2219"
+   ],
+   "summary": "MLflow Has a Server-Side Request Forgery (SSRF) Vulnerability",
+   "fixed_in": [
+    "3.9.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-75cm-x2w3-8mgf",
+   "aliases": [
+    "BIT-mlflow-2026-2652",
+    "CVE-2026-2652",
+    "PYSEC-2026-2221"
+   ],
+   "summary": "MLflow: unauthenticated access to certain FastAPI routes",
+   "fixed_in": [
+    "3.11.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-7qhf-v65m-g5f3",
+   "aliases": [
+    "CVE-2026-0545",
+    "PYSEC-2026-419"
+   ],
+   "summary": "mlflow: FastAPI job endpoints under `/ajax-api/3.0/jobs/*` are not protected by authentication or authorization",
+   "fixed_in": []
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-8c7q-86fq-vvmh",
+   "aliases": [
+    "BIT-mlflow-2026-2651",
+    "CVE-2026-2651",
+    "PYSEC-2026-2220"
+   ],
+   "summary": "MLflow allows unauthorized access to multipart upload endpoints when the `--serve-artifacts` mode is enabled",
+   "fixed_in": [
+    "3.10.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-f2m9-wcf4-cwwx",
+   "aliases": [
+    "BIT-mlflow-2026-4137",
+    "CVE-2026-4137",
+    "PYSEC-2026-2655"
+   ],
+   "summary": "MLFlow Creates a Temporary File With Insecure Permissions ",
+   "fixed_in": [
+    "3.11.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-fh64-r2vc-xvhr",
+   "aliases": [
+    "BIT-mlflow-2026-33865",
+    "CVE-2026-33865",
+    "PYSEC-2026-93"
+   ],
+   "summary": "MLflow is vulnerable to Stored Cross-Site Scripting (XSS) caused by unsafe parsing of YAML-based MLmodel artifacts in its web interface",
+   "fixed_in": [
+    "3.11.1"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-fhff-qmm8-h2fp",
+   "aliases": [
+    "BIT-mlflow-2025-15031",
+    "CVE-2025-15031",
+    "PYSEC-2026-2656"
+   ],
+   "summary": "Arbitrary file write via tar traversal in mlflow",
+   "fixed_in": [
+    "3.9.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-g35p-px32-whv6",
+   "aliases": [
+    "BIT-mlflow-2026-4035",
+    "CVE-2026-4035",
+    "PYSEC-2026-2222"
+   ],
+   "summary": "MLflow: Environment variable injection in AI Gateway secrets enables server-side credential exfiltration",
+   "fixed_in": [
+    "3.11.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-g6pg-52vf-843h",
+   "aliases": [
+    "CVE-2025-15381",
+    "PYSEC-2026-2657"
+   ],
+   "summary": "MLFlow allows Tracing + Assessments Access",
+   "fixed_in": []
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-gq3w-7jj3-x7gr",
+   "aliases": [
+    "CVE-2026-2635",
+    "PYSEC-2026-421"
+   ],
+   "summary": "MLflow Use of Default Password Authentication Bypass Vulnerability",
+   "fixed_in": [
+    "3.8.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-gqvg-gmmx-x4hm",
+   "aliases": [],
+   "summary": "MLFLOW_ALLOW_PICKLE_DESERIALIZATION=False safety control bypassed by mlflow.statsmodels flavor \u2014 RCE via crafted model artifact",
+   "fixed_in": [
+    "3.15.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-pgqp-8h46-6x4j",
+   "aliases": [
+    "BIT-mlflow-2025-14279",
+    "CVE-2025-14279",
+    "PYSEC-2026-1656"
+   ],
+   "summary": "MLFlow is vulnerable to DNS rebinding attacks due to a lack of Origin header validation",
+   "fixed_in": [
+    "3.5.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-q2r8-vmq7-fpx2",
+   "aliases": [
+    "CVE-2026-2033",
+    "PYSEC-2026-2658"
+   ],
+   "summary": "MLflow Tracking Server Artifact Handler Directory Traversal Remote Code Execution Vulnerability",
+   "fixed_in": [
+    "3.8.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-r23q-823p-vmf7",
+   "aliases": [
+    "BIT-mlflow-2025-15379",
+    "CVE-2025-15379",
+    "PYSEC-2026-423"
+   ],
+   "summary": "MLflow Command Injection vulnerability",
+   "fixed_in": [
+    "3.8.1"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-r5m9-wm49-959f",
+   "aliases": [
+    "BIT-mlflow-2026-3198",
+    "CVE-2026-3198",
+    "PYSEC-2026-2659"
+   ],
+   "summary": "MLflow: Any authenticated user can enumerate all gateway secrets, endpoints, and model definitions",
+   "fixed_in": [
+    "3.11.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-rvhj-8chj-8v3c",
+   "aliases": [
+    "BIT-mlflow-2026-0596",
+    "CVE-2026-0596",
+    "PYSEC-2026-424"
+   ],
+   "summary": "Mlflow: Command Injection when serving models with enable_mlserver=True",
+   "fixed_in": [
+    "3.9.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-vhcx-3pq2-4fvc",
+   "aliases": [
+    "BIT-mlflow-2025-15036",
+    "CVE-2025-15036",
+    "PYSEC-2026-425"
+   ],
+   "summary": "MLFlow path traversal vulnerability",
+   "fixed_in": [
+    "3.9.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-w5xq-c4pf-ghq7",
+   "aliases": [
+    "BIT-mlflow-2026-2734",
+    "CVE-2026-2734",
+    "PYSEC-2026-2660"
+   ],
+   "summary": "MLflow authenticated users can enumerate any registered model versions due to lack of per-model permissions checks",
+   "fixed_in": [
+    "3.10.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-wf7f-8fxf-xfxc",
+   "aliases": [
+    "BIT-mlflow-2024-37059",
+    "CVE-2024-37059",
+    "PYSEC-2026-1660"
+   ],
+   "summary": "MLFlow unsafe deserialization",
+   "fixed_in": []
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-wxj7-3fx5-pp9m",
+   "aliases": [
+    "BIT-mlflow-2025-52967",
+    "CVE-2025-52967",
+    "PYSEC-2025-52"
+   ],
+   "summary": "MLFlow SSRF via gateway_proxy_handler",
+   "fixed_in": [
+    "2.22.2",
+    "3.1.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "GHSA-xch3-2f9x-wh9f",
+   "aliases": [
+    "BIT-mlflow-2025-14287",
+    "CVE-2025-14287",
+    "PYSEC-2026-2661"
+   ],
+   "summary": "MLflow has a command injection in mlflow/sagemaker/__init__.py",
+   "fixed_in": [
+    "3.8.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2025-52",
+   "aliases": [
+    "BIT-mlflow-2025-52967",
+    "CVE-2025-52967",
+    "GHSA-wxj7-3fx5-pp9m"
+   ],
+   "summary": "gateway_proxy_handler in MLflow before 3.1.0 lacks gateway_path validation.",
+   "fixed_in": [
+    "3.1.0",
+    "39a419b4ec8fd11b59b3e50ab397042a490f2324"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-1639",
+   "aliases": [
+    "BIT-mlflow-2025-10279",
+    "CVE-2025-10279",
+    "GHSA-4x5p-f36r-mxxr"
+   ],
+   "summary": "mlflow Creates of Temporary File in Directory with Insecure Permissions",
+   "fixed_in": [
+    "3.4.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-1656",
+   "aliases": [
+    "BIT-mlflow-2025-14279",
+    "CVE-2025-14279",
+    "GHSA-pgqp-8h46-6x4j"
+   ],
+   "summary": "MLFlow is vulnerable to DNS rebinding attacks due to a lack of Origin header validation",
+   "fixed_in": [
+    "3.5.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-1660",
+   "aliases": [
+    "BIT-mlflow-2024-37059",
+    "CVE-2024-37059",
+    "GHSA-wf7f-8fxf-xfxc"
+   ],
+   "summary": "MLFlow unsafe deserialization",
+   "fixed_in": []
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-195",
+   "aliases": [
+    "BIT-mlflow-2026-10803",
+    "CVE-2026-10803",
+    "GHSA-5qmp-p3c4-72qj"
+   ],
+   "summary": "A flaw has been found in MLflow up to 3.10.0. This issue affects the function mlflow.data.digest_utils of the file mlflow/data/digest_utils.py of the component Dataset Digest Computation. This manipul",
+   "fixed_in": [
+    "3.10.1"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2219",
+   "aliases": [
+    "BIT-mlflow-2026-2393",
+    "CVE-2026-2393",
+    "GHSA-65h7-c7c4-mghx"
+   ],
+   "summary": "A Server-Side Request Forgery (SSRF) vulnerability exists in MLflow versions prior to 3.9.0. The `_create_webhook()` function in `mlflow/server/handlers.py` accepts a user-controlled `url` parameter w",
+   "fixed_in": [
+    "3.9.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2220",
+   "aliases": [
+    "BIT-mlflow-2026-2651",
+    "CVE-2026-2651",
+    "GHSA-8c7q-86fq-vvmh"
+   ],
+   "summary": "A vulnerability in MLflow versions <=3.10.1.dev0 allows unauthorized access to multipart upload (MPU) endpoints when the `--serve-artifacts` mode is enabled. The authorization logic does not enforce r",
+   "fixed_in": [
+    "3.11.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2221",
+   "aliases": [
+    "BIT-mlflow-2026-2652",
+    "CVE-2026-2652",
+    "GHSA-75cm-x2w3-8mgf"
+   ],
+   "summary": "A vulnerability in mlflow/mlflow versions 3.9.0 and earlier allows unauthenticated access to certain FastAPI routes when the server is started with authentication enabled (`--app-name basic-auth`) and",
+   "fixed_in": [
+    "3.10.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2222",
+   "aliases": [
+    "BIT-mlflow-2026-4035",
+    "CVE-2026-4035",
+    "GHSA-g35p-px32-whv6"
+   ],
+   "summary": "A vulnerability in mlflow/mlflow versions prior to 3.11.0 allows for the resolution of environment variables in AI Gateway secrets, which can be exploited to exfiltrate sensitive server-side environme",
+   "fixed_in": [
+    "3.11.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2654",
+   "aliases": [
+    "BIT-mlflow-2026-2614",
+    "CVE-2026-2614",
+    "GHSA-42h5-h8qh-vv9v"
+   ],
+   "summary": "MLflow allows an unauthenticated remote attacker to read arbitrary files from the server's filesystem",
+   "fixed_in": [
+    "3.10.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2655",
+   "aliases": [
+    "BIT-mlflow-2026-4137",
+    "CVE-2026-4137",
+    "GHSA-f2m9-wcf4-cwwx"
+   ],
+   "summary": "MLFlow Creates a Temporary File With Insecure Permissions ",
+   "fixed_in": [
+    "3.11.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2656",
+   "aliases": [
+    "BIT-mlflow-2025-15031",
+    "CVE-2025-15031",
+    "GHSA-fhff-qmm8-h2fp"
+   ],
+   "summary": "Arbitrary file write via tar traversal in mlflow",
+   "fixed_in": [
+    "3.9.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2657",
+   "aliases": [
+    "CVE-2025-15381",
+    "GHSA-g6pg-52vf-843h"
+   ],
+   "summary": "MLFlow allows Tracing + Assessments Access",
+   "fixed_in": []
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2658",
+   "aliases": [
+    "CVE-2026-2033",
+    "GHSA-q2r8-vmq7-fpx2"
+   ],
+   "summary": "MLflow Tracking Server Artifact Handler Directory Traversal Remote Code Execution Vulnerability",
+   "fixed_in": [
+    "3.8.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2659",
+   "aliases": [
+    "BIT-mlflow-2026-3198",
+    "CVE-2026-3198",
+    "GHSA-r5m9-wm49-959f"
+   ],
+   "summary": "MLflow: Any authenticated user can enumerate all gateway secrets, endpoints, and model definitions",
+   "fixed_in": [
+    "3.11.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2660",
+   "aliases": [
+    "BIT-mlflow-2026-2734",
+    "CVE-2026-2734",
+    "GHSA-w5xq-c4pf-ghq7"
+   ],
+   "summary": "MLflow authenticated users can enumerate any registered model versions due to lack of per-model permissions checks",
+   "fixed_in": [
+    "3.10.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-2661",
+   "aliases": [
+    "BIT-mlflow-2025-14287",
+    "CVE-2025-14287",
+    "GHSA-xch3-2f9x-wh9f"
+   ],
+   "summary": "MLflow has a command injection in mlflow/sagemaker/__init__.py",
+   "fixed_in": [
+    "3.8.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-3686",
+   "aliases": [
+    "BIT-mlflow-2026-8147",
+    "CVE-2026-8147",
+    "GHSA-2cm6-r77w-6g96"
+   ],
+   "summary": "MLflow: trace API endpoints lack proper authorization validators",
+   "fixed_in": [
+    "3.13.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-3687",
+   "aliases": [
+    "BIT-mlflow-2026-64849",
+    "CVE-2026-64849",
+    "GHSA-7gwp-5pfp-969j"
+   ],
+   "summary": "MLflow: Unauthenticated full-read SSRF in webhook delivery: _validate_webhook_url bypassed via unvalidated HTTP redirects (and DNS rebinding)",
+   "fixed_in": [
+    "3.15.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-419",
+   "aliases": [
+    "CVE-2026-0545",
+    "GHSA-7qhf-v65m-g5f3"
+   ],
+   "summary": "mlflow: FastAPI job endpoints under `/ajax-api/3.0/jobs/*` are not protected by authentication or authorization",
+   "fixed_in": []
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-421",
+   "aliases": [
+    "CVE-2026-2635",
+    "GHSA-gq3w-7jj3-x7gr"
+   ],
+   "summary": "MLflow Use of Default Password Authentication Bypass Vulnerability",
+   "fixed_in": [
+    "3.8.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-423",
+   "aliases": [
+    "BIT-mlflow-2025-15379",
+    "CVE-2025-15379",
+    "GHSA-r23q-823p-vmf7"
+   ],
+   "summary": "MLflow Command Injection vulnerability",
+   "fixed_in": [
+    "3.8.1"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-424",
+   "aliases": [
+    "BIT-mlflow-2026-0596",
+    "CVE-2026-0596",
+    "GHSA-rvhj-8chj-8v3c"
+   ],
+   "summary": "Mlflow: Command Injection when serving models with enable_mlserver=True",
+   "fixed_in": [
+    "3.9.0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-425",
+   "aliases": [
+    "BIT-mlflow-2025-15036",
+    "CVE-2025-15036",
+    "GHSA-vhcx-3pq2-4fvc"
+   ],
+   "summary": "MLFlow path traversal vulnerability",
+   "fixed_in": [
+    "3.9.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-93",
+   "aliases": [
+    "BIT-mlflow-2026-33865",
+    "CVE-2026-33865",
+    "GHSA-fh64-r2vc-xvhr"
+   ],
+   "summary": "MLflow is vulnerable to Stored Cross-Site Scripting (XSS) caused by unsafe parsing of YAML-based MLmodel artifacts in its web interface. An authenticated attacker can upload a malicious MLmodel file c",
+   "fixed_in": [
+    "3.11.0rc0"
+   ]
+  },
+  {
+   "package": "mlflow",
+   "version": "3.0.1",
+   "id": "PYSEC-2026-94",
+   "aliases": [
+    "BIT-mlflow-2026-33866",
+    "CVE-2026-33866",
+    "GHSA-46r5-x6jq-v8g6"
+   ],
+   "summary": "MLflow is vulnerable to an authorization bypass affecting the AJAX endpoint used to download saved model artifacts. Due to missing access\u2011control validation, a user without permissions to a given expe",
+   "fixed_in": [
+    "3.11.0rc0"
+   ]
+  },
+  {
+   "package": "pyarrow",
+   "version": "20.0.0",
+   "id": "GHSA-rgxp-2hwp-jwgg",
+   "aliases": [
+    "CVE-2026-25087",
+    "PYSEC-2026-113"
+   ],
+   "summary": "Apache Arrow: Potential use-after-free when reading IPC file with pre-buffering",
+   "fixed_in": [
+    "23.0.1"
+   ]
+  },
+  {
+   "package": "pyarrow",
+   "version": "20.0.0",
+   "id": "PYSEC-2026-113",
+   "aliases": [
+    "CVE-2026-25087",
+    "GHSA-rgxp-2hwp-jwgg"
+   ],
+   "summary": "Use After Free vulnerability in Apache Arrow C++.\n\nThis issue affects Apache Arrow C++ from 15.0.0 through 23.0.0. It can be triggered when reading an Arrow IPC file (but not an IPC stream) with pre-b",
+   "fixed_in": [
+    "23.0.1"
+   ]
+  },
+  {
+   "package": "pytest",
+   "version": "8.4.2",
+   "id": "GHSA-6w46-j5rx-g56g",
+   "aliases": [
+    "CVE-2025-71176",
+    "PYSEC-2026-1845"
+   ],
+   "summary": "pytest has vulnerable tmpdir handling",
+   "fixed_in": [
+    "9.0.3"
+   ]
+  },
+  {
+   "package": "pytest",
+   "version": "8.4.2",
+   "id": "PYSEC-2026-1845",
+   "aliases": [
+    "CVE-2025-71176",
+    "GHSA-6w46-j5rx-g56g"
+   ],
+   "summary": "pytest has vulnerable tmpdir handling",
+   "fixed_in": [
+    "9.0.3"
+   ]
+  }
+ ]
+}

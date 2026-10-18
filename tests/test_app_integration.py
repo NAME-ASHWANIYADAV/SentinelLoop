@@ -82,7 +82,7 @@ class FakeOdoo:
 @pytest.fixture
 def ctx(tmp_path, monkeypatch):
     monkeypatch.setenv("SENTINELLOOP_INTEGRATION_HOSTS", "localhost,cmms.example.com")
-    monkeypatch.setenv("ODOO_TEST_KEY", API_KEY)
+    monkeypatch.setenv("SENTINELLOOP_CRED_ODOO_TEST", API_KEY)
     d = dbmod.Database(tmp_path / "i.db", audit_key=KEY, audit_key_id="test")
     d.migrate()
     registry.create_site(d, "site1", "Plant 1", "UTC", actor="admin")
@@ -103,7 +103,7 @@ def _approved_order(d, key="k1", title="Inspect P-101"):
 
 
 def _target(ctx, mode=None, **kw):
-    cfg = {"database": "sandbox", "api_key_env": "ODOO_TEST_KEY", **kw}
+    cfg = {"database": "sandbox", "api_key_env": "SENTINELLOOP_CRED_ODOO_TEST", **kw}
     args = dict(target_id="odoo", kind="odoo_json2", base_url=ODOO, config=cfg, actor="ada", role="admin")
     if mode:
         args["mode"] = mode
@@ -120,7 +120,7 @@ def test_targets_default_to_read_only_shadow_mode_and_shadow_never_calls_the_cmm
     assert res["shadow"] == 1 and res["sent"] == 0
     item = integration.items(ctx["db"], "odoo")[0]
     assert item["wo_id"] == wo["wo_id"] and item["status"] == "shadow"
-    assert item["payload"]["name"].startswith("[SentinelLoop]") and f"SentinelLoop-Ref:{wo['wo_id']}" in item["payload"]["description"]
+    assert item["payload"]["name"].startswith("[SentinelLoop]") and f"[SentinelLoop-Ref:{wo['wo_id']}]" in item["payload"]["description"]
 
 
 def test_switching_to_draft_requests_needs_an_admin_and_a_reason_and_is_audited(ctx):
@@ -194,12 +194,12 @@ def test_permanent_errors_go_to_dead_letters_without_leaking_server_internals_an
     _target(ctx, mode="draft_requests")
     d, f, tr = ctx["db"], ctx["fake"], ctx["transport"]
     wo = _approved_order(d)
-    monkeypatch.setenv("ODOO_TEST_KEY", "wrong-key")
+    monkeypatch.setenv("SENTINELLOOP_CRED_ODOO_TEST", "wrong-key")
     integration.dispatch(d, "odoo", now_ms=parse_ts("2026-10-18T00:00:00Z"), transport=tr)
     it = integration.items(d, "odoo")[0]
     assert it["status"] == "dead" and "401" in it["last_error"] and "Invalid apikey" in it["last_error"]
     assert "SECRET_INTERNAL_PATH" not in it["last_error"] and "wrong-key" not in it["last_error"]
-    monkeypatch.setenv("ODOO_TEST_KEY", API_KEY)
+    monkeypatch.setenv("SENTINELLOOP_CRED_ODOO_TEST", API_KEY)
     integration.dispatch(d, "odoo", now_ms=parse_ts("2026-10-18T01:00:00Z"), transport=tr)
     assert integration.items(d, "odoo")[0]["status"] == "dead"                 # dead letters wait for a person
     with pytest.raises(integration.IntegrationPermissionError):
@@ -225,15 +225,15 @@ def test_retries_stop_after_the_attempt_limit(ctx):
 def test_targets_must_be_on_the_host_allowlist_and_use_https_unless_local(ctx):
     with pytest.raises(integration.IntegrationError):
         integration.register_target(ctx["db"], target_id="evil", kind="odoo_json2", base_url="https://attacker.example.net",
-                                    config={"api_key_env": "X"}, actor="ada", role="admin")
+                                    config={"api_key_env": "SENTINELLOOP_CRED_X"}, actor="ada", role="admin")
     with pytest.raises(integration.IntegrationError):
         integration.register_target(ctx["db"], target_id="plain", kind="odoo_json2", base_url="http://cmms.example.com",
-                                    config={"api_key_env": "X"}, actor="ada", role="admin")
+                                    config={"api_key_env": "SENTINELLOOP_CRED_X"}, actor="ada", role="admin")
     with pytest.raises(integration.IntegrationPermissionError):
         integration.register_target(ctx["db"], target_id="x", kind="odoo_json2", base_url="https://cmms.example.com",
-                                    config={"api_key_env": "X"}, actor="pat", role="planner")
+                                    config={"api_key_env": "SENTINELLOOP_CRED_X"}, actor="pat", role="planner")
     t = integration.register_target(ctx["db"], target_id="ok", kind="odoo_json2", base_url="https://cmms.example.com",
-                                    config={"api_key_env": "X"}, actor="ada", role="admin")
+                                    config={"api_key_env": "SENTINELLOOP_CRED_X"}, actor="ada", role="admin")
     assert t["mode"] == "shadow"
 
 
@@ -253,3 +253,40 @@ def test_webhook_signatures_verify_and_reject_tampering_and_replays():
     assert not integration.verify_webhook(b"s" * 32, ts, body + b" ", sig, now_s=ts + 10)
     assert not integration.verify_webhook(b"t" * 32, ts, body, sig, now_s=ts + 10)
     assert not integration.verify_webhook(b"s" * 32, ts, body, sig, now_s=ts + 3600)        # outside the replay window
+
+
+def test_credential_variables_must_use_the_dedicated_prefix(ctx):
+    with pytest.raises(integration.IntegrationError):            # an admin cannot point the connector at the audit key
+        integration.register_target(ctx["db"], target_id="x1", kind="odoo_json2", base_url=ODOO, config={"api_key_env": "SENTINELLOOP_AUDIT_KEY"},
+                                    actor="ada", role="admin")
+    with pytest.raises(integration.IntegrationError):
+        integration.register_target(ctx["db"], target_id="x2", kind="webhook", base_url=ODOO + "/hook", config={"secret_env": "PATH"},
+                                    actor="ada", role="admin")
+
+
+def test_every_value_in_the_cmms_description_is_html_escaped(ctx):
+    d = ctx["db"]
+    registry.update_asset(d, "P-101", {"name": "x"}, actor="admin", reason="noop")
+    wo = _approved_order(d, title="<img src=x onerror=alert(1)>")
+    asset = registry.get_asset(d, "P-101")
+    asset = asset.model_copy(update={"tag": "<script>alert(1)</script>"})
+    p = integration.odoo_payload({**wo, "job_type": "<b>j</b>", "explanation": {"why": "<i>w</i>", "due_by": "<u>d</u>"}}, asset, None)
+    assert "<script>" not in p["description"] and "<b>j</b>" not in p["description"] and "<i>w</i>" not in p["description"]
+    assert "&lt;script&gt;" in p["description"]
+
+
+def test_a_lost_mapping_adopts_only_the_exactly_marked_request_and_refuses_ambiguity(ctx):
+    _target(ctx, mode="draft_requests")
+    d, f, tr = ctx["db"], ctx["fake"], ctx["transport"]
+    wo = _approved_order(d)
+    other = wo["wo_id"] + "0"                                      # a different order whose id extends this one
+    f.requests[900] = {"id": 900, "name": "[SentinelLoop] other", "description": f"<p>{integration.marker(other)}</p>"}
+    integration.dispatch(d, "odoo", now_ms=parse_ts("2026-10-18T00:00:00Z"), transport=tr)
+    ext = integration.items(d, "odoo")[0]["external_id"]
+    assert ext != "900" and f.requests[900]["name"] == "[SentinelLoop] other"        # the look-alike was not adopted
+    f.requests[901] = {"id": 901, "name": "[SentinelLoop] copy", "description": f"<p>{integration.marker(wo['wo_id'])}</p>"}
+    integration._forget_external_id(d, "odoo", wo["wo_id"])
+    workorders.reprioritise(d, wo["wo_id"], "P2", None, None, {}, actor="sys", role="system", reason="test")
+    integration.dispatch(d, "odoo", now_ms=parse_ts("2026-10-18T01:00:00Z"), transport=tr)
+    it = integration.items(d, "odoo")[0]
+    assert it["status"] == "dead" and "more than one" in it["last_error"]           # two candidates: a person decides

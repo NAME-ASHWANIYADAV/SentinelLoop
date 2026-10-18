@@ -24,7 +24,9 @@ traceback or any credential.
 Security:
 - Target hosts must be in `SENTINELLOOP_INTEGRATION_HOSTS` (comma-separated).
 - https is required except for local hosts (localhost, 127.0.0.1, ::1, *.localhost, *.test).
-- Credentials are read from an environment variable named in the target's config. They are never stored.
+- Credentials are read from an environment variable named in the target's config. They are never stored. The
+  name must start with `SENTINELLOOP_CRED_`, so a target cannot be pointed at another secret (for example the
+  audit key) and send it to an allowlisted host.
 - Only admins register targets, change modes or requeue dead letters. Each such change needs a reason and is
   audited.
 
@@ -59,6 +61,8 @@ LOCAL_SUFFIXES = (".localhost", ".test")
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 DEFAULT_MAX_ATTEMPTS, BACKOFF_BASE_S, BACKOFF_CAP_S = 8, 30, 3600
 WEBHOOK_TOLERANCE_S = 300
+CRED_PREFIX = "SENTINELLOOP_CRED_"
+CRED_KEYS = {"odoo_json2": "api_key_env", "webhook": "secret_env"}
 
 
 class IntegrationError(ValueError):
@@ -115,6 +119,7 @@ def register_target(db, target_id: str, kind: str, base_url: str, config: dict, 
     check_url(base_url)
     if any(k.lower() in ("api_key", "password", "secret", "token") for k in config):
         raise IntegrationError("secrets may not be stored in target config; name an environment variable instead (api_key_env / secret_env)")
+    _check_cred_name(config.get(CRED_KEYS[kind]), CRED_KEYS[kind])
     now = now_iso()
     with db.tx() as c:
         if c.execute("SELECT 1 FROM integration_targets WHERE target_id = ?", (target_id,)).fetchone():
@@ -124,6 +129,11 @@ def register_target(db, target_id: str, kind: str, base_url: str, config: dict, 
         _audit(db, c, actor, "integration.target_registered", target_id, {"kind": kind, "base_url": base_url, "mode": mode, "reason": reason,
                                                                          "config_keys": sorted(config)})
     return get_target(db, target_id)
+
+
+def _check_cred_name(name, key: str):
+    if not name or not str(name).startswith(CRED_PREFIX) or not str(name)[len(CRED_PREFIX):].replace("_", "").isalnum():
+        raise IntegrationError(f"config '{key}' must name an environment variable starting with {CRED_PREFIX} (letters, digits, '_')")
 
 
 def get_target(db, target_id: str) -> dict | None:
@@ -169,19 +179,21 @@ def _odoo_dt(ms: int | None) -> str | None:
 
 
 def marker(wo_id: str) -> str:
-    return f"SentinelLoop-Ref:{wo_id}"
+    """Delimited so that the marker of WO-1 is not a substring of the marker of WO-10."""
+    return f"[SentinelLoop-Ref:{wo_id}]"
 
 
 def odoo_payload(wo: dict, asset, equipment_id: int | None) -> dict:
     ex = wo.get("explanation") or {}
-    lines = [f"<p><b>SentinelLoop recommendation</b> ({marker(wo['wo_id'])})</p>",
-             f"<p>Asset {asset.tag}; job {wo['job_type']}; priority {wo['priority_class']}; state in SentinelLoop {wo['state']}.</p>"]
+    e = _html
+    lines = [f"<p><b>SentinelLoop recommendation</b> ({e(marker(wo['wo_id']))})</p>",
+             f"<p>Asset {e(asset.tag)}; job {e(wo['job_type'])}; priority {e(wo['priority_class'])}; state in SentinelLoop {e(wo['state'])}.</p>"]
     if ex.get("why"):
         lines.append(f"<p>Why: {_html(ex['why'])}</p>")
     if ex.get("due_by"):
         lines.append(f"<p>Due by (UTC): {_html(ex['due_by'])} ({_html(ex.get('due_by_rule', ''))})</p>")
     if ex.get("p_fail_decision_horizon") is not None:
-        lines.append(f"<p>P(failure before {ex.get('decision_horizon_hours')} h): {ex['p_fail_decision_horizon']:.2f}</p>")
+        lines.append(f"<p>P(failure before {e(ex.get('decision_horizon_hours'))} h): {float(ex['p_fail_decision_horizon']):.2f}</p>")
     lines.append("<p>Advisory only: created by SentinelLoop for review; it does not authorise work by itself.</p>")
     p = {"name": f"[SentinelLoop] {wo['title']}"[:250], "description": "".join(lines), "priority": PRIORITY[wo["priority_class"]],
          "maintenance_type": "preventive", "duration": float(wo["duration_h"])}
@@ -194,8 +206,8 @@ def odoo_payload(wo: dict, asset, equipment_id: int | None) -> dict:
     return p
 
 
-def _html(s: str) -> str:
-    return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+def _html(s) -> str:
+    return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#x27;")
 
 
 # -- adapters -------------------------------------------------------------------------------------------------------
@@ -228,7 +240,12 @@ class OdooJson2:
 
     def upsert(self, wo_id: str, payload: dict, external_id: str | None) -> str:
         if external_id is None:
-            rows = self.call("maintenance.request", "search_read", {"domain": [["description", "ilike", marker(wo_id)]], "fields": ["id"]})
+            m = _html(marker(wo_id))
+            rows = self.call("maintenance.request", "search_read", {"domain": [["description", "ilike", m]], "fields": ["id", "name", "description"]})
+            rows = [r for r in rows if m in str(r.get("description") or "") and str(r.get("name") or "").startswith("[SentinelLoop]")]
+            if len(rows) > 1:
+                raise PermanentError(f"more than one CMMS request carries the marker for {wo_id} (ids {sorted(r['id'] for r in rows)}); "
+                                     f"a person must decide which one is SentinelLoop's")
             if rows:
                 external_id = str(rows[0]["id"])
         if external_id is not None:
@@ -280,6 +297,10 @@ class Webhook:
 
 def _adapter(t: dict, transport=None):
     cfg = t["config"]
+    try:
+        _check_cred_name(cfg.get(CRED_KEYS[t["kind"]]), CRED_KEYS[t["kind"]])
+    except IntegrationError as e:
+        raise PermanentError(str(e)) from None
     if t["kind"] == "odoo_json2":
         env = cfg.get("api_key_env")
         key = os.environ.get(env or "")

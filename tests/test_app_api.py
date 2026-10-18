@@ -231,7 +231,7 @@ def test_commissioning_endpoint_is_restricted_to_reliability_roles(ctx):
 def test_integration_targets_through_the_api_start_in_shadow_and_only_admins_manage_them(ctx, monkeypatch):
     monkeypatch.setenv("SENTINELLOOP_INTEGRATION_HOSTS", "localhost")
     c = ctx["client"]
-    body = {"target_id": "odoo", "kind": "odoo_json2", "base_url": "http://localhost:8069", "config": {"api_key_env": "ODOO_KEY", "database": "x"}}
+    body = {"target_id": "odoo", "kind": "odoo_json2", "base_url": "http://localhost:8069", "config": {"api_key_env": "SENTINELLOOP_CRED_ODOO", "database": "x"}}
     assert c.post("/api/v1/integrations", json=body, headers=H(ctx, "planner")).status_code == 403
     r = c.post("/api/v1/integrations", json=body, headers=H(ctx, "admin"))
     assert r.status_code == 201 and r.json()["mode"] == "shadow"

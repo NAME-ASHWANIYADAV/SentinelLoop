@@ -20,7 +20,7 @@ Code: `src/sentinelloop/app/integration.py`, migration `0005_integration.sql`. T
    - It writes only `name`, `description`, `priority`, `maintenance_type`, `schedule_date`, `schedule_end`, `duration`, `equipment_id` and `request_date`.
    - It never changes stages, closes, archives or deletes CMMS records.
 4. **No secrets in configuration or the database.**
-   - The target config names an environment variable (`api_key_env`, `secret_env`).
+   - The target config names an environment variable (`api_key_env`, `secret_env`). The name must start with `SENTINELLOOP_CRED_`, so a target cannot be pointed at another secret such as the audit key.
    - A config key called `api_key`, `password`, `secret` or `token` is refused.
    - A test scans the database file for the key.
 5. **Controlled destinations.** The target host must be listed in `SENTINELLOOP_INTEGRATION_HOSTS`. https is required except for local hosts.
@@ -41,7 +41,7 @@ Code: `src/sentinelloop/app/integration.py`, migration `0005_integration.sql`. T
 ```
 POST /api/v1/integrations
 {"target_id": "odoo", "kind": "odoo_json2", "base_url": "https://cmms.example.com",
- "config": {"database": "prod", "api_key_env": "SENTINELLOOP_ODOO_KEY", "max_attempts": 8, "timeout_s": 15}}
+ "config": {"database": "prod", "api_key_env": "SENTINELLOOP_CRED_ODOO", "max_attempts": 8, "timeout_s": 15}}
 → 201 {"mode": "shadow", ...}
 ```
 
@@ -60,7 +60,7 @@ Kinds:
 | SentinelLoop | Odoo `maintenance.request` |
 |---|---|
 | `[SentinelLoop] <title>` | `name` |
-| explanation (why, due date and rule, P(failure) when it exists), advisory note, marker `SentinelLoop-Ref:<wo_id>` | `description` (HTML, escaped) |
+| explanation (why, due date and rule, P(failure) when it exists), advisory note, marker `[SentinelLoop-Ref:<wo_id>]` | `description` (HTML; every value escaped) |
 | P1 / P2 / P3 | `priority` '3' / '2' / '1' |
 | condition-based work | `maintenance_type` = `preventive` |
 | scheduled start / end (UTC) | `schedule_date` / `schedule_end` (`YYYY-MM-DD HH:MM:SS`, UTC) |
@@ -69,7 +69,7 @@ Kinds:
 
 **Idempotency.**
 - The external id is stored per (target, work order).
-- If that mapping is lost, the marker in the description finds the existing request, so no duplicate is created. This is tested.
+- If that mapping is lost, the delimited marker in the description finds the existing request, so no duplicate is created. Only a request whose name starts with `[SentinelLoop]` and whose description holds the exact marker is adopted; two candidates make a dead letter for a person to resolve. Both cases are tested.
 - Each JSON-2 call runs in its own Odoo transaction (Odoo documentation), so a create is never half-applied.
 
 ### 3.4 Failures
