@@ -75,6 +75,9 @@ def recommend(asset, asset_type, assessment: dict | None, state, cfg: DecisionCo
     if eff == H.URGENT_REVIEW:
         job, pc = cfg.urgent_job, "P1"
         why.append("urgent review: the asset may fail before the earliest feasible intervention")
+        if job not in asset_type.jobs:
+            job = cfg.inspection_job
+            why.append(f"asset type defines no {cfg.urgent_job!r} job (the model cannot say which repair is needed): urgent inspection")
     elif eff == H.INSPECTION_RECOMMENDED:
         job, pc = cfg.inspection_job, "P2"
         why.append("inspection recommended by the assessment")

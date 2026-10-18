@@ -29,3 +29,9 @@ asset_types:
     risk:
       decision_horizon_hours: 60.0   # twenty cycles: roughly the competition's HIGH threshold, in hours
       horizons_hours: [30, 60, 150, 300]
+  wind_turbine_geared:
+    # 10-minute SCADA; the approved model is an anomaly model (no failure-time estimate), so the risk block is unused.
+    assessment:
+      max_data_age_hours: 1.0        # six 10-minute intervals
+      min_history_points: 60
+      stuck_min_run: 6               # one hour of identical 10-minute values

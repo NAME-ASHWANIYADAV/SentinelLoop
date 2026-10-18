@@ -1,0 +1,5648 @@
+{
+ "config": {
+  "n_assets": 30,
+  "days": 120,
+  "hours_per_cycle": 3.0,
+  "slot_h": 1.0,
+  "plan_horizon_h": 72.0,
+  "commit_h": 24.0,
+  "window_open_h": 20,
+  "window_close_h": 6,
+  "technicians": [
+   [
+    "M1",
+    [
+     "mech"
+    ],
+    20,
+    4
+   ],
+   [
+    "M2",
+    [
+     "mech"
+    ],
+    20,
+    4
+   ],
+   [
+    "M3",
+    [
+     "mech"
+    ],
+    22,
+    6
+   ],
+   [
+    "M4",
+    [
+     "mech"
+    ],
+    22,
+    6
+   ]
+  ],
+  "kit_stock": 8,
+  "kit_lead_h": 72.0,
+  "inspect_job": [
+   2.0,
+   1
+  ],
+  "repair_job": [
+   8.0,
+   2
+  ],
+  "corrective_job": [
+   8.0,
+   2
+  ],
+  "corrective_delay_h": 24.0,
+  "inspect_detect_cycles": 40,
+  "unnecessary_cycles": 40,
+  "approval_delay_h": 0.0,
+  "criticality_mix": [
+   0.2,
+   0.5,
+   0.3
+  ],
+  "failure_cost": [
+   [
+    "A",
+    10.0
+   ],
+   [
+    "B",
+    4.0
+   ],
+   [
+    "C",
+    1.5
+   ]
+  ],
+  "repair_cost": 1.0,
+  "inspect_cost": 0.1,
+  "decision_horizon_h": 60.0,
+  "p_inspect": 0.1,
+  "p_urgent": 0.3,
+  "p_accept": 0.05,
+  "threshold_h": 60.0,
+  "interval_age_cycles": 140,
+  "prediction_widen": 1.0,
+  "prediction_bias_h": 0.0,
+  "milp_time_limit_s": 10.0
+ },
+ "scenarios": {
+  "base": {},
+  "tight_labour": {
+   "technicians": [
+    [
+     "M1",
+     [
+      "mech"
+     ],
+     20,
+     4
+    ],
+    [
+     "M3",
+     [
+      "mech"
+     ],
+     22,
+     6
+    ],
+    [
+     "M4",
+     [
+      "mech"
+     ],
+     22,
+     6
+    ]
+   ]
+  },
+  "parts_shortage": {
+   "kit_stock": 2,
+   "kit_lead_h": 168.0
+  },
+  "degraded_predictions": {
+   "prediction_widen": 1.5,
+   "prediction_bias_h": 30.0
+  },
+  "approval_delay": {
+   "approval_delay_h": 24.0
+  },
+  "adverse": {
+   "technicians": [
+    [
+     "M1",
+     [
+      "mech"
+     ],
+     20,
+     4
+    ],
+    [
+     "M3",
+     [
+      "mech"
+     ],
+     22,
+     6
+    ],
+    [
+     "M4",
+     [
+      "mech"
+     ],
+     22,
+     6
+    ]
+   ],
+   "kit_stock": 3,
+   "kit_lead_h": 168.0,
+   "prediction_widen": 1.5,
+   "prediction_bias_h": 30.0,
+   "approval_delay_h": 12.0
+  }
+ },
+ "policies": {
+  "RUN_TO_FAILURE": [
+   "none",
+   "edd",
+   0.0
+  ],
+  "FIXED_INTERVAL": [
+   "interval",
+   "edd",
+   0.0
+  ],
+  "THRESHOLD_EDD": [
+   "threshold",
+   "edd",
+   0.0
+  ],
+  "RISK_CRITICALITY_FIRST": [
+   "risk",
+   "criticality_first",
+   0.0
+  ],
+  "RISK_GREEDY": [
+   "risk",
+   "risk_greedy",
+   0.0
+  ],
+  "RISK_GREEDY_STABLE": [
+   "risk",
+   "risk_greedy",
+   1.0
+  ],
+  "RISK_MILP": [
+   "risk",
+   "milp",
+   0.0
+  ],
+  "RISK_MILP_STABLE": [
+   "risk",
+   "milp",
+   1.0
+  ]
+ },
+ "seeds": 8,
+ "days": 120,
+ "trajectories": [
+  "experiments\\results\\oof\\FD001_full.csv",
+  "experiments\\results\\oof\\FD003_full.csv"
+ ],
+ "runtime_min": 7.4,
+ "results": {
+  "adverse": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean": 243.875,
+     "sd": 28.891113314848713
+    },
+    "failures": {
+     "mean": 60.625,
+     "sd": 2.9730936268953445
+    },
+    "failures_A": {
+     "mean": 7.5,
+     "sd": 3.779644730092272
+    },
+    "unplanned_downtime_h": {
+     "mean": 34416.25,
+     "sd": 974.2772779274462
+    },
+    "preventive_repairs": {
+     "mean": 9.5,
+     "sd": 1.7728105208558367
+    },
+    "early_repairs": {
+     "mean": 5.375,
+     "sd": 1.5059406173077154
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 169.4910579004329,
+     "sd": 34.65390887841996
+    },
+    "utilisation": {
+     "mean": 0.2875,
+     "sd": 0.0025717224993681894
+    },
+    "plan_change_rate": {
+     "mean": 0.011365979381443299,
+     "sd": 0.011483199420896277
+    },
+    "approvals_per_day": {
+     "mean": 1.115625,
+     "sd": 0.026139696443507738
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 234.375,
+     "sd": 28.772196400592808
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean": 222.3875,
+     "sd": 39.544854731232554
+    },
+    "failures": {
+     "mean": 44.875,
+     "sd": 3.226563851175781
+    },
+    "failures_A": {
+     "mean": 7.375,
+     "sd": 5.208166663999915
+    },
+    "unplanned_downtime_h": {
+     "mean": 15103.5,
+     "sd": 4575.1830252226755
+    },
+    "preventive_repairs": {
+     "mean": 21.375,
+     "sd": 3.020761493398643
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 38.25,
+     "sd": 5.311712126450916
+    },
+    "inspections_no_fault": {
+     "mean": 1.375,
+     "sd": 1.0606601717798212
+    },
+    "late_jobs": {
+     "mean": 7.5,
+     "sd": 2.32992949004287
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 21.1152199916788,
+     "sd": 1.906630297590891
+    },
+    "utilisation": {
+     "mean": 0.29461805555555554,
+     "sd": 0.005638639645754428
+    },
+    "plan_change_rate": {
+     "mean": 0.35780379959071473,
+     "sd": 0.044885414093146836
+    },
+    "approvals_per_day": {
+     "mean": 1.2541666666666667,
+     "sd": 0.0585878799969728
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 197.1875,
+     "sd": 41.59321502017229
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean": 180.1875,
+     "sd": 20.62844343549529
+    },
+    "failures": {
+     "mean": 42.0,
+     "sd": 4.928053803045811
+    },
+    "failures_A": {
+     "mean": 4.125,
+     "sd": 2.416461403433896
+    },
+    "unplanned_downtime_h": {
+     "mean": 29813.75,
+     "sd": 2783.345045598397
+    },
+    "preventive_repairs": {
+     "mean": 23.375,
+     "sd": 4.838461975226661
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 37.5,
+     "sd": 4.7207747548166585
+    },
+    "inspections_no_fault": {
+     "mean": 1.375,
+     "sd": 1.0606601717798212
+    },
+    "late_jobs": {
+     "mean": 9.75,
+     "sd": 1.3887301496588271
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 19.378530717470934,
+     "sd": 2.634958471790207
+    },
+    "utilisation": {
+     "mean": 0.2920138888888889,
+     "sd": 0.0034423316612891834
+    },
+    "plan_change_rate": {
+     "mean": 0.37516926018252184,
+     "sd": 0.05799831473499966
+    },
+    "approvals_per_day": {
+     "mean": 1.215625,
+     "sd": 0.06791064098306063
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 153.0625,
+     "sd": 22.966493450863837
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean": 182.325,
+     "sd": 24.210018587353463
+    },
+    "failures": {
+     "mean": 43.0,
+     "sd": 5.7817446699565895
+    },
+    "failures_A": {
+     "mean": 4.375,
+     "sd": 2.7222627143085005
+    },
+    "unplanned_downtime_h": {
+     "mean": 30302.875,
+     "sd": 2704.520471755179
+    },
+    "preventive_repairs": {
+     "mean": 22.5,
+     "sd": 5.3452248382484875
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 37.625,
+     "sd": 4.808846015417836
+    },
+    "inspections_no_fault": {
+     "mean": 1.375,
+     "sd": 1.0606601717798212
+    },
+    "late_jobs": {
+     "mean": 10.25,
+     "sd": 2.2519832529192065
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 20.272668835793837,
+     "sd": 4.110839653950067
+    },
+    "utilisation": {
+     "mean": 0.2921006944444445,
+     "sd": 0.003014183750480026
+    },
+    "plan_change_rate": {
+     "mean": 0.32762164142719996,
+     "sd": 0.06777309768481511
+    },
+    "approvals_per_day": {
+     "mean": 1.2260416666666667,
+     "sd": 0.07392583960906195
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 156.0625,
+     "sd": 27.35668826552554
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean": 227.325,
+     "sd": 41.78170310417845
+    },
+    "failures": {
+     "mean": 46.375,
+     "sd": 3.8521793460696654
+    },
+    "failures_A": {
+     "mean": 7.5,
+     "sd": 5.631543812693436
+    },
+    "unplanned_downtime_h": {
+     "mean": 12664.125,
+     "sd": 2964.76852565496
+    },
+    "preventive_repairs": {
+     "mean": 19.625,
+     "sd": 3.6620642110310255
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 37.625,
+     "sd": 4.808846015417836
+    },
+    "inspections_no_fault": {
+     "mean": 1.375,
+     "sd": 1.0606601717798212
+    },
+    "late_jobs": {
+     "mean": 10.0,
+     "sd": 4.375255094603872
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 18.535526315789475,
+     "sd": 2.524507239379633
+    },
+    "utilisation": {
+     "mean": 0.2927951388888889,
+     "sd": 0.004709037089793536
+    },
+    "plan_change_rate": {
+     "mean": 0.7098532153262909,
+     "sd": 0.04965089924092589
+    },
+    "approvals_per_day": {
+     "mean": 1.25625,
+     "sd": 0.057173850721717254
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 203.9375,
+     "sd": 43.32471869498981
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean": 226.975,
+     "sd": 43.76184737547406
+    },
+    "failures": {
+     "mean": 46.625,
+     "sd": 4.307385683749649
+    },
+    "failures_A": {
+     "mean": 7.25,
+     "sd": 5.849297882163783
+    },
+    "unplanned_downtime_h": {
+     "mean": 12116.0,
+     "sd": 2790.4469176101525
+    },
+    "preventive_repairs": {
+     "mean": 19.75,
+     "sd": 4.0970372570571385
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 37.875,
+     "sd": 4.911720676097125
+    },
+    "inspections_no_fault": {
+     "mean": 1.375,
+     "sd": 1.0606601717798212
+    },
+    "late_jobs": {
+     "mean": 9.5,
+     "sd": 3.8913824205360674
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 17.847648790837646,
+     "sd": 2.869890968660702
+    },
+    "utilisation": {
+     "mean": 0.29296875,
+     "sd": 0.004271780931137873
+    },
+    "plan_change_rate": {
+     "mean": 0.6213462021414817,
+     "sd": 0.08095330006185458
+    },
+    "approvals_per_day": {
+     "mean": 1.2604166666666665,
+     "sd": 0.059553563991813135
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 203.4375,
+     "sd": 46.31679539556127
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean": 260.6875,
+     "sd": 38.861418160285545
+    },
+    "failures": {
+     "mean": 67.375,
+     "sd": 0.7440238091428449
+    },
+    "failures_A": {
+     "mean": 8.375,
+     "sd": 4.983902658989812
+    },
+    "unplanned_downtime_h": {
+     "mean": 35211.625,
+     "sd": 635.6751051328928
+    },
+    "preventive_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "utilisation": {
+     "mean": 0.27708333333333335,
+     "sd": 0.004636238668868232
+    },
+    "plan_change_rate": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "approvals_per_day": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 260.6875,
+     "sd": 38.861418160285545
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean": 213.625,
+     "sd": 36.82269292550063
+    },
+    "failures": {
+     "mean": 51.75,
+     "sd": 3.453776401067595
+    },
+    "failures_A": {
+     "mean": 6.625,
+     "sd": 3.9618718519695424
+    },
+    "unplanned_downtime_h": {
+     "mean": 34517.5,
+     "sd": 1718.6883703236356
+    },
+    "preventive_repairs": {
+     "mean": 12.5,
+     "sd": 2.9277002188455996
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 15.375,
+     "sd": 2.7222627143085005
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 9.999024321266969,
+     "sd": 3.0916233613687396
+    },
+    "utilisation": {
+     "mean": 0.25902777777777775,
+     "sd": 0.004133465606349151
+    },
+    "plan_change_rate": {
+     "mean": 0.38796742918781585,
+     "sd": 0.037752901417171976
+    },
+    "approvals_per_day": {
+     "mean": 0.91875,
+     "sd": 0.04243342123957529
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 201.125,
+     "sd": 39.13598088715805
+    }
+   }
+  },
+  "approval_delay": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean": 227.9375,
+     "sd": 16.6227844925486
+    },
+    "failures": {
+     "mean": 18.75,
+     "sd": 1.7525491637693282
+    },
+    "failures_A": {
+     "mean": 1.625,
+     "sd": 1.685018016012207
+    },
+    "unplanned_downtime_h": {
+     "mean": 998.875,
+     "sd": 112.52991665711454
+    },
+    "preventive_repairs": {
+     "mean": 159.75,
+     "sd": 2.5495097567963922
+    },
+    "early_repairs": {
+     "mean": 100.125,
+     "sd": 3.044315545875155
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 8.125,
+     "sd": 1.3562026818605375
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 228.76419612341567,
+     "sd": 6.109047540888259
+    },
+    "utilisation": {
+     "mean": 0.7421875,
+     "sd": 0.004129296704021297
+    },
+    "plan_change_rate": {
+     "mean": 0.02852169682223649,
+     "sd": 0.014024200554341035
+    },
+    "approvals_per_day": {
+     "mean": 1.6218750000000002,
+     "sd": 0.012549505144230918
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 68.1875,
+     "sd": 18.407951503940588
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean": 159.02499999999998,
+     "sd": 12.233414428172885
+    },
+    "failures": {
+     "mean": 17.875,
+     "sd": 4.611708700997618
+    },
+    "failures_A": {
+     "mean": 0.75,
+     "sd": 0.7071067811865476
+    },
+    "unplanned_downtime_h": {
+     "mean": 1086.5,
+     "sd": 373.3703638097547
+    },
+    "preventive_repairs": {
+     "mean": 108.25,
+     "sd": 5.70087712549569
+    },
+    "early_repairs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "inspections": {
+     "mean": 10.25,
+     "sd": 1.6690459207925603
+    },
+    "inspections_no_fault": {
+     "mean": 1.0,
+     "sd": 0.7559289460184544
+    },
+    "late_jobs": {
+     "mean": 12.375,
+     "sd": 2.7222627143085005
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 27.768202999873534,
+     "sd": 1.592699217913637
+    },
+    "utilisation": {
+     "mean": 0.529296875,
+     "sd": 0.009602683298833634
+    },
+    "plan_change_rate": {
+     "mean": 0.291967454438284,
+     "sd": 0.05551795378956891
+    },
+    "approvals_per_day": {
+     "mean": 1.2979166666666666,
+     "sd": 0.032656825534155214
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 49.75,
+     "sd": 14.64581851587681
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean": 156.9375,
+     "sd": 9.225421012460234
+    },
+    "failures": {
+     "mean": 14.25,
+     "sd": 3.24037034920393
+    },
+    "failures_A": {
+     "mean": 0.875,
+     "sd": 1.1259916264596033
+    },
+    "unplanned_downtime_h": {
+     "mean": 892.75,
+     "sd": 354.1278017891281
+    },
+    "preventive_repairs": {
+     "mean": 112.0,
+     "sd": 3.585685828003181
+    },
+    "early_repairs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "inspections": {
+     "mean": 8.125,
+     "sd": 1.246423454758225
+    },
+    "inspections_no_fault": {
+     "mean": 0.625,
+     "sd": 0.5175491695067657
+    },
+    "late_jobs": {
+     "mean": 10.5,
+     "sd": 2.0
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 27.34531503070206,
+     "sd": 1.1993857481218742
+    },
+    "utilisation": {
+     "mean": 0.5302734375,
+     "sd": 0.00885389311552217
+    },
+    "plan_change_rate": {
+     "mean": 0.3642272340482365,
+     "sd": 0.06016591541652771
+    },
+    "approvals_per_day": {
+     "mean": 1.2541666666666667,
+     "sd": 0.03421454253142837
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 44.125,
+     "sd": 10.615857411035087
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean": 161.35,
+     "sd": 10.150299080744928
+    },
+    "failures": {
+     "mean": 15.625,
+     "sd": 4.779046527738113
+    },
+    "failures_A": {
+     "mean": 1.0,
+     "sd": 1.0690449676496976
+    },
+    "unplanned_downtime_h": {
+     "mean": 1015.75,
+     "sd": 477.79127241924374
+    },
+    "preventive_repairs": {
+     "mean": 110.5,
+     "sd": 5.7817446699565895
+    },
+    "early_repairs": {
+     "mean": 0.375,
+     "sd": 0.5175491695067657
+    },
+    "inspections": {
+     "mean": 7.875,
+     "sd": 1.5526475085202969
+    },
+    "inspections_no_fault": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "late_jobs": {
+     "mean": 12.125,
+     "sd": 2.9001231500945415
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 26.68757857768132,
+     "sd": 1.5891982566635035
+    },
+    "utilisation": {
+     "mean": 0.5296223958333333,
+     "sd": 0.010074120382231634
+    },
+    "plan_change_rate": {
+     "mean": 0.15719934967694751,
+     "sd": 0.039048770385785796
+    },
+    "approvals_per_day": {
+     "mean": 1.2583333333333333,
+     "sd": 0.0314970394174356
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 50.0625,
+     "sd": 13.565811807628764
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean": 168.075,
+     "sd": 7.234194594325717
+    },
+    "failures": {
+     "mean": 19.375,
+     "sd": 3.6228441865473595
+    },
+    "failures_A": {
+     "mean": 1.125,
+     "sd": 1.1259916264596033
+    },
+    "unplanned_downtime_h": {
+     "mean": 909.625,
+     "sd": 196.91618050037724
+    },
+    "preventive_repairs": {
+     "mean": 107.25,
+     "sd": 4.6827952580239325
+    },
+    "early_repairs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "inspections": {
+     "mean": 9.5,
+     "sd": 0.9258200997725514
+    },
+    "inspections_no_fault": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "late_jobs": {
+     "mean": 9.75,
+     "sd": 2.6049403612586386
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 28.819842825187656,
+     "sd": 1.1993615202426724
+    },
+    "utilisation": {
+     "mean": 0.5309895833333332,
+     "sd": 0.009127860227965258
+    },
+    "plan_change_rate": {
+     "mean": 0.419258850115819,
+     "sd": 0.05116044325785184
+    },
+    "approvals_per_day": {
+     "mean": 1.3072916666666665,
+     "sd": 0.02935736975156596
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 59.875,
+     "sd": 7.836498853806736
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean": 168.3625,
+     "sd": 10.53062710112067
+    },
+    "failures": {
+     "mean": 18.5,
+     "sd": 4.6291004988627575
+    },
+    "failures_A": {
+     "mean": 1.125,
+     "sd": 0.9910312089651149
+    },
+    "unplanned_downtime_h": {
+     "mean": 1011.25,
+     "sd": 328.47994067914016
+    },
+    "preventive_repairs": {
+     "mean": 108.0,
+     "sd": 5.0709255283711
+    },
+    "early_repairs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "inspections": {
+     "mean": 8.625,
+     "sd": 1.9226098333849673
+    },
+    "inspections_no_fault": {
+     "mean": 0.75,
+     "sd": 0.4629100498862757
+    },
+    "late_jobs": {
+     "mean": 10.375,
+     "sd": 2.2638462845343543
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 28.344318937198715,
+     "sd": 0.8972860813019851
+    },
+    "utilisation": {
+     "mean": 0.5305338541666667,
+     "sd": 0.008781377537485398
+    },
+    "plan_change_rate": {
+     "mean": 0.1041866518167967,
+     "sd": 0.03336484992956965
+    },
+    "approvals_per_day": {
+     "mean": 1.2927083333333333,
+     "sd": 0.04847628695378183
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 59.5,
+     "sd": 12.889641466808033
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean": 444.3125,
+     "sd": 64.57992694549688
+    },
+    "failures": {
+     "mean": 116.75,
+     "sd": 2.052872551885702
+    },
+    "failures_A": {
+     "mean": 13.875,
+     "sd": 8.043409014306594
+    },
+    "unplanned_downtime_h": {
+     "mean": 5336.375,
+     "sd": 205.25380629844602
+    },
+    "preventive_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "utilisation": {
+     "mean": 0.47968750000000004,
+     "sd": 0.009819173622811678
+    },
+    "plan_change_rate": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "approvals_per_day": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 444.3125,
+     "sd": 64.57992694549688
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean": 279.625,
+     "sd": 40.33409582120672
+    },
+    "failures": {
+     "mean": 53.625,
+     "sd": 4.138236339311712
+    },
+    "failures_A": {
+     "mean": 7.5,
+     "sd": 4.242640687119285
+    },
+    "unplanned_downtime_h": {
+     "mean": 3470.875,
+     "sd": 483.4750510626169
+    },
+    "preventive_repairs": {
+     "mean": 66.375,
+     "sd": 2.774243783705493
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 33.125,
+     "sd": 2.1671244937540095
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 15.49228265857881,
+     "sd": 1.139896388461639
+    },
+    "utilisation": {
+     "mean": 0.49583333333333335,
+     "sd": 0.007386710503565982
+    },
+    "plan_change_rate": {
+     "mean": 0.1896386015528111,
+     "sd": 0.04669414851308854
+    },
+    "approvals_per_day": {
+     "mean": 1.4520833333333334,
+     "sd": 0.048540197709226456
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 213.25,
+     "sd": 41.41169607041677
+    }
+   }
+  },
+  "base": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean": 214.875,
+     "sd": 10.048987155785545
+    },
+    "failures": {
+     "mean": 8.375,
+     "sd": 1.1877349391654208
+    },
+    "failures_A": {
+     "mean": 1.25,
+     "sd": 1.164964745021435
+    },
+    "unplanned_downtime_h": {
+     "mean": 387.875,
+     "sd": 60.6404803505287
+    },
+    "preventive_repairs": {
+     "mean": 181.375,
+     "sd": 1.5979898086569353
+    },
+    "early_repairs": {
+     "mean": 127.125,
+     "sd": 3.090885217631258
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 3.75,
+     "sd": 1.8322507626258087
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 236.50491203791998,
+     "sd": 4.433365058262998
+    },
+    "utilisation": {
+     "mean": 0.790625,
+     "sd": 0.0029462782549439376
+    },
+    "plan_change_rate": {
+     "mean": 0.002717391304347826,
+     "sd": 0.0076859432737668215
+    },
+    "approvals_per_day": {
+     "mean": 1.6187500000000001,
+     "sd": 0.012400396819047373
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 33.5,
+     "sd": 10.260882724488878
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean": 145.02499999999998,
+     "sd": 7.016256633195308
+    },
+    "failures": {
+     "mean": 10.25,
+     "sd": 2.2519832529192065
+    },
+    "failures_A": {
+     "mean": 0.25,
+     "sd": 0.4629100498862757
+    },
+    "unplanned_downtime_h": {
+     "mean": 780.625,
+     "sd": 298.0018875779145
+    },
+    "preventive_repairs": {
+     "mean": 119.125,
+     "sd": 3.090885217631258
+    },
+    "early_repairs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "inspections": {
+     "mean": 49.625,
+     "sd": 4.373213921133975
+    },
+    "inspections_no_fault": {
+     "mean": 4.25,
+     "sd": 1.164964745021435
+    },
+    "late_jobs": {
+     "mean": 5.75,
+     "sd": 1.7525491637693282
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 39.40088726720876,
+     "sd": 2.003931954856018
+    },
+    "utilisation": {
+     "mean": 0.5628255208333334,
+     "sd": 0.00959536600641803
+    },
+    "plan_change_rate": {
+     "mean": 0.5917693955618166,
+     "sd": 0.08804692634052547
+    },
+    "approvals_per_day": {
+     "mean": 1.5885416666666665,
+     "sd": 0.045629960047848535
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 20.9375,
+     "sd": 7.138614811612364
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean": 139.7,
+     "sd": 5.218647881806715
+    },
+    "failures": {
+     "mean": 4.0,
+     "sd": 2.390457218668787
+    },
+    "failures_A": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "unplanned_downtime_h": {
+     "mean": 258.25,
+     "sd": 148.72577834006162
+    },
+    "preventive_repairs": {
+     "mean": 127.0,
+     "sd": 2.878491668515698
+    },
+    "early_repairs": {
+     "mean": 0.375,
+     "sd": 0.5175491695067657
+    },
+    "inspections": {
+     "mean": 40.75,
+     "sd": 3.9910614413425693
+    },
+    "inspections_no_fault": {
+     "mean": 3.875,
+     "sd": 1.3562026818605375
+    },
+    "late_jobs": {
+     "mean": 2.625,
+     "sd": 1.5979898086569353
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 39.2617022359888,
+     "sd": 1.5225955768372612
+    },
+    "utilisation": {
+     "mean": 0.5660156249999999,
+     "sd": 0.01003678594833123
+    },
+    "plan_change_rate": {
+     "mean": 0.47920112364452694,
+     "sd": 0.10604841025281699
+    },
+    "approvals_per_day": {
+     "mean": 1.4729166666666669,
+     "sd": 0.03773077140890587
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 8.625,
+     "sd": 5.755432216610669
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean": 141.3375,
+     "sd": 6.123009880769419
+    },
+    "failures": {
+     "mean": 4.75,
+     "sd": 3.24037034920393
+    },
+    "failures_A": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "unplanned_downtime_h": {
+     "mean": 367.25,
+     "sd": 272.62677260837233
+    },
+    "preventive_repairs": {
+     "mean": 125.875,
+     "sd": 3.5228843701879127
+    },
+    "early_repairs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "inspections": {
+     "mean": 41.5,
+     "sd": 4.174754056057845
+    },
+    "inspections_no_fault": {
+     "mean": 3.5,
+     "sd": 1.6035674514745464
+    },
+    "late_jobs": {
+     "mean": 3.5,
+     "sd": 2.2038926600773587
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 39.29001415935306,
+     "sd": 1.2130317368871726
+    },
+    "utilisation": {
+     "mean": 0.5653645833333333,
+     "sd": 0.01001068997075009
+    },
+    "plan_change_rate": {
+     "mean": 0.30112254848563164,
+     "sd": 0.09263786742592486
+    },
+    "approvals_per_day": {
+     "mean": 1.484375,
+     "sd": 0.051646981657069865
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 11.3125,
+     "sd": 7.990787105875651
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean": 144.35,
+     "sd": 7.100301804450693
+    },
+    "failures": {
+     "mean": 5.375,
+     "sd": 3.3354160160315836
+    },
+    "failures_A": {
+     "mean": 0.25,
+     "sd": 0.4629100498862757
+    },
+    "unplanned_downtime_h": {
+     "mean": 257.625,
+     "sd": 194.32736554587467
+    },
+    "preventive_repairs": {
+     "mean": 125.5,
+     "sd": 3.3380918415851206
+    },
+    "early_repairs": {
+     "mean": 0.25,
+     "sd": 0.4629100498862757
+    },
+    "inspections": {
+     "mean": 46.0,
+     "sd": 3.779644730092272
+    },
+    "inspections_no_fault": {
+     "mean": 4.125,
+     "sd": 0.9910312089651149
+    },
+    "late_jobs": {
+     "mean": 1.75,
+     "sd": 1.4880476182856899
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 38.76584491040059,
+     "sd": 1.0332397916238043
+    },
+    "utilisation": {
+     "mean": 0.5677083333333333,
+     "sd": 0.009457310622283126
+    },
+    "plan_change_rate": {
+     "mean": 0.45551840351491224,
+     "sd": 0.078754571783486
+    },
+    "approvals_per_day": {
+     "mean": 1.5270833333333336,
+     "sd": 0.04266657366061292
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 14.25,
+     "sd": 8.46421036735602
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean": 142.325,
+     "sd": 5.4701136055060875
+    },
+    "failures": {
+     "mean": 5.25,
+     "sd": 2.5495097567963922
+    },
+    "failures_A": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "unplanned_downtime_h": {
+     "mean": 278.5,
+     "sd": 149.87899881475818
+    },
+    "preventive_repairs": {
+     "mean": 125.375,
+     "sd": 2.8252686345094435
+    },
+    "early_repairs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "inspections": {
+     "mean": 47.0,
+     "sd": 3.927922024247863
+    },
+    "inspections_no_fault": {
+     "mean": 4.375,
+     "sd": 1.0606601717798212
+    },
+    "late_jobs": {
+     "mean": 2.25,
+     "sd": 1.5811388300841898
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 38.47079638024458,
+     "sd": 1.2191378235625134
+    },
+    "utilisation": {
+     "mean": 0.5682291666666666,
+     "sd": 0.009700052671269213
+    },
+    "plan_change_rate": {
+     "mean": 0.12191909170087539,
+     "sd": 0.03920753064259439
+    },
+    "approvals_per_day": {
+     "mean": 1.5333333333333332,
+     "sd": 0.04387029945878161
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 12.25,
+     "sd": 5.861496639693898
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean": 444.3125,
+     "sd": 64.57992694549688
+    },
+    "failures": {
+     "mean": 116.75,
+     "sd": 2.052872551885702
+    },
+    "failures_A": {
+     "mean": 13.875,
+     "sd": 8.043409014306594
+    },
+    "unplanned_downtime_h": {
+     "mean": 5336.375,
+     "sd": 205.25380629844602
+    },
+    "preventive_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "utilisation": {
+     "mean": 0.47968750000000004,
+     "sd": 0.009819173622811678
+    },
+    "plan_change_rate": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "approvals_per_day": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 444.3125,
+     "sd": 64.57992694549688
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean": 150.8125,
+     "sd": 8.202514858261459
+    },
+    "failures": {
+     "mean": 9.0,
+     "sd": 2.6186146828319083
+    },
+    "failures_A": {
+     "mean": 0.875,
+     "sd": 0.6408699444616557
+    },
+    "unplanned_downtime_h": {
+     "mean": 615.0,
+     "sd": 270.6410379609335
+    },
+    "preventive_repairs": {
+     "mean": 118.0,
+     "sd": 3.5050983275386565
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 7.25,
+     "sd": 1.9086270308410553
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 27.584662410039506,
+     "sd": 0.30722007622611236
+    },
+    "utilisation": {
+     "mean": 0.5291666666666667,
+     "sd": 0.008625819491779398
+    },
+    "plan_change_rate": {
+     "mean": 0.3076047724926197,
+     "sd": 0.11790387925196286
+    },
+    "approvals_per_day": {
+     "mean": 1.1333333333333333,
+     "sd": 0.02635231383473653
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 32.8125,
+     "sd": 10.915053497676631
+    }
+   }
+  },
+  "degraded_predictions": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean": 214.875,
+     "sd": 10.048987155785545
+    },
+    "failures": {
+     "mean": 8.375,
+     "sd": 1.1877349391654208
+    },
+    "failures_A": {
+     "mean": 1.25,
+     "sd": 1.164964745021435
+    },
+    "unplanned_downtime_h": {
+     "mean": 387.875,
+     "sd": 60.6404803505287
+    },
+    "preventive_repairs": {
+     "mean": 181.375,
+     "sd": 1.5979898086569353
+    },
+    "early_repairs": {
+     "mean": 127.125,
+     "sd": 3.090885217631258
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 3.75,
+     "sd": 1.8322507626258087
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 236.50491203791998,
+     "sd": 4.433365058262998
+    },
+    "utilisation": {
+     "mean": 0.790625,
+     "sd": 0.0029462782549439376
+    },
+    "plan_change_rate": {
+     "mean": 0.002717391304347826,
+     "sd": 0.0076859432737668215
+    },
+    "approvals_per_day": {
+     "mean": 1.6187500000000001,
+     "sd": 0.012400396819047373
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 33.5,
+     "sd": 10.260882724488878
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean": 179.7125,
+     "sd": 15.04027331628556
+    },
+    "failures": {
+     "mean": 28.25,
+     "sd": 3.058944729337694
+    },
+    "failures_A": {
+     "mean": 1.375,
+     "sd": 1.1877349391654208
+    },
+    "unplanned_downtime_h": {
+     "mean": 2070.375,
+     "sd": 358.3485683361543
+    },
+    "preventive_repairs": {
+     "mean": 94.5,
+     "sd": 3.4226138716316967
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 61.5,
+     "sd": 3.9641248358604595
+    },
+    "inspections_no_fault": {
+     "mean": 1.875,
+     "sd": 0.8345229603962802
+    },
+    "late_jobs": {
+     "mean": 15.0,
+     "sd": 3.070597894314954
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 23.47424442943039,
+     "sd": 1.6171994528300875
+    },
+    "utilisation": {
+     "mean": 0.54296875,
+     "sd": 0.009607726460411735
+    },
+    "plan_change_rate": {
+     "mean": 0.6692346671242517,
+     "sd": 0.0342079214766845
+    },
+    "approvals_per_day": {
+     "mean": 1.7833333333333332,
+     "sd": 0.038832158167381135
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 79.0625,
+     "sd": 17.247023552734294
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean": 175.2375,
+     "sd": 11.370128470187636
+    },
+    "failures": {
+     "mean": 21.5,
+     "sd": 5.18238775634773
+    },
+    "failures_A": {
+     "mean": 1.5,
+     "sd": 1.1952286093343936
+    },
+    "unplanned_downtime_h": {
+     "mean": 1401.375,
+     "sd": 507.7094043699745
+    },
+    "preventive_repairs": {
+     "mean": 102.75,
+     "sd": 6.041522986797286
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 49.875,
+     "sd": 4.4860896112315904
+    },
+    "inspections_no_fault": {
+     "mean": 1.625,
+     "sd": 0.9161253813129043
+    },
+    "late_jobs": {
+     "mean": 16.75,
+     "sd": 3.575711717366808
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 21.49067230969498,
+     "sd": 1.5585441939325848
+    },
+    "utilisation": {
+     "mean": 0.5421223958333333,
+     "sd": 0.011604310599581828
+    },
+    "plan_change_rate": {
+     "mean": 0.5637001963694201,
+     "sd": 0.12020908381879017
+    },
+    "approvals_per_day": {
+     "mean": 1.6395833333333334,
+     "sd": 0.04874414901803156
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 67.5,
+     "sd": 12.797879288605369
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean": 173.4,
+     "sd": 10.146920715172659
+    },
+    "failures": {
+     "mean": 20.75,
+     "sd": 3.1509635714446826
+    },
+    "failures_A": {
+     "mean": 1.375,
+     "sd": 1.1877349391654208
+    },
+    "unplanned_downtime_h": {
+     "mean": 1228.5,
+     "sd": 343.48549563887804
+    },
+    "preventive_repairs": {
+     "mean": 103.625,
+     "sd": 4.240535680446853
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 50.875,
+     "sd": 3.758324094593227
+    },
+    "inspections_no_fault": {
+     "mean": 1.625,
+     "sd": 0.9161253813129043
+    },
+    "late_jobs": {
+     "mean": 16.375,
+     "sd": 2.9246489410818914
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 21.54801345915361,
+     "sd": 1.5046521696208148
+    },
+    "utilisation": {
+     "mean": 0.5426432291666666,
+     "sd": 0.011206781167419307
+    },
+    "plan_change_rate": {
+     "mean": 0.359280974005712,
+     "sd": 0.09733397425211365
+    },
+    "approvals_per_day": {
+     "mean": 1.6427083333333332,
+     "sd": 0.043057155628230405
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 64.6875,
+     "sd": 10.895403683598484
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean": 189.25,
+     "sd": 18.664863858521517
+    },
+    "failures": {
+     "mean": 27.875,
+     "sd": 5.89036743942418
+    },
+    "failures_A": {
+     "mean": 2.0,
+     "sd": 1.8516401995451028
+    },
+    "unplanned_downtime_h": {
+     "mean": 1828.875,
+     "sd": 680.9681002597908
+    },
+    "preventive_repairs": {
+     "mean": 95.375,
+     "sd": 7.726346392146069
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 53.75,
+     "sd": 5.7507763451058125
+    },
+    "inspections_no_fault": {
+     "mean": 1.375,
+     "sd": 0.7440238091428449
+    },
+    "late_jobs": {
+     "mean": 19.125,
+     "sd": 3.5228843701879127
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 20.767792068368525,
+     "sd": 1.5523050261408242
+    },
+    "utilisation": {
+     "mean": 0.5389322916666667,
+     "sd": 0.01255490792660922
+    },
+    "plan_change_rate": {
+     "mean": 0.5505708908651268,
+     "sd": 0.08699048573550273
+    },
+    "approvals_per_day": {
+     "mean": 1.7125,
+     "sd": 0.028171808490950537
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 88.5,
+     "sd": 23.56450114654911
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean": 185.575,
+     "sd": 11.220485092645758
+    },
+    "failures": {
+     "mean": 26.875,
+     "sd": 4.356850107261306
+    },
+    "failures_A": {
+     "mean": 1.625,
+     "sd": 1.407885953173359
+    },
+    "unplanned_downtime_h": {
+     "mean": 1592.625,
+     "sd": 453.9288608518803
+    },
+    "preventive_repairs": {
+     "mean": 96.875,
+     "sd": 5.962681563572839
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 55.125,
+     "sd": 6.0812945050493035
+    },
+    "inspections_no_fault": {
+     "mean": 1.375,
+     "sd": 1.0606601717798212
+    },
+    "late_jobs": {
+     "mean": 17.625,
+     "sd": 3.0676887530703447
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 20.59397227410501,
+     "sd": 1.3670804991124785
+    },
+    "utilisation": {
+     "mean": 0.5427734375,
+     "sd": 0.010154580525179814
+    },
+    "plan_change_rate": {
+     "mean": 0.15038359322357125,
+     "sd": 0.045379478742652656
+    },
+    "approvals_per_day": {
+     "mean": 1.7249999999999999,
+     "sd": 0.04178554470186721
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 83.1875,
+     "sd": 11.587978684826789
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean": 444.3125,
+     "sd": 64.57992694549688
+    },
+    "failures": {
+     "mean": 116.75,
+     "sd": 2.052872551885702
+    },
+    "failures_A": {
+     "mean": 13.875,
+     "sd": 8.043409014306594
+    },
+    "unplanned_downtime_h": {
+     "mean": 5336.375,
+     "sd": 205.25380629844602
+    },
+    "preventive_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "utilisation": {
+     "mean": 0.47968750000000004,
+     "sd": 0.009819173622811678
+    },
+    "plan_change_rate": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "approvals_per_day": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 444.3125,
+     "sd": 64.57992694549688
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean": 307.125,
+     "sd": 48.34308193970024
+    },
+    "failures": {
+     "mean": 64.75,
+     "sd": 6.296257391725432
+    },
+    "failures_A": {
+     "mean": 8.5,
+     "sd": 5.154748157905347
+    },
+    "unplanned_downtime_h": {
+     "mean": 4742.25,
+     "sd": 1180.7486426597563
+    },
+    "preventive_repairs": {
+     "mean": 53.375,
+     "sd": 6.186101934405635
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 46.875,
+     "sd": 4.189698250300543
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 10.41527052917583,
+     "sd": 0.966655506097462
+    },
+    "utilisation": {
+     "mean": 0.4864583333333333,
+     "sd": 0.0062001984095237
+    },
+    "plan_change_rate": {
+     "mean": 0.5484760518088644,
+     "sd": 0.08857500024198794
+    },
+    "approvals_per_day": {
+     "mean": 1.4208333333333334,
+     "sd": 0.03700064349504776
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 253.75,
+     "sd": 51.607031636064036
+    }
+   }
+  },
+  "parts_shortage": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean": 202.375,
+     "sd": 34.0186398485133
+    },
+    "failures": {
+     "mean": 51.875,
+     "sd": 1.8850918886280925
+    },
+    "failures_A": {
+     "mean": 6.25,
+     "sd": 3.9910614413425693
+    },
+    "unplanned_downtime_h": {
+     "mean": 34217.625,
+     "sd": 893.0718956020762
+    },
+    "preventive_repairs": {
+     "mean": 5.5,
+     "sd": 1.1952286093343936
+    },
+    "early_repairs": {
+     "mean": 4.125,
+     "sd": 1.4577379737113252
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 206.66309523809525,
+     "sd": 46.17062170595022
+    },
+    "utilisation": {
+     "mean": 0.14791666666666667,
+     "sd": 0.002227177015936862
+    },
+    "plan_change_rate": {
+     "mean": 0.009558889881884285,
+     "sd": 0.007918058694787455
+    },
+    "approvals_per_day": {
+     "mean": 0.9239583333333334,
+     "sd": 0.017501417176177588
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 196.875,
+     "sd": 33.440512214122215
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean": 197.85,
+     "sd": 41.87546161792471
+    },
+    "failures": {
+     "mean": 41.125,
+     "sd": 3.48209706929603
+    },
+    "failures_A": {
+     "mean": 7.125,
+     "sd": 5.693040864574423
+    },
+    "unplanned_downtime_h": {
+     "mean": 14891.875,
+     "sd": 3578.446527974315
+    },
+    "preventive_repairs": {
+     "mean": 14.625,
+     "sd": 3.583194903195431
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 25.375,
+     "sd": 4.138236339311712
+    },
+    "inspections_no_fault": {
+     "mean": 1.75,
+     "sd": 1.2817398889233114
+    },
+    "late_jobs": {
+     "mean": 2.75,
+     "sd": 0.8864052604279183
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 30.02495676837782,
+     "sd": 5.9475384046776165
+    },
+    "utilisation": {
+     "mean": 0.15436197916666666,
+     "sd": 0.0030867889560233586
+    },
+    "plan_change_rate": {
+     "mean": 0.24651183989964315,
+     "sd": 0.048122878175573536
+    },
+    "approvals_per_day": {
+     "mean": 1.0218749999999999,
+     "sd": 0.04606273758311365
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 180.6875,
+     "sd": 43.33831816566688
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean": 165.0875,
+     "sd": 24.13239893942226
+    },
+    "failures": {
+     "mean": 40.5,
+     "sd": 2.390457218668787
+    },
+    "failures_A": {
+     "mean": 4.125,
+     "sd": 2.5319388392523003
+    },
+    "unplanned_downtime_h": {
+     "mean": 26180.375,
+     "sd": 3994.638368667253
+    },
+    "preventive_repairs": {
+     "mean": 15.5,
+     "sd": 2.390457218668787
+    },
+    "early_repairs": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "inspections": {
+     "mean": 25.25,
+     "sd": 3.9910614413425693
+    },
+    "inspections_no_fault": {
+     "mean": 2.0,
+     "sd": 1.1952286093343936
+    },
+    "late_jobs": {
+     "mean": 3.625,
+     "sd": 1.685018016012207
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 31.131844535216246,
+     "sd": 7.720090225764548
+    },
+    "utilisation": {
+     "mean": 0.154296875,
+     "sd": 0.0030209616146818132
+    },
+    "plan_change_rate": {
+     "mean": 0.26046608136875166,
+     "sd": 0.056617858734035964
+    },
+    "approvals_per_day": {
+     "mean": 1.0187499999999998,
+     "sd": 0.03611874156256683
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 147.0625,
+     "sd": 25.325646938570845
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean": 162.8375,
+     "sd": 24.767371248710038
+    },
+    "failures": {
+     "mean": 40.0,
+     "sd": 2.5071326821120348
+    },
+    "failures_A": {
+     "mean": 4.0,
+     "sd": 2.5634797778466227
+    },
+    "unplanned_downtime_h": {
+     "mean": 25890.375,
+     "sd": 3923.357925389205
+    },
+    "preventive_repairs": {
+     "mean": 16.0,
+     "sd": 2.5071326821120348
+    },
+    "early_repairs": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "inspections": {
+     "mean": 25.25,
+     "sd": 3.9910614413425693
+    },
+    "inspections_no_fault": {
+     "mean": 2.0,
+     "sd": 1.1952286093343936
+    },
+    "late_jobs": {
+     "mean": 3.125,
+     "sd": 1.4577379737113252
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 30.348290096234173,
+     "sd": 6.911842117161958
+    },
+    "utilisation": {
+     "mean": 0.154296875,
+     "sd": 0.0030209616146818132
+    },
+    "plan_change_rate": {
+     "mean": 0.2091963722623552,
+     "sd": 0.04510836913585601
+    },
+    "approvals_per_day": {
+     "mean": 1.0145833333333334,
+     "sd": 0.031418198143801555
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 144.3125,
+     "sd": 26.146479549972742
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean": 203.7625,
+     "sd": 46.79902128097492
+    },
+    "failures": {
+     "mean": 41.5,
+     "sd": 2.449489742783178
+    },
+    "failures_A": {
+     "mean": 7.875,
+     "sd": 6.2891630149465385
+    },
+    "unplanned_downtime_h": {
+     "mean": 10279.125,
+     "sd": 2029.8514680002716
+    },
+    "preventive_repairs": {
+     "mean": 14.5,
+     "sd": 2.449489742783178
+    },
+    "early_repairs": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "inspections": {
+     "mean": 25.75,
+     "sd": 3.370036032024414
+    },
+    "inspections_no_fault": {
+     "mean": 2.0,
+     "sd": 1.1952286093343936
+    },
+    "late_jobs": {
+     "mean": 0.375,
+     "sd": 0.5175491695067657
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 35.102476361357944,
+     "sd": 5.475536491715196
+    },
+    "utilisation": {
+     "mean": 0.155078125,
+     "sd": 0.0017552271000127093
+    },
+    "plan_change_rate": {
+     "mean": 0.6278063768991282,
+     "sd": 0.09073601436057499
+    },
+    "approvals_per_day": {
+     "mean": 1.0333333333333332,
+     "sd": 0.03149703941743559
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 186.6875,
+     "sd": 48.41999107511572
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean": 202.6375,
+     "sd": 47.84414988868994
+    },
+    "failures": {
+     "mean": 41.625,
+     "sd": 2.7222627143085005
+    },
+    "failures_A": {
+     "mean": 7.625,
+     "sd": 6.41287766919033
+    },
+    "unplanned_downtime_h": {
+     "mean": 11611.75,
+     "sd": 3276.1629451016543
+    },
+    "preventive_repairs": {
+     "mean": 14.375,
+     "sd": 2.7222627143085005
+    },
+    "early_repairs": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "inspections": {
+     "mean": 25.75,
+     "sd": 3.370036032024414
+    },
+    "inspections_no_fault": {
+     "mean": 2.0,
+     "sd": 1.1952286093343936
+    },
+    "late_jobs": {
+     "mean": 0.625,
+     "sd": 0.5175491695067657
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 34.929816729323306,
+     "sd": 6.459513116757531
+    },
+    "utilisation": {
+     "mean": 0.155078125,
+     "sd": 0.0017552271000127093
+    },
+    "plan_change_rate": {
+     "mean": 0.5234918594378667,
+     "sd": 0.11985876197393178
+    },
+    "approvals_per_day": {
+     "mean": 1.034375,
+     "sd": 0.034341162999969504
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 185.6875,
+     "sd": 49.65375651161033
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean": 210.5625,
+     "sd": 31.687579247576306
+    },
+    "failures": {
+     "mean": 55.125,
+     "sd": 1.246423454758225
+    },
+    "failures_A": {
+     "mean": 6.625,
+     "sd": 3.7008686239082538
+    },
+    "unplanned_downtime_h": {
+     "mean": 35276.125,
+     "sd": 940.7954745852044
+    },
+    "preventive_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "utilisation": {
+     "mean": 0.140625,
+     "sd": 0.001928791874526142
+    },
+    "plan_change_rate": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "approvals_per_day": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 210.5625,
+     "sd": 31.687579247576306
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean": 169.6875,
+     "sd": 18.622063526902704
+    },
+    "failures": {
+     "mean": 41.0,
+     "sd": 3.295017884191656
+    },
+    "failures_A": {
+     "mean": 4.625,
+     "sd": 2.445841952609133
+    },
+    "unplanned_downtime_h": {
+     "mean": 26844.25,
+     "sd": 3529.1868650684155
+    },
+    "preventive_repairs": {
+     "mean": 13.875,
+     "sd": 3.181980515339464
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 6.25,
+     "sd": 1.3887301496588271
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 20.380525030525032,
+     "sd": 4.3019374731953475
+    },
+    "utilisation": {
+     "mean": 0.1375,
+     "sd": 0.0038575837490522967
+    },
+    "plan_change_rate": {
+     "mean": 0.24073338240868114,
+     "sd": 0.043867926821550184
+    },
+    "approvals_per_day": {
+     "mean": 0.8,
+     "sd": 0.03053751271043013
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 155.8125,
+     "sd": 18.871629311141707
+    }
+   }
+  },
+  "tight_labour": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean": 319.75,
+     "sd": 37.03858991453566
+    },
+    "failures": {
+     "mean": 68.375,
+     "sd": 3.9256482631170977
+    },
+    "failures_A": {
+     "mean": 9.0,
+     "sd": 4.65985898008574
+    },
+    "unplanned_downtime_h": {
+     "mean": 14338.875,
+     "sd": 946.5675490951504
+    },
+    "preventive_repairs": {
+     "mean": 52.875,
+     "sd": 4.764076885549662
+    },
+    "early_repairs": {
+     "mean": 30.5,
+     "sd": 3.9641248358604595
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 4.375,
+     "sd": 1.7677669529663689
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 223.28522063327912,
+     "sd": 24.335080036176212
+    },
+    "utilisation": {
+     "mean": 0.642361111111111,
+     "sd": 0.009820927516479842
+    },
+    "plan_change_rate": {
+     "mean": 0.026190179636627876,
+     "sd": 0.005983109552682801
+    },
+    "approvals_per_day": {
+     "mean": 1.6114583333333332,
+     "sd": 0.03331472694989455
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 266.875,
+     "sd": 36.624299115673
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean": 164.275,
+     "sd": 16.828186388997988
+    },
+    "failures": {
+     "mean": 32.125,
+     "sd": 4.823676724538776
+    },
+    "failures_A": {
+     "mean": 0.25,
+     "sd": 0.4629100498862757
+    },
+    "unplanned_downtime_h": {
+     "mean": 11295.0,
+     "sd": 2842.7375638885237
+    },
+    "preventive_repairs": {
+     "mean": 77.75,
+     "sd": 5.4182232195751086
+    },
+    "early_repairs": {
+     "mean": 0.25,
+     "sd": 0.4629100498862757
+    },
+    "inspections": {
+     "mean": 52.75,
+     "sd": 5.873670062235365
+    },
+    "inspections_no_fault": {
+     "mean": 4.625,
+     "sd": 1.5979898086569353
+    },
+    "late_jobs": {
+     "mean": 9.375,
+     "sd": 2.669269563007828
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 34.30405434687431,
+     "sd": 2.191754364059592
+    },
+    "utilisation": {
+     "mean": 0.6234375,
+     "sd": 0.016628386926087237
+    },
+    "plan_change_rate": {
+     "mean": 0.5335268823192869,
+     "sd": 0.04522015624537812
+    },
+    "approvals_per_day": {
+     "mean": 1.634375,
+     "sd": 0.08145958926080886
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 81.25,
+     "sd": 20.2837021134844
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean": 158.175,
+     "sd": 14.995022983834147
+    },
+    "failures": {
+     "mean": 29.0,
+     "sd": 4.44007721940573
+    },
+    "failures_A": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "unplanned_downtime_h": {
+     "mean": 10944.75,
+     "sd": 3095.1310034587273
+    },
+    "preventive_repairs": {
+     "mean": 81.75,
+     "sd": 7.343607521414215
+    },
+    "early_repairs": {
+     "mean": 0.25,
+     "sd": 0.4629100498862757
+    },
+    "inspections": {
+     "mean": 53.0,
+     "sd": 5.31843156256751
+    },
+    "inspections_no_fault": {
+     "mean": 4.625,
+     "sd": 1.5979898086569353
+    },
+    "late_jobs": {
+     "mean": 9.625,
+     "sd": 4.68851179556401
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 33.725989407104265,
+     "sd": 2.4125831955380193
+    },
+    "utilisation": {
+     "mean": 0.6277777777777778,
+     "sd": 0.02894140144866954
+    },
+    "plan_change_rate": {
+     "mean": 0.5181444644706961,
+     "sd": 0.022146289764196716
+    },
+    "approvals_per_day": {
+     "mean": 1.615625,
+     "sd": 0.06114604881522834
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 71.125,
+     "sd": 21.138573407736995
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean": 162.75,
+     "sd": 19.907428620635923
+    },
+    "failures": {
+     "mean": 29.875,
+     "sd": 4.356850107261306
+    },
+    "failures_A": {
+     "mean": 0.5,
+     "sd": 1.0690449676496976
+    },
+    "unplanned_downtime_h": {
+     "mean": 11497.25,
+     "sd": 2969.481231749796
+    },
+    "preventive_repairs": {
+     "mean": 80.0,
+     "sd": 6.047431568147635
+    },
+    "early_repairs": {
+     "mean": 0.25,
+     "sd": 0.4629100498862757
+    },
+    "inspections": {
+     "mean": 52.5,
+     "sd": 5.1269595556932455
+    },
+    "inspections_no_fault": {
+     "mean": 4.625,
+     "sd": 1.5979898086569353
+    },
+    "late_jobs": {
+     "mean": 10.625,
+     "sd": 3.6228441865473595
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 33.623359243030286,
+     "sd": 2.786633489846456
+    },
+    "utilisation": {
+     "mean": 0.621875,
+     "sd": 0.022184988648642306
+    },
+    "plan_change_rate": {
+     "mean": 0.4889534329747587,
+     "sd": 0.052795899848111894
+    },
+    "approvals_per_day": {
+     "mean": 1.6114583333333332,
+     "sd": 0.06985493756054256
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 77.5,
+     "sd": 24.84379773131084
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean": 182.25,
+     "sd": 13.742946242657412
+    },
+    "failures": {
+     "mean": 37.875,
+     "sd": 3.5228843701879127
+    },
+    "failures_A": {
+     "mean": 0.5,
+     "sd": 0.5345224838248488
+    },
+    "unplanned_downtime_h": {
+     "mean": 7085.0,
+     "sd": 1394.797783602647
+    },
+    "preventive_repairs": {
+     "mean": 79.0,
+     "sd": 3.6645015252516173
+    },
+    "early_repairs": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "inspections": {
+     "mean": 56.25,
+     "sd": 4.713203338949606
+    },
+    "inspections_no_fault": {
+     "mean": 4.875,
+     "sd": 1.3562026818605375
+    },
+    "late_jobs": {
+     "mean": 1.0,
+     "sd": 1.3093073414159542
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 34.43716587832769,
+     "sd": 1.6452397151965286
+    },
+    "utilisation": {
+     "mean": 0.6737847222222222,
+     "sd": 0.004948895579855953
+    },
+    "plan_change_rate": {
+     "mean": 0.703337071448239,
+     "sd": 0.05556031232356265
+    },
+    "approvals_per_day": {
+     "mean": 1.7708333333333335,
+     "sd": 0.04154744849194087
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 97.625,
+     "sd": 14.989877536905649
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean": 175.1875,
+     "sd": 13.670765210059441
+    },
+    "failures": {
+     "mean": 38.125,
+     "sd": 4.421942042651783
+    },
+    "failures_A": {
+     "mean": 0.125,
+     "sd": 0.3535533905932738
+    },
+    "unplanned_downtime_h": {
+     "mean": 7798.875,
+     "sd": 1323.493368486813
+    },
+    "preventive_repairs": {
+     "mean": 77.625,
+     "sd": 4.307385683749649
+    },
+    "early_repairs": {
+     "mean": 0.375,
+     "sd": 0.5175491695067657
+    },
+    "inspections": {
+     "mean": 55.625,
+     "sd": 4.596194077712559
+    },
+    "inspections_no_fault": {
+     "mean": 4.875,
+     "sd": 1.3562026818605375
+    },
+    "late_jobs": {
+     "mean": 2.25,
+     "sd": 1.2817398889233114
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 34.175746839135144,
+     "sd": 1.70208775300119
+    },
+    "utilisation": {
+     "mean": 0.6657118055555555,
+     "sd": 0.0048531326248362795
+    },
+    "plan_change_rate": {
+     "mean": 0.4540124086346964,
+     "sd": 0.04215484052199896
+    },
+    "approvals_per_day": {
+     "mean": 1.75625,
+     "sd": 0.0419632303143204
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 92.0,
+     "sd": 14.035668847618199
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean": 419.0,
+     "sd": 65.05821568850031
+    },
+    "failures": {
+     "mean": 109.0,
+     "sd": 2.2677868380553634
+    },
+    "failures_A": {
+     "mean": 13.625,
+     "sd": 8.568005268772557
+    },
+    "unplanned_downtime_h": {
+     "mean": 10434.75,
+     "sd": 1228.615800693726
+    },
+    "preventive_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "utilisation": {
+     "mean": 0.586111111111111,
+     "sd": 0.015430334996209204
+    },
+    "plan_change_rate": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "approvals_per_day": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 419.0,
+     "sd": 65.05821568850031
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean": 197.6875,
+     "sd": 15.865365467853913
+    },
+    "failures": {
+     "mean": 35.5,
+     "sd": 4.174754056057845
+    },
+    "failures_A": {
+     "mean": 3.75,
+     "sd": 1.9086270308410553
+    },
+    "unplanned_downtime_h": {
+     "mean": 15826.875,
+     "sd": 1815.4725821197553
+    },
+    "preventive_repairs": {
+     "mean": 66.0,
+     "sd": 5.0990195135927845
+    },
+    "early_repairs": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "inspections_no_fault": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "late_jobs": {
+     "mean": 19.0,
+     "sd": 3.116774889895918
+    },
+    "parts_blocked": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "schedule_violations": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "mean_discarded_life_h": {
+     "mean": 22.54831173163873,
+     "sd": 1.4907794548810362
+    },
+    "utilisation": {
+     "mean": 0.538888888888889,
+     "sd": 0.017315416054977332
+    },
+    "plan_change_rate": {
+     "mean": 0.47831880311692443,
+     "sd": 0.03927035090163265
+    },
+    "approvals_per_day": {
+     "mean": 1.1427083333333332,
+     "sd": 0.039949745216423395
+    },
+    "milp_non_optimal_plans": {
+     "mean": 0.0,
+     "sd": 0.0
+    },
+    "failure_cost": {
+     "mean": 131.6875,
+     "sd": 15.278223297977325
+    }
+   }
+  }
+ },
+ "paired_vs_baseline": {
+  "adverse": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean_diff": 30.25,
+     "min_diff": 5.5,
+     "max_diff": 57.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 8.875,
+     "min_diff": 3.0,
+     "max_diff": 16.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -101.25,
+     "min_diff": -2050.0,
+     "max_diff": 1804.0,
+     "seeds_better": 4,
+     "seeds_worse": 4,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -14.875,
+     "min_diff": -19.0,
+     "max_diff": -11.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.37660144980637256,
+     "min_diff": -0.42037974683544305,
+     "max_diff": -0.29801953336950626,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean_diff": 8.7625,
+     "min_diff": -31.19999999999999,
+     "max_diff": 44.19999999999999,
+     "seeds_better": 2,
+     "seeds_worse": 6,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -6.875,
+     "min_diff": -12.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -19414.0,
+     "min_diff": -24142.0,
+     "max_diff": -12296.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -7.875,
+     "min_diff": -14.0,
+     "max_diff": -4.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.03016362959710115,
+     "min_diff": -0.12346437346437344,
+     "max_diff": 0.05659480025364616,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean_diff": -33.4375,
+     "min_diff": -62.69999999999999,
+     "max_diff": 22.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -9.75,
+     "min_diff": -16.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -4703.75,
+     "min_diff": -8531.0,
+     "max_diff": -1343.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.625,
+     "min_diff": -9.0,
+     "max_diff": -3.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.012798169005294,
+     "min_diff": -0.08487035551991445,
+     "max_diff": 0.07978254481339991,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean_diff": -31.3,
+     "min_diff": -62.69999999999999,
+     "max_diff": 18.599999999999994,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -8.75,
+     "min_diff": -16.0,
+     "max_diff": 1.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -4214.625,
+     "min_diff": -8050.0,
+     "max_diff": -419.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.125,
+     "min_diff": -9.0,
+     "max_diff": -3.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.0603457877606159,
+     "min_diff": -0.11935311414060412,
+     "max_diff": 0.05945121951219512,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean_diff": 13.7,
+     "min_diff": -23.30000000000001,
+     "max_diff": 34.599999999999994,
+     "seeds_better": 2,
+     "seeds_worse": 6,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -5.375,
+     "min_diff": -11.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -21853.375,
+     "min_diff": -24920.0,
+     "max_diff": -16614.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.375,
+     "min_diff": -14.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.32188578613847507,
+     "min_diff": 0.2247592420006213,
+     "max_diff": 0.38533834586466165,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean_diff": 13.350000000000001,
+     "min_diff": -19.19999999999999,
+     "max_diff": 39.0,
+     "seeds_better": 2,
+     "seeds_worse": 6,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -5.125,
+     "min_diff": -10.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -22401.5,
+     "min_diff": -27737.0,
+     "max_diff": -17961.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.875,
+     "min_diff": -13.0,
+     "max_diff": -2.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.23337877295366594,
+     "min_diff": 0.12546699875467,
+     "max_diff": 0.3231006447995515,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean_diff": 47.0625,
+     "min_diff": 26.5,
+     "max_diff": 68.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 15.625,
+     "min_diff": 11.0,
+     "max_diff": 22.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 694.125,
+     "min_diff": -1652.0,
+     "max_diff": 2761.0,
+     "seeds_better": 2,
+     "seeds_worse": 6,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -15.375,
+     "min_diff": -19.0,
+     "max_diff": -12.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.38796742918781585,
+     "min_diff": -0.43037974683544306,
+     "max_diff": -0.32894736842105265,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   }
+  },
+  "approval_delay": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean_diff": -51.6875,
+     "min_diff": -110.5,
+     "max_diff": -11.5,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -34.875,
+     "min_diff": -40.0,
+     "max_diff": -28.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2472.0,
+     "min_diff": -2981.0,
+     "max_diff": -1518.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -25.0,
+     "min_diff": -28.0,
+     "max_diff": -23.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.1611169047305746,
+     "min_diff": -0.24669409344695856,
+     "max_diff": -0.1015521064301552,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean_diff": -120.60000000000001,
+     "min_diff": -201.0,
+     "max_diff": -67.69999999999999,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -35.75,
+     "min_diff": -43.0,
+     "max_diff": -29.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2384.375,
+     "min_diff": -3192.0,
+     "max_diff": -1726.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -20.75,
+     "min_diff": -23.0,
+     "max_diff": -15.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.10232885288547286,
+     "min_diff": 0.018553541150384767,
+     "max_diff": 0.18065382892969098,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean_diff": -122.6875,
+     "min_diff": -194.8,
+     "max_diff": -74.69999999999999,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -39.375,
+     "min_diff": -44.0,
+     "max_diff": -36.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2578.125,
+     "min_diff": -3227.0,
+     "max_diff": -2115.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -22.625,
+     "min_diff": -26.0,
+     "max_diff": -20.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.1745886324954254,
+     "min_diff": 0.056822282733506146,
+     "max_diff": 0.3007184399589463,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean_diff": -118.275,
+     "min_diff": -195.4,
+     "max_diff": -69.1,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -38.0,
+     "min_diff": -43.0,
+     "max_diff": -32.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2455.125,
+     "min_diff": -3279.0,
+     "max_diff": -2026.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -21.0,
+     "min_diff": -26.0,
+     "max_diff": -16.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.03243925187586357,
+     "min_diff": -0.1272267970210951,
+     "max_diff": 0.04476284584980239,
+     "seeds_better": 4,
+     "seeds_worse": 4,
+     "n": 8
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean_diff": -111.55,
+     "min_diff": -194.1,
+     "max_diff": -64.69999999999999,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -34.25,
+     "min_diff": -42.0,
+     "max_diff": -30.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2561.25,
+     "min_diff": -3154.0,
+     "max_diff": -1861.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -23.375,
+     "min_diff": -27.0,
+     "max_diff": -19.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.2296202485630079,
+     "min_diff": 0.11247023165187267,
+     "max_diff": 0.2936590436590436,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean_diff": -111.2625,
+     "min_diff": -185.3,
+     "max_diff": -60.19999999999999,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -35.125,
+     "min_diff": -42.0,
+     "max_diff": -28.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2459.625,
+     "min_diff": -3181.0,
+     "max_diff": -1435.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -22.75,
+     "min_diff": -27.0,
+     "max_diff": -18.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.08545194973601439,
+     "min_diff": -0.17897907419150283,
+     "max_diff": -0.011703887510339128,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean_diff": 164.6875,
+     "min_diff": 112.5,
+     "max_diff": 269.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 63.125,
+     "min_diff": 56.0,
+     "max_diff": 67.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 1865.5,
+     "min_diff": 1455.0,
+     "max_diff": 2533.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -33.125,
+     "min_diff": -37.0,
+     "max_diff": -30.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.1896386015528111,
+     "min_diff": -0.2710843373493976,
+     "max_diff": -0.1310344827586207,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   }
+  },
+  "base": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean_diff": 64.0625,
+     "min_diff": 46.0,
+     "max_diff": 78.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -0.625,
+     "min_diff": -4.0,
+     "max_diff": 3.0,
+     "seeds_better": 4,
+     "seeds_worse": 4,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -227.125,
+     "min_diff": -721.0,
+     "max_diff": 138.0,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -3.5,
+     "min_diff": -6.0,
+     "max_diff": 1.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.30488738118827186,
+     "min_diff": -0.5348837209302325,
+     "max_diff": -0.13043478260869565,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean_diff": -5.787499999999998,
+     "min_diff": -20.69999999999999,
+     "max_diff": 10.5,
+     "seeds_better": 6,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 1.25,
+     "min_diff": -2.0,
+     "max_diff": 5.0,
+     "seeds_better": 1,
+     "seeds_worse": 4,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 165.625,
+     "min_diff": -172.0,
+     "max_diff": 859.0,
+     "seeds_better": 2,
+     "seeds_worse": 6,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -1.5,
+     "min_diff": -5.0,
+     "max_diff": 4.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.284164623069197,
+     "min_diff": 0.15649278579356268,
+     "max_diff": 0.5274599542334096,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean_diff": -11.112499999999997,
+     "min_diff": -22.69999999999999,
+     "max_diff": 1.5999999999999943,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -5.0,
+     "min_diff": -10.0,
+     "max_diff": -2.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -356.75,
+     "min_diff": -611.0,
+     "max_diff": -64.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -4.625,
+     "min_diff": -9.0,
+     "max_diff": -2.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.17159635115190724,
+     "min_diff": 0.033023735810113475,
+     "max_diff": 0.2864721485411141,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean_diff": -9.475000000000001,
+     "min_diff": -20.19999999999999,
+     "max_diff": 1.5999999999999943,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -4.25,
+     "min_diff": -9.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -247.75,
+     "min_diff": -555.0,
+     "max_diff": 94.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -3.75,
+     "min_diff": -8.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.006482224006988047,
+     "min_diff": -0.06818181818181818,
+     "max_diff": 0.09681697612732093,
+     "seeds_better": 4,
+     "seeds_worse": 4,
+     "n": 8
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean_diff": -6.462499999999999,
+     "min_diff": -16.0,
+     "max_diff": 10.900000000000006,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -3.625,
+     "min_diff": -9.0,
+     "max_diff": 0.0,
+     "seeds_better": 5,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -357.375,
+     "min_diff": -608.0,
+     "max_diff": -60.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.5,
+     "min_diff": -10.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.14791363102229255,
+     "min_diff": 0.052417866371354815,
+     "max_diff": 0.2758152173913043,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean_diff": -8.4875,
+     "min_diff": -22.099999999999994,
+     "max_diff": 7.5,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -3.75,
+     "min_diff": -8.0,
+     "max_diff": 1.0,
+     "seeds_better": 6,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -336.5,
+     "min_diff": -649.0,
+     "max_diff": -42.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.0,
+     "min_diff": -8.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.1856856807917443,
+     "min_diff": -0.3413353338334583,
+     "max_diff": -0.022326674500587534,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean_diff": 293.5,
+     "min_diff": 195.5,
+     "max_diff": 407.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 107.75,
+     "min_diff": 105.0,
+     "max_diff": 114.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 4721.375,
+     "min_diff": 4206.0,
+     "max_diff": 4939.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -7.25,
+     "min_diff": -10.0,
+     "max_diff": -5.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.3076047724926197,
+     "min_diff": -0.5348837209302325,
+     "max_diff": -0.13043478260869565,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   }
+  },
+  "degraded_predictions": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean_diff": -92.25,
+     "min_diff": -171.0,
+     "max_diff": -40.5,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -56.375,
+     "min_diff": -65.0,
+     "max_diff": -45.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -4354.375,
+     "min_diff": -6773.0,
+     "max_diff": -2783.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -43.125,
+     "min_diff": -50.0,
+     "max_diff": -36.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.5457586605045166,
+     "min_diff": -0.6666666666666666,
+     "max_diff": -0.4157303370786517,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean_diff": -127.41250000000001,
+     "min_diff": -202.0,
+     "max_diff": -89.19999999999999,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -36.5,
+     "min_diff": -47.0,
+     "max_diff": -31.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2671.875,
+     "min_diff": -4927.0,
+     "max_diff": -1883.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -31.875,
+     "min_diff": -40.0,
+     "max_diff": -26.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.12075861531538735,
+     "min_diff": -0.023809523809523725,
+     "max_diff": 0.26406469760900136,
+     "seeds_better": 1,
+     "seeds_worse": 7,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean_diff": -131.8875,
+     "min_diff": -220.1,
+     "max_diff": -73.80000000000001,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -43.25,
+     "min_diff": -55.0,
+     "max_diff": -36.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -3340.875,
+     "min_diff": -5300.0,
+     "max_diff": -2108.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -30.125,
+     "min_diff": -37.0,
+     "max_diff": -24.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.015224144560555812,
+     "min_diff": -0.25543089042730965,
+     "max_diff": 0.2573465859982714,
+     "seeds_better": 3,
+     "seeds_worse": 5,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean_diff": -133.725,
+     "min_diff": -222.5,
+     "max_diff": -67.5,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -44.0,
+     "min_diff": -55.0,
+     "max_diff": -37.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -3513.75,
+     "min_diff": -5379.0,
+     "max_diff": -2462.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -30.5,
+     "min_diff": -39.0,
+     "max_diff": -24.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.1891950778031524,
+     "min_diff": -0.35712580568154695,
+     "max_diff": 0.10350043215211757,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean_diff": -117.875,
+     "min_diff": -178.3,
+     "max_diff": -82.5,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -36.875,
+     "min_diff": -50.0,
+     "max_diff": -25.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -2913.375,
+     "min_diff": -4359.0,
+     "max_diff": -2164.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -27.75,
+     "min_diff": -32.0,
+     "max_diff": -25.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.0020948390562623084,
+     "min_diff": -0.16930152342627192,
+     "max_diff": 0.13811581676750218,
+     "seeds_better": 4,
+     "seeds_worse": 3,
+     "n": 8
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean_diff": -121.55000000000001,
+     "min_diff": -198.8,
+     "max_diff": -82.30000000000001,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -37.875,
+     "min_diff": -48.0,
+     "max_diff": -25.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -3149.625,
+     "min_diff": -5356.0,
+     "max_diff": -2032.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -29.25,
+     "min_diff": -36.0,
+     "max_diff": -23.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.3980924585852932,
+     "min_diff": -0.5475880052151239,
+     "max_diff": -0.2438553370786517,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean_diff": 137.1875,
+     "min_diff": 87.0,
+     "max_diff": 186.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 52.0,
+     "min_diff": 45.0,
+     "max_diff": 59.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 594.125,
+     "min_diff": -1533.0,
+     "max_diff": 1698.0,
+     "seeds_better": 2,
+     "seeds_worse": 6,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -46.875,
+     "min_diff": -53.0,
+     "max_diff": -40.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.5484760518088644,
+     "min_diff": -0.6666666666666666,
+     "max_diff": -0.4157303370786517,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   }
+  },
+  "parts_shortage": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean_diff": 32.6875,
+     "min_diff": 2.5,
+     "max_diff": 78.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 10.875,
+     "min_diff": 6.0,
+     "max_diff": 15.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 7373.375,
+     "min_diff": 2983.0,
+     "max_diff": 14454.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.75,
+     "min_diff": -7.0,
+     "max_diff": -3.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.23117449252679684,
+     "min_diff": -0.2789661319073084,
+     "max_diff": -0.1631868131868132,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean_diff": 28.162499999999998,
+     "min_diff": -10.400000000000006,
+     "max_diff": 100.69999999999999,
+     "seeds_better": 1,
+     "seeds_worse": 7,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.125,
+     "min_diff": -7.0,
+     "max_diff": 7.0,
+     "seeds_better": 5,
+     "seeds_worse": 3,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -11952.375,
+     "min_diff": -17724.0,
+     "max_diff": -3056.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -3.5,
+     "min_diff": -5.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.005778457490962022,
+     "min_diff": -0.13085234093637457,
+     "max_diff": 0.09697217675941078,
+     "seeds_better": 3,
+     "seeds_worse": 5,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean_diff": -4.600000000000001,
+     "min_diff": -35.400000000000006,
+     "max_diff": 22.0,
+     "seeds_better": 3,
+     "seeds_worse": 5,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -0.5,
+     "min_diff": -8.0,
+     "max_diff": 7.0,
+     "seeds_better": 3,
+     "seeds_worse": 2,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -663.875,
+     "min_diff": -7578.0,
+     "max_diff": 11166.0,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -2.625,
+     "min_diff": -5.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.019732698960070537,
+     "min_diff": -0.09510869565217389,
+     "max_diff": 0.14885954381752703,
+     "seeds_better": 4,
+     "seeds_worse": 4,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean_diff": -6.850000000000001,
+     "min_diff": -35.400000000000006,
+     "max_diff": 22.0,
+     "seeds_better": 4,
+     "seeds_worse": 4,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -1.0,
+     "min_diff": -8.0,
+     "max_diff": 7.0,
+     "seeds_better": 3,
+     "seeds_worse": 2,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -953.875,
+     "min_diff": -7578.0,
+     "max_diff": 9814.0,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -3.125,
+     "min_diff": -5.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.03153701014632587,
+     "min_diff": -0.13677536231884055,
+     "max_diff": 0.0319548872180451,
+     "seeds_better": 5,
+     "seeds_worse": 3,
+     "n": 8
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean_diff": 34.075,
+     "min_diff": 4.699999999999989,
+     "max_diff": 109.80000000000001,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.5,
+     "min_diff": -6.0,
+     "max_diff": 8.0,
+     "seeds_better": 4,
+     "seeds_worse": 3,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -16565.125,
+     "min_diff": -21730.0,
+     "max_diff": -9398.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.875,
+     "min_diff": -7.0,
+     "max_diff": -4.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.387072994490447,
+     "min_diff": 0.236583522297808,
+     "max_diff": 0.485248447204969,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean_diff": 32.95,
+     "min_diff": -10.300000000000011,
+     "max_diff": 109.80000000000001,
+     "seeds_better": 1,
+     "seeds_worse": 7,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.625,
+     "min_diff": -6.0,
+     "max_diff": 8.0,
+     "seeds_better": 4,
+     "seeds_worse": 3,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -15232.5,
+     "min_diff": -23109.0,
+     "max_diff": -9656.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -5.625,
+     "min_diff": -7.0,
+     "max_diff": -4.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.2827584770291856,
+     "min_diff": 0.051398337112622816,
+     "max_diff": 0.3959627329192547,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean_diff": 40.875,
+     "min_diff": 17.5,
+     "max_diff": 82.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 14.125,
+     "min_diff": 10.0,
+     "max_diff": 19.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 8431.875,
+     "min_diff": 4371.0,
+     "max_diff": 15913.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -6.25,
+     "min_diff": -8.0,
+     "max_diff": -4.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.24073338240868114,
+     "min_diff": -0.29411764705882354,
+     "max_diff": -0.17857142857142858,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   }
+  },
+  "tight_labour": {
+   "FIXED_INTERVAL": {
+    "total_cost": {
+     "mean_diff": 122.0625,
+     "min_diff": 97.0,
+     "max_diff": 178.5,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 32.875,
+     "min_diff": 27.0,
+     "max_diff": 41.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -1488.0,
+     "min_diff": -3876.0,
+     "max_diff": 1652.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -14.625,
+     "min_diff": -19.0,
+     "max_diff": -9.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.4521286234802965,
+     "min_diff": -0.5183484278879016,
+     "max_diff": -0.3948412698412699,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "RISK_CRITICALITY_FIRST": {
+    "total_cost": {
+     "mean_diff": -33.4125,
+     "min_diff": -53.5,
+     "max_diff": -13.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -3.375,
+     "min_diff": -10.0,
+     "max_diff": 2.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -4531.875,
+     "min_diff": -8674.0,
+     "max_diff": -405.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -9.625,
+     "min_diff": -14.0,
+     "max_diff": -4.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.055208079202362446,
+     "min_diff": -0.026246779536253317,
+     "max_diff": 0.12721627002939223,
+     "seeds_better": 1,
+     "seeds_worse": 7,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY": {
+    "total_cost": {
+     "mean_diff": -39.5125,
+     "min_diff": -55.900000000000006,
+     "max_diff": -26.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -6.5,
+     "min_diff": -15.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -4882.125,
+     "min_diff": -8403.0,
+     "max_diff": -1038.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -9.375,
+     "min_diff": -18.0,
+     "max_diff": 1.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.03982566135377172,
+     "min_diff": -0.015016301373122931,
+     "max_diff": 0.10146414887794197,
+     "seeds_better": 1,
+     "seeds_worse": 7,
+     "n": 8
+    }
+   },
+   "RISK_GREEDY_STABLE": {
+    "total_cost": {
+     "mean_diff": -34.9375,
+     "min_diff": -59.099999999999994,
+     "max_diff": -15.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": -5.625,
+     "min_diff": -11.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -4329.625,
+     "min_diff": -7788.0,
+     "max_diff": -328.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -8.375,
+     "min_diff": -15.0,
+     "max_diff": 0.0,
+     "seeds_better": 7,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.01063462985783431,
+     "min_diff": -0.06140732154930939,
+     "max_diff": 0.08233276157804464,
+     "seeds_better": 3,
+     "seeds_worse": 5,
+     "n": 8
+    }
+   },
+   "RISK_MILP": {
+    "total_cost": {
+     "mean_diff": -15.4375,
+     "min_diff": -33.80000000000001,
+     "max_diff": 11.0,
+     "seeds_better": 7,
+     "seeds_worse": 1,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 2.375,
+     "min_diff": -4.0,
+     "max_diff": 7.0,
+     "seeds_better": 2,
+     "seeds_worse": 5,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -8741.875,
+     "min_diff": -10357.0,
+     "max_diff": -7173.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -18.0,
+     "min_diff": -24.0,
+     "max_diff": -11.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.22501826833131466,
+     "min_diff": 0.17271126760563377,
+     "max_diff": 0.36111111111111105,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    }
+   },
+   "RISK_MILP_STABLE": {
+    "total_cost": {
+     "mean_diff": -22.500000000000004,
+     "min_diff": -48.0,
+     "max_diff": -1.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 2.625,
+     "min_diff": -2.0,
+     "max_diff": 10.0,
+     "seeds_better": 2,
+     "seeds_worse": 6,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -8028.0,
+     "min_diff": -9891.0,
+     "max_diff": -6435.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -16.75,
+     "min_diff": -23.0,
+     "max_diff": -11.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.024306394482228003,
+     "min_diff": -0.07871333472019976,
+     "max_diff": 0.03090258149613717,
+     "seeds_better": 6,
+     "seeds_worse": 2,
+     "n": 8
+    }
+   },
+   "RUN_TO_FAILURE": {
+    "total_cost": {
+     "mean_diff": 221.3125,
+     "min_diff": 156.5,
+     "max_diff": 331.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 73.5,
+     "min_diff": 69.0,
+     "max_diff": 77.0,
+     "seeds_better": 0,
+     "seeds_worse": 8,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": -5392.125,
+     "min_diff": -7613.0,
+     "max_diff": -3687.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": -19.0,
+     "min_diff": -24.0,
+     "max_diff": -14.0,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": -0.47831880311692443,
+     "min_diff": -0.5406698564593302,
+     "max_diff": -0.4305555555555556,
+     "seeds_better": 8,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   },
+   "THRESHOLD_EDD": {
+    "total_cost": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "failures": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "unplanned_downtime_h": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "late_jobs": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    },
+    "plan_change_rate": {
+     "mean_diff": 0.0,
+     "min_diff": 0.0,
+     "max_diff": 0.0,
+     "seeds_better": 0,
+     "seeds_worse": 0,
+     "n": 8
+    }
+   }
+  }
+ },
+ "sensitivity_best_policy_counts": {
+  "adverse": {
+   "FIXED_INTERVAL": 0,
+   "RISK_CRITICALITY_FIRST": 0,
+   "RISK_GREEDY": 35,
+   "RISK_GREEDY_STABLE": 1,
+   "RUN_TO_FAILURE": 3,
+   "THRESHOLD_EDD": 6
+  },
+  "approval_delay": {
+   "FIXED_INTERVAL": 0,
+   "RISK_CRITICALITY_FIRST": 8,
+   "RISK_GREEDY": 28,
+   "RISK_GREEDY_STABLE": 0,
+   "RUN_TO_FAILURE": 9,
+   "THRESHOLD_EDD": 0
+  },
+  "base": {
+   "FIXED_INTERVAL": 0,
+   "RISK_CRITICALITY_FIRST": 3,
+   "RISK_GREEDY": 26,
+   "RISK_GREEDY_STABLE": 0,
+   "RUN_TO_FAILURE": 9,
+   "THRESHOLD_EDD": 7
+  },
+  "degraded_predictions": {
+   "FIXED_INTERVAL": 10,
+   "RISK_CRITICALITY_FIRST": 6,
+   "RISK_GREEDY": 1,
+   "RISK_GREEDY_STABLE": 19,
+   "RUN_TO_FAILURE": 9,
+   "THRESHOLD_EDD": 0
+  },
+  "parts_shortage": {
+   "FIXED_INTERVAL": 0,
+   "RISK_CRITICALITY_FIRST": 0,
+   "RISK_GREEDY": 0,
+   "RISK_GREEDY_STABLE": 31,
+   "RUN_TO_FAILURE": 9,
+   "THRESHOLD_EDD": 5
+  },
+  "tight_labour": {
+   "FIXED_INTERVAL": 0,
+   "RISK_CRITICALITY_FIRST": 0,
+   "RISK_GREEDY": 34,
+   "RISK_GREEDY_STABLE": 0,
+   "RUN_TO_FAILURE": 3,
+   "THRESHOLD_EDD": 8
+  }
+ }
+}

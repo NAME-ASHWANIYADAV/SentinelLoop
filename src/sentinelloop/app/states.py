@@ -78,8 +78,12 @@ class Classification:
 
 
 def classify(model_ok: bool, data_ok: bool, in_scope: bool, p_fail: float | None, sustained_anomaly: bool, thr: Thresholds,
-             reasons: list | None = None) -> Classification:
-    """One assessment -> one state. Precedence: model failure, data failure, scope, then risk."""
+             reasons: list | None = None, anomaly_only: bool = False, severe_anomaly: bool = False) -> Classification:
+    """One assessment -> one state. Precedence: model failure, data failure, scope, then risk.
+
+    `anomaly_only`: the approved model detects abnormal behaviour but estimates no failure time (for example the wind
+    normal-behaviour model). Then no probability exists and none is invented: a sustained deviation is an inspection,
+    a severe sustained deviation an urgent review, anything else normal monitoring."""
     reasons = list(reasons or [])
     if not model_ok:
         return Classification(HealthState.MODEL_UNAVAILABLE, reasons)
@@ -88,7 +92,13 @@ def classify(model_ok: bool, data_ok: bool, in_scope: bool, p_fail: float | None
     if not in_scope:
         return Classification(HealthState.MODEL_OUT_OF_SCOPE, reasons)
     if p_fail is None:
-        raise ValueError("an in-scope assessment with good data must carry a failure probability")
+        if not anomaly_only:
+            raise ValueError("an in-scope assessment with good data must carry a failure probability")
+        if sustained_anomaly and severe_anomaly:
+            return Classification(HealthState.URGENT_REVIEW, reasons + ["severe sustained deviation from normal behaviour (no failure-time estimate)"])
+        if sustained_anomaly:
+            return Classification(HealthState.INSPECTION_RECOMMENDED, reasons + ["sustained deviation from normal behaviour (no failure-time estimate)"])
+        return Classification(HealthState.NORMAL_MONITORING, reasons)
     if p_fail >= thr.p_urgent:
         return Classification(HealthState.URGENT_REVIEW, reasons + [f"P(failure before horizon) {p_fail:.2f} >= urgent threshold {thr.p_urgent}"])
     if p_fail >= thr.p_inspect:

@@ -78,6 +78,15 @@ POLICIES = {                          # (trigger, scheduler, stability weight)
     "RISK_MILP": ("risk", "milp", 0.0),
     "RISK_MILP_STABLE": ("risk", "milp", 1.0),
 }
+# Extra combinations for the trigger x scheduler factorial (S1e). Kept apart so that S1 reruns exactly as recorded.
+EXTRA_POLICIES = {
+    "RISK_EDD": ("risk", "edd", 0.0),
+    "THRESHOLD_CRITICALITY_FIRST": ("threshold", "criticality_first", 0.0),
+    "THRESHOLD_MILP": ("threshold", "milp", 0.0),
+    # threshold trigger (repair when the point RUL <= threshold_h), queue ranked by expected loss avoided per crew-hour
+    "THRESHOLD_GREEDY": ("threshold_scored", "risk_greedy", 0.0),
+}
+ALL_POLICIES = {**POLICIES, **EXTRA_POLICIES}
 
 
 def load_trajectories(oof_paths) -> list[dict]:
@@ -128,10 +137,10 @@ class SimResult:
 
 class FleetSim:
     def __init__(self, trajectories: list[dict], cfg: SimConfig, policy: str, seed: int, scenario: str = "base"):
-        if policy not in POLICIES:
+        if policy not in ALL_POLICIES:
             raise ValueError(f"unknown policy {policy}")
         self.cfg, self.policy, self.seed, self.scenario = cfg, policy, seed, scenario
-        self.trigger, self.sched_policy, self.stability = POLICIES[policy]
+        self.trigger, self.sched_policy, self.stability = ALL_POLICIES[policy]
         rng = np.random.default_rng(seed)
         self.pool = [trajectories[i] for i in rng.permutation(len(trajectories))]
         self.next_traj = 0
@@ -152,7 +161,7 @@ class FleetSim:
                                  "inspections_no_fault", "corrective_repairs", "late_jobs", "parts_blocked", "jobs_created", "jobs_upgraded",
                                  "schedule_violations", "plans", "plan_changes", "plan_comparisons", "unscheduled_job_days")}
         self.m.update({"discarded_life_h": 0.0, "unplanned_downtime_h": 0.0, "planned_downtime_h": 0.0, "tech_hours_busy": 0.0,
-                       "tech_hours_available": 0.0, "failure_cost": 0.0, "milp_non_optimal_plans": 0})
+                       "tech_hours_available": 0.0, "failure_cost": 0.0, "milp_non_optimal_plans": 0, "milp_dropped_in_assignment": 0})
         self.prev_plan: dict[str, int] = {}
 
     # -- trajectories and predictions --------------------------------------------------------------------------
@@ -210,10 +219,15 @@ class FleetSim:
                 continue
             lo, pt, up = self.prediction(a)
             risk = (lo, pt, up, 0.9, self.now)
-            if self.trigger == "threshold":
+            if self.trigger in ("threshold", "threshold_scored"):
+                score = None
+                if self.trigger == "threshold_scored":
+                    score = p_fail_before(cfg.decision_horizon_h, lo, pt, up, 0.9) * self.cost[a.criticality] / (cfg.repair_job[0] * cfg.repair_job[1])
                 if open_j is None and pt <= cfg.threshold_h:
-                    self._new_job(a.asset_id, "repair", "P2", risk=risk, due=self.now + int(max(pt - cfg.repair_job[0], 0) * HOUR_MS),
+                    self._new_job(a.asset_id, "repair", "P2", risk=risk, score=score, due=self.now + int(max(pt - cfg.repair_job[0], 0) * HOUR_MS),
                                   release=self.now + int(cfg.approval_delay_h * HOUR_MS))
+                elif open_j is not None and open_j.kind == "repair" and open_j.committed is None and score is not None:
+                    open_j.risk, open_j.score = risk, score
                 continue
             p = p_fail_before(cfg.decision_horizon_h, lo, pt, up, 0.9)
             fc = self.cost[a.criticality]
@@ -285,6 +299,7 @@ class FleetSim:
         self.m["schedule_violations"] += len(S.validate(p, sch))
         if self.sched_policy == "milp" and sch.solver.get("status") != 0:
             self.m["milp_non_optimal_plans"] += 1
+        self.m["milp_dropped_in_assignment"] += int(sch.solver.get("dropped_in_exact_assignment") or 0)
         self.m["unscheduled_job_days"] += len(sch.unscheduled)
         planned = {x.job_id: x.start_ms for x in sch.assignments}
         for jid, st in planned.items():
@@ -396,7 +411,7 @@ class FleetSim:
         m["mean_discarded_life_h"] = m["discarded_life_h"] / m["preventive_repairs"] if m["preventive_repairs"] else None
         m["utilisation"] = m["tech_hours_busy"] / m["tech_hours_available"] if m["tech_hours_available"] else None
         m["plan_change_rate"] = m["plan_changes"] / m["plan_comparisons"] if m["plan_comparisons"] else 0.0
-        m["approvals_per_day"] = m["jobs_created"] / self.cfg.days if self.trigger in ("risk", "threshold", "interval") else 0.0
+        m["approvals_per_day"] = m["jobs_created"] / self.cfg.days if self.trigger in ("risk", "threshold", "threshold_scored", "interval") else 0.0
         m["inspection_no_fault_rate"] = m["inspections_no_fault"] / m["inspections"] if m["inspections"] else None
         return SimResult(self.policy, self.scenario, self.seed, m, self.ev)
 

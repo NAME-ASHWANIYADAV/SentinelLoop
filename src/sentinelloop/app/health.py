@@ -121,7 +121,7 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
                 app = {"in_scope": False, "reasons": ["unknown_age: installed_at is required to derive the cycle count"], "detail": {}}
             raw["cycle"] = [ms_to_cycle(parse_ts(asset.installed_at), int(t), atype.usage_hours_per_cycle) for t in raw["ts_ms"]] if asset.installed_at else 0
         raw["unit"] = 0
-        failures = []
+        failures, candidate = [], None
         for m in approved:
             try:
                 b = _load(m)
@@ -138,13 +138,24 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
             if a["in_scope"]:
                 chosen, bundle, app = m, b, a
                 break
+            candidate = candidate or b
             app = {"in_scope": False, "reasons": [f"{m['model_id']}: {r}" for r in a["reasons"]], "detail": a.get("detail", {})}
+        baseline = None
+        if bundle is not None and getattr(bundle, "needs_baseline", False):
+            baseline = ((asset.config or {}).get("nbm_baselines") or {}).get(chosen["model_id"])
+            if baseline is None:
+                in_scope = False
+                app = {"in_scope": False, "reasons": [f"{chosen['model_id']}: no_baseline: this asset has no commissioned healthy baseline for "
+                                                      f"the approved model; commission one before its scores mean anything"], "detail": {}}
+        if bundle is None and candidate is not None and dq_generic["ok"] and getattr(candidate, "quality_independent_of_scope", False):
+            # checks that hold whatever the operating regime (e.g. a stuck temperature on an idle turbine) are still reported
+            dq_model = candidate.quality(raw, int(pol.assessment["stuck_min_run"]), float(pol.assessment["max_conflict_frac"]))
         if bundle is None:
             if failures and not any(r for r in app.get("reasons", []) if "insufficient_history" in r or "operating_envelope" in r or "regime" in r):
                 model_ok = False
                 reasons += [f"model_unavailable: {f}" for f in failures]
             in_scope = False
-        elif dq_generic["ok"]:
+        elif dq_generic["ok"] and in_scope:
             dq_model = bundle.quality(raw, int(pol.assessment["stuck_min_run"]), float(pol.assessment["max_conflict_frac"]))
             if dq_model["ok"]:
                 sens = b.applicability(raw, float(pol.assessment["envelope_tolerance"]), float(pol.assessment["max_out_of_envelope_frac"]), sensors=True)
@@ -152,7 +163,7 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
                     in_scope, app = False, {"in_scope": False, "reasons": [f"{chosen['model_id']}: {r}" for r in sens["reasons"]], "detail": sens["detail"]}
             if dq_model["ok"] and in_scope:
                 try:
-                    scored = bundle.score(raw)
+                    scored = bundle.score(raw, baseline=baseline["offsets"]) if baseline is not None else bundle.score(raw)
                 except Exception as e:                      # a failed model service never produces a number
                     model_ok, scored = False, None
                     reasons.append(f"model_unavailable: scoring failed ({type(e).__name__}: {e})")
@@ -164,7 +175,14 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
               "interval_level": None, "rul_point_hours": None, "rul_lower_hours": None, "rul_upper_hours": None, "risk": {},
               "anomaly_score": None, "anomaly_flag": None, "top_deviations": []}
     p_fail = None
-    if scored is not None and data_ok and in_scope and model_ok:
+    anomaly_only = bundle is not None and getattr(bundle, "prediction_kind", "rul") == "anomaly"
+    if bundle is not None:
+        inputs["prediction_kind"] = getattr(bundle, "prediction_kind", "rul")
+    if scored is not None and data_ok and in_scope and model_ok and anomaly_only:
+        record.update({"anomaly_score": scored["anomaly_score"], "anomaly_flag": scored["anomaly_sustained"], "top_deviations": scored["top_deviations"]})
+        inputs["feature_sha256"] = scored["feature_sha256"]
+        inputs["n_imputed_cells"] = scored["n_imputed_cells"]
+    elif scored is not None and data_ok and in_scope and model_ok:
         hpc = atype.usage_hours_per_cycle if atype.time_basis == "cycle_index" else None
         conv = (lambda v: v * hpc) if hpc else (lambda v: v)
         record.update({"rul_unit": "cycles" if hpc else "hours", "rul_point": scored["point"], "rul_lower": scored["lower"], "rul_upper": scored["upper"],
@@ -186,7 +204,8 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
     if chosen:
         inputs["model_artifact_sha256"] = chosen["artifact_sha256"]
     cl = states.classify(model_ok=model_ok, data_ok=data_ok, in_scope=in_scope, p_fail=p_fail,
-                         sustained_anomaly=bool(record["anomaly_flag"]), thr=pol.states, reasons=reasons)
+                         sustained_anomaly=bool(record["anomaly_flag"]), thr=pol.states, reasons=reasons, anomaly_only=anomaly_only,
+                         severe_anomaly=bool(scored and scored.get("anomaly_severe")))
     record.update({"health_state": cl.state.value, "reasons": list(cl.reasons), "data_quality": {"generic": dq_generic, "model": dq_model},
                    "applicability": app, "inputs": inputs, "policy": pol.to_record()})
 
