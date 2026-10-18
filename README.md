@@ -18,7 +18,7 @@
 >
 > **Unfavourable evidence, stated up front.**
 > - The wind model is anomaly-only: it gives no remaining-life estimate and no failure probability.
-> - Held-out synthetic fleets still gave 2.65 healthy alarm episodes per turbine-year, above the 1.0 target (`product/evidence/wind_synthetic/w2.md`).
+> - The wind alarm setting (margin 1.25, sustain 18 operating points) was chosen on synthetic data only. On fresh held-out synthetic fleets it gave 0.44 healthy alarm episodes per turbine-year (1 in 2.27 turbine-years), but the 95% interval runs up to about 2.45, so the proposed pilot ceiling of 2 is not excluded. An earlier run's setting (sustain 6) gave 5.74, and drifting sensors still raise alarms (39 episodes on the fresh fleets) (`product/evidence/wind_synthetic/w3.md`; the 5.74 is from `product/evidence/wind_synthetic/w2.md`; interval and drift: `product/KNOWN_LIMITATIONS.md` E7, M1; `product/DECISION_LOG.md` PD-15). The real rate is unknown until G0.
 > - RUL intervals under-cover near failure: 0.81–0.87 at true RUL 25–50 cycles against 0.90 nominal (`product/evidence/calibration/c1.md`).
 > - The RUL model's P(failure) is not calibrated (`product/evidence/calibration/c2.md`).
 > - The Odoo CMMS connector is shadow by default and tested only against a contract test double. A real Odoo instance has not been run.

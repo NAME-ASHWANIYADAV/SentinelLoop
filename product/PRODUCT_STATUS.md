@@ -2,6 +2,19 @@
 
 Living document, updated at the end of every phase. Status vocabulary for capabilities: IMPLEMENTED_AND_TESTED, IMPLEMENTED_NOT_FIELD_VALIDATED, SIMULATED, PLANNED, BLOCKED (PD-03). Git: competition version on `main` (tag `competition-baseline`, 43050c6); product work on `product/platform`.
 
+## Status at handoff (Phases 0–10 complete, 2026-10-18)
+
+| question | answer | where |
+|---|---|---|
+| What is it? | A single-site **advisory** maintenance platform. It ingests data, applies data-quality gates, keeps latching health states, recommends work and never executes it, runs a human-approved work-order lifecycle and a scheduler, has a CMMS connector (shadow by default), an operator console and an HMAC audit chain | `FINAL_PRODUCT_HANDOFF.md` §2 |
+| What has it been tested on? | Only SIMULATED (C-MAPSS) and SYNTHETIC (our wind generator) data. No customer, real turbine, real CMMS or maintenance team has been involved | `CLAIM_EVIDENCE_MATRIX.md`, `VALIDATION_LADDER.md` (rungs 1–2 reached; rung 3 pre-registered and blocked; rungs 4–6 not reached) |
+| Automated tests | 602 passed, 1 skipped (the Odoo sandbox test, which waits for the image-download approval) | `FINAL_PRODUCT_HANDOFF.md` §1 |
+| Reviews | Six-persona adversarial review (83 findings), then a re-review of the fixes (54 findings, 45 confirmed). All fixed test-first or recorded as limitations | `ADVERSARIAL_REVIEW.md`, `KNOWN_LIMITATIONS.md` |
+| Go / no-go | Local demo **GO**. Platform sandbox **GO**. CMMS sandbox **NO-GO** until the Odoo run passes. Real-data shadow pilot **NO-GO**. Operational use **NO-GO** | `FINAL_PRODUCT_HANDOFF.md` §4 |
+| Blocked on the user | Approval of the CARE download (G0), the Odoo and Postgres images, and the dependency upgrades | `FINAL_PRODUCT_HANDOFF.md` §5 |
+
+Phase records follow. Phases 1–9 are recorded in their own documents (`FINAL_PRODUCT_HANDOFF.md` §1 lists them) and in `DECISION_LOG.md` PD-01–PD-28.
+
 ## Phase 0 — Reconstruction of the existing system (COMPLETE, 2026-10-18)
 
 ### Commands run and actual results

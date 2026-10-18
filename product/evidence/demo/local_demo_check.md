@@ -33,3 +33,17 @@ These are covered by the automated suite instead (`tests/test_console.py`, `test
 - CMMS dispatch.
 
 Full suite on 2026-10-18: 335 passed, 1 skipped (the Odoo sandbox test, pending approval).
+
+## Re-check on the final code (2026-10-18, after the re-review fixes and W3; commit f531b72)
+
+The demo site was rebuilt from scratch the same way. The previous folder was moved aside as `artifacts_demo/console_prev_*`. The new site has the same six synthetic turbines: WT03 URGENT_REVIEW, WT05 DATA_QUALITY_FAILURE, the others NORMAL_MONITORING.
+
+| check | observed |
+|---|---|
+| `GET /api/v1/ready` | `schema_version` 9 (migrations 0008–0009 applied), `schema_current` true, 1 approved model, audit key configured, `decision_config` placeholder defaults |
+| Fleet page | Urgent review 1, Data problem 1, Normal monitoring 4 |
+| Work queue | Same P1 inspection (WT03) and P2 instrument check (WT05). Times now carry the site's zone ("due 25 Jan 2026 23:50 UTC"; the deferral date is entered "at 06:00 UTC time") |
+| Approve WO-000001 | "WO-000001 approved" |
+| Asset page, WT03 | Synthetic-data model line, no failure probability. The deviation table is a plain-text data grid (1 `stDataFrame`, 0 markdown tables) and the page shows no exception |
+
+At this commit the full suite gives 602 passed, 1 skipped (Odoo sandbox, pending approval).

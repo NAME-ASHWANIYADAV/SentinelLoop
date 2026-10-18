@@ -16,8 +16,8 @@ Status 2026-10-18. The vertical is provisional and gated (PD-10): Indian onshore
 | dataset | class | licence | role | status |
 |---|---|---|---|---|
 | NASA C-MAPSS FD001–FD004 | SIMULATED | no licence stated (R4: needs written confirmation for commercial use) | method development; scheduling simulator inputs; no product claim | in use |
-| `synthetic_wind.py` | SYNTHETIC | ours | behaviour tests and regression tests for every wind code path; ladder rung 2; W2 chose the alarm-persistence default on separate tuning fleets (PD-15, §5) | in use (`tests/test_app_wind.py`, `product/evidence/wind_synthetic/w1.md`, `w2.md`) |
-| CARE to Compare v6 (Zenodo 15846963) | PUBLIC REAL FIELD | CC BY-SA 4.0 | G0 falsification test; rung 3. 95 datasets, 44 with a labelled fault-leading anomaly | pre-registered, with Amendment 1 written before any download (PD-25); **download (5.50 GB) awaiting approval** |
+| `synthetic_wind.py` | SYNTHETIC | ours | behaviour tests and regression tests for every wind code path; ladder rung 2; W3 chose the alarm-persistence default on pooled tuning fleets and checked it once on fresh fleets (PD-15, §5) | in use (`tests/test_app_wind.py`, `product/evidence/wind_synthetic/w1.md`, `w2.md`, `w3.md`) |
+| CARE to Compare v6 (Zenodo 15846963) | PUBLIC REAL FIELD | CC BY-SA 4.0 | G0 falsification test; rung 3. 95 datasets, 44 with a labelled fault-leading anomaly | pre-registered, with Amendments 1 and 2 written before any download (PD-25; `PREREGISTRATION.md` §11); **download (5.50 GB) awaiting approval** |
 | Kelmarsh v4 (Zenodo 16807551), 6 Senvion MM92 | PUBLIC REAL FIELD | CC BY 4.0 | false-alarm rate and drift on real healthy turbines across seasons; no curated failure list | not downloaded (yearly zips 98–716 MB) |
 | Penmanshiel v3 (Zenodo 16807304), 14 Senvion MM82 | PUBLIC REAL FIELD | CC BY 4.0 | as Kelmarsh; a second farm for cross-site checks | not downloaded (~7.5 GB) |
 | Hill of Towie v2.1.0 (Zenodo 22662930), 21 Siemens SWT-2.3 | PUBLIC REAL FIELD | CC BY 4.0 | alarm logs and operator-derived downtime; turbine class closest to the 2.3 MW target | not downloaded (29.7 GB, too large for this machine's free disk) |
@@ -39,7 +39,7 @@ Status 2026-10-18. The vertical is provisional and gated (PD-10): Indian onshore
    - In-class and cross-asset results are reported separately: Farm A onshore; Farms B and C cross-asset.
    - Thresholds come from healthy data only.
 5. **Labels as evaluation masks.** CARE status IDs (normal = 0 and 2) choose which rows are used for training and which are scored (`PREREGISTRATION.md` §2.3, §4). They are never model inputs.
-6. **Pre-registration.** Rung 3 and above need a committed protocol before the data are opened (`VALIDATION_LADDER.md`). G0's protocol is `product/evidence/g0/PREREGISTRATION.md`, committed in b40fccd. Its Amendment 1 (§10, committed in afadc02, still before any download) fixes the adapter, gates, timing and decision rule, with Farm A as the primary decision.
+6. **Pre-registration.** Rung 3 and above need a committed protocol before the data are opened (`VALIDATION_LADDER.md`). G0's protocol is `product/evidence/g0/PREREGISTRATION.md`, committed in b40fccd. Its Amendment 1 (§10, committed in afadc02, still before any download) fixes the adapter, gates, timing and decision rule, with Farm A as the primary decision. Amendment 2 (§11, committed in f531b72, also before any download) governs where it conflicts with §10: it changes the stuck-signal and gate-order definitions and the product alarm count (sustain 18 operating points). No pass/fail criterion changed (§11.2).
 7. **Customer data (rung 4 and above, none yet).**
    - A written data-sharing agreement covering purpose, retention, deletion and who may see what.
    - Data stay on infrastructure the customer approves.
@@ -68,9 +68,10 @@ Status 2026-10-18. The vertical is provisional and gated (PD-10): Indian onshore
 Synthetic data are for **behaviour testing only**: does the software react correctly to a known situation.
 - They are never used to estimate detection rates, lead times or false-alarm rates for real turbines.
 - Threshold values are fitted on the healthy data the model is trained on, which for a customer means its own turbines. Inspect = 1.25 × the largest healthy rolling score on the held-out healthy slice (with a floor of 0.5); urgent = 3 × inspect (`nbm.fit`).
-- **One exception, recorded in PD-15.** With no real data available, the persistence default (sustain 12 points = 2 h) and the inspect margin (1.25) were chosen on separate synthetic tuning fleets (W2, `product/evidence/wind_synthetic/w2.md`), by a rule fixed before the run.
+- **One exception, recorded in PD-15.** With no real data available, the persistence default (sustain 18 operating points = 3 h of operation) and the inspect margin (1.25) were chosen on pooled synthetic tuning fleets 40–45 and 20–25 (W3, `product/evidence/wind_synthetic/w3.md`), by a rule committed before the run (25d4d59), and checked once on fresh synthetic fleets 60–65.
   - They are starting defaults, not settings tuned for real turbines.
-  - Even on held-out synthetic fleets they miss W2's own target: 2.65 healthy alarm episodes per turbine-year against ≤ 1.0 (`KNOWN_LIMITATIONS.md` E7).
-  - G0 reports the product alarm count at sustain 12 on real normal datasets, and a partner's rung-4 back-test can change both (`PILOT_PROTOCOL.md` §6).
+  - On the fresh synthetic fleets they give 0.44 healthy alarm episodes per turbine-year (1 in 2.27 turbine-years). That point estimate is below W3's 1.0 limit, but these fleets cannot resolve the limit: even zero episodes would allow 1.32 at 95% (`w3.md`). W3's rule applied the limit on the tuning set (0.22, 1 in 4.53 turbine-years); the fresh fleets are a single check. The 95% interval runs up to about 2.45, so even on synthetic data neither the 1.0 limit nor the proposed pilot ceiling of 2 is excluded, and drifting sensors added 39 alarm episodes (`KNOWN_LIMITATIONS.md` E7, M1).
+  - The rate is sensitive to persistence. Earlier runs chose sustain 12 (W2 run 1, driven by gating defects since fixed, `w2_run1.md`) and then sustain 6, which gave 5.74 on its held-out fleets (W2 run 2, `w2.md`).
+  - G0 reports the product alarm count at sustain 18 on real normal datasets (`PREREGISTRATION.md` §11, Amendment 2), and a partner's rung-4 back-test can change both (`PILOT_PROTOCOL.md` §6).
 - The urgent multiple (3 × inspect) is also a policy choice set on synthetic data, not a calibrated value (`KNOWN_LIMITATIONS.md` M4).
 - `synthetic_wind.py` declares its physics in its module docstring, and every output carries `data_class: SYNTHETIC`.
