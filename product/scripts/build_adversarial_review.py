@@ -33,7 +33,7 @@ RES = {
     "data_scientist-3": ("DOCS", "PD-09 and RELIABILITY corrected: the platform ships the probabilistic trigger; a point-threshold trigger is PLANNED", "-"),
     "data_scientist-4": ("PARTIAL", "C2 calibration audit; the console labels P(failure) model-implied and not calibrated. Recalibration in the bundle: OPEN", "product/evidence/calibration/c2.md"),
     "data_scientist-5": ("DOCS", "the recommended default pair corrected to an evaluated combination", "product/SCHEDULING_EVALUATION.md"),
-    "data_scientist-6": ("PARTIAL", "episodes per turbine-year reported; margin and sustain revisited on separate synthetic fleets before G0 (W2: sustain 12). On the held-out W1 fleets the shipped setting still gives 2.65 healthy episodes per turbine-year, above the target of 1.0 and the proposed pilot ceiling of 2: OPEN (KNOWN_LIMITATIONS E7)", "product/evidence/wind_synthetic/w2.md"),
+    "data_scientist-6": ("FIXED", "episodes per turbine-year reported; the setting chosen by a pre-stated rule on synthetic tuning fleets and checked on fresh ones (W3: sustain 18, 0.44 healthy episodes per turbine-year held out, 95% interval up to about 2.45). Synthetic only: the real rate is unknown until G0 (KNOWN_LIMITATIONS E7)", "product/evidence/wind_synthetic/w3.md"),
     "data_scientist-7": ("FIXED", "pre-registration amendment 1 (before any data) fixes the adapter, gates, multiplicity, TP timing and lead time; external timestamp needs the team", "product/evidence/g0/PREREGISTRATION.md"),
     "data_scientist-8": ("DOCS", "P17 restated as scheduler-dependent", "-"),
     "data_scientist-9": ("FIXED", "S2 tunes on FD001 engines and evaluates on FD003 engines", "product/evidence/scheduling_v2"),
@@ -130,7 +130,7 @@ RES2 = {
     "latching-states-07": ("REFUTED", "no change", "-"),
     "latching-states-08": ("FIXED", "assess-range validates every instant before applying any", T_RH),
     "wind-eval-migrations-01": ("FIXED", "a stuck run anywhere in the scored window stays a data failure; the model never scores rejected readings", T_RH),
-    "wind-eval-migrations-02": ("FIXED", "W2 re-run (run 2) with the corrected gating; see PD-15", "product/evidence/wind_synthetic/w2.md"),
+    "wind-eval-migrations-02": ("FIXED", "W2 re-run with the corrected gating (run 2 chose sustain 6 but could not resolve its limit); W3 re-chose on a pooled tuning set with fresh held-out fleets (sustain 18); PD-15", "product/evidence/wind_synthetic/w3.md"),
     "wind-eval-migrations-03": ("FIXED", "same as latching-states-02", T_RH),
     "wind-eval-migrations-04": ("FIXED", "same as latching-states-02", T_RH),
     "wind-eval-migrations-05": ("FIXED", "sustain counts operating points; idle rows are skipped", T_RH),
@@ -242,7 +242,7 @@ def main():
           "- The latching guarantee (PD-08) was not true as built: four separate paths cleared or hid an urgent warning without an inspection. All four are fixed and covered by regression tests.",
           "- The simulated scheduling advantages under parts shortage were an artefact of right-censored downtime and fleet collapse. They are withdrawn; see `SCHEDULING_EVALUATION.md` (S2).",
           "- The model-implied failure probability is not calibrated on the team's own simulated data (C2). It is labelled as such wherever it is shown.",
-          "- On synthetic data the original wind thresholds gave more false-alarm episodes than the proposed pilot ceiling. Thresholds were revisited on separate synthetic fleets before any real data (W2), and the G0 pre-registration was amended before download. The revisited setting still gives 2.65 healthy alarm episodes per turbine-year on the held-out synthetic fleets, above the proposed pilot ceiling of 2; this stays open until real data (G0) measure the rate.",
+          "- On synthetic data the original wind thresholds gave more false-alarm episodes than the proposed pilot ceiling. Thresholds were revisited on separate synthetic fleets before any real data (W2), and the G0 pre-registration was amended before download. After the re-review's gating fixes the setting was chosen again (W3, protocol committed before the run): on fresh synthetic fleets it gives 0.44 healthy alarm episodes per turbine-year (95% interval up to about 2.45). The real rate stays unknown until real data (G0) measure it.",
           "- Several status documents had drifted from the code. They were synchronised in this phase, and the claim matrix marks what exists only in the frozen competition pipeline.",
           "- The re-review showed that the first round of fixes was itself incomplete in places: a recovering stuck sensor could raise an urgent warning from rejected readings, an open sensor check or desk review could absorb an urgent recommendation, replayed exports could hide an urgent episode, upgraded databases lost the replay protection, and lost or overlapping CMMS dispatches could duplicate requests. These were fixed test-first and checked again against the original reproductions.", ""]
     (ROOT / "product" / "ADVERSARIAL_REVIEW.md").write_text("\n".join(L) + "\n", encoding="utf-8")

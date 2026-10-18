@@ -28,11 +28,11 @@ None of it has met a customer, a real turbine or a real maintenance team. Every 
 | 6 Integration | Odoo JSON-2 connector, shadow by default, contract-tested; sandbox kit (**not run**) | `INTEGRATION_GUIDE.md`, PD-20 |
 | 7 Security and operations | Security reviews with fixes; console; load test L1; recovery drill R1; deployment guide and runbook | `SECURITY_REVIEW.md`, `DEPLOYMENT_GUIDE.md`, `OPERATIONS_RUNBOOK.md` |
 | 8 Pilot design | Read-only shadow-pilot protocol and acceptance criteria, **NOT YET FIELD VALIDATED** | `PILOT_PROTOCOL.md`, `PILOT_ACCEPTANCE_CRITERIA.md`, `OPERATOR_FEEDBACK_PLAN.md` |
-| 9 Adversarial review | Six role-played reviewers produced 83 findings; fixes test-first, then a re-review of the fixes | `ADVERSARIAL_REVIEW.md`, `KNOWN_LIMITATIONS.md`, PD-15–PD-27 |
+| 9 Adversarial review | Six role-played reviewers produced 83 findings, fixed test-first. A re-review of those fixes produced 54 more (45 confirmed), also fixed test-first and re-checked against the original reproductions. The wind alarm setting was re-chosen after the gating fixes (W2 run 2, then W3 with a protocol committed before it ran) | `ADVERSARIAL_REVIEW.md`, `KNOWN_LIMITATIONS.md`, PD-15–PD-28, G0 Amendments 1–2 |
 | 10 Handoff | This document | — |
 
 Verification at handoff:
-- `python -m pytest tests -q`: **335 passed, 1 skipped** (the Odoo sandbox test, pending approval), 350 s on this laptop.
+- `python -m pytest tests -q`: **602 passed, 1 skipped** (the Odoo sandbox test, pending approval), 312 s on this laptop, on the code as committed at the end of Phase 9.
 - The local demo was rebuilt from scratch and checked in a browser (`product/evidence/demo/local_demo_check.md`).
 
 ## 2. Capability classification
@@ -52,13 +52,13 @@ The claim-by-claim record, with reproduce commands, is `CLAIM_EVIDENCE_MATRIX.md
 | REST API: API keys stored as hashes, 6 roles, per-route permissions, rate limits, streaming body cap, idempotency keys, JSON errors without internals | `tests/test_app_api.py`, the route-walk auth test, `tests/test_app_remediation_security.py` |
 | Asset registry, sites, asset types, resources (technicians, shifts, parts) | `tests/test_app_foundation.py`, `tests/test_app_api.py` |
 | Ingestion (JSON and CSV): schema checks, batch reports, 200,000-reading cap, parsing off the event loop | `tests/test_app_ingest.py` |
-| Health states with latching (PD-08, PD-16). Fail-visible states: DATA_QUALITY_FAILURE, MODEL_OUT_OF_SCOPE, MODEL_UNAVAILABLE. Replays never move state; ASSESSMENT_OVERDUE (PD-17) | `tests/test_app_states.py`, `tests/test_app_remediation.py`, `tests/test_app_failure_injection.py` |
-| Decision engine: job, priority, due date and written reason; never executes work; rejection suppression; desk reviews; site decision config (PD-18, PD-24) | `tests/test_app_decision.py`, `tests/test_app_remediation.py` |
+| Health states with latching (PD-08, PD-16, PD-28). Fail-visible states: DATA_QUALITY_FAILURE, MODEL_OUT_OF_SCOPE, MODEL_UNAVAILABLE. Replays never lower a latch or move the live state, but may raise a latch; ASSESSMENT_OVERDUE (PD-17) | `tests/test_app_states.py`, `tests/test_app_remediation.py`, `tests/test_app_rereview_health.py`, `tests/test_app_failure_injection.py` |
+| Decision engine: job, priority, due date and written reason; never executes work; rejection suppression keyed on the latched condition; desk reviews; older orders linked or superseded; validated site decision config (PD-18, PD-24, PD-28) | `tests/test_app_decision.py`, `tests/test_app_remediation.py`, `tests/test_app_rereview_decision.py` |
 | Work-order lifecycle with named human approval, outcomes and contradiction flags; hand-back; deferral return | `tests/test_app_workorders.py`, `tests/test_app_remediation.py` |
 | Scheduling **feasibility**: greedy and MILP planners, with an independent validator (0 violations in every recorded run) | `tests/test_app_scheduler.py`, `tests/test_app_planning.py`, S1b |
 | Model registry: approval, rollback, bundle hash checked against its manifest | `tests/test_app_health.py`, `tests/test_app_remediation_security.py` |
 | HMAC audit chain with anchor verification. It detects edits and truncation of audit events, not of state tables (PD-22) | `tests/test_app_foundation.py`, `tests/test_app_admin.py`, R1 |
-| Migrations 0001–0007 (checksummed, forward-only); backup and restore; recovery after a hard kill and after deleting the database | `tests/test_app_admin.py`, `product/evidence/recovery/r1.md` |
+| Migrations 0001–0009 (checksummed, forward-only; 0008 restores replay protection on upgraded databases); backup and restore; recovery after a hard kill and after deleting the database | `tests/test_app_admin.py`, `tests/test_app_rereview_health.py`, `product/evidence/recovery/r1.md` |
 | Throughput on one laptop: 50 turbines, 0 errors | `product/evidence/load/l1.md` (two runs; the second under background load) |
 
 ### IMPLEMENTED_NOT_FIELD_VALIDATED
@@ -67,14 +67,14 @@ The claim-by-claim record, with reproduce commands, is `CLAIM_EVIDENCE_MATRIX.md
 | Wind turbine asset type, 10-minute SCADA ingestion, data-quality gates (stuck sensors, gear relation, envelope, missing data, feed delay) | Never fed real SCADA. Per-site tag mapping is PLANNED (KNOWN_LIMITATIONS P12) |
 | Per-turbine commissioning baselines (PD-12) | Never commissioned on a real turbine |
 | Operator console (Streamlit, localhost, the user's own key) | 13 headless tests and a browser check on demo data. No operator has used it. No mobile layout or offline mode (P7) |
-| CMMS connector (Odoo JSON-2, shadow by default, withdrawal mirroring, allowlist at every dispatch) | Tested only against a contract test double (`tests/test_app_integration.py`). The real Odoo run is **BLOCKED**, and there is no customer CMMS |
+| CMMS connector (Odoo JSON-2, shadow by default, withdrawal mirroring, allowlist at every dispatch, one dispatch per target under a lease, create attempts logged before the call) | Tested only against a contract test double (`tests/test_app_integration.py`, `tests/test_app_rereview_integration.py`). The real Odoo run is **BLOCKED**, and there is no customer CMMS |
 
 ### SIMULATED
 | capability | result and its unfavourable part |
 |---|---|
 | RUL prediction with 90% intervals (C-MAPSS) | RMSE 13.6–15.2 (capped). Coverage 0.85–0.94 overall, but 0.81–0.87 in late life (C1) |
 | Failure probability for due dates | **Not calibrated** (C2): shown about 0.55 when about 0.92 was observed. Labelled "model-implied, not calibrated" |
-| Wind anomaly detection (SYNTHETIC; the generator shares the model's assumptions) | 36/36 injected faults flagged on tuning fleets. **Held-out healthy fleets: 2.65 alarm episodes per turbine-year**, above the proposed pilot ceiling of 2 (W2, E7). A slow drift of a single sensor cannot be told apart from heating |
+| Wind anomaly detection (SYNTHETIC; the generator shares the model's assumptions) | Setting chosen by a pre-stated rule (W3). On fresh held-out fleets: 36/36 injected faults flagged, median lead 8.9 days; **0.44 healthy alarm episodes per turbine-year, with a 95% interval up to about 2.45**, so the proposed pilot ceiling of 2 is not excluded (E7). An earlier run's setting gave 5.74. A slow drift of a single sensor cannot be told apart from heating (39 drifting-sensor episodes, M1); out of scope about 41% of calendar time |
 | Scheduling value | No policy dominates (S2). Parts shortage and adverse are fleet collapse. The MILP cuts downtime only under tight labour, at higher unpriced cost. The shipped trigger is worse under biased predictions (part C) |
 
 ### PLANNED
@@ -91,7 +91,7 @@ The claim-by-claim record, with reproduce commands, is `CLAIM_EVIDENCE_MATRIX.md
 ### BLOCKED
 | item | blocked on |
 |---|---|
-| G0: the wind model on real public data (CARE to Compare, 95 datasets; pre-registered, amended before download) | The user's approval of the 5.5 GB download. The team should also publish the SHA-256 of `product/evidence/g0/PREREGISTRATION.md` externally before the download (the repository has no remote) |
+| G0: the wind model on real public data (CARE to Compare, 95 datasets; pre-registered, Amendments 1 and 2 written before download) | The user's approval of the 5.5 GB download. The team should also publish the SHA-256 of `product/evidence/g0/PREREGISTRATION.md` externally before the download (the repository has no remote) |
 | Real Odoo sandbox run (`sandbox/odoo/setup.sh`, then `tests/test_app_odoo_sandbox.py`) | The user's approval of the Odoo and Postgres image downloads. Docker Desktop also starts the user's other containers |
 | Dependency upgrades (pyarrow, pytest; mlflow is development only) | Download approval |
 | G1 access conversations; rung-4 back-test; rung-5 shadow pilot | A customer partner. None has been contacted |
@@ -119,7 +119,7 @@ Details: `VALIDATION_LADDER.md`.
 |---|---|---|
 | **Local demo** (one laptop, SYNTHETIC data, labelled as such) | **GO** | Full suite passes. The demo was rebuilt from scratch and checked (`product/evidence/demo/local_demo_check.md`). The console shows the synthetic data class, gives no probability for anomaly models, and states that it is advisory. Keep it on 127.0.0.1 and say "synthetic" out loud |
 | **Sandbox** (platform plus sandbox CMMS in shadow mode, no real equipment) | **GO for the platform sandbox. NO-GO for the CMMS sandbox until the Odoo run passes** | The platform side is covered by the suite and by R1/L1. The connector is proven only against a contract test double; the real Odoo run awaits image-download approval (S1) |
-| **Real-data shadow pilot** (read-only, a partner's turbines) | **NO-GO** | `PILOT_PROTOCOL.md` preconditions P1–P7 are all unmet: G0 not run, no partner (G1), no rung-4 back-test, no partner security or safety sign-off, no commissioning. Open issues: the held-out synthetic false-alarm rate is above the pilot ceiling (E7); the scheduler lacks wind-site constraints (P8); there is no OEM workflow (P9) |
+| **Real-data shadow pilot** (read-only, a partner's turbines) | **NO-GO** | `PILOT_PROTOCOL.md` preconditions P1–P7 are all unmet: G0 not run, no partner (G1), no rung-4 back-test, no partner security or safety sign-off, no commissioning. Open issues: the false-alarm rate is known only on synthetic data, where its 95% interval still includes the pilot ceiling (E7); the scheduler lacks wind-site constraints (P8); there is no OEM workflow (P9) |
 | **Operational use** | **NO-GO** | Rungs 4–6 not reached; no field validation; no external penetration test or SSO; no high availability; the limitations marked H and M in `KNOWN_LIMITATIONS.md` |
 
 ## 5. What the team should do next, in order
@@ -176,12 +176,12 @@ Production-style deployment, backups, `verify-audit` with an anchor and the cron
 
 | evidence | path |
 |---|---|
-| Decisions | `product/DECISION_LOG.md` (PD-01–PD-27) |
+| Decisions | `product/DECISION_LOG.md` (PD-01–PD-28) |
 | Limitations | `product/KNOWN_LIMITATIONS.md` |
-| Adversarial review and resolutions | `product/ADVERSARIAL_REVIEW.md`, `product/evidence/adversarial/` |
+| Adversarial review, re-review and resolutions | `product/ADVERSARIAL_REVIEW.md`, `product/evidence/adversarial/` (`review.json`, `rereview.json`) |
 | Scheduling | `product/evidence/scheduling/` (S1), `product/evidence/scheduling_v2/` (S2 and part C) |
-| Wind (synthetic) | `product/evidence/wind_synthetic/` (W1, W2) |
+| Wind (synthetic) | `product/evidence/wind_synthetic/` (W1, W2 runs 1–2, W3) |
 | Calibration | `product/evidence/calibration/` (C1, C2) |
 | Load, recovery, security | `product/evidence/load/`, `product/evidence/recovery/`, `product/evidence/security/` |
-| G0 pre-registration | `product/evidence/g0/PREREGISTRATION.md` |
+| G0 pre-registration | `product/evidence/g0/PREREGISTRATION.md` (Amendments 1–2 in §10–11) |
 | API | `product/evidence/api/` (OpenAPI and the route/permission table) |

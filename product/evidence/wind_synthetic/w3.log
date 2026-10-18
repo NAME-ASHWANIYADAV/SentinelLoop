@@ -1,0 +1,36 @@
+# W3 wind margin and sustain on a pooled tuning set (generated; SYNTHETIC; behaviour calibration only)
+
+Tuning: fleets 40-45 and 20-25 pooled (the fleets W2 used for tuning and for its held-out check). Held-out: fleets 60-65, used by no earlier run, chosen setting only. Rule fixed before running (script docstring): <= 1.0 healthy alarm episode per turbine-year, then most detections, then longest median lead; if none qualifies, the lowest rate.
+
+## Tuning (pooled)
+
+| margin | sustain (operating points) | detected | median lead (days) | healthy alarm episodes / turbine-years = per turbine-year (the rule's unit) | per assessable turbine-year | drifting-sensor episodes | pre-onset alarms | assessable share |
+|---|---|---|---|---|---|---|---|---|
+| 1.25 | 6 | 72/72 | 9.3 | 14 / 4.53 = 3.09 | 4.46 | 83 | 8 | 0.56 |
+| 1.25 | 12 | 72/72 | 8.9 | 6 / 4.53 = 1.32 | 1.91 | 77 | 2 | 0.57 |
+| 1.25 | 18 | 72/72 | 8.6 | 1 / 4.53 = 0.22 | 0.32 | 77 | 0 | 0.57 |
+| 1.25 | 36 | 72/72 | 7.9 | 0 / 4.53 = 0.00 | 0.00 | 64 | 0 | 0.57 |
+| 1.5 | 6 | 72/72 | 8.4 | 1 / 4.53 = 0.22 | 0.32 | 80 | 0 | 0.56 |
+| 1.5 | 12 | 72/72 | 8.3 | 0 / 4.53 = 0.00 | 0.00 | 74 | 0 | 0.57 |
+| 1.5 | 18 | 72/72 | 8.2 | 0 / 4.53 = 0.00 | 0.00 | 74 | 0 | 0.57 |
+| 1.5 | 36 | 72/72 | 7.5 | 0 / 4.53 = 0.00 | 0.00 | 64 | 0 | 0.57 |
+| 2.0 | 6 | 72/72 | 7.5 | 0 / 4.53 = 0.00 | 0.00 | 80 | 0 | 0.56 |
+| 2.0 | 12 | 72/72 | 7.5 | 0 / 4.53 = 0.00 | 0.00 | 75 | 0 | 0.57 |
+| 2.0 | 18 | 72/72 | 7.4 | 0 / 4.53 = 0.00 | 0.00 | 76 | 0 | 0.57 |
+| 2.0 | 36 | 72/72 | 6.7 | 0 / 4.53 = 0.00 | 0.00 | 66 | 0 | 0.57 |
+| 2.5 | 6 | 72/72 | 6.9 | 0 / 4.53 = 0.00 | 0.00 | 79 | 0 | 0.56 |
+| 2.5 | 12 | 72/72 | 6.8 | 0 / 4.53 = 0.00 | 0.00 | 74 | 0 | 0.57 |
+| 2.5 | 18 | 72/72 | 6.6 | 0 / 4.53 = 0.00 | 0.00 | 73 | 0 | 0.57 |
+| 2.5 | 36 | 72/72 | 6.0 | 0 / 4.53 = 0.00 | 0.00 | 63 | 0 | 0.57 |
+
+Chosen: margin 1.25, sustain 18 (meets the 1.0 limit on the tuning set; 1 episodes in 4.53 healthy turbine-years)
+
+## Held-out fleets 60-65 (chosen setting only)
+
+| margin | sustain (operating points) | detected | median lead (days) | healthy alarm episodes / turbine-years = per turbine-year (the rule's unit) | per assessable turbine-year | drifting-sensor episodes | pre-onset alarms | assessable share |
+|---|---|---|---|---|---|---|---|---|
+| 1.25 | 18 | 36/36 | 8.9 | 1 / 2.27 = 0.44 | 0.61 | 39 | 1 | 0.59 |
+
+Exposure: 4.53 healthy turbine-years for tuning, 2.27 held out. Zero episodes in 2.27 turbine-years would still allow 1.32 per turbine-year at 95%.
+
+Caveats: the generator and the model share assumptions (KNOWN_LIMITATIONS E3); a slow drift of a single temperature sensor cannot be told apart from heating; these numbers say nothing about real turbines.

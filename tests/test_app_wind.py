@@ -254,9 +254,9 @@ def test_evaluation_reports_alarm_episodes_and_assessability(bundle_dir, fleet):
     assert all("alarm_episodes" in v for v in ev["per_turbine"].values())
 
 
-def test_shipped_inspection_threshold_is_the_one_w2_chose():
-    """The product defaults must be the setting the pre-fixed W2 rule chose (evidence link, PD-15)."""
+def test_shipped_inspection_threshold_is_the_one_w3_chose():
+    """The product defaults must be the setting the pre-stated W3 rule chose (protocol committed before the run; PD-15)."""
     import json
-    chosen = json.loads((ROOT / "product" / "evidence" / "wind_synthetic" / "w2.json").read_text(encoding="utf-8"))["chosen"]
-    assert [nbm.INSPECT_MARGIN, nbm.SUSTAIN] == chosen
-    assert nbm.WindNBMBundle.__dataclass_fields__["sustain"].default == chosen[1]
+    w3 = json.loads((ROOT / "product" / "evidence" / "wind_synthetic" / "w3.json").read_text(encoding="utf-8"))
+    assert [nbm.INSPECT_MARGIN, nbm.SUSTAIN] == w3["chosen"] and w3["meets_limit"] is True
+    assert nbm.WindNBMBundle.__dataclass_fields__["sustain"].default == w3["chosen"][1]

@@ -2,7 +2,7 @@
 
 **Written 2026-10-18, before the dataset was downloaded.** No CARE file has been opened on this machine. The git commit that first contains this file is its date stamp. Any change made after results are seen must be listed in section 9 as a deviation, with its reason. It must not silently replace the protocol below.
 
-**Amendment 1 (2026-10-18, still before any download)** is in section 10. Where it conflicts with sections 2–5, section 10 governs.
+**Amendment 1 (2026-10-18, still before any download)** is in section 10. Where it conflicts with sections 2–5, section 10 governs. **Amendment 2** (same day, still before any download) is in section 11 and governs over section 10 where they conflict.
 
 Gate: G0 in `product/INITIAL_MARKET_AND_ASSET_CHOICE.md` section 7.
 
@@ -166,3 +166,36 @@ A pooled pass with a Farm A result at or below the baseline is a **fail** for th
 ### 10.5 Unchanged
 
 Data, licence and handling (§1); the forbidden and allowed changes (§6, §7); outputs (§8). Deviations after data are seen still go in §9.
+
+## 11. Amendment 2 (2026-10-18, still before any CARE file was downloaded)
+
+**Why.** The re-review of the Phase 9 fixes (`product/ADVERSARIAL_REVIEW.md`, "Re-review of the fixes") found three defects in the product's wind gating and alarm rule. Each one changes how §10 is applied:
+- **wind-eval-migrations-01.** A stuck temperature sensor that recovered produced an urgent alarm. The model scored the stuck readings that the data check had just rejected.
+- **wind-eval-migrations-05.** The sustain rule counted rows, not operating points.
+- **wind-eval-migrations-06.** The evaluation harness skipped the platform's own data checks.
+
+All three were fixed in the product, test-first. W2 was then re-run under its unchanged pre-stated rule (run 2, `product/evidence/wind_synthetic/w2.md`; run 1 is kept as `w2_run1.md`). Run 2's tuning fleets could not resolve its limit. W3 (`product/experiments/w3_pooled_threshold.py`, protocol committed before it ran in 25d4d59; results in `product/evidence/wind_synthetic/w3.md`) then chose the setting on a pooled tuning set and checked it on fresh fleets.
+
+No CARE data had been downloaded when this amendment was written (`data/external/` did not exist). Where this section conflicts with §10, this section governs.
+
+### 11.1 Changes to §10.1
+
+1. **Stuck signals (§10.1.5).** A stuck signal is a constant run longer than max(5, the longest run in training). It counts wherever it falls in the rows the model scores, not only at the end of the window, because a recovered sensor's readings stay in the rolling means for hours.
+2. **Gate order (§10.1.5).** The model's data checks run before any scope decision, including when there is no baseline, as in the product (`nbm.gate`; PD-13, PD-28). The platform's generic data checks are applied at the wind policy's limits (`configs/platform.yaml`, `nbm.evaluate(policy=...)`).
+3. **Product alarm count (§10.1.7).**
+   - The product rule now counts **sustain 18 operating points** (3 h of operation, margin 1.25), the setting W3 chose (`nbm.SUSTAIN`). This replaces sustain 12.
+   - Sustain is still **not** applied to p; CARE's criticality counter remains the persistence rule.
+   - Rates are reported per calendar turbine-year and per assessable turbine-year.
+
+### 11.2 What the synthetic runs say about this setting (SYNTHETIC)
+
+- **W2 run 2** (tuning fleets 40–45 only): it chose sustain 6. That setting gave 5.74 healthy alarm episodes per turbine-year on the held-out fleets 20–25. Its 2.27 healthy turbine-years could not resolve the 1.0 limit.
+- **W3**, tuning on fleets 40–45 and 20–25 pooled (4.53 healthy turbine-years):
+  - margin 1.25, sustain 18 gives 0.22 episodes per turbine-year with 72/72 faults detected;
+  - on the fresh fleets 60–65 it gives **0.44 per turbine-year** (1 episode in 2.27 turbine-years; 95% interval up to about 2.45), 36/36 detected, median lead 8.9 days.
+
+These synthetic figures do not predict the real rate; G0's normal datasets give the first real-data estimate. **No G0 pass/fail criterion changes** (§10.3 stands).
+
+### 11.3 Unchanged
+
+Everything else in §10 and §§1–8.
