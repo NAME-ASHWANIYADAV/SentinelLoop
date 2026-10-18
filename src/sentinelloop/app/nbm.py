@@ -404,6 +404,8 @@ def commission(db, asset_id: str, model_id: str, start_ms: int, end_ms: int, act
     m = modelreg.get(db, model_id)
     if m is None:
         raise CommissionError(f"unknown model {model_id}")
+    if m["family"] != FAMILY:
+        raise CommissionError(f"model {model_id} ({m['family']}) does not use per-asset baselines")
     asset = registry.get_asset(db, asset_id)
     if asset is None or asset.asset_type_id != m["asset_type_id"]:
         raise CommissionError(f"asset {asset_id} is not a {m['asset_type_id']}")

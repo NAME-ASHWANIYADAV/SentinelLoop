@@ -20,7 +20,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 
-from . import auditlog, decision, health, ingest, modelreg, planning, registry, resources, security, workorders
+from . import auditlog, decision, health, ingest, modelreg, nbm, planning, registry, resources, security, workorders
 from .errors import PermissionDenied
 from .models import AssetSpec
 from .timeutil import iso, parse_ts
@@ -157,6 +157,50 @@ class AssetPatchBody(BaseModel):
     reason: str
 
 
+class TechnicianBody(BaseModel):
+    tech_id: str = Field(min_length=1, max_length=64)
+    display_name: str = Field(min_length=1, max_length=200)
+    skills: list[str] = Field(min_length=1)
+    active: bool = True
+
+
+class ShiftsBody(BaseModel):
+    shifts: list[tuple[str, str]]
+    replace_from: str | None = None
+
+
+class PartBody(BaseModel):
+    part_id: str = Field(min_length=1, max_length=64)
+    name: str = Field(min_length=1, max_length=200)
+    on_hand: int = Field(ge=0)
+    lead_time_h: float = Field(ge=0)
+    orderable: bool = True
+    unit_cost: float | None = None
+
+
+class DeliveryBody(BaseModel):
+    qty: int = Field(gt=0)
+    eta: str
+    reference: str = Field(min_length=1, max_length=200)
+
+
+class UserBody(BaseModel):
+    user_id: str = Field(min_length=1, max_length=64, pattern=r"^[a-z0-9_.-]+$")
+    display_name: str = Field(min_length=1, max_length=200)
+    role: str
+
+
+class ReasonBody(BaseModel):
+    reason: str = Field(min_length=1)
+
+
+class BaselineBody(BaseModel):
+    model_id: str
+    start: str
+    end: str
+    reason: str = Field(min_length=1)
+
+
 def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = None, rate_limit: tuple = (120, 2.0),
                max_body_bytes: int = 10 * 1024 * 1024) -> FastAPI:
     app = FastAPI(title="SentinelLoop platform API", version="1", docs_url=f"{API}/docs", openapi_url=f"{API}/openapi.json", redoc_url=None)
@@ -289,6 +333,66 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     @app.get(f"{API}/asset-types")
     def asset_types(u: dict = Depends(need("read"))):
         return [t.model_dump() for t in registry.list_asset_types(db)]
+
+    @app.post(f"{API}/assets/{{asset_id}}/baseline")
+    def commission(asset_id: str, body: BaselineBody, u: dict = Depends(need("assets.commission"))):
+        return nbm.commission(db, asset_id, body.model_id, parse_ts(body.start), parse_ts(body.end), actor=u["user_id"], role=u["role"],
+                              reason=body.reason)
+
+    # -- resources ------------------------------------------------------------------------------------------------------
+    @app.get(f"{API}/sites/{{site_id}}/technicians")
+    def techs(site_id: str, u: dict = Depends(need("read"))):
+        return resources.technicians(db, site_id)
+
+    @app.post(f"{API}/sites/{{site_id}}/technicians")
+    def upsert_tech(site_id: str, body: TechnicianBody, u: dict = Depends(need("resources.write"))):
+        if registry.get_site(db, site_id) is None:
+            raise HTTPException(404, f"unknown site {site_id}")
+        resources.upsert_technician(db, body.tech_id, body.display_name, site_id, body.skills, actor=u["user_id"], active=body.active)
+        return {"tech_id": body.tech_id, "site_id": site_id}
+
+    @app.put(f"{API}/technicians/{{tech_id}}/shifts")
+    def shifts(tech_id: str, body: ShiftsBody, u: dict = Depends(need("resources.write"))):
+        resources.set_shifts(db, tech_id, [tuple(s) for s in body.shifts], actor=u["user_id"], replace_from=body.replace_from)
+        return {"tech_id": tech_id, "shifts": len(body.shifts)}
+
+    @app.get(f"{API}/sites/{{site_id}}/parts")
+    def parts_(site_id: str, u: dict = Depends(need("read"))):
+        return resources.parts(db, site_id)
+
+    @app.post(f"{API}/sites/{{site_id}}/parts")
+    def upsert_part(site_id: str, body: PartBody, u: dict = Depends(need("resources.write"))):
+        if registry.get_site(db, site_id) is None:
+            raise HTTPException(404, f"unknown site {site_id}")
+        resources.upsert_part(db, body.part_id, site_id, body.name, body.on_hand, body.lead_time_h, actor=u["user_id"], orderable=body.orderable,
+                              unit_cost=body.unit_cost)
+        return {"part_id": body.part_id, "site_id": site_id}
+
+    @app.post(f"{API}/sites/{{site_id}}/parts/{{part_id}}/deliveries")
+    def delivery(site_id: str, part_id: str, body: DeliveryBody, u: dict = Depends(need("resources.write"))):
+        resources.add_delivery(db, part_id, site_id, body.qty, body.eta, body.reference, actor=u["user_id"])
+        return {"part_id": part_id, "qty": body.qty, "eta": body.eta}
+
+    # -- users ----------------------------------------------------------------------------------------------------------
+    @app.get(f"{API}/users")
+    def users(u: dict = Depends(need("users.admin"))):
+        return security.list_users(db)
+
+    @app.post(f"{API}/users", status_code=201)
+    def create_user(body: UserBody, u: dict = Depends(need("users.admin"))):
+        return security.create_user(db, body.user_id, body.display_name, body.role, actor=u["user_id"])
+
+    @app.post(f"{API}/users/{{user_id}}/api-key")
+    def issue_key(user_id: str, u: dict = Depends(need("users.admin"))):
+        return {"user_id": user_id, "api_key": security.issue_api_key(db, user_id, actor=u["user_id"]),
+                "note": "shown once; stored only as a hash"}
+
+    @app.post(f"{API}/users/{{user_id}}/deactivate")
+    def deactivate(user_id: str, body: ReasonBody, u: dict = Depends(need("users.admin"))):
+        if user_id == u["user_id"]:
+            raise HTTPException(409, "an admin cannot deactivate their own account")
+        security.deactivate(db, user_id, actor=u["user_id"], reason=body.reason)
+        return {"user_id": user_id, "active": False}
 
     # -- ingestion ------------------------------------------------------------------------------------------------------
     @app.post(f"{API}/ingest/readings")

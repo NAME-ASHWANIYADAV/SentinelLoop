@@ -171,3 +171,58 @@ def test_csv_export_neutralises_spreadsheet_formulas(ctx):
            headers=H(ctx, "planner", **{"Idempotency-Key": "csv-1"}))
     text = c.get("/api/v1/export/work-orders.csv", headers=H(ctx, "viewer")).text
     assert "'=HYPERLINK" in text and ",=HYPERLINK" not in text
+
+
+def test_every_route_except_health_and_docs_requires_credentials(ctx):
+    """Guards against a new endpoint shipping without authentication."""
+    open_paths = {"/api/v1/health", "/api/v1/ready", "/api/v1/docs", "/api/v1/openapi.json", "/api/v1/docs/oauth2-redirect"}
+    c = ctx["client"]
+    checked = 0
+    for r in ctx["app"].routes:
+        path = getattr(r, "path", "")
+        if not path.startswith("/api/v1") or path in open_paths:
+            continue
+        url = path.replace("{entity}", "asset").replace("{entity_id}", "P-101").replace("{asset_id}", "P-101").replace("{wo_id}", "WO-x") \
+                  .replace("{run_id}", "SR-x").replace("{model_id}", "m").replace("{batch_id}", "b").replace("{site_id}", "site1") \
+                  .replace("{tech_id}", "T1").replace("{part_id}", "K1").replace("{user_id}", "vic")
+        for m in r.methods - {"HEAD", "OPTIONS"}:
+            resp = c.request(m, url, json={})
+            assert resp.status_code == 401, (m, path, resp.status_code)
+            checked += 1
+    assert checked >= 30
+
+
+def test_resources_can_be_managed_by_planners_only(ctx):
+    c = ctx["client"]
+    body = {"tech_id": "T1", "display_name": "Tech One", "skills": ["mech"]}
+    assert c.post("/api/v1/sites/site1/technicians", json=body, headers=H(ctx, "viewer")).status_code == 403
+    assert c.post("/api/v1/sites/site1/technicians", json=body, headers=H(ctx, "planner")).status_code == 200
+    r = c.put("/api/v1/technicians/T1/shifts", json={"shifts": [["2026-10-20T06:00:00Z", "2026-10-20T14:00:00Z"]]}, headers=H(ctx, "planner"))
+    assert r.status_code == 200
+    techs = c.get("/api/v1/sites/site1/technicians", headers=H(ctx, "viewer")).json()
+    assert techs[0]["tech_id"] == "T1" and len(techs[0]["shifts"]) == 1
+    assert c.post("/api/v1/sites/site1/parts", json={"part_id": "K1", "name": "Kit", "on_hand": 2, "lead_time_h": 72}, headers=H(ctx, "planner")).status_code == 200
+    assert c.post("/api/v1/sites/site1/parts/K1/deliveries", json={"qty": 3, "eta": "2026-10-25T00:00:00Z", "reference": "PO-1"},
+                  headers=H(ctx, "planner")).status_code == 200
+    parts = c.get("/api/v1/sites/site1/parts", headers=H(ctx, "viewer")).json()
+    assert parts[0]["on_hand"] == 2 and parts[0]["deliveries"]
+
+
+def test_user_administration_is_admin_only_and_keys_are_shown_once(ctx):
+    c = ctx["client"]
+    assert c.post("/api/v1/users", json={"user_id": "nina", "display_name": "Nina", "role": "planner"}, headers=H(ctx, "planner")).status_code == 403
+    assert c.post("/api/v1/users", json={"user_id": "nina", "display_name": "Nina", "role": "planner"}, headers=H(ctx, "admin")).status_code == 201
+    k = c.post("/api/v1/users/nina/api-key", headers=H(ctx, "admin")).json()["api_key"]
+    assert c.get("/api/v1/me", headers={"Authorization": f"Bearer {k}"}).json()["user_id"] == "nina"
+    users = c.get("/api/v1/users", headers=H(ctx, "admin")).json()
+    assert all("api_key" not in u and "api_key_hash" not in u and "password_hash" not in u for u in users)
+    assert c.post("/api/v1/users/nina/deactivate", json={"reason": "left the team"}, headers=H(ctx, "admin")).status_code == 200
+    assert c.get("/api/v1/me", headers={"Authorization": f"Bearer {k}"}).status_code == 401
+
+
+def test_commissioning_endpoint_is_restricted_to_reliability_roles(ctx):
+    c = ctx["client"]
+    body = {"model_id": "wind-nbm-unknown", "start": "2026-10-01T00:00:00Z", "end": "2026-10-05T00:00:00Z", "reason": "declared healthy"}
+    assert c.post("/api/v1/assets/P-101/baseline", json=body, headers=H(ctx, "technician")).status_code == 403
+    r = c.post("/api/v1/assets/P-101/baseline", json=body, headers=H(ctx, "reliability_engineer"))
+    assert r.status_code == 404 and "unknown model" in r.json()["error"]

@@ -29,6 +29,7 @@ PERMISSIONS = {
     "schedules": {"planner", "admin"},
     "models.decide": {"reliability_engineer", "admin"},
     "asset_state.clear": {"technician", "planner", "reliability_engineer", "admin"},
+    "assets.commission": {"reliability_engineer", "admin"},
     "audit.read": {"admin", "reliability_engineer"},
     "users.admin": {"admin"},
 }
@@ -76,6 +77,13 @@ def revoke_api_key(db, user_id: str, actor: str):
     with db.tx() as c:
         c.execute("UPDATE users SET api_key_hash = NULL WHERE user_id = ?", (user_id,))
         _audit(db, c, actor, "user.api_key_revoked", user_id, {})
+
+
+def list_users(db) -> list[dict]:
+    with db.connect() as c:
+        return [{"user_id": r["user_id"], "display_name": r["display_name"], "role": r["role"], "active": bool(r["active"]),
+                 "has_api_key": r["api_key_hash"] is not None, "has_password": r["password_hash"] is not None, "created_at": r["created_at"]}
+                for r in c.execute("SELECT * FROM users ORDER BY user_id")]
 
 
 def deactivate(db, user_id: str, actor: str, reason: str):
