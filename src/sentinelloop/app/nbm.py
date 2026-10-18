@@ -43,7 +43,7 @@ from .timeutil import iso, now_iso
 
 FAMILY = "wind_nbm_ridge"
 TAUS = (3.0, 9.0, 18.0)                 # EWMA time constants in 10-min steps (30 min, 90 min, 3 h)
-WARMUP, WINDOW, SUSTAIN = 54, 36, 6     # points: EWMA warm-up (3 x the longest tau), rolling score (6 h), sustain (1 h)
+WARMUP, WINDOW, SUSTAIN = 54, 36, 12    # points: EWMA warm-up (3 x the longest tau), rolling score (6 h), sustain (2 h; W2, PD-15)
 OP_FRAC = 0.05                          # operating = power above 5% of rated
 STUCK_SIGNALS = ["wind_speed", "ambient_temp", "nacelle_temp"] + TARGETS
 ENVELOPE_SIGNALS = ["ambient_temp", "nacelle_temp", "wind_speed"]

@@ -79,14 +79,14 @@ def summarise(rows):
 
 def main():
     tune = [(m, s, seed) for m in MARGINS for s in SUSTAINS for seed in range(40, 46)]
-    with ProcessPoolExecutor() as ex:
+    with ProcessPoolExecutor(max_workers=4) as ex:
         rows = list(ex.map(_one, tune))
     T = summarise(rows)
     ok = {k: v for k, v in T.items() if v["eps_per_year"] is not None and v["eps_per_year"] <= 1.0}
     chosen = max(ok, key=lambda k: (ok[k]["detected"], ok[k]["median_lead"] or 0)) if ok else None
     held = []
     if chosen:
-        with ProcessPoolExecutor() as ex:
+        with ProcessPoolExecutor(max_workers=4) as ex:
             held = list(ex.map(_one, [(chosen[0], chosen[1], seed) for seed in range(20, 26)] + [(1.25, 6, seed) for seed in range(20, 26)]))
     H = summarise(held)
 

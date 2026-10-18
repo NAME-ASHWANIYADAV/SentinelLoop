@@ -324,7 +324,9 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
                 n_models = c.execute("SELECT COUNT(*) FROM models WHERE status = 'approved'").fetchone()[0]
             latest = len(db.migration_files())
             return {"database": "ok", "schema_version": v, "schema_current": v == latest, "approved_models": n_models,
-                    "audit_key": "DEV-INSECURE" if db.insecure_dev_key else "configured"}
+                    "audit_key": "DEV-INSECURE" if db.insecure_dev_key else "configured",
+                    "decision_config": "site-configured" if dcfg.site_configured else
+                                       "placeholder defaults (downtime cost 0, illustrative due dates): set them with serve --decision-config"}
         except Exception as e:  # readiness must not raise
             return JSONResponse({"database": "error", "detail": type(e).__name__}, status_code=503)
 

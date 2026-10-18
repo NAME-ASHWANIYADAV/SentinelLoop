@@ -2,6 +2,8 @@
 
 **Written 2026-10-18, before the dataset was downloaded.** No CARE file has been opened on this machine. The git commit that first contains this file is its date stamp. Any change made after results are seen must be listed in section 9 as a deviation, with its reason. It must not silently replace the protocol below.
 
+**Amendment 1 (2026-10-18, still before any download)** is in section 10. Where it conflicts with sections 2–5, section 10 governs.
+
 Gate: G0 in `product/INITIAL_MARKET_AND_ASSET_CHOICE.md` section 7.
 
 Sources for the metric definitions:
@@ -95,3 +97,72 @@ The paper's text and its algorithm disagree about which status value increments 
 ## 9. Deviations
 
 (none yet)
+
+## 10. Amendment 1 (2026-10-18, before any CARE file was downloaded)
+
+**Why.** The adversarial review (`product/ADVERSARIAL_REVIEW.md`: data_scientist-7, data_scientist-11, buyer-8, buyer-9) found that sections 2–5 left choices open that would have to be made while running G0, several of which move the score in a predictable direction. It also found that the pooled decision rule would be decided mostly by offshore, cross-asset data. No CARE data had been downloaded when this amendment was written (`data/external/` did not exist). The git commit that adds this section is its date stamp. The repository has no remote, so that stamp is local; the team is asked to publish the SHA-256 of this file externally (for example as a pushed tag or a public registry entry) before the download (`FINAL_PRODUCT_HANDOFF.md`).
+
+Where this section conflicts with sections 2–5, this section governs.
+
+### 10.1 Adapter (replaces the open parts of §2)
+
+1. **Inputs.**
+   - Required: active power, wind speed, ambient temperature, chosen from each farm's feature descriptions.
+   - Optional: nacelle temperature and rotor (or generator) speed. If a farm describes none, those feature columns are omitted and the regression is fitted on the remaining ones. Nothing is imputed for an absent column.
+2. **Rated power** (sets the "operating" mask, power > 5% of rated): the 99.5th percentile of active power over the normal-status rows of that dataset's training part.
+3. **Rotor-speed scaling**: divided by its 99.5th percentile over the same rows. This replaces the synthetic generator's 16.8 rpm.
+4. **Zeros as missing values.** Farms B and C use 0 for missing values (paper). For temperature columns, an exact 0.0 is treated as missing. For power and wind speed, 0 is a valid value.
+5. **Gates applied in the assessment service's order.**
+   - Platform data checks first (`configs/platform.yaml` defaults): any required signal (inputs and targets) missing in more than 10% of the scoring window is a data-quality failure.
+   - Then the model's gates (`nbm.gate`, defaults):
+     - data quality: a stuck signal, meaning a trailing constant run longer than max(5, the longest run in training); and, only where a farm describes both rotor and generator speed, the rotor/generator relation learned from the training part;
+     - scope: operating share ≥ 50% of the scoring window; ambient, nacelle and wind speed outside the training range (plus 5% of that range) on no more than 20% of points.
+   - Remaining missing cells are forward- and back-filled inside the window, as in the product, and the share of filled cells is reported.
+   - A timestamp whose window fails a gate gets p = 0, the product's "no anomaly statement". It is still scored by the CARE metrics. The baseline in §10.3 uses the same gates.
+6. **Targets and multiplicity.** All targets are selected by the description rule in §2.2.
+   - Each target gets its own threshold from the validation slice.
+   - The number of targets per farm is reported.
+   - No further multiplicity correction is applied. False alarms are penalised by the Accuracy term, and the internal baseline in §10.3 faces the same number of targets.
+7. **Thresholds and persistence.**
+   - The inspect margin stays 1.25 × the maximum healthy rolling score on the validation slice. The synthetic-only revisit W2 (`product/evidence/wind_synthetic/w2.md`, rule fixed before it ran) chose margin 1.25 and sustain 12. Sustain 12 is now the product default (`nbm.SUSTAIN`, PD-15).
+   - As in §2.5, sustain is **not** applied to p. CARE's criticality counter (§3) is the persistence rule, and stacking both would double-count persistence.
+   - The W2 choice enters G0 only through the "also reported" product alarm count on normal datasets. That count uses the product rule: an alarm episode is a run of consecutive sustained exceedances (sustain 12) per turbine-year of normal-dataset prediction data (`nbm._episodes`).
+   - §2.5's "sustain 6" is replaced by "sustain 12, product alarm count only".
+
+### 10.2 Timing definitions (replace the open parts of §3 and §4)
+
+- **Event detected:** the criticality counter reaches 72 at any time in the prediction part of an anomaly dataset.
+  - Detections are reported split into "before the event window" and "inside the event window".
+- **Lead time:** event start minus the first instant the counter reaches 72. A positive value means before the event start; a negative value means after it.
+- The phrase "achieved against nominal false-alarm behaviour" in §4 is withdrawn: the threshold rule has no nominal rate.
+- **Assessability** is also reported: the share of normal-status prediction rows whose window passes both gates, per farm.
+
+### 10.3 Decision rule (replaces §5)
+
+**Primary, in class: Farm A** (onshore, 22 datasets). Farm A's CARE score is compared with that of an **internal baseline computed by the same metric code**, the "power-binned z-threshold":
+- For each target, the training part's normal-status operating rows are binned by deciles of active power; a mean and standard deviation are kept per bin.
+- p = 1 at a timestamp when any target's |z| > 3. No sustain is applied; the criticality counter applies, as for the model.
+- Same gates, same criticality rule.
+
+**G0 passes only if all three hold:**
+1. Farm A CARE score is above the baseline's Farm A CARE score.
+2. Farm A mean Accuracy is ≥ 0.5.
+3. The pooled CARE score over all 95 datasets is > 0.66 (the published autoencoder result, computed by different code, kept as a secondary bar).
+
+A pooled pass with a Farm A result at or below the baseline is a **fail** for the vertical decision.
+
+**Reporting:**
+- Farm A's event detection rate is reported with its Wilson 95% interval.
+- With 11 events no precision claim is made.
+- Any external or sales use of G0 must quote the Farm A result with its interval, and must label the pooled result "mostly cross-asset (offshore)".
+
+### 10.4 Splits (reconciliation with the market record)
+
+`INITIAL_MARKET_AND_ASSET_CHOICE.md` §7 asked for splits by turbine and farm.
+- CARE's design trains and predicts each dataset on its own turbine's history: a training year, then a prediction part. That is equivalent to commissioning each turbine on its own past, which is how the product is deployed (PD-12).
+- There is no random time split.
+- No conformal calibration set is used: thresholds come from the healthy validation slice (§2.3). The market record's wording is superseded here.
+
+### 10.5 Unchanged
+
+Data, licence and handling (§1); the forbidden and allowed changes (§6, §7); outputs (§8). Deviations after data are seen still go in §9.

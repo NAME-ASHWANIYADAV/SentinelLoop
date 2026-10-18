@@ -1,0 +1,90 @@
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<string>", line 1, in <module>
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 131, in _main
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 131, in _main
+    prepare(preparation_data)
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 246, in prepare
+    prepare(preparation_data)
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 246, in prepare
+    _fixup_main_from_path(data['init_main_from_path'])
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 297, in _fixup_main_from_path
+    _fixup_main_from_path(data['init_main_from_path'])
+  File "C:\Python312\Lib\multiprocessing\spawn.py", line 297, in _fixup_main_from_path
+    main_content = runpy.run_path(main_path,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 286, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\HP\OneDrive\Desktop\tata\product\experiments\s2_corrected.py", line 26, in <module>
+    main_content = runpy.run_path(main_path,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 286, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\HP\OneDrive\Desktop\tata\product\experiments\s2_corrected.py", line 26, in <module>
+    from sentinelloop.app import sim  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\sim.py", line 28, in <module>
+    from sentinelloop.app import sim  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\sim.py", line 28, in <module>
+    from .decision import inverse_cdf
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\decision.py", line 21, in <module>
+    from .decision import inverse_cdf
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\decision.py", line 21, in <module>
+    from . import health, registry, workorders
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\health.py", line 24, in <module>
+    from . import health, registry, workorders
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\health.py", line 24, in <module>
+    from . import auditlog, modelpack, modelreg, registry, risk as riskmod, states
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\modelpack.py", line 25, in <module>
+    from . import auditlog, modelpack, modelreg, registry, risk as riskmod, states
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\app\modelpack.py", line 25, in <module>
+    from .. import anomaly, baseline, clean, config, conformal, data, evaluate, features, metrics, targets
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\anomaly.py", line 16, in <module>
+    from .. import anomaly, baseline, clean, config, conformal, data, evaluate, features, metrics, targets
+  File "C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\anomaly.py", line 16, in <module>
+    from sklearn.ensemble import IsolationForest
+  File "C:\Users\HP\OneDrive\Desktop\tata\.venv\Lib\site-packages\sklearn\ensemble\__init__.py", line 16, in <module>
+    from sklearn.ensemble import IsolationForest
+  File "C:\Users\HP\OneDrive\Desktop\tata\.venv\Lib\site-packages\sklearn\ensemble\__init__.py", line 16, in <module>
+    from ._hist_gradient_boosting.gradient_boosting import (
+  File "C:\Users\HP\OneDrive\Desktop\tata\.venv\Lib\site-packages\sklearn\ensemble\_hist_gradient_boosting\gradient_boosting.py", line 54, in <module>
+    from ._hist_gradient_boosting.gradient_boosting import (
+  File "C:\Users\HP\OneDrive\Desktop\tata\.venv\Lib\site-packages\sklearn\ensemble\_hist_gradient_boosting\gradient_boosting.py", line 52, in <module>
+    from .grower import TreeGrower
+  File "C:\Users\HP\OneDrive\Desktop\tata\.venv\Lib\site-packages\sklearn\ensemble\_hist_gradient_boosting\grower.py", line 25, in <module>
+    from .binning import _BinMapper
+  File "C:\Users\HP\OneDrive\Desktop\tata\.venv\Lib\site-packages\sklearn\ensemble\_hist_gradient_boosting\binning.py", line 20, in <module>
+    from .histogram import HistogramBuilder
+ImportError: DLL load failed while importing histogram: The paging file is too small for this operation to complete.
+    from ._bitset import set_bitset_memoryview
+ImportError: DLL load failed while importing _bitset: The paging file is too small for this operation to complete.
+Traceback (most recent call last):
+  File "C:\Users\HP\OneDrive\Desktop\tata\product\experiments\s2_corrected.py", line 159, in <module>
+    main()
+  File "C:\Users\HP\OneDrive\Desktop\tata\product\experiments\s2_corrected.py", line 95, in main
+    E = pd.DataFrame(list(ex.map(_one, e_tasks, chunksize=2)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\concurrent\futures\process.py", line 647, in _chain_from_iterable_of_lists
+    for element in iterable:
+  File "C:\Python312\Lib\concurrent\futures\_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\concurrent\futures\_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.

@@ -39,6 +39,31 @@ class DecisionConfig:
     # after a reasoned rejection, the same condition (same asset, job and state, not more urgent) is not re-raised for:
     reject_suppress_h: dict = field(default_factory=lambda: {"P1": 24, "P2": 168, "P3": 720})
     version: int = 2
+    site_configured: bool = False         # True only when loaded from a site's decision config file
+
+
+def load_config_text(text: str) -> "DecisionConfig":
+    """A site's decision parameters from YAML (only known keys; costs and due dates must be non-negative)."""
+    import yaml
+    raw = yaml.safe_load(text) or {}
+    if not isinstance(raw, dict):
+        raise ValueError("decision config must be a mapping")
+    known = set(DecisionConfig.__dataclass_fields__) - {"version", "site_configured"}
+    bad = sorted(set(raw) - known)
+    if bad:
+        raise ValueError(f"unknown decision config keys {bad}; allowed: {sorted(known)}")
+    for k in ("p_accept", "p_safety", "labour_cost_per_h", "downtime_cost_per_h"):
+        if k in raw and float(raw[k]) < 0:
+            raise ValueError(f"{k} must be >= 0")
+    for k in ("default_due_h", "reject_suppress_h"):
+        if k in raw and (set(raw[k]) - {"P1", "P2", "P3"} or any(float(v) < 0 for v in raw[k].values())):
+            raise ValueError(f"{k} needs P1/P2/P3 keys with non-negative hours")
+    return DecisionConfig(**raw, site_configured=True)
+
+
+def load_config(path) -> "DecisionConfig":
+    from pathlib import Path
+    return load_config_text(Path(path).read_text(encoding="utf-8"))
 
 
 @dataclass

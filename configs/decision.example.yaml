@@ -1,0 +1,21 @@
+# Example site decision parameters for `python -m sentinelloop.app.admin serve --decision-config <this file>`.
+# Every number is a SITE CHOICE to agree with the customer before a pilot; the values below are placeholders.
+# Without a file the server runs with placeholder defaults and /api/v1/ready says so.
+
+# Cost of an hour of unplanned downtime, in the same units as each asset's cost_per_failure. For a wind owner this is
+# lost generation (expected energy per hour x tariff). Simulation (SCHEDULING_EVALUATION.md) shows which scheduling
+# policy is best depends on it, so it must be set, not left at 0.
+downtime_cost_per_h: 0.0
+
+labour_cost_per_h: 1.0
+
+# Due dates when no valid failure-time prediction exists (anomaly models always): hours after the recommendation.
+default_due_h: {P1: 24, P2: 168, P3: 720}
+
+# After a reasoned rejection, the same condition is not re-raised for this many hours (it is re-raised at once if it escalates).
+reject_suppress_h: {P1: 24, P2: 168, P3: 720}
+
+# For RUL models only: accepted P(failure before the job ends) for the latest-start due date, and the safety limit.
+# Note (evidence C2): the model-implied probability is not calibrated on simulated data.
+p_accept: 0.05
+p_safety: 0.05

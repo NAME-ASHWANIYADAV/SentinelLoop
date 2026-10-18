@@ -314,3 +314,19 @@ def test_migration_backfills_the_start_of_existing_latches(plant):
         c.execute("UPDATE asset_states SET latched_since_ms = NULL, updated_at = '2026-10-01T12:00:00Z' WHERE asset_id = 'P-101'")
         c.execute((ROOT / "src" / "sentinelloop" / "app" / "migrations" / "0007_backfill_latch_start.sql").read_text(encoding="utf-8"))
     assert health.asset_state(plant, "P-101").latched_since_ms == parse_ts("2026-10-01T12:00:00Z")
+
+
+def test_decision_parameters_can_be_site_configured_and_ready_says_which(tmp_path, plant):
+    """Review buyer-6: downtime cost is 'required' (PD-09) but could not be set in a deployed server."""
+    cfg_file = tmp_path / "decision.yaml"
+    cfg_file.write_text("downtime_cost_per_h: 0.004\nlabour_cost_per_h: 1.0\ndefault_due_h: {P1: 12, P2: 120, P3: 720}\n", encoding="utf-8")
+    dcfg = decision.load_config(cfg_file)
+    assert dcfg.downtime_cost_per_h == 0.004 and dcfg.default_due_h["P1"] == 12
+    with pytest.raises(ValueError):
+        decision.load_config_text("downtime_cost_per_h: -1\n")
+    with pytest.raises(ValueError):
+        decision.load_config_text("unknown_key: 1\n")
+    c = TestClient(api.create_app(plant, POL, decision_cfg=dcfg))
+    assert c.get("/api/v1/ready").json()["decision_config"] == "site-configured"
+    c2 = TestClient(api.create_app(plant, POL))
+    assert c2.get("/api/v1/ready").json()["decision_config"].startswith("placeholder defaults")

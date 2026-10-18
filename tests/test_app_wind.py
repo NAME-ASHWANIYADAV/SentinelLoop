@@ -252,3 +252,11 @@ def test_evaluation_reports_alarm_episodes_and_assessability(bundle_dir, fleet):
     assert "healthy_alarm_episodes" in s and "healthy_turbine_years" in s and "assessable_share" in s
     assert 0.0 <= s["assessable_share"] <= 1.0
     assert all("alarm_episodes" in v for v in ev["per_turbine"].values())
+
+
+def test_shipped_inspection_threshold_is_the_one_w2_chose():
+    """The product defaults must be the setting the pre-fixed W2 rule chose (evidence link, PD-15)."""
+    import json
+    chosen = json.loads((ROOT / "product" / "evidence" / "wind_synthetic" / "w2.json").read_text(encoding="utf-8"))["chosen"]
+    assert [nbm.INSPECT_MARGIN, nbm.SUSTAIN] == chosen
+    assert nbm.WindNBMBundle.__dataclass_fields__["sustain"].default == chosen[1]
