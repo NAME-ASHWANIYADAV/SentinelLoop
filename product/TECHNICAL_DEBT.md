@@ -53,3 +53,37 @@ Written in Phase 0 (2026-10-18) against git tag `competition-baseline` (commit 4
 |---|---|---|---|---|---|
 | E1 | Every ML result is on simulated C-MAPSS engines | `docs/EXPERIMENT_RESULTS.md` | No statement about real equipment can be made yet | blocker for field claims | Validation ladder (Phase 2), real public data where licensable |
 | E2 | Competition documents describe the system in competition terms (Round 1/Round 2, rubric) | `docs/`, `submission/` | Product documents must not inherit competition framing or numbers out of context | minor | Product documents live under `product/`; competition material stays as history |
+
+## Resolution status (updated 2026-10-18, after the product-platform work)
+
+The register above is the Phase 0 audit of the competition baseline and is kept unchanged. The table below records what the product platform (`src/sentinelloop/app`, branch `product/platform`) did about each item. "Resolved in the platform" means the platform has a tested replacement. The competition pipeline itself is frozen and still has the item.
+
+| item | status | where |
+|---|---|---|
+| A1 time model | resolved in the platform: epoch-ms UTC, refusal of naive timestamps, cycle-index assets declare hours per cycle | `timeutil.py`, `ingest.py`, `adapters/cmapss.py` |
+| A2 asset registry | resolved | `registry.py`, `models.py` |
+| A3 fixed C-MAPSS schema | resolved: long-format readings contract v1; wind signals added | `ingest.py`, `adapters/wind.py` |
+| A4 cycle thresholds and RUL cap | resolved for decisions (risk horizons in hours, policy file); the C-MAPSS model keeps its cap, disclosed in the manifest | `configs/platform.yaml`, `decision.py` |
+| A5 per-subset fitting | addressed: model bundles with scope checks (envelope, regime, sensor ranges); wind models commissioned per turbine | `modelpack.py`, `nbm.py` |
+| A6 simulated "new data" | open: no real outcome data exist | KNOWN_LIMITATIONS E1 |
+| A7 back-fill imputation | open in the C-MAPSS bundle (reused from the competition); the wind model forward-fills and back-fills only inside a scoring window and counts imputed cells | `nbm.py` |
+| B1 in-memory work orders | resolved: persistent lifecycle | `workorders.py` |
+| B2 history deleted on re-run | resolved in the platform: append-only tables and audit chain | `db.py`, `auditlog.py` |
+| B3 escalation without identity | resolved: users, roles, approvals with reasons | `security.py`, `workorders.py` |
+| B4 no outcomes | resolved: outcome records with contradiction flags; use for learning still PLANNED | `workorders.py` |
+| B5 severity ignores consequence and resources | resolved: criticality, consequence and scheduling under constraints | `decision.py`, `scheduler.py` |
+| B6 look-ahead in replay | not applicable to the platform (assessments use only data up to the instant) | `health.py` |
+| C1 inference retrains | resolved: assessments load the approved, checksum-verified bundle | `health.py`, `modelreg.py` |
+| C2 two champions | resolved in the platform: one registry, one approved model per scope | `modelreg.py` |
+| C3 pickles without integrity check | resolved: SHA-256 recorded at registration, verified before unpickling; signed manifests PLANNED | `modelpack.load_bundle` |
+| C4 marginal calibration | audited (C1): late-life under-coverage confirmed; Mondrian recalibration PLANNED | `RELIABILITY_AND_SAFETY.md` §4 |
+| C5 tuning on test results | disclosed; product experiments tune on separate seeds (S1c/S1d) and pre-register G0 | `SCHEDULING_EVALUATION.md`, `evidence/g0/PREREGISTRATION.md` |
+| D1 no API | resolved | `api.py`, `API_CONTRACTS.md` |
+| D2 no authentication | resolved for the API and console (keys, roles); no SSO | `security.py` |
+| D3 no logs or health endpoints | resolved: JSON request logs with request ids, `/health`, `/ready` | `api.py` |
+| D4 no migrations or backup | resolved: checksummed migrations, online backup, restore, drill R1 | `db.py`, `admin.py` |
+| D5 OneDrive folder | open for this workspace; deployments use explicit paths (`DEPLOYMENT_GUIDE.md`) | — |
+| D6 unkeyed audit chain | resolved: HMAC chain plus anchor | `auditlog.py` |
+| D7 heavy dependencies | addressed: `requirements-platform.txt` excludes mlflow | `SECURITY_REVIEW.md` §3 |
+| E1 simulated data only | open: wind evaluated on SYNTHETIC data only; real-data G0 pre-registered, blocked on download | `VALIDATION_LADDER.md` |
+| E2 competition framing | resolved for product documents (under `product/`) | — |
