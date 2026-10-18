@@ -54,4 +54,4 @@ def test_wrong_key_fails_audit_verification(env, monkeypatch):
     admin.main(["init", "--db", db])
     admin.main(["create-admin", "--db", db, "--user", "root", "--name", "Root"])
     monkeypatch.setenv("SENTINELLOOP_AUDIT_KEY", "cd" * 32)
-    assert admin.main(["verify-audit", "--db", db]) == 1
+    assert admin.main(["verify-audit", "--db", db, "--allow-no-anchor"]) == 1          # fails on the key, not on the missing anchor

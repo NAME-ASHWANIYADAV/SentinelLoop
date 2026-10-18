@@ -29,7 +29,12 @@ def _audit(db, c, actor, action, model_id, payload):
 
 
 def register(db, bundle_dir, actor: str) -> str:
+    import hashlib
+    from pathlib import Path
     m = read_manifest(bundle_dir)
+    blob = Path(bundle_dir, "bundle.pkl")
+    if not blob.exists() or hashlib.sha256(blob.read_bytes()).hexdigest() != m.get("artifact_sha256"):
+        raise ModelRegistryError("the model artefact does not match the checksum in its manifest; refusing to register it")
     with db.tx() as c:
         if c.execute("SELECT 1 FROM asset_types WHERE asset_type_id = ?", (m["asset_type_id"],)).fetchone() is None:
             raise ModelRegistryError(f"asset type {m['asset_type_id']} is not registered")

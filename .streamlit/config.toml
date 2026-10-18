@@ -1,0 +1,10 @@
+# Streamlit server settings for the operator console (and the competition dashboard), read when Streamlit is started
+# from the repository root. The console binds to localhost only: expose it through a TLS reverse proxy or VPN
+# (DEPLOYMENT_GUIDE.md), never directly. Adversarial-review finding security-3.
+[server]
+address = "127.0.0.1"
+headless = true
+port = 8501
+
+[browser]
+gatherUsageStats = false

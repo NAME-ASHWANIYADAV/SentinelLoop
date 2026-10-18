@@ -290,3 +290,27 @@ def test_suspect_values_above_the_limit_make_a_data_quality_failure(plant):
     assert r.rows_suspect == 30
     a = health.assess(plant, "P-101", POL, as_of_ms=t)
     assert a["health_state"] == "DATA_QUALITY_FAILURE" and any(x.startswith("out_of_range:bearing_temp") for x in a["reasons"])
+
+
+def test_an_unknown_latch_start_fails_closed(plant):
+    """Follow-up security review: a latch whose start time is unknown (e.g. latched before migration 0006) is kept."""
+    s = states.replace(latch(plant), latched_since_ms=None)
+    with plant.tx() as c:
+        health._store_state(c, "P-101", s, None)
+    w = order(plant, "u1")
+    wo.complete(plant, w, actor="tom", role="technician", outcome=INSPECTED)
+    assert health.asset_state(plant, "P-101").latched_risk == "URGENT"
+
+
+def test_advance_never_records_a_zero_latch_start():
+    s = states.advance(AssetState(), Classification(H.URGENT_REVIEW, []), Thresholds())
+    assert s.latched_since_ms is not None and s.latched_since_ms > 0
+
+
+def test_migration_backfills_the_start_of_existing_latches(plant):
+    """Migration 0007: latched rows without a start get their last-update time (at or after the true start: fail closed)."""
+    latch(plant)
+    with plant.tx() as c:
+        c.execute("UPDATE asset_states SET latched_since_ms = NULL, updated_at = '2026-10-01T12:00:00Z' WHERE asset_id = 'P-101'")
+        c.execute((ROOT / "src" / "sentinelloop" / "app" / "migrations" / "0007_backfill_latch_start.sql").read_text(encoding="utf-8"))
+    assert health.asset_state(plant, "P-101").latched_since_ms == parse_ts("2026-10-01T12:00:00Z")

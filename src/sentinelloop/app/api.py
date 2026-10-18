@@ -18,6 +18,7 @@ import uuid
 from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 from . import auditlog, decision, health, ingest, integration, modelreg, nbm, planning, registry, resources, security, workorders
@@ -352,6 +353,10 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     def patch_asset(asset_id: str, body: AssetPatchBody, u: dict = Depends(need("assets.write"))):
         return registry.update_asset(db, asset_id, body.changes, actor=u["user_id"], reason=body.reason).model_dump()
 
+    @app.get(f"{API}/sites")
+    def sites(u: dict = Depends(need("read"))):
+        return registry.list_sites(db)
+
     @app.get(f"{API}/asset-types")
     def asset_types(u: dict = Depends(need("read"))):
         return [t.model_dump() for t in registry.list_asset_types(db)]
@@ -419,7 +424,10 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     # -- integrations (CMMS, webhooks): shadow mode by default --------------------------------------------------------
     @app.get(f"{API}/integrations")
     def targets(u: dict = Depends(need("integrations.read"))):
-        return integration.list_targets(db)
+        rows = integration.list_targets(db)
+        if u["role"] != "admin":                       # config names credential variables and hosts: admins only
+            rows = [{k: v for k, v in t.items() if k != "config"} for t in rows]
+        return rows
 
     @app.post(f"{API}/integrations", status_code=201)
     def register_target(body: TargetBody, u: dict = Depends(need("integrations.manage"))):
@@ -453,7 +461,8 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
                          u: dict = Depends(need("ingest"))):
         raw = await request.body()                     # BodyLimit caps it while it streams
         units = json.loads(wide_units) if wide_units else None
-        return ingest.ingest_csv(db, raw, source=source, actor=u["user_id"], wide_units=units, default_tz=default_tz).to_dict()
+        res = await run_in_threadpool(ingest.ingest_csv, db, raw, source=source, actor=u["user_id"], wide_units=units, default_tz=default_tz)
+        return res.to_dict()                           # parsed off the event loop so one upload cannot stall the API
 
     @app.get(f"{API}/ingest/batches/{{batch_id}}")
     def batch(batch_id: str, u: dict = Depends(need("read"))):

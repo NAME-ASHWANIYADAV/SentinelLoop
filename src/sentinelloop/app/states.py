@@ -34,6 +34,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from enum import Enum
 
+from .timeutil import now_ms as _wall_ms
+
 
 class HealthState(str, Enum):
     NORMAL_MONITORING = "NORMAL_MONITORING"
@@ -176,7 +178,7 @@ def advance(s: AssetState, cl: Classification, thr: Thresholds, now_ms: int | No
         latched = "INSPECTION"
     since = s.latched_since_ms
     if latched != s.latched_risk:
-        since = int(now_ms) if now_ms is not None else 0
+        since = int(now_ms) if now_ms is not None else _wall_ms()      # never 0: an unknown start must not let old work clear it
     if cl.state == HealthState.DATA_QUALITY_FAILURE:
         dq_active, streak = True, 0
     else:

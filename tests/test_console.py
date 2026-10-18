@@ -69,7 +69,7 @@ def test_signed_out_console_shows_only_the_login_form(env):
 def test_fleet_page_lists_every_asset_with_its_state(env):
     at = run_as(env, "viewer", "Fleet")
     df = at.dataframe[0].value
-    assert set(df["asset"]) == {"P-101", "P-102"} and all("NOT_ASSESSED" in s for s in df["state"])
+    assert set(df["asset"]) == {"P-101", "P-102"} and all("Not assessed" in s for s in df["state"])
 
 
 def test_planner_approves_from_the_work_queue(env):
@@ -106,6 +106,9 @@ def test_technician_records_an_outcome(env):
     at.button(key=f"complete-{wo}").click().run()                     # no actions described: refused
     assert any("actions taken" in e.value for e in at.error) and workorders.get(d, wo)["state"] == "IN_PROGRESS"
     at.text_input(key=f"act-{wo}").input("inspected bearing; regreased").run()
+    at.button(key=f"complete-{wo}").click().run()                     # downtime not entered: refused, nothing made up
+    assert any("downtime" in e.value for e in at.error) and workorders.get(d, wo)["state"] == "IN_PROGRESS"
+    at.number_input(key=f"down-{wo}").set_value(0.5).run()
     at.selectbox(key=f"found-{wo}").select("degradation_found").run()
     at.button(key=f"complete-{wo}").click().run()
     o = workorders.get(d, wo)
@@ -127,3 +130,39 @@ def test_non_json_upstream_errors_are_not_echoed():
     with pytest.raises(ApiError) as e:
         c.me()
     assert e.value.status == 502 and "secrets" not in e.value.message
+
+
+def test_deferred_work_is_listed_and_can_be_brought_back(env):
+    d, w = env["db"], env["wo"]
+    workorders.transition(d, w, "defer", actor="pat", role="planner", reason="crane booked", data={"until": "2026-12-01T06:00:00Z"})
+    at = run_as(env, "planner", "Work queue")
+    assert any("Deferred (1)" in e.label for e in at.expander)
+    at.button(key=f"reactivate-{w}").click().run()
+    assert workorders.get(d, w)["state"] == "PENDING_APPROVAL"
+
+
+def test_a_technician_hands_a_job_back_with_a_reason(env):
+    d, w = env["db"], env["wo"]
+    workorders.transition(d, w, "approve", actor="pat", role="planner")
+    workorders.transition(d, w, "schedule", actor="pat", role="planner", data={"start": "2026-10-19T08:00:00Z", "end": "2026-10-19T12:00:00Z",
+                                                                              "technicians": ["T1"]})
+    at = run_as(env, "technician", "Do the work")
+    assert any("inspection recommended" in t.value.lower() for t in at.text)          # the job card says why
+    at.button(key=f"handback-{w}").click().run()
+    assert workorders.get(d, w)["state"] == "SCHEDULED"                              # no reason: refused
+    at.text_input(key=f"hb-{w}").input("wind above climbing limit").run()
+    at.button(key=f"handback-{w}").click().run()
+    assert workorders.get(d, w)["state"] == "APPROVED"
+
+
+def test_dismissal_is_offered_only_to_dismissers_and_only_when_something_is_latched(env):
+    from sentinelloop.app import health, states
+    from sentinelloop.app.states import AssetState, Classification, HealthState as H, Thresholds
+    at = run_as(env, "planner", "Asset")
+    assert not any("Dismiss" in e.label for e in at.expander)                        # nothing latched
+    with env["db"].tx() as c:
+        health._store_state(c, "P-101", states.advance(AssetState(), Classification(H.URGENT_REVIEW, []), Thresholds()), None)
+    at = run_as(env, "planner", "Asset")
+    assert any("Dismiss" in e.label for e in at.expander)
+    at = run_as(env, "technician", "Asset")
+    assert not any("Dismiss" in e.label for e in at.expander)

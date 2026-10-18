@@ -42,6 +42,11 @@ def get_site(db, site_id: str) -> dict | None:
     return dict(r) if r else None
 
 
+def list_sites(db) -> list[dict]:
+    with db.connect() as c:
+        return [dict(r) for r in c.execute("SELECT site_id, name, timezone, created_at FROM sites ORDER BY site_id")]
+
+
 def create_asset_type(db, spec: AssetTypeSpec, actor: str) -> AssetTypeSpec:
     try:
         with db.tx() as c:

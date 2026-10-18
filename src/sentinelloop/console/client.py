@@ -5,12 +5,21 @@ key, so the API's role checks, validation and audit apply to the console exactly
 """
 from __future__ import annotations
 
+import re
 import uuid
 
 import httpx
 
-STATE_ORDER = ["URGENT_REVIEW", "INSPECTION_RECOMMENDED", "DATA_QUALITY_FAILURE", "MODEL_UNAVAILABLE", "MODEL_OUT_OF_SCOPE", "NORMAL_MONITORING",
-               "NOT_ASSESSED"]
+_MD = re.compile(r"([\\`*_{}\[\]()#+\-.!|<>~])")
+
+
+def md(s) -> str:
+    """Escape markdown in text that came from the API, so titles and reasons render as plain text (no links, no images)."""
+    return _MD.sub(r"\\\1", str(s if s is not None else ""))
+
+
+STATE_ORDER =["URGENT_REVIEW", "INSPECTION_RECOMMENDED", "DATA_QUALITY_FAILURE", "MODEL_UNAVAILABLE", "MODEL_OUT_OF_SCOPE", "AWAITING_ASSESSMENT",
+               "NOT_ASSESSED", "NORMAL_MONITORING"]
 
 
 class ApiError(RuntimeError):
@@ -68,6 +77,15 @@ class ConsoleClient:
     def clear_risk(self, asset_id, event, reason):
         return self._req("POST", f"/assets/{asset_id}/clear-risk", json={"event": event, "reason": reason})
 
+    def sites(self):
+        return self._req("GET", "/sites")
+
+    def asset_types(self):
+        return self._req("GET", "/asset-types")
+
+    def models(self):
+        return self._req("GET", "/models")
+
     # work
     def generate(self):
         return self._req("POST", "/decisions/generate")
@@ -89,6 +107,9 @@ class ConsoleClient:
     def complete(self, wo_id, outcome: dict, expected_version=None):
         return self._req("POST", f"/work-orders/{wo_id}/complete", json={"outcome": outcome, "expected_version": expected_version},
                          headers={"Idempotency-Key": f"console-{uuid.uuid4().hex}"})
+
+    def reprioritise(self, wo_id, priority_class, reason):
+        return self._req("POST", f"/work-orders/{wo_id}/reprioritise", json={"priority_class": priority_class, "reason": reason})
 
     def missing_outcomes(self):
         return self._req("GET", "/work-orders/missing-outcomes")

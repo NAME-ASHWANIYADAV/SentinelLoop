@@ -54,6 +54,9 @@ from .timeutil import iso, now_iso, now_ms as _now_ms
 ADMINS = {"admin"}
 DISPATCHERS = {"admin", "integration"}
 SENT_STATES = ("APPROVED", "SCHEDULED", "IN_PROGRESS")
+# once a request exists in the CMMS, later local states are mirrored onto it (name and description, priority lowered)
+FOLLOW_STATES = ("CANCELLED", "REJECTED", "DEFERRED", "COMPLETED", "CLOSED")
+CONFIG_KEYS = {"database", "api_key_env", "secret_env", "timeout_s", "max_attempts"}
 ODOO_WRITABLE_FIELDS = {"name", "description", "priority", "maintenance_type", "schedule_date", "schedule_end", "duration", "equipment_id",
                         "request_date"}
 PRIORITY = {"P1": "3", "P2": "2", "P3": "1"}
@@ -95,6 +98,8 @@ def check_url(base_url: str):
     host = (u.hostname or "").lower()
     if u.scheme not in ("http", "https") or not host:
         raise IntegrationError(f"{base_url!r} is not an http(s) URL")
+    if u.username or u.password or u.query or u.fragment:
+        raise IntegrationError("target URLs may not carry credentials, a query string or a fragment")
     if u.scheme == "http" and not _is_local(host):
         raise IntegrationError(f"{host} is not local: https is required")
     if host not in _allowed_hosts():
@@ -119,6 +124,9 @@ def register_target(db, target_id: str, kind: str, base_url: str, config: dict, 
     check_url(base_url)
     if any(k.lower() in ("api_key", "password", "secret", "token") for k in config):
         raise IntegrationError("secrets may not be stored in target config; name an environment variable instead (api_key_env / secret_env)")
+    unknown = sorted(set(config) - CONFIG_KEYS)
+    if unknown:
+        raise IntegrationError(f"unknown config keys {unknown}; allowed: {sorted(CONFIG_KEYS)}")
     _check_cred_name(config.get(CRED_KEYS[kind]), CRED_KEYS[kind])
     now = now_iso()
     with db.tx() as c:
@@ -202,7 +210,21 @@ def odoo_payload(wo: dict, asset, equipment_id: int | None) -> dict:
         p["schedule_end"] = _odoo_dt(wo["scheduled_end_ms"])
     if equipment_id is not None:
         p["equipment_id"] = equipment_id
-    assert set(p) <= ODOO_WRITABLE_FIELDS
+    if wo["state"] in FOLLOW_STATES:
+        label = {"CANCELLED": "WITHDRAWN", "REJECTED": "WITHDRAWN", "DEFERRED": f"DEFERRED until {wo.get('deferred_until') or '?'}",
+                 "COMPLETED": "COMPLETED", "CLOSED": "COMPLETED"}[wo["state"]]
+        p["name"] = f"[SentinelLoop {label}] {wo['title']}"[:250]
+        p["description"] = (f"<p><b>SentinelLoop: this recommendation is now {e(wo['state'].lower())} ({e(label.lower())}).</b> "
+                            f"Do not act on it unless your own process says so.</p>" + p["description"])
+        p["priority"] = "0" if wo["state"] in ("CANCELLED", "REJECTED", "DEFERRED") else p["priority"]
+    return filter_fields(p)
+
+
+def filter_fields(p: dict) -> dict:
+    """The connector writes only these request fields; anything else is a programming error, refused explicitly."""
+    bad = sorted(set(p) - ODOO_WRITABLE_FIELDS)
+    if bad:
+        raise IntegrationError(f"refusing to write CMMS fields outside the allowlist: {bad}")
     return p
 
 
@@ -238,8 +260,10 @@ class OdooJson2:
         rows = self.call("maintenance.equipment", "search_read", {"domain": [["serial_no", "=", ref]], "fields": ["id", "name"]})
         return rows[0]["id"] if rows else None
 
-    def upsert(self, wo_id: str, payload: dict, external_id: str | None) -> str:
-        if external_id is None:
+    def upsert(self, wo_id: str, payload: dict, external_id: str | None, recover: bool = False) -> str:
+        """`recover`: the local mapping may have been lost after an earlier send; only then is the marker searched, so a
+        first send can never adopt a record someone planted with a predictable marker."""
+        if external_id is None and recover:
             m = _html(marker(wo_id))
             rows = self.call("maintenance.request", "search_read", {"domain": [["description", "ilike", m]], "fields": ["id", "name", "description"]})
             rows = [r for r in rows if m in str(r.get("description") or "") and str(r.get("name") or "").startswith("[SentinelLoop]")]
@@ -274,7 +298,7 @@ class Webhook:
         self.url, self.secret = url, secret
         self.client = httpx.Client(timeout=timeout_s, transport=transport)
 
-    def upsert(self, wo_id: str, payload: dict, external_id: str | None) -> str:
+    def upsert(self, wo_id: str, payload: dict, external_id: str | None, recover: bool = False) -> str:
         body = json.dumps({"event": "work_order.upsert", "wo_id": wo_id, "payload": payload}, sort_keys=True).encode()
         ts = int(_now_ms() / 1000)
         try:
@@ -299,6 +323,7 @@ def _adapter(t: dict, transport=None):
     cfg = t["config"]
     try:
         _check_cred_name(cfg.get(CRED_KEYS[t["kind"]]), CRED_KEYS[t["kind"]])
+        check_url(t["base_url"])                       # the allowlist is checked at every dispatch, not only at registration
     except IntegrationError as e:
         raise PermanentError(str(e)) from None
     if t["kind"] == "odoo_json2":
@@ -371,7 +396,9 @@ def dispatch(db, target_id: str, now_ms: int | None = None, transport=None, max_
         return res
     state = {i["wo_id"]: i for i in items(db, target_id)}
     due = []
-    for wo in workorders.list_orders(db, states_in=list(SENT_STATES)):
+    candidates = workorders.list_orders(db, states_in=list(SENT_STATES))
+    candidates += [w for w in workorders.list_orders(db, states_in=list(FOLLOW_STATES)) if state.get(w["wo_id"])]
+    for wo in candidates:
         it = state.get(wo["wo_id"])
         if it and it["status"] == "dead":
             res["skipped"] += 1
@@ -410,7 +437,7 @@ def dispatch(db, target_id: str, now_ms: int | None = None, transport=None, max_
                 if t["mode"] == "shadow":
                     outcome = "shadow"
                 else:
-                    ext = adapter.upsert(wo["wo_id"], payload, ext)
+                    ext = adapter.upsert(wo["wo_id"], payload, ext, recover=it is not None)
                     outcome = "synced"
             except TransientError as e:
                 attempts += 1

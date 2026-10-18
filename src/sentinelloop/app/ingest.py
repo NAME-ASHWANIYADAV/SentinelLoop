@@ -25,6 +25,11 @@ from .registry import list_asset_types
 from .timeutil import NaiveTimestampError, iso, now_iso, now_ms as _now_ms, parse_ts
 
 CONTRACT_VERSION = 1
+MAX_RECORDS_PER_BATCH = 200_000          # same cap as the JSON route; a wide CSV expands to rows x signal columns
+
+
+class IngestLimitError(ValueError):
+    pass
 LONG_COLUMNS = ("asset", "timestamp", "signal", "value", "unit")
 MAX_STORED_ERRORS = 1000
 
@@ -231,6 +236,8 @@ def ingest_csv(db, path, source: str, actor: str, *, wide_units: dict | None = N
         if missing:
             errors.append(("missing_columns", f"long format needs {LONG_COLUMNS}; missing {missing}"))
         else:
+            if len(rows) > MAX_RECORDS_PER_BATCH:
+                raise IngestLimitError(f"{len(rows)} rows; at most {MAX_RECORDS_PER_BATCH} per batch: split the file")
             records = [{k: r.get(k) for k in LONG_COLUMNS} for r in rows]
     else:
         missing = [c for c in ("asset", "timestamp") if c not in cols]
@@ -243,6 +250,9 @@ def ingest_csv(db, path, source: str, actor: str, *, wide_units: dict | None = N
         elif [s for s in signals if s not in units]:
             errors.append(("missing_units", f"no unit declared for {[s for s in signals if s not in units]}"))
         else:
+            if len(rows) * len(signals) > MAX_RECORDS_PER_BATCH:
+                raise IngestLimitError(f"{len(rows)} rows x {len(signals)} signals = {len(rows) * len(signals)} readings; at most "
+                                       f"{MAX_RECORDS_PER_BATCH} per batch: split the file")
             for r in rows:
                 for s in signals:
                     records.append({"asset": r.get("asset"), "timestamp": r.get("timestamp"), "signal": s, "value": r.get(s), "unit": units[s]})

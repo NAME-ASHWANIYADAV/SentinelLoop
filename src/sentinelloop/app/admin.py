@@ -10,7 +10,8 @@ Commands:
   create-admin   bootstrap the first admin user and print its API key once (refused if an active admin exists)
   backup         consistent online copy (SQLite backup API) plus an audit-anchor file next to it
   restore        copy a backup to a new database path (never overwrites without --force), then check integrity
-  verify-audit   verify the HMAC chain (and the anchor file when present); exit 1 on any failure
+  verify-audit   verify the HMAC chain against an anchor (--anchor FILE, or <db>.anchor.json next to the database);
+                 without an anchor truncation cannot be detected, so it fails unless --allow-no-anchor is given
   serve          run the REST API with uvicorn (bind to 127.0.0.1 by default; put TLS in front, see DEPLOYMENT_GUIDE)
 
 Exit codes: 0 success, 1 the operation failed or found a problem, 2 configuration error.
@@ -123,9 +124,16 @@ def cmd_verify_audit(args) -> int:
     path = _db_path(args)
     key, _ = audit_key_from_env()
     anchor = None
-    af = Path(str(path) + ".anchor.json")
+    af = Path(args.anchor) if args.anchor else Path(str(path) + ".anchor.json")
     if af.exists():
         anchor = json.loads(af.read_text(encoding="utf-8"))
+    elif args.anchor:
+        print(f"anchor file {af} not found", file=sys.stderr)
+        return 1
+    elif not args.allow_no_anchor:
+        print("no anchor: deleting the newest events cannot be detected without one. Pass --anchor with an anchor kept off this host "
+              "(e.g. from the last backup), or --allow-no-anchor to check the chain's internal consistency only", file=sys.stderr)
+        return 1
     with sqlite3.connect(path) as c:
         c.row_factory = sqlite3.Row
         res = auditlog.verify(c, key, anchor=anchor)
@@ -167,7 +175,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--from", dest="from_", required=True)
     p.add_argument("--force", action="store_true")
     p.set_defaults(func=cmd_restore)
-    with_db(sub.add_parser("verify-audit")).set_defaults(func=cmd_verify_audit)
+    p = with_db(sub.add_parser("verify-audit"))
+    p.add_argument("--anchor", help="anchor JSON kept off the host (e.g. <backup>.anchor.json from an earlier backup)")
+    p.add_argument("--allow-no-anchor", action="store_true", help="check internal consistency only (cannot detect truncation)")
+    p.set_defaults(func=cmd_verify_audit)
     p = with_db(sub.add_parser("serve"))
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--port", type=int, default=8080)

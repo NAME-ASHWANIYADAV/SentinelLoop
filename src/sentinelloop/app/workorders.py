@@ -262,7 +262,9 @@ def _latch_keep_reasons(o, out: "Outcome", role: str, s) -> list[str]:
         keep.append(f"a {o['job_type']} does not address a latched equipment risk")
     if role not in HUMAN_CLEARERS:
         keep.append(f"completed by the '{role}' role, not by a person")
-    if s.latched_since_ms and parse_ts(o["created_at"]) < s.latched_since_ms:
+    if s.latched_since_ms is None:                     # fail closed: an unknown start cannot be shown to precede the order
+        keep.append("the start of the latched condition is unknown; dismiss it with a reason or let a new assessment decide")
+    elif parse_ts(o["created_at"]) < s.latched_since_ms:
         keep.append("the order was raised before the latched condition began")
     return keep
 

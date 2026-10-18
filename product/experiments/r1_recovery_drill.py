@@ -130,7 +130,7 @@ def main():
             rows = c.execute("SELECT COUNT(*) FROM readings").fetchone()[0]
             partial = c.execute("SELECT COUNT(*) FROM ingestion_batches b WHERE rows_accepted != (SELECT COUNT(*) FROM readings r WHERE r.batch_id = b.batch_id)"
                                 ).fetchone()[0] if "batch_id" in [x[1] for x in c.execute("PRAGMA table_info(readings)")] else None
-        code, out, err = cli("verify-audit", "--db", str(live))
+        code, out, err = cli("verify-audit", "--db", str(live), "--anchor", str(backup) + ".anchor.json")   # the earlier anchor, kept apart
         res["crash"] = {"integrity_check": integ, "readings": rows, "batches_with_mismatched_counts": partial, "audit_verify_exit": code,
                         "audit": json.loads(out) if out else err}
         step(f"after crash: integrity {integ}, readings {rows}, audit verify exit {code}")

@@ -14,7 +14,7 @@ Code: `src/sentinelloop/app/integration.py`, migration `0005_integration.sql`. T
 ## 1. Principles
 
 1. **Read-only shadow mode is the default.** A new target records exactly what it *would* send and makes no external call. Leaving shadow mode needs an admin and a written reason, and is audited.
-2. **Only approved work leaves the system.** Orders in APPROVED, SCHEDULED or IN_PROGRESS are sent. DRAFT, PENDING_APPROVAL, REJECTED and DEFERRED orders are never sent.
+2. **Only approved work leaves the system.** Orders in APPROVED, SCHEDULED or IN_PROGRESS are sent. DRAFT and PENDING_APPROVAL orders are never sent. Once a request exists in the CMMS, later local changes are mirrored onto it: a cancelled or rejected order becomes `[SentinelLoop WITHDRAWN] …` with priority lowered, a deferred one `[SentinelLoop DEFERRED until …]`, a completed one `[SentinelLoop COMPLETED]` (tested).
 3. **SentinelLoop proposes; the CMMS owns the work.**
    - The connector creates and updates maintenance *requests* marked `[SentinelLoop]`.
    - It writes only `name`, `description`, `priority`, `maintenance_type`, `schedule_date`, `schedule_end`, `duration`, `equipment_id` and `request_date`.
