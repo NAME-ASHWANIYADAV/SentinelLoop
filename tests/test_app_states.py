@@ -19,8 +19,6 @@ def test_cdf_is_monotone_bounded_and_handles_degenerate_intervals():
     assert all(b >= a for a, b in zip(ps, ps[1:])) and ps[0] == 0.0 and ps[-1] == 1.0
     assert risk.p_fail_before(5, lower=20, point=20, upper=20, level=0.9) == 0.0
     assert risk.p_fail_before(25, lower=20, point=20, upper=20, level=0.9) == 1.0
-    with pytest.raises(ValueError):
-        risk.p_fail_before(5, lower=30, point=20, upper=40, level=0.9)   # lower above point
 
 
 def test_wider_interval_means_more_early_risk_for_the_same_point():
@@ -124,3 +122,13 @@ def test_every_transition_in_the_table_is_exercised():
                     nxt.append(t)
         frontier = nxt
     assert len(seen) >= 8
+
+
+def test_point_outside_the_interval_is_clipped_for_the_cdf_and_flagged():
+    # the point model and the quantile models are fitted separately, so the point can fall outside [lower, upper]
+    assert risk.p_fail_before(125.0, lower=124.2, point=127.0, upper=125.6, level=0.9) == pytest.approx(
+        risk.p_fail_before(125.0, lower=124.2, point=125.6, upper=125.6, level=0.9))
+    r = risk.summarise(lower=124.2, point=127.0, upper=125.6, level=0.9, cap=125, horizons=[50])
+    assert r["point_outside_interval"] is True
+    with pytest.raises(ValueError):
+        risk.p_fail_before(5, lower=30, point=20, upper=10, level=0.9)       # an inverted interval is still an error

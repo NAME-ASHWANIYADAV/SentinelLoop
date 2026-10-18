@@ -22,6 +22,7 @@ from .timeutil import iso, now_iso, parse_ts
 APPROVERS = {"planner", "reliability_engineer", "admin"}
 CREATORS = APPROVERS | {"technician", "system", "integration"}
 TERMINAL = {"CLOSED", "REJECTED", "CANCELLED"}
+CLASS_ORDER = {"P1": 1, "P2": 2, "P3": 3}
 NON_TERMINAL = {"DRAFT", "PENDING_APPROVAL", "APPROVED", "SCHEDULED", "IN_PROGRESS", "COMPLETED", "DEFERRED"}
 
 # action: (allowed from-states, to-state, roles, reason required)
@@ -244,8 +245,12 @@ def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_vers
         o = c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone()
         if o is None:
             raise WorkflowError(f"unknown work order {wo_id}")
-        if idempotency_key and c.execute("SELECT 1 FROM work_order_events WHERE wo_id = ? AND idempotency_key = ?", (wo_id, idempotency_key)).fetchone():
-            return _row(o, c)
+        if idempotency_key:
+            ev = c.execute("SELECT action FROM work_order_events WHERE wo_id = ? AND idempotency_key = ?", (wo_id, idempotency_key)).fetchone()
+            if ev is not None:
+                if ev["action"] != "complete":
+                    raise IdempotencyConflict(f"idempotency key {idempotency_key!r} was used for {ev['action']}, not complete")
+                return _row(o, c)
         if expected_version is not None and int(expected_version) != o["version"]:
             raise ConcurrencyConflict(f"work order {wo_id} is at version {o['version']}, request expected {expected_version}")
         flags = _flags(o, out)
@@ -262,6 +267,39 @@ def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_vers
                                     reason=f"{wo_id} completed: {out.findings_code}; {out.actions_taken}")
             health._store_state(c, o["asset_id"], new, None)
             _audit(db, c, actor, "asset_state.maintenance_completed", o["asset_id"], {"wo_id": wo_id, "before": s.labels(), "after": new.labels()})
+        return _row(c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone(), c)
+
+
+REPRIORITISERS = APPROVERS | {"system"}
+REPRIORITISABLE = {"DRAFT", "PENDING_APPROVAL", "APPROVED", "SCHEDULED", "DEFERRED"}
+
+
+def reprioritise(db, wo_id: str, priority_class: str, priority_score: float | None, due_by_ms: int | None, explanation: dict, actor: str, role: str,
+                 reason: str) -> dict:
+    """Change an open order's priority and due date (no state change), with an event and an audit record. A deferred order
+    escalated to P1 comes back for approval: a deferral must not hide a newly urgent condition."""
+    if role not in REPRIORITISERS:
+        raise WorkflowError(f"role {role!r} may not re-prioritise work orders")
+    if priority_class not in CLASS_ORDER:
+        raise WorkflowError("priority_class must be P1, P2 or P3")
+    if not (reason or "").strip():
+        raise WorkflowError("a reason is required to re-prioritise")
+    with db.tx() as c:
+        o = c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone()
+        if o is None:
+            raise WorkflowError(f"unknown work order {wo_id}")
+        if o["state"] not in REPRIORITISABLE:
+            raise WorkflowError(f"cannot re-prioritise a work order in state {o['state']}")
+        ts = now_iso()
+        data = {"from": [o["priority_class"], o["due_by_ms"]], "to": [priority_class, due_by_ms]}
+        c.execute("UPDATE work_orders SET priority_class = ?, priority_score = ?, due_by_ms = COALESCE(?, due_by_ms), explanation_json = ?, version = version + 1, "
+                  "updated_at = ? WHERE wo_id = ?", (priority_class, priority_score, due_by_ms, json.dumps(explanation or {}), ts, wo_id))
+        c.execute("INSERT INTO work_order_events (wo_id, ts, actor, role, action, from_state, to_state, reason, data_json) VALUES (?,?,?,?,'reprioritise',?,?,?,?)",
+                  (wo_id, ts, actor, role, o["state"], o["state"], reason, json.dumps(data)))
+        _audit(db, c, actor, "work_order.reprioritise", wo_id, {**data, "role": role, "reason": reason})
+        if o["state"] == "DEFERRED" and priority_class == "P1":
+            o2 = c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone()
+            _apply(db, c, o2, "reactivate", actor, "system", f"escalated to P1 while deferred: {reason}", {}, None)
         return _row(c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone(), c)
 
 

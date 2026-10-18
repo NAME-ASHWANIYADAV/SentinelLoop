@@ -4,6 +4,7 @@ import pytest
 from sentinelloop.app import db as dbmod, health, registry, workorders as wo
 from sentinelloop.app.states import AssetState, Classification, HealthState as H, Thresholds
 from sentinelloop.app import states
+from sentinelloop.app.timeutil import parse_ts
 from test_app_foundation import KEY, pump, pump_type
 
 
@@ -132,3 +133,24 @@ def test_completed_maintenance_clears_the_latched_risk(plant):
     s = health.asset_state(plant, "P-101")
     assert s.latched_risk == "NONE" and s.effective == H.NORMAL_MONITORING
     assert registry.get_asset(plant, "P-101").last_maintenance_at is not None
+
+
+def test_complete_refuses_an_idempotency_key_used_for_another_action(plant):
+    o = new_order(plant, key="k5")
+    for act, kw in (("submit", {}), ("approve", {"reason": "ok"}), ("schedule", {"data": {"start": "2026-10-20T06:00:00Z", "end": "2026-10-20T12:00:00Z", "technicians": ["tech1"]}})):
+        wo.transition(plant, o["wo_id"], act, actor="planner1", role="planner", **kw)
+    wo.transition(plant, o["wo_id"], "start", actor="tech1", role="technician", idempotency_key="same-key")
+    with pytest.raises(wo.IdempotencyConflict):
+        wo.complete(plant, o["wo_id"], actor="tech1", role="technician", idempotency_key="same-key",
+                    outcome={"findings_code": "degradation_found", "failure_confirmed": "no", "actions_taken": "x", "parts_used": {"bearing_kit": 1}, "downtime_hours": 1})
+    assert wo.get(plant, o["wo_id"])["state"] == "IN_PROGRESS"
+
+
+def test_reprioritise_escalates_and_brings_a_deferred_order_back(plant):
+    o = new_order(plant, key="k6", priority_class="P3")
+    wo.transition(plant, o["wo_id"], "submit", actor="planner1", role="planner")
+    wo.transition(plant, o["wo_id"], "defer", actor="planner1", role="planner", reason="next shutdown", data={"until": "2026-11-30T00:00:00Z"})
+    o2 = wo.reprioritise(plant, o["wo_id"], "P1", 5.0, parse_ts("2026-10-21T00:00:00Z"), {"why": "urgent"}, actor="system", role="system", reason="new assessment")
+    assert o2["priority_class"] == "P1" and o2["state"] == "PENDING_APPROVAL" and o2["due_by"] == "2026-10-21T00:00:00Z"
+    with pytest.raises(wo.WorkflowError):
+        wo.reprioritise(plant, o["wo_id"], "P1", 5.0, None, {}, actor="tech1", role="technician", reason="x")

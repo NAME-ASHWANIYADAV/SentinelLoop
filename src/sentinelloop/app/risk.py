@@ -10,8 +10,11 @@ from __future__ import annotations
 
 
 def p_fail_before(t: float, lower: float, point: float, upper: float, level: float = 0.90) -> float:
-    if not (lower <= point <= upper):
-        raise ValueError(f"interval must satisfy lower <= point <= upper, got {lower}, {point}, {upper}")
+    """The point model and the quantile models are fitted separately, so the point can fall outside [lower, upper];
+    the CDF then uses the point clipped into the interval as its median (flagged by `summarise`)."""
+    if lower > upper:
+        raise ValueError(f"interval must satisfy lower <= upper, got {lower}, {upper}")
+    point = min(max(point, lower), upper)
     if not 0 < level < 1:
         raise ValueError("level must be in (0, 1)")
     a = (1.0 - level) / 2.0
@@ -35,4 +38,5 @@ def summarise(lower: float, point: float, upper: float, level: float, cap: float
     return {"p_fail_before": {h: p_fail_before(h, lower, point, upper, level) for h in horizons},
             "upper_censored": bool(cap is not None and upper >= cap - 1e-9),
             "lower_at_zero": bool(lower <= 0.0),
+            "point_outside_interval": bool(point < lower or point > upper),
             "level": level, "method": "piecewise-linear CDF through the interval quantiles"}
