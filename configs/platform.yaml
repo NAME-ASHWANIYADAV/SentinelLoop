@@ -1,0 +1,31 @@
+# Platform policy: data-quality limits, model-scope tolerances, risk horizons and state thresholds.
+# Every number here is a POLICY CHOICE, not a measured optimum. Change it through review: the resolved policy and its
+# SHA-256 are stored with every assessment, so any decision can be traced to the policy that produced it.
+policy_version: 1
+
+defaults:
+  assessment:
+    max_data_age_hours: 6.0          # a required signal older than this (relative to the assessment instant) is stale
+    max_missing_frac: 0.10           # per required signal, share of missing points in the scoring window
+    max_suspect_frac: 0.05           # per signal, share of readings flagged suspect_out_of_range in the window
+    min_history_points: 10           # fewer points of history -> MODEL_OUT_OF_SCOPE (insufficient_history)
+    envelope_tolerance: 0.05         # tolerance around the model's training range, as a share of that range
+    max_out_of_envelope_frac: 0.20   # share of window rows outside the operating envelope -> MODEL_OUT_OF_SCOPE
+    max_conflict_frac: 0.20          # share of recent rows breaking a learned redundant-sensor relation -> DATA_QUALITY_FAILURE
+    stuck_min_run: 5                 # a sensor is stuck when its trailing constant run exceeds max(this, longest run seen in training)
+  risk:
+    decision_horizon_hours: 72.0     # P(failure before this) drives INSPECTION/URGENT; should be >= the time to act
+    horizons_hours: [24, 72, 168, 336]
+  states:
+    p_inspect: 0.10
+    p_urgent: 0.30
+    dq_clear_after: 2
+
+asset_types:
+  cmapss_turbofan:
+    # C-MAPSS is indexed by flight cycle; the adapter assumes 3 hours per cycle (declared assumption, see the adapter).
+    assessment:
+      max_data_age_hours: 12.0       # four cycles
+    risk:
+      decision_horizon_hours: 60.0   # twenty cycles: roughly the competition's HIGH threshold, in hours
+      horizons_hours: [30, 60, 150, 300]
