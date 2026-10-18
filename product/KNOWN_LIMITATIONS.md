@@ -1,46 +1,77 @@
 # Known limitations
 
-Status 2026-10-18. Each limitation states its effect and what would remove it. The adversarial review (`ADVERSARIAL_REVIEW.md`) adds confirmed findings to this list. Severity: **H** blocks a pilot or a claim, **M** must be addressed before operational use, **L** minor.
+Status 2026-10-18, after the Phase 9 adversarial review (`ADVERSARIAL_REVIEW.md`) and its remediation. Each row gives the limitation, its effect and what would remove it.
+
+Severity:
+- **H** blocks a pilot or a claim;
+- **M** must be addressed before operational use;
+- **L** is minor.
+
+Review finding IDs (for example `om_manager-4`) refer to `ADVERSARIAL_REVIEW.md`.
 
 ## 1. Evidence
 
 | # | limitation | effect | removed by | sev |
 |---|---|---|---|---|
-| E1 | No customer, no interview, no field data. Every model result is SIMULATED (C-MAPSS) or SYNTHETIC (our wind generator) | no claim about real detection, false alarms, value or user acceptance is possible | G1 conversations; rung 4 back-test; rung 5 pilot (`VALIDATION_LADDER.md`) | H |
-| E2 | The wind model has not been run on any real turbine data. G0 is pre-registered but blocked on the CARE download | detection performance on real faults unknown | G0 (download approval pending) | H |
-| E3 | Synthetic wind evaluation is circular: the generator and the model share our assumptions (36/36 detection is a behaviour check) | synthetic numbers must never be quoted as performance | real data (E2) | H |
-| E4 | Scheduling value is SIMULATED on C-MAPSS predictions, with assumed costs, crews and perfect inspection; results reverse with tuning and downtime price | no scheduling benefit can be claimed | replay of a customer's backlog and crew history (rung 4) | M |
-| E5 | RUL intervals under-cover in late life (0.81–0.87 in the decision-relevant band) | intervals are not a conditional guarantee near failure | Mondrian recalibration (PLANNED); real data | M |
+| E1 | No customer, no interview and no field data. Every model result is SIMULATED (C-MAPSS) or SYNTHETIC (our wind generator) | No claim is possible about real detection, false alarms, value or user acceptance | G1 conversations; rung-4 back-test; rung-5 pilot (`VALIDATION_LADDER.md`) | H |
+| E2 | The wind model has not been run on any real turbine data. G0 is pre-registered and amended before download (`product/evidence/g0/PREREGISTRATION.md` §10), but it is blocked on download approval | Detection performance on real faults is unknown | G0 (the user's download approval is pending) | H |
+| E3 | Synthetic wind evaluation is circular: the generator and the model share our assumptions. 36/36 detected is a behaviour check, not performance | Synthetic numbers must never be quoted as performance | Real data (E2) | H |
+| E4 | Scheduling results are SIMULATED, on C-MAPSS predictions, with assumed costs and crews and perfect inspection. The rankings change with tuning, with the price of downtime and with the scenario (S2, `SCHEDULING_EVALUATION.md`). The two scarcity scenarios are fleet collapse and are not ranked | No scheduling benefit can be claimed | Replay of a customer's backlog and crew history (rung 4) | M |
+| E5 | RUL intervals under-cover in late life: 0.81–0.87 in the decision-relevant band (C1) | The intervals are not a conditional guarantee near failure | Recalibration by predicted band (PLANNED); real data | M |
+| E6 | The RUL model's P(failure before the job ends) is **not calibrated** (C2, SIMULATED): shown about 0.55 when about 0.92 was observed, and the 5% due-date rule is violated 9–18% of the time in late life. The console labels it "model-implied, not calibrated" | Due dates derived from it are later than their stated risk | Recalibration in the bundle, with a held-out calibration set (PD-19) | M |
+| E7 | Even at the W2-chosen setting, healthy synthetic turbines in the held-out fleets give **2.65 alarm episodes per turbine-year** (6 in 2.27 turbine-years; Poisson 95% interval about 1.0–5.8). That is above the W2 target of 1.0 and above the proposed pilot ceiling of 2 (PD-15) | Even on idealised data the false-inspection rate may exceed what a site will accept; the real-data rate is unknown | G0 reports the real rate on normal datasets; per-site threshold review at commissioning | M |
 
 ## 2. Model and decision logic
 
 | # | limitation | effect | removed by | sev |
 |---|---|---|---|---|
-| M1 | Slow sensor drift is indistinguishable from component heating (no redundant temperature sensors) | false inspections (193–293 alarm-hours per drifting sensor in W1) | cross-turbine comparison and physical-redundancy checks (PLANNED); inspection remains the discriminator | M |
-| M2 | Commissioning on a period that already contains a developing fault hides it | missed detection on that turbine | human judgement plus a check of the baseline offsets against the fleet (PLANNED) | M |
-| M3 | Curtailment, derating, icing and grid events are not modelled separately; idle periods are out of scope | more out-of-scope time; changed load–temperature relations under derating | per-site operating-state signals (PLANNED) | M |
-| M4 | Thresholds are policy choices (1.25 × max healthy score; urgent = 3 × inspect), not calibrated probabilities | the urgent threshold has no validated meaning | calibration on labelled field events | M |
-| M5 | Decision engine default due dates (24 h / 168 h / 720 h) and costs are placeholders | due dates are not site-appropriate | site configuration with the customer | M |
-| M6 | No re-commissioning prompt after a logged component replacement | stale baselines after maintenance | link outcomes to commissioning (PLANNED) | M |
+| M1 | Slow drift of a single temperature sensor cannot be told apart from component heating (no redundant sensors) | False inspections: 37 drifting-sensor alarm episodes on the held-out W1 fleets at the shipped setting (W2) | Cross-turbine comparison and physical-redundancy checks (PLANNED); inspection remains the discriminator | M |
+| M2 | Commissioning on a period that already contains a developing fault hides that fault | Missed detection on that turbine | Human judgement, plus a check of the baseline offsets against the fleet (PLANNED) | M |
+| M3 | Turbine status codes, alarm codes, curtailment and derating setpoints are not in the data contract (`om_manager-3`). Icing and grid events are not modelled. Idle periods are out of scope | More out-of-scope time; load–temperature relations change under derating; the pilot cannot use OEM status data | Operating-state signals per site (PLANNED) | M |
+| M4 | Thresholds are policy choices tuned on synthetic data: margin 1.25 × max healthy score, sustain 12 points, urgent = 3 × inspect. They are not calibrated probabilities | The urgent threshold has no validated meaning | Calibration on labelled field events | M |
+| M5 | Decision parameters (due dates, downtime cost, suppression periods) can be set per site (PD-24), but the shipped values are placeholders. `/ready` says so | Due dates and rankings are not site-appropriate until set | Site configuration agreed with the customer | M |
+| M6 | No re-commissioning prompt after a logged component replacement. No bulk re-commissioning after a model change (`om_manager-2`) | Stale baselines after maintenance; a model change leaves turbines out of scope until each is re-commissioned | Link outcomes to commissioning; bulk commissioning route (PLANNED) | M |
+| M7 | For RUL models the platform ships the probabilistic trigger at untuned S1 settings, not a per-site tuned threshold (`data_scientist-3`) | The trigger is not tuned to any site | A per-site tuned point-threshold trigger (PLANNED) | M |
+| M8 | Deviations are not shown in °C against the expected value. Instrument checks have no specific finding codes (`technician-8`, `technician-10`) | Technicians see standardised scores, not physical quantities | Console and outcome-model additions | L |
 
 ## 3. Platform and operations
 
 | # | limitation | effect | removed by | sev |
 |---|---|---|---|---|
-| P1 | One process, one SQLite file; the rate limit is in-process | single-site scale only; no high availability | PostgreSQL port and process supervision if needed (PD-06) | L |
-| P2 | List endpoints are unpaginated; `/assets` does one state lookup per asset (p50 288 ms for 50 assets in L1) | slow fleet views at hundreds of assets | pagination and a joined query | L |
-| P3 | No readings retention or archiving | disk grows by about 0.17 MB per turbine-day | retention policy | L |
-| P4 | No API route to create asset types or sites (library or admin only) | onboarding needs an engineer | admin routes (PLANNED) | L |
-| P5 | Assessments and dispatch run by external schedulers (cron); none is built in | operations must set up jobs | built-in scheduler or documented service units | L |
-| P6 | Audit-key rotation has no in-place procedure | a key change starts a new database generation | re-anchoring support (PLANNED) | L |
-| P7 | The console has no offline mode, no mobile layout, English only, and no in-console feedback form | limited use on site | pilot feedback (`OPERATOR_FEEDBACK_PLAN.md`) | M |
+| P1 | One process and one SQLite file; the rate limit is in-process | Single-site scale only; no high availability | A PostgreSQL port and process supervision if needed (PD-06) | L |
+| P2 | List endpoints are unpaginated. `/assets` does several lookups per asset (latency in `product/evidence/load/l1.md`) | Slow fleet views at hundreds of assets | Pagination and a joined query | L |
+| P3 | No retention or archiving of readings | Disk grows by about 0.17 MB per turbine-day | A retention policy | L |
+| P4 | No API route creates asset types or sites; that needs the library or an admin | Onboarding needs an engineer | Admin routes (PLANNED) | L |
+| P5 | Assessments, deferral reactivation and dispatch run from external schedulers (cron); none is built in | Operations must set up the jobs; ASSESSMENT_OVERDUE shows when they stop | A built-in scheduler, or documented service units | L |
+| P6 | Audit-key rotation has no in-place procedure | A key change starts a new database generation | Re-anchoring support (PLANNED) | L |
+| P7 | The console has no offline mode and no mobile layout, is English only, and has no feedback form. It needs a live connection and an API key (`technician-11`) | Limited use at the turbine | Pilot feedback (`OPERATOR_FEEDBACK_PLAN.md`) | M |
+| P8 | The scheduler has no cranes, weather or climbing-wind limits, travel between turbines, multi-day jobs or multi-site crews (`om_manager-4`) | Schedules for major wind jobs are not feasible plans; the adapter's major-component jobs cannot be scheduled realistically | Scheduler extensions, driven by a customer's real constraints | H for wind operations; M for a shadow pilot |
+| P9 | No workflow for OEM-serviced turbines: no responsible party, OEM ticket reference or service-report import (`om_manager-10`) | Sites under OEM contracts cannot route work | An OEM workflow (PLANNED) | M |
+| P10 | No "my jobs" view. Technician resources are not linked to users, so any technician can start or complete any scheduled order (`technician-12`, `security-5`) | Weak accountability on the floor | Link resources to users and add assignment checks | M |
+| P11 | The console cannot raise a follow-up job or edit shifts (`technician-7`). Roles are not scoped per site, and there is no O&M-head reporting (`om_manager-15`) | Planners use the API or the CMMS for these | Console additions; per-site role scoping | M |
+| P12 | No per-site tag mapping (FR-B3). Each turbine must deliver the adapter's required signals under the adapter's names (`pitch_angle` is optional) (`om_manager-11`) | Onboarding needs a data-mapping step outside the product | Per-site mapping configuration (PLANNED) | M |
 
 ## 4. Integration and security
 
 | # | limitation | effect | removed by | sev |
 |---|---|---|---|---|
-| S1 | The CMMS connector is tested only against a contract test double; the real Odoo sandbox run is pending (image download approval) | real-Odoo compatibility unproven | run `tests/test_app_odoo_sandbox.py` | H |
-| S2 | No customer CMMS integration exists | no claim of compatibility with SAP PM, Maximo, etc. | per-customer adapter and test | M |
-| S3 | No external penetration test; no SSO; no signed model manifests | security claims limited to the reviewed code and tests | external test; OIDC; signatures | M |
-| S4 | Dependency advisories: mlflow 3.0.1 (development only; excluded from platform installs), pyarrow 20.0.0, pytest 8.4.2 | known vulnerabilities in the development environment | upgrades (download approval pending) | M |
-| S5 | Technician data are not pseudonymised in the platform; DPDP duties not verified against the Act | data-protection exposure at a customer | pseudonymisation and legal review | M |
+| S1 | The CMMS connector is tested only against a contract test double. The real Odoo sandbox run is pending image-download approval | Compatibility with real Odoo is unproven | Run `sandbox/odoo/setup.sh` and `tests/test_app_odoo_sandbox.py` | H |
+| S2 | No customer CMMS integration exists | No claim of compatibility with SAP PM, Maximo, etc. | A per-customer adapter and test | M |
+| S3 | No external penetration test, no SSO, and no signed model manifests. Registration hashes the bundle against its own manifest only (`security-13`) | Security claims are limited to the reviewed code and tests | An external test; OIDC; signatures | M |
+| S4 | Dependency advisories: mlflow 3.0.1 (development only; excluded from platform installs), pyarrow 20.0.0, pytest 8.4.2 | Known vulnerabilities in the development environment | Upgrades (download approval pending) | M |
+| S5 | Technician data are not pseudonymised. Deletion tooling does not exist, and the audit chain records actor names that cannot be redacted (`safety-9`). DPDP duties have not been checked against the Act | Data-protection exposure at a customer | Pseudonymisation, opaque audit actors and a legal review | M |
+| S6 | The integration (machine) role can assess and dispatch, and is broader than one job needs. Its completions never clear latches (`security-5`) | A stolen integration key can create noise and replays, though not clear a latch | Split the integration role | M |
+| S7 | The audit chain covers audit events, not state tables: a direct database edit of state is not detected (PD-22). `/ready` and the OpenAPI schema are unauthenticated (accepted) | Tamper evidence depends on database access control | Restrict database access; state hashing if required | L |
+| S8 | CSV uploads are capped at 200,000 readings and parsed off the event loop, but not streamed (`security-8`) | Large exports must be split | A streaming parser | L |
+
+## 5. Commercial
+
+| # | limitation | effect | removed by | sev |
+|---|---|---|---|---|
+| C1 | There is no pricing hypothesis, ROI method, unit-economics model or customer reference, and no commercial pilot terms (`buyer-5`) | No business case can be presented as evidence; business value sits on rung 0 | G1 conversations; a pilot with agreed terms; an ROI method agreed with the partner before data | H for sales; does not block engineering work |
+| C2 | No validated reason to buy over incumbents. Indian OEM and SCADA-analytics alternatives have not been verified (`buyer-10`) | Differentiation is a hypothesis | Sourced competitive research and customer conversations | M |
+| C3 | Savings, avoided failures and availability gains are explicitly out of scope until a pilot measures them | No savings claim may be made | Rung-5 pilot with a pre-agreed measurement plan | H for sales |
+
+## 6. Scope boundary (not a defect)
+
+SentinelLoop is advisory. It is not part of any safety function and claims no SIL. It takes no protection-layer credit and must not be counted as a barrier in a hazard analysis. It never writes to a control system, and no recommendation becomes work without a named person's approval (`RELIABILITY_AND_SAFETY.md` §1).

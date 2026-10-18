@@ -33,7 +33,7 @@ RES = {
     "data_scientist-3": ("DOCS", "PD-09 and RELIABILITY corrected: the platform ships the probabilistic trigger; a point-threshold trigger is PLANNED", "-"),
     "data_scientist-4": ("PARTIAL", "C2 calibration audit; the console labels P(failure) model-implied and not calibrated. Recalibration in the bundle: OPEN", "product/evidence/calibration/c2.md"),
     "data_scientist-5": ("DOCS", "the recommended default pair corrected to an evaluated combination", "product/SCHEDULING_EVALUATION.md"),
-    "data_scientist-6": ("FIXED", "episodes per turbine-year reported; margin and sustain revisited on separate synthetic fleets before G0 (W2)", "product/evidence/wind_synthetic/w2.md"),
+    "data_scientist-6": ("PARTIAL", "episodes per turbine-year reported; margin and sustain revisited on separate synthetic fleets before G0 (W2: sustain 12). On the held-out W1 fleets the shipped setting still gives 2.65 healthy episodes per turbine-year, above the target of 1.0 and the proposed pilot ceiling of 2: OPEN (KNOWN_LIMITATIONS E7)", "product/evidence/wind_synthetic/w2.md"),
     "data_scientist-7": ("FIXED", "pre-registration amendment 1 (before any data) fixes the adapter, gates, multiplicity, TP timing and lead time; external timestamp needs the team", "product/evidence/g0/PREREGISTRATION.md"),
     "data_scientist-8": ("DOCS", "P17 restated as scheduler-dependent", "-"),
     "data_scientist-9": ("FIXED", "S2 tunes on FD001 engines and evaluates on FD003 engines", "product/evidence/scheduling_v2"),
@@ -156,7 +156,7 @@ def main():
           "- The latching guarantee (PD-08) was not true as built: four separate paths cleared or hid an urgent warning without an inspection. All four are fixed and covered by regression tests.",
           "- The simulated scheduling advantages under parts shortage were an artefact of right-censored downtime and fleet collapse. They are withdrawn; see `SCHEDULING_EVALUATION.md` (S2).",
           "- The model-implied failure probability is not calibrated on the team's own simulated data (C2). It is labelled as such wherever it is shown.",
-          "- On synthetic data the original wind thresholds gave more false-alarm episodes than the proposed pilot ceiling. Thresholds were revisited on separate synthetic fleets before any real data (W2), and the G0 pre-registration was amended before download.",
+          "- On synthetic data the original wind thresholds gave more false-alarm episodes than the proposed pilot ceiling. Thresholds were revisited on separate synthetic fleets before any real data (W2), and the G0 pre-registration was amended before download. The revisited setting still gives 2.65 healthy alarm episodes per turbine-year on the held-out synthetic fleets, above the proposed pilot ceiling of 2; this stays open until real data (G0) measure the rate.",
           "- Several status documents had drifted from the code. They were synchronised in this phase, and the claim matrix marks what exists only in the frozen competition pipeline.", ""]
     (ROOT / "product" / "ADVERSARIAL_REVIEW.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     print(f"written: {sum(counts.values())} findings; resolution {st}")

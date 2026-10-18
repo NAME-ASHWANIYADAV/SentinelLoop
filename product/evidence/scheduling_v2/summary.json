@@ -1,0 +1,237 @@
+{
+ "collapse": {
+  "base": false,
+  "tight_labour": false,
+  "parts_tight": false,
+  "parts_shortage": true,
+  "degraded_predictions": false,
+  "approval_delay": false,
+  "adverse": true
+ },
+ "best": {
+  "total_cost|parts_shortage|THRESHOLD_EDD": {
+   "threshold_h": 300.0
+  },
+  "total_cost|parts_shortage|RISK_GREEDY": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "total_cost|adverse|THRESHOLD_EDD": {
+   "threshold_h": 300.0
+  },
+  "total_cost|adverse|RISK_GREEDY": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|base|THRESHOLD_EDD": {
+   "threshold_h": 100.0
+  },
+  "total_cost|degraded_predictions|THRESHOLD_EDD": {
+   "threshold_h": 130.0
+  },
+  "total_cost|parts_shortage|RISK_EDD": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|base|RISK_GREEDY": {
+   "decision_horizon_h": 60.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|approval_delay|THRESHOLD_EDD": {
+   "threshold_h": 130.0
+  },
+  "total_cost|tight_labour|RISK_GREEDY": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|approval_delay|RISK_GREEDY": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "total_cost|approval_delay|RISK_EDD": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|tight_labour|THRESHOLD_EDD": {
+   "threshold_h": 160.0
+  },
+  "total_cost|parts_tight|RISK_GREEDY": {
+   "decision_horizon_h": 60.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|parts_tight|THRESHOLD_EDD": {
+   "threshold_h": 130.0
+  },
+  "total_cost|degraded_predictions|RISK_GREEDY": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "total_cost|adverse|RISK_EDD": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|base|RISK_EDD": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "total_cost|parts_tight|RISK_EDD": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "total_cost|tight_labour|RISK_EDD": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "total_cost|degraded_predictions|RISK_EDD": {
+   "decision_horizon_h": 60.0,
+   "p_inspect": 0.03,
+   "p_urgent": 0.15
+  },
+  "total_cost|parts_shortage|FIXED_INTERVAL": {
+   "interval_age_cycles": 70
+  },
+  "total_cost|approval_delay|FIXED_INTERVAL": {
+   "interval_age_cycles": 115
+  },
+  "total_cost|base|FIXED_INTERVAL": {
+   "interval_age_cycles": 130
+  },
+  "total_cost|degraded_predictions|FIXED_INTERVAL": {
+   "interval_age_cycles": 130
+  },
+  "total_cost|parts_tight|FIXED_INTERVAL": {
+   "interval_age_cycles": 70
+  },
+  "total_cost|adverse|FIXED_INTERVAL": {
+   "interval_age_cycles": 70
+  },
+  "total_cost|tight_labour|FIXED_INTERVAL": {
+   "interval_age_cycles": 70
+  },
+  "priced|degraded_predictions|THRESHOLD_EDD": {
+   "threshold_h": 130.0
+  },
+  "priced|base|THRESHOLD_EDD": {
+   "threshold_h": 100.0
+  },
+  "priced|approval_delay|THRESHOLD_EDD": {
+   "threshold_h": 130.0
+  },
+  "priced|approval_delay|RISK_GREEDY": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "priced|approval_delay|RISK_EDD": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|base|RISK_GREEDY": {
+   "decision_horizon_h": 60.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|degraded_predictions|RISK_GREEDY": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "priced|parts_tight|THRESHOLD_EDD": {
+   "threshold_h": 130.0
+  },
+  "priced|base|RISK_EDD": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "priced|parts_tight|RISK_GREEDY": {
+   "decision_horizon_h": 60.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|parts_tight|RISK_EDD": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|degraded_predictions|RISK_EDD": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "priced|approval_delay|FIXED_INTERVAL": {
+   "interval_age_cycles": 115
+  },
+  "priced|base|FIXED_INTERVAL": {
+   "interval_age_cycles": 130
+  },
+  "priced|degraded_predictions|FIXED_INTERVAL": {
+   "interval_age_cycles": 130
+  },
+  "priced|tight_labour|RISK_GREEDY": {
+   "decision_horizon_h": 100.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|parts_tight|FIXED_INTERVAL": {
+   "interval_age_cycles": 70
+  },
+  "priced|tight_labour|THRESHOLD_EDD": {
+   "threshold_h": 160.0
+  },
+  "priced|tight_labour|RISK_EDD": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|adverse|RISK_GREEDY": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|tight_labour|FIXED_INTERVAL": {
+   "interval_age_cycles": 70
+  },
+  "priced|adverse|THRESHOLD_EDD": {
+   "threshold_h": 200.0
+  },
+  "priced|adverse|RISK_EDD": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.05,
+   "p_urgent": 0.2
+  },
+  "priced|parts_shortage|RISK_GREEDY": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "priced|parts_shortage|THRESHOLD_EDD": {
+   "threshold_h": 160.0
+  },
+  "priced|parts_shortage|RISK_EDD": {
+   "decision_horizon_h": 150.0,
+   "p_inspect": 0.1,
+   "p_urgent": 0.3
+  },
+  "priced|parts_shortage|FIXED_INTERVAL": {
+   "interval_age_cycles": 130
+  },
+  "priced|adverse|FIXED_INTERVAL": {
+   "interval_age_cycles": 70
+  }
+ }
+}

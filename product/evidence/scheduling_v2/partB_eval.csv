@@ -1,0 +1,1065 @@
+part,policy,scenario,params,seed,runtime_s,total_cost,failures,failures_A,unplanned_downtime_h,unplanned_downtime_total_h,availability,assets_failed_at_end,preventive_repairs,inspections,late_jobs,schedule_violations,plan_change_rate
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},0,0.26,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.2692307692307692
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},1,0.33,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.125
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},2,0.32,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.037037037037037035
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},3,0.3,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.09523809523809523
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},4,0.32,131.0,1,0,41.0,41.0,0.9877662037037037,0,127,0,1,0,0.09375
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},5,0.33,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.08
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},6,0.3,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.13043478260869565
+E:total_cost:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},7,0.33,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.3333333333333333
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},0,0.29,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.2692307692307692
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},1,0.3,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.125
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},2,0.27,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.037037037037037035
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},3,0.24,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.09523809523809523
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},4,0.27,131.0,1,0,41.0,41.0,0.9877662037037037,0,127,0,1,0,0.09375
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},5,0.24,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.08
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},6,0.26,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.13043478260869565
+E:total_cost:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},7,0.26,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.3333333333333333
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},0,0.24,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},1,0.25,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},2,0.27,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},3,0.24,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},4,0.23,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},5,0.25,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},6,0.3,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:total_cost:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},7,0.27,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},0,0.22,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},1,0.25,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},2,0.26,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},3,0.26,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},4,0.26,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},5,0.26,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},6,0.24,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:total_cost:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},7,0.3,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.31,125.0,2,0,76.0,76.0,0.9872685185185185,0,118,40,2,0,0.40540540540540543
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.34,128.0,2,0,180.0,180.0,0.986087962962963,0,119,35,2,0,0.5581395348837209
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.34,129.6,1,0,144.0,144.0,0.9860416666666667,0,125,31,1,0,0.5581395348837209
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.38,129.8,3,0,118.0,118.0,0.9867361111111111,0,119,38,0,0,0.5
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.3,132.1,3,0,198.0,198.0,0.9855555555555555,0,121,41,2,0,0.5185185185185185
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.38,125.8,1,0,37.0,37.0,0.9874652777777778,0,120,43,0,0,0.4594594594594595
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.32,123.4,2,0,72.0,72.0,0.9875462962962963,0,117,34,2,0,0.48717948717948717
+E:total_cost:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.37,122.0,0,0,0.0,0.0,0.9881481481481481,0,118,40,0,0,0.5333333333333333
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.41,125.0,2,0,76.0,76.0,0.9872685185185185,0,118,40,2,0,0.40540540540540543
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.4,128.0,2,0,180.0,180.0,0.986087962962963,0,119,35,2,0,0.5581395348837209
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.39,129.6,1,0,144.0,144.0,0.9860416666666667,0,125,31,1,0,0.5581395348837209
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.39,129.8,3,0,118.0,118.0,0.9867361111111111,0,119,38,0,0,0.5
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.39,132.1,3,0,198.0,198.0,0.9855555555555555,0,121,41,2,0,0.5185185185185185
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.39,125.8,1,0,37.0,37.0,0.9874652777777778,0,120,43,0,0,0.4594594594594595
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.43,123.4,2,0,72.0,72.0,0.9875462962962963,0,117,34,2,0,0.48717948717948717
+E:total_cost:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.39,122.0,0,0,0.0,0.0,0.9881481481481481,0,118,40,0,0,0.5333333333333333
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.41,134.7,0,0,0.0,0.0,0.9865972222222222,0,128,67,0,0,0.39759036144578314
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.4,133.4,0,0,0.0,0.0,0.9866203703703704,0,126,74,0,0,0.49333333333333335
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.42,140.1,0,0,0.0,0.0,0.9860416666666667,0,133,71,0,0,0.4939759036144578
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.4,137.4,0,0,0.0,0.0,0.98625,0,130,74,0,0,0.35714285714285715
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.42,137.0,0,0,0.0,0.0,0.9863425925925926,0,130,70,0,0,0.4788732394366197
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.37,134.3,0,0,0.0,0.0,0.986550925925926,0,127,73,0,0,0.2807017543859649
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.44,134.7,0,0,0.0,0.0,0.9864583333333333,0,127,77,0,0,0.4722222222222222
+E:total_cost:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.33,131.2,0,0,0.0,0.0,0.9869907407407408,0,125,62,0,0,0.46511627906976744
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.42,134.7,0,0,0.0,0.0,0.9865972222222222,0,128,67,0,0,0.39759036144578314
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.32,133.4,0,0,0.0,0.0,0.9866203703703704,0,126,74,0,0,0.49333333333333335
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.42,140.1,0,0,0.0,0.0,0.9860416666666667,0,133,71,0,0,0.4939759036144578
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.35,137.4,0,0,0.0,0.0,0.98625,0,130,74,0,0,0.35714285714285715
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.3,137.0,0,0,0.0,0.0,0.9863425925925926,0,130,70,0,0,0.4788732394366197
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.32,134.3,0,0,0.0,0.0,0.986550925925926,0,127,73,0,0,0.2807017543859649
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.32,134.7,0,0,0.0,0.0,0.9864583333333333,0,127,77,0,0,0.4722222222222222
+E:total_cost:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.33,131.2,0,0,0.0,0.0,0.9869907407407408,0,125,62,0,0,0.46511627906976744
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.64,125.6,5,0,202.0,202.0,0.9861574074074074,0,114,41,5,0,0.5581395348837209
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,1.59,135.4,6,0,296.0,296.0,0.9850231481481482,0,115,39,1,0,0.525
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.65,137.0,5,0,236.0,236.0,0.9852546296296296,0,121,35,3,0,0.375
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.52,130.0,3,0,110.0,110.0,0.9867824074074074,0,119,40,1,0,0.3888888888888889
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,1.77,132.1,3,0,173.0,173.0,0.9858449074074074,0,121,41,2,0,0.4230769230769231
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,1.55,126.1,1,0,32.0,32.0,0.9874537037037037,0,120,46,1,0,0.40540540540540543
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,1.52,123.7,2,0,93.0,93.0,0.9872337962962963,0,117,37,1,0,0.42857142857142855
+E:total_cost:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.4,125.2,1,0,37.0,37.0,0.9877662037037037,0,117,42,0,0,0.4666666666666667
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},0,0.83,159.0,13,4,8789.0,10180.0,0.8726388888888889,2,103,0,5,0,0.2669683257918552
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},1,0.77,152.0,13,2,6646.0,8929.0,0.8871180555555556,3,103,0,6,0,0.23414634146341465
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},2,0.81,182.0,16,4,5025.0,9019.0,0.8859837962962963,7,104,0,5,0,0.2
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},3,0.77,156.0,10,3,9228.0,9520.0,0.8802777777777778,1,103,0,2,0,0.27586206896551724
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},4,0.75,154.0,11,1,9193.0,9623.0,0.8789930555555555,1,104,0,4,0,0.18433179723502305
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},5,0.78,157.5,11,3,8422.0,10181.0,0.8726273148148148,4,103,0,7,0,0.3225806451612903
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},6,0.73,148.5,8,2,8506.0,9311.0,0.8823263888888889,1,107,0,5,0,0.2905982905982906
+E:total_cost:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},7,0.75,160.5,12,3,8741.0,10290.0,0.8714583333333333,1,102,0,5,0,0.273972602739726
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},0,0.77,167.5,21,4,10573.0,11415.0,0.8598263888888888,2,87,0,11,0,0.3033175355450237
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},1,0.68,180.0,19,5,7821.0,8236.0,0.8964351851851852,1,89,0,7,0,0.2681564245810056
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},2,0.83,196.0,20,6,6886.0,12050.0,0.8521990740740741,7,90,0,10,0,0.3497536945812808
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},3,0.75,154.5,18,2,10423.0,11019.0,0.8643171296296296,5,88,0,9,0,0.4198895027624309
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},4,0.69,171.0,15,3,9659.0,9720.0,0.8788888888888888,1,93,0,7,0,0.4010152284263959
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},5,0.6,135.0,16,0,7133.0,7396.0,0.9055092592592593,5,96,0,8,0,0.30256410256410254
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},6,0.72,177.5,20,5,8635.0,10760.0,0.8671296296296296,4,90,0,12,0,0.39090909090909093
+E:total_cost:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},7,0.79,146.0,16,1,11602.0,11602.0,0.8572916666666667,0,91,0,9,0,0.41379310344827586
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},0,1.46,223.0,44,6,14746.0,15965.0,0.8077199074074074,7,81,0,2,0,0.022026431718061675
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},1,1.75,292.0,44,10,14394.0,15710.0,0.8106712962962963,8,81,0,3,0,0.017699115044247787
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},2,1.38,325.5,47,13,15532.0,17027.0,0.795798611111111,7,77,0,3,0,0.026905829596412557
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},3,1.85,289.0,47,9,16664.0,18044.0,0.7844907407407408,6,72,0,6,0,0.013392857142857142
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},4,1.47,353.5,53,14,17474.0,18692.0,0.7771759259259259,9,70,0,6,0,0.03571428571428571
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},5,1.8,253.5,43,8,14613.0,15925.0,0.8081828703703704,7,81,0,3,0,0.04017857142857143
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},6,1.53,262.0,50,8,18001.0,19553.0,0.7673032407407407,7,69,0,8,0,0.022026431718061675
+E:total_cost:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},7,2.02,275.5,44,9,15302.0,17138.0,0.7944212962962963,6,78,0,4,0,0.022222222222222223
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},0,1.04,267.0,56,9,11987.0,12854.0,0.844837962962963,6,69,0,1,0,0.022026431718061675
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},1,1.48,311.0,57,11,12656.0,13395.0,0.838761574074074,7,67,0,2,0,0.022123893805309734
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},2,1.28,353.0,60,14,13221.0,13971.0,0.8323726851851851,6,64,0,2,0,0.022222222222222223
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},3,0.99,338.0,56,13,12795.0,13439.0,0.8383449074074074,5,66,0,2,0,0.03070175438596491
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},4,1.24,399.0,63,16,13448.0,14355.0,0.8282060185185185,7,61,0,2,0,0.018018018018018018
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},5,1.01,291.0,59,10,12538.0,13529.0,0.8373958333333333,7,65,0,3,0,0.04128440366972477
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},6,1.2,305.5,58,12,13094.0,13954.0,0.8325694444444445,5,64,0,2,0,0.02702702702702703
+E:total_cost:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},7,0.99,315.0,52,12,12098.0,12427.0,0.8496875,2,70,0,0,0,0.017777777777777778
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.66,131.5,15,0,8506.0,8506.0,0.8902083333333334,0,100,90,2,0,0.585
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.55,145.7,19,0,6362.0,6744.0,0.9110416666666666,3,96,87,3,0,0.489010989010989
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.72,156.3,22,0,6887.0,8829.0,0.8867939814814815,6,97,88,3,0,0.5027624309392266
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.86,143.9,18,0,11987.0,12164.0,0.8491435185185185,2,89,79,8,0,0.4973821989528796
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.77,168.1,20,0,10462.0,10544.0,0.8673148148148149,1,91,96,6,0,0.494949494949495
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.6,135.2,13,0,7810.0,8075.0,0.8950810185185185,2,102,87,3,0,0.5970873786407767
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.53,136.3,15,0,6012.0,6012.0,0.9191203703703703,0,100,88,3,0,0.460093896713615
+E:total_cost:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.69,146.0,20,0,9625.0,9994.0,0.8738657407407407,2,93,80,7,0,0.5170731707317073
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.79,136.1,28,0,11261.0,12199.0,0.8506134259259259,3,77,46,12,0,0.5121951219512195
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.49,144.6,20,0,6669.0,6734.0,0.9126620370370371,2,90,46,5,0,0.47770700636942676
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.72,159.9,26,0,8197.0,10417.0,0.870636574074074,6,84,44,9,0,0.5087719298245614
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.8,181.6,28,3,11916.0,12283.0,0.8496412037037037,4,77,46,11,0,0.5654761904761905
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.89,186.7,32,0,14040.0,14180.0,0.8282638888888889,1,68,57,13,0,0.517948717948718
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.51,139.9,19,1,6751.0,6937.0,0.9098263888888889,4,92,59,6,0,0.5527950310559007
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.67,148.7,27,0,8387.0,9551.0,0.8805671296296296,4,83,52,11,0,0.5048543689320388
+E:total_cost:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.63,155.2,21,1,7136.0,7832.0,0.8998148148148148,2,90,52,5,0,0.5628415300546448
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.99,142.0,6,1,6102.0,11803.0,0.8502893518518518,3,109,130,3,0,0.5129310344827587
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.73,151.5,9,1,5146.0,8323.0,0.8907291666666667,2,106,135,3,0,0.5601851851851852
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.9,206.8,17,5,4193.0,10862.0,0.8615277777777778,10,102,143,9,0,0.4557522123893805
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.89,150.3,9,1,11126.0,11126.0,0.8585879629629629,0,102,138,5,0,0.4223300970873786
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.88,159.0,8,1,7740.0,10236.0,0.8682407407407408,2,106,150,4,0,0.4847161572052402
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.8,140.7,6,0,2626.0,9678.0,0.8745138888888889,4,110,142,4,0,0.4594594594594595
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.8,138.3,4,0,2084.0,8206.0,0.89125,3,113,143,4,0,0.4579831932773109
+E:total_cost:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.84,171.1,9,3,6204.0,11046.0,0.8591898148148148,3,106,136,4,0,0.4955357142857143
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.93,157.0,16,3,10931.0,12987.0,0.8393171296296296,3,92,80,9,0,0.5779816513761468
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.91,159.2,18,2,12314.0,13653.0,0.8323263888888889,4,85,77,13,0,0.49029126213592233
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.87,231.6,23,9,7687.0,12291.0,0.8478356481481482,10,88,76,13,0,0.45595854922279794
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,1.03,165.9,13,3,12949.0,13102.0,0.8382175925925925,2,91,74,7,0,0.5255102040816326
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.94,193.9,18,5,12480.0,12746.0,0.8427083333333334,1,87,74,7,0,0.47317073170731705
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.89,139.1,8,1,7372.0,10280.0,0.8699074074074074,2,101,76,5,0,0.5299539170506913
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.81,164.7,15,2,7148.0,10900.0,0.8629629629629629,5,97,82,10,0,0.5044642857142857
+E:total_cost:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.92,162.0,15,2,9866.0,11365.0,0.8582291666666666,1,93,70,9,0,0.4215686274509804
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,5.21,145.9,33,0,6814.0,6884.0,0.911875,1,79,49,0,0,0.6745562130177515
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,4.33,176.8,31,2,5124.0,5237.0,0.930775462962963,2,81,48,0,0,0.6027397260273972
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,5.32,175.6,29,1,6355.0,6835.0,0.9120486111111111,2,84,46,0,0,0.6774193548387096
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,5.03,217.4,39,4,6495.0,6495.0,0.9172106481481481,0,70,49,1,0,0.5641025641025641
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,6.04,219.5,38,2,7772.0,7939.0,0.9000578703703703,2,72,60,1,0,0.6686746987951807
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,4.06,138.4,27,0,4120.0,4584.0,0.9375231481481482,4,87,59,3,0,0.6558441558441559
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,4.83,177.2,41,1,5705.0,6017.0,0.922488425925926,2,72,52,2,0,0.6547619047619048
+E:total_cost:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,4.78,182.2,33,1,5995.0,5995.0,0.9220949074074074,0,79,52,2,0,0.6585365853658537
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},0,0.27,130.0,0,0,0.0,0.0,0.9879629629629629,0,130,0,0,0,0.18333333333333332
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},1,0.28,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.2
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},2,0.28,143.5,2,1,316.0,316.0,0.9841203703703704,0,132,0,1,0,0.13846153846153847
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},3,0.27,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.19444444444444445
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},4,0.28,143.0,4,0,313.0,313.0,0.9846180555555556,0,127,0,3,0,0.15517241379310345
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},5,0.27,128.0,0,0,0.0,0.0,0.9881481481481481,0,128,0,0,0,0.14
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},6,0.27,136.5,3,0,140.0,207.0,0.9858449074074074,1,127,0,3,0,0.02857142857142857
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},7,0.27,128.0,0,0,0.0,0.0,0.9881481481481481,0,128,0,0,0,0.16
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},0,0.28,127.5,2,0,108.0,108.0,0.9874537037037037,0,122,0,1,0,0.08695652173913043
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},1,0.29,134.5,3,1,401.0,401.0,0.9843402777777778,0,119,0,3,0,0.234375
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},2,0.29,135.0,2,0,217.0,217.0,0.9857291666666667,0,127,0,2,0,0.07142857142857142
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},3,0.27,126.0,0,0,0.0,0.0,0.9883333333333333,0,126,0,0,0,0.16666666666666666
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},4,0.28,136.0,3,0,212.0,212.0,0.9860648148148148,0,124,0,2,0,0.1320754716981132
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},5,0.3,134.0,2,1,145.0,145.0,0.9872106481481482,0,120,0,2,0,0.09615384615384616
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},6,0.31,122.5,1,0,61.0,61.0,0.9880902777777778,0,121,0,1,0,0.13559322033898305
+E:total_cost:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},7,0.29,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.18181818181818182
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},0,0.66,206.5,7,2,1510.0,1657.0,0.9647106481481481,1,174,0,3,0,0.03409090909090909
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},1,0.67,215.5,9,2,2298.0,2298.0,0.957662037037037,0,170,0,4,0,0.037037037037037035
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},2,0.62,222.0,8,3,1947.0,1947.0,0.9615393518518518,0,172,0,3,0,0.025495750708215296
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},3,0.64,223.5,11,3,2510.0,2667.0,0.9534837962962963,1,169,0,4,0,0.034383954154727794
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},4,0.66,249.5,14,5,2980.0,3306.0,0.9463657407407408,2,166,0,8,0,0.045584045584045586
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},5,0.63,195.0,8,1,1786.0,2050.0,0.9603472222222222,1,172,0,4,0,0.02824858757062147
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},6,0.66,208.5,10,1,2258.0,2465.0,0.9557291666666666,1,170,0,2,0,0.04297994269340974
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},7,0.64,208.5,10,1,2161.0,2402.0,0.9564583333333333,1,170,0,4,0,0.05157593123209169
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},0,0.28,199.5,9,1,597.0,597.0,0.9773495370370371,0,170,0,4,0,0.02601156069364162
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},1,0.33,213.5,12,1,873.0,873.0,0.9744328703703704,0,167,0,5,0,0.045714285714285714
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},2,0.36,263.0,14,8,1124.0,1124.0,0.9718055555555556,0,164,0,6,0,0.028985507246376812
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},3,0.3,254.0,13,6,983.0,983.0,0.9732523148148148,0,166,0,4,0,0.031609195402298854
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},4,0.33,231.0,13,3,1037.0,1037.0,0.9726273148148148,0,166,0,6,0,0.054441260744985676
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},5,0.29,199.5,9,1,648.0,648.0,0.9767592592592592,0,170,0,4,0,0.023054755043227664
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},6,0.29,216.5,13,2,1030.0,1030.0,0.9728009259259259,0,165,0,4,0,0.04011461318051576
+E:total_cost:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},7,0.29,234.5,13,4,1013.0,1013.0,0.9729050925925926,0,166,0,6,0,0.06321839080459771
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,126.7,10,0,649.0,649.0,0.9816319444444445,0,108,37,5,0,0.5151515151515151
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.31,126.5,6,0,588.0,588.0,0.9818287037037037,0,114,35,3,0,0.5967741935483871
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.32,134.6,5,0,515.0,515.0,0.9820023148148148,0,121,36,3,0,0.5517241379310345
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.29,135.5,5,0,293.0,293.0,0.9849652777777778,0,117,35,2,0,0.4090909090909091
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.28,152.5,9,0,712.0,854.0,0.9785416666666666,1,115,40,4,0,0.6623376623376623
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.3,127.5,5,0,329.0,329.0,0.984525462962963,0,116,40,1,0,0.5098039215686274
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.3,128.0,8,0,678.0,678.0,0.9811574074074074,0,110,35,5,0,0.5384615384615384
+E:total_cost:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.32,124.5,3,0,303.0,303.0,0.9851273148148149,0,114,35,1,0,0.6304347826086957
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,126.7,10,0,649.0,649.0,0.9816319444444445,0,108,37,5,0,0.5151515151515151
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.29,126.5,6,0,588.0,588.0,0.9818287037037037,0,114,35,3,0,0.5967741935483871
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.3,134.6,5,0,515.0,515.0,0.9820023148148148,0,121,36,3,0,0.5517241379310345
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.27,135.5,5,0,293.0,293.0,0.9849652777777778,0,117,35,2,0,0.4090909090909091
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.28,152.5,9,0,712.0,854.0,0.9785416666666666,1,115,40,4,0,0.6623376623376623
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.3,127.5,5,0,329.0,329.0,0.984525462962963,0,116,40,1,0,0.5098039215686274
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.3,128.0,8,0,678.0,678.0,0.9811574074074074,0,110,35,5,0,0.5384615384615384
+E:total_cost:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.3,124.5,3,0,303.0,303.0,0.9851273148148149,0,114,35,1,0,0.6304347826086957
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.29,135.2,0,0,0.0,0.0,0.9866203703703704,0,129,62,0,0,0.43478260869565216
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.28,132.2,0,0,0.0,0.0,0.9868981481481481,0,126,62,0,0,0.47058823529411764
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.32,140.4,0,0,0.0,0.0,0.9861111111111112,0,134,64,0,0,0.42727272727272725
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.32,137.5,1,0,84.0,84.0,0.9856018518518519,0,130,60,1,0,0.41975308641975306
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.32,148.8,2,1,281.0,281.0,0.9833217592592592,0,128,68,1,0,0.44954128440366975
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.31,134.6,0,0,0.0,0.0,0.9866203703703704,0,128,66,0,0,0.4
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.34,143.0,1,1,62.0,62.0,0.9859953703703703,0,126,70,1,0,0.46601941747572817
+E:total_cost:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.31,132.4,0,0,0.0,0.0,0.9868518518518519,0,126,64,0,0,0.5714285714285714
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.3,137.8,2,0,103.0,103.0,0.9855439814814815,0,125,73,2,0,0.42391304347826086
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.3,135.3,1,0,75.0,75.0,0.9859606481481481,0,124,73,0,0,0.5053763440860215
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.3,138.9,0,0,0.0,0.0,0.9861805555555555,0,132,69,0,0,0.4175824175824176
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.29,140.2,1,0,82.0,82.0,0.9854398148148148,0,129,72,1,0,0.3561643835616438
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.31,143.0,2,0,334.0,334.0,0.982662037037037,0,128,70,1,0,0.48863636363636365
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.33,133.9,0,0,0.0,0.0,0.9866435185185185,0,127,69,0,0,0.4225352112676056
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.34,142.1,1,1,64.0,64.0,0.9859027777777778,0,124,81,1,0,0.4787234042553192
+E:total_cost:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.3,131.3,0,0,0.0,0.0,0.9869675925925926,0,125,63,0,0,0.4339622641509434
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.91,133.8,8,0,420.0,420.0,0.9839583333333334,0,110,43,1,0,0.5178571428571429
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.13,126.9,7,0,615.0,615.0,0.9816319444444445,0,113,34,0,0,0.5522388059701493
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.95,137.9,6,0,417.0,417.0,0.9831597222222223,0,120,39,1,0,0.4576271186440678
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.94,133.7,5,0,228.0,228.0,0.9855555555555555,0,117,42,3,0,0.46938775510204084
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.36,150.8,10,0,694.0,694.0,0.9804166666666667,0,114,43,2,0,0.5441176470588235
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,1.81,128.1,5,0,276.0,276.0,0.985,0,116,46,2,0,0.46938775510204084
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.08,131.0,9,0,528.0,528.0,0.9829861111111111,0,109,35,2,0,0.5873015873015873
+E:total_cost:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.75,137.6,6,1,230.0,230.0,0.9861111111111112,0,111,41,2,0,0.45454545454545453
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},0,3.27,116.5,24,3,0.0,55704.0,0.35203703703703704,24,35,0,2,0,0.06451612903225806
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},1,2.46,146.5,25,5,2534.0,54761.0,0.36304398148148154,24,34,0,1,0,0.09836065573770492
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},2,2.56,147.0,25,5,4401.0,56310.0,0.3453009259259259,22,32,0,1,0,0.0625
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},3,3.01,168.0,27,7,2735.0,57165.0,0.3353125,25,33,0,1,0,0.06451612903225806
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},4,2.7,158.5,26,5,5276.0,57229.0,0.33466435185185184,23,32,0,1,0,0.03125
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},5,2.71,119.5,25,3,1907.0,54095.0,0.37075231481481485,24,34,0,1,0,0.06557377049180328
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},6,2.73,127.5,26,4,3528.0,55753.0,0.3517476851851852,24,32,0,3,0,0.06557377049180328
+E:total_cost:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 300.0},7,2.72,147.5,25,5,0.0,54588.0,0.3649537037037037,25,35,0,2,0,0.05172413793103448
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},0,2.52,130.5,32,4,10759.0,51613.0,0.4002199074074074,24,26,0,1,0,0.3333333333333333
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},1,2.57,187.0,34,8,17530.0,51861.0,0.39762731481481484,23,23,0,4,0,0.12
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},2,2.85,176.5,31,8,19407.0,52103.0,0.3949189814814815,19,22,0,4,0,0.21428571428571427
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},3,2.28,195.5,36,8,19462.0,54559.0,0.3665856481481482,23,21,0,2,0,0.3541666666666667
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},4,2.36,191.5,34,8,26568.0,55608.0,0.354537037037037,20,20,0,7,0,0.19607843137254902
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},5,2.33,145.0,33,5,16547.0,52646.0,0.3885416666666667,22,23,0,6,0,0.3469387755102041
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},6,2.09,145.5,36,4,19255.0,51741.0,0.39929398148148143,22,20,0,1,0,0.3111111111111111
+E:total_cost:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},7,2.24,178.5,34,7,15928.0,52398.0,0.3914120370370371,23,23,0,4,0,0.3125
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},0,2.36,168.0,48,6,34210.0,52929.0,0.3864699074074074,23,10,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},1,2.35,224.5,45,10,32843.0,53668.0,0.3777314814814815,22,12,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},2,2.21,248.0,47,13,35550.0,51780.0,0.4000462962962963,19,7,0,0,0,0.015384615384615385
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},3,2.38,261.5,51,12,34946.0,55425.0,0.3577662037037037,24,8,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},4,2.45,259.0,47,12,35728.0,55634.0,0.3552546296296296,21,9,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},5,2.28,193.0,46,8,33058.0,53343.0,0.3815856481481481,22,11,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},6,2.49,210.5,47,10,32573.0,53477.0,0.38012731481481477,23,10,0,1,0,0.015384615384615385
+E:total_cost:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 70},7,2.36,228.5,48,10,31858.0,53458.0,0.3804398148148148,23,9,0,2,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},0,2.26,180.5,51,7,33420.0,51909.0,0.3985532407407407,23,7,0,0,0,0.030303030303030304
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},1,2.33,222.5,46,10,32741.0,53324.0,0.3818055555555555,22,11,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},2,2.33,251.0,48,13,35847.0,51813.0,0.39975694444444443,19,6,0,1,0,0.015384615384615385
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},3,2.45,269.5,50,14,33019.0,54955.0,0.3632060185185185,24,8,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},4,2.35,268.5,49,13,34238.0,55801.0,0.3535069444444444,22,7,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},5,2.33,200.5,49,9,31540.0,53407.0,0.3811226851851852,23,8,0,1,0,0.015151515151515152
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},6,2.21,205.5,49,9,33618.0,52516.0,0.39143518518518516,22,8,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},7,2.37,224.5,50,9,30581.0,52443.0,0.39228009259259256,24,8,0,1,0,0.0
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,2.23,123.4,28,3,7085.0,52574.0,0.38736111111111116,24,30,59,2,0,0.23728813559322035
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,2.32,154.0,29,4,11124.0,52617.0,0.3870254629629629,23,28,60,2,0,0.13636363636363635
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,2.24,153.4,29,4,16726.0,52496.0,0.38872685185185185,19,25,59,2,0,0.19402985074626866
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,2.44,156.6,30,3,8336.0,54858.0,0.3607407407407407,24,29,71,0,0,0.18333333333333332
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,2.38,151.9,28,3,9951.0,55677.0,0.35151620370370373,22,28,64,1,0,0.19672131147540983
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,2.39,132.3,27,4,8433.0,52309.0,0.3901273148148148,23,31,68,1,0,0.11475409836065574
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,2.24,115.8,30,1,13651.0,52505.0,0.3885763888888889,22,27,53,1,0,0.2571428571428571
+E:total_cost:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,2.37,139.5,28,3,9262.0,53076.0,0.38173611111111116,23,29,55,4,0,0.2
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.25,128.2,32,3,12430.0,51997.0,0.39535879629629633,24,25,22,6,0,0.2962962962962963
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.9,189.9,37,8,23067.0,51973.0,0.3961458333333333,22,19,24,6,0,0.2962962962962963
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.94,205.8,37,10,21491.0,52729.0,0.3878125,20,16,18,10,0,0.2698412698412698
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.32,204.2,39,8,21570.0,54351.0,0.36876157407407406,23,18,22,1,0,0.36
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.98,197.3,37,7,25827.0,55197.0,0.35892361111111115,20,17,28,2,0,0.36
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.32,136.7,33,4,17214.0,51938.0,0.3961111111111111,22,23,27,4,0,0.2641509433962264
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.84,128.8,30,4,11076.0,52345.0,0.3913078703703704,22,25,23,7,0,0.3392857142857143
+E:total_cost:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,2.31,193.8,38,8,20004.0,52193.0,0.3936226851851852,23,19,23,6,0,0.4339622641509434
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.84,128.3,25,4,2099.0,52723.0,0.3852662037037037,24,33,63,2,0,0.25806451612903225
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.28,157.2,27,5,8367.0,52713.0,0.3855671296296296,23,30,67,3,0,0.26785714285714285
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.3,162.9,28,6,13014.0,53014.0,0.38296296296296295,19,25,49,4,0,0.3382352941176471
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.5,169.4,27,6,4628.0,54805.0,0.36135416666666664,24,32,59,0,0,0.21428571428571427
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.37,164.6,28,5,13966.0,56162.0,0.3461805555555556,21,27,56,8,0,0.4126984126984127
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.93,143.9,27,5,6138.0,52455.0,0.3887384259259259,23,30,59,3,0,0.2711864406779661
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.31,150.6,27,6,7900.0,52549.0,0.3879282407407407,22,29,51,8,0,0.17857142857142858
+E:total_cost:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,3.01,159.1,26,6,5242.0,52699.0,0.38589120370370367,23,31,56,5,0,0.3448275862068966
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,2.27,144.8,31,5,10036.0,51802.0,0.39692129629629624,23,26,48,2,0,0.3137254901960784
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,2.84,170.4,31,6,14384.0,51882.0,0.396087962962963,23,26,44,4,0,0.35714285714285715
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,2.26,180.4,31,8,17971.0,52197.0,0.39292824074074073,19,22,39,4,0,0.2962962962962963
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,2.97,207.2,36,9,15866.0,54801.0,0.3626041666666666,24,22,47,6,0,0.29411764705882354
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,2.8,174.7,30,6,14981.0,55426.0,0.35532407407407407,21,25,37,3,0,0.24528301886792453
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,2.54,147.4,29,5,10397.0,52596.0,0.3878703703703704,23,28,34,8,0,0.2545454545454545
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,2.3,146.1,32,5,16944.0,52123.0,0.3935532407407407,22,24,41,3,0,0.3877551020408163
+E:total_cost:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,2.38,190.0,35,8,18152.0,52317.0,0.39186342592592593,23,22,25,6,0,0.33962264150943394
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,46.54,175.7,41,6,6441.0,51362.0,0.4035416666666667,23,16,22,0,0,0.7213114754098361
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,43.56,270.6,45,16,6650.0,51319.0,0.4043171296296296,23,12,26,0,0,0.5686274509803921
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,47.47,226.7,37,13,8588.0,51708.0,0.399537037037037,19,16,22,1,0,0.6166666666666667
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,46.41,272.7,43,17,7560.0,54179.0,0.3711226851851852,23,14,22,1,0,0.48148148148148145
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,51.71,262.9,42,15,13752.0,55150.0,0.35990740740740745,21,12,29,1,0,0.6379310344827587
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,43.55,207.7,41,10,10811.0,51711.0,0.3993865740740741,23,16,27,0,0,0.6363636363636364
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,46.98,245.1,48,13,9696.0,51735.0,0.3999884259259259,22,8,21,4,0,0.6229508196721312
+E:total_cost:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,43.65,252.9,44,14,4626.0,51639.0,0.4005671296296296,23,13,24,1,0,0.4716981132075472
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},0,0.29,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.2692307692307692
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},1,0.26,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.125
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},2,0.27,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.037037037037037035
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},3,0.28,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.09523809523809523
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},4,0.31,131.0,1,0,41.0,41.0,0.9877662037037037,0,127,0,1,0,0.09375
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},5,0.33,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.08
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},6,0.36,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.13043478260869565
+E:total_cost:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},7,0.54,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.3333333333333333
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},0,0.4,131.5,5,1,233.0,233.0,0.9868402777777778,0,113,0,5,0,0.043478260869565216
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},1,0.41,122.5,2,0,127.0,127.0,0.9876967592592593,0,117,0,2,0,0.05
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},2,0.46,143.5,3,2,164.0,164.0,0.9868055555555556,0,122,0,3,0,0.19047619047619047
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},3,0.29,140.5,7,1,378.0,378.0,0.9850694444444444,0,114,0,6,0,0.32
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},4,0.28,151.0,5,2,287.0,287.0,0.9856597222222222,0,119,0,3,0,0.4444444444444444
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},5,0.3,130.0,2,1,115.0,115.0,0.9879282407407407,0,116,0,1,0,0.125
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},6,0.26,125.0,4,0,237.0,237.0,0.9867013888888889,0,114,0,3,0,0.10714285714285714
+E:total_cost:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},7,0.28,143.0,5,2,318.0,318.0,0.9860416666666667,0,111,0,5,0,0.22727272727272727
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},0,0.24,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},1,0.27,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},2,0.26,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},3,0.26,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},4,0.26,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},5,0.28,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},6,0.32,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:total_cost:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},7,0.27,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},0,0.35,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},1,0.41,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},2,0.39,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},3,0.36,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},4,0.38,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},5,0.26,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},6,0.31,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:total_cost:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},7,0.28,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.33,135.1,2,0,83.0,83.0,0.9854050925925926,0,122,101,2,0,0.6133333333333333
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.32,132.6,1,0,54.0,54.0,0.9859722222222222,0,122,91,0,0,0.6216216216216216
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.32,139.7,0,0,0.0,0.0,0.9857175925925926,0,130,97,0,0,0.5675675675675675
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.31,133.9,0,0,0.0,0.0,0.9862268518518519,0,124,99,0,0,0.5606060606060606
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.31,136.2,1,0,93.0,93.0,0.9849652777777778,0,124,107,0,0,0.5862068965517241
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.3,133.7,0,0,0.0,0.0,0.9861342592592592,0,123,107,0,0,0.4090909090909091
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.3,134.8,0,0,0.0,0.0,0.9858796296296296,0,123,118,0,0,0.5483870967741935
+E:total_cost:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.3,133.0,0,0,0.0,0.0,0.9861574074074074,0,122,110,0,0,0.4716981132075472
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.32,159.8,14,3,1058.0,1058.0,0.9769907407407408,0,103,53,13,0,0.6029411764705882
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.31,149.9,11,1,637.0,637.0,0.9814699074074074,0,107,54,8,0,0.5636363636363636
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.29,160.5,16,1,974.0,974.0,0.9777314814814815,0,105,55,15,0,0.5822784810126582
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.29,162.3,12,2,626.0,626.0,0.9816203703703704,0,107,53,9,0,0.5306122448979592
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.34,176.3,15,2,1026.0,1026.0,0.9769675925925926,0,106,58,10,0,0.5625
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.32,134.2,10,0,542.0,542.0,0.9825925925925926,0,106,57,8,0,0.5192307692307693
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.32,155.6,16,2,957.0,957.0,0.9784606481481481,0,99,56,11,0,0.625
+E:total_cost:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.31,142.9,10,1,457.0,457.0,0.9838310185185185,0,104,54,6,0,0.5555555555555556
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",0,0.44,174.2,11,3,2364.0,2364.0,0.9584953703703704,0,106,187,6,0,0.5421686746987951
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",1,0.45,180.5,12,2,2408.0,2740.0,0.9539583333333334,3,106,195,7,0,0.6272189349112426
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",2,0.38,169.3,8,1,1530.0,1556.0,0.9666898148148149,1,117,193,7,0,0.4267515923566879
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",3,0.48,173.7,10,2,2451.0,2726.0,0.9542592592592593,2,109,177,8,0,0.5153061224489796
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",4,0.6,193.8,13,3,2217.0,2323.0,0.9584375,2,109,198,7,0,0.6878612716763006
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",5,0.54,150.0,5,1,654.0,654.0,0.9778240740740741,0,114,175,4,0,0.46226415094339623
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",6,0.55,162.4,10,1,1997.0,1997.0,0.9623495370370371,0,106,204,8,0,0.5705128205128205
+E:total_cost:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.03, 'p_urgent': 0.15}",7,0.44,152.2,9,0,3012.0,3012.0,0.9510879629629629,0,105,187,6,0,0.6566265060240963
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.32,137.6,4,0,284.0,284.0,0.9832175925925926,0,118,111,4,0,0.6060606060606061
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.35,140.7,5,0,1283.0,1283.0,0.971724537037037,0,117,112,3,0,0.6371681415929203
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.33,148.9,2,1,278.0,278.0,0.9829166666666667,0,125,99,2,0,0.494949494949495
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.3,141.5,2,0,272.0,272.0,0.9828935185185185,0,122,115,1,0,0.4880952380952381
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.36,154.7,6,0,1127.0,1127.0,0.9732291666666667,0,119,117,3,0,0.5701754385964912
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.32,133.9,0,0,0.0,0.0,0.9859490740740741,0,122,119,0,0,0.391304347826087
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.32,138.2,3,0,700.0,700.0,0.9780555555555556,0,119,122,2,0,0.5666666666666667
+E:total_cost:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.32,142.8,3,1,585.0,585.0,0.9798726851851852,0,116,113,3,0,0.5333333333333333
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.42,167.4,21,3,1174.0,1174.0,0.9763657407407408,0,95,54,17,0,0.5802469135802469
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.03,168.7,14,3,700.0,700.0,0.9809490740740741,0,104,57,10,0,0.640625
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.14,178.8,20,2,1097.0,1097.0,0.9766087962962963,0,101,58,17,0,0.5588235294117647
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.0,161.0,15,2,607.0,619.0,0.9819097222222222,1,103,60,12,0,0.6037735849056604
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,3.21,172.9,17,1,1255.0,1255.0,0.9745717592592592,0,103,59,13,0,0.6781609195402298
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.16,132.1,13,0,598.0,598.0,0.9823379629629629,0,102,56,10,0,0.46774193548387094
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.43,168.7,25,2,1323.0,1323.0,0.9748032407407408,0,90,67,18,0,0.5662650602409639
+E:total_cost:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.93,158.3,13,2,608.0,608.0,0.9822685185185185,0,101,58,10,0,0.6538461538461539
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},0,0.33,130.0,2,0,91.0,91.0,0.987650462962963,0,122,0,2,0,0.033783783783783786
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},1,0.31,127.5,2,0,161.0,161.0,0.9868402777777778,0,122,0,2,0,0.02702702702702703
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},2,0.31,141.0,1,1,139.0,139.0,0.9862615740740741,0,131,0,1,0,0.019230769230769232
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},3,0.29,137.0,1,1,45.0,45.0,0.9877199074074074,0,127,0,1,0,0.013986013986013986
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},4,0.27,145.0,4,1,188.0,188.0,0.9864351851851851,0,123,0,4,0,0.025974025974025976
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},5,0.3,123.5,1,0,43.0,43.0,0.9882060185185185,0,122,0,1,0,0.03496503496503497
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},6,0.3,126.0,0,0,0.0,0.0,0.9883333333333333,0,126,0,0,0,0.013793103448275862
+E:total_cost:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},7,0.3,124.5,1,0,45.0,45.0,0.9880902777777778,0,123,0,1,0,0.014598540145985401
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},0,0.3,125.0,4,0,452.0,452.0,0.984212962962963,0,114,0,4,0,0.06622516556291391
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},1,0.3,138.5,7,1,567.0,567.0,0.9830671296296296,0,112,0,5,0,0.07947019867549669
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},2,0.31,166.0,8,3,590.0,590.0,0.9824305555555556,0,116,0,8,0,0.03225806451612903
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},3,0.33,164.5,9,3,577.0,577.0,0.9828587962962962,0,113,0,8,0,0.05921052631578947
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},4,0.3,143.0,6,1,345.0,345.0,0.9850810185185185,0,118,0,5,0,0.026490066225165563
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},5,0.3,123.5,4,0,230.0,230.0,0.9866898148148148,0,115,0,4,0,0.0
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},6,0.3,128.0,5,0,281.0,281.0,0.9862847222222222,0,113,0,4,0,0.028169014084507043
+E:total_cost:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},7,0.28,126.5,4,0,336.0,336.0,0.9856481481481482,0,113,0,4,0,0.07092198581560284
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},0,0.28,219.0,1,1,107.0,107.0,0.9794097222222222,0,209,0,1,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},1,0.3,210.0,0,0,0.0,0.0,0.9805555555555555,0,210,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},2,0.27,231.0,3,2,332.0,332.0,0.9769907407407408,0,207,0,0,0,0.01293103448275862
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},3,0.28,213.0,1,0,115.0,115.0,0.9793171296296296,0,209,0,0,0,0.00847457627118644
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},4,0.3,213.0,1,0,94.0,94.0,0.9795601851851852,0,209,0,1,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},5,0.25,210.0,0,0,0.0,0.0,0.9805555555555555,0,210,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},6,0.27,216.0,2,0,174.0,174.0,0.9787268518518518,0,208,0,0,0,0.02127659574468085
+E:total_cost:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},7,0.26,210.5,1,0,131.0,131.0,0.9791319444444444,0,209,0,0,0,0.004310344827586207
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},0,0.24,202.0,4,1,210.0,210.0,0.9804398148148148,0,185,0,4,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},1,0.25,203.0,5,0,325.0,325.0,0.9792939814814815,0,183,0,5,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},2,0.26,231.0,6,4,436.0,436.0,0.9780092592592593,0,183,0,3,0,0.02843601895734597
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},3,0.26,214.0,6,1,384.0,384.0,0.9785185185185186,0,184,0,3,0,0.03125
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},4,0.28,204.0,5,0,358.0,358.0,0.9788194444444445,0,184,0,5,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},5,0.24,199.5,4,1,196.0,220.0,0.9803240740740741,1,185,0,4,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},6,0.25,208.0,6,1,416.0,416.0,0.9782407407407407,0,183,0,4,0,0.013888888888888888
+E:total_cost:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},7,0.27,209.0,6,1,399.0,399.0,0.9783449074074074,0,184,0,5,0,0.009216589861751152
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.28,126.6,1,0,36.0,36.0,0.9877083333333333,0,123,21,1,0,0.42073170731707316
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.27,128.5,3,0,150.0,150.0,0.9868055555555556,0,120,15,2,0,0.4294478527607362
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.28,134.3,1,0,53.0,53.0,0.9868402777777778,0,131,18,0,0,0.37777777777777777
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.28,130.1,2,0,89.0,89.0,0.9869097222222222,0,125,21,1,0,0.3764705882352941
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.29,140.3,5,0,441.0,441.0,0.983275462962963,0,121,18,4,0,0.3817204301075269
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.27,127.8,3,0,194.0,194.0,0.9860185185185185,0,121,23,2,0,0.3493975903614458
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.27,128.4,0,0,0.0,0.0,0.9877777777777778,0,126,24,0,0,0.3057324840764331
+E:total_cost:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.27,131.4,3,0,137.0,137.0,0.9868634259259259,0,120,19,2,0,0.39473684210526316
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.27,125.2,9,0,491.0,491.0,0.9841782407407408,0,109,2,7,0,0.363013698630137
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.28,134.8,8,0,601.0,601.0,0.9827893518518519,0,110,3,7,0,0.3684210526315789
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.3,158.0,12,2,909.0,909.0,0.9791782407407408,0,110,5,10,0,0.40372670807453415
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.3,145.8,7,2,340.0,340.0,0.9855324074074074,0,113,3,7,0,0.31690140845070425
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.3,149.5,11,0,922.0,922.0,0.9790277777777778,0,110,5,9,0,0.42857142857142855
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.27,125.5,6,0,329.0,329.0,0.9857986111111111,0,111,5,5,0,0.4
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.37,136.9,12,1,692.0,692.0,0.982175925925926,0,105,4,6,0,0.35135135135135137
+E:total_cost:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.39,132.0,8,1,514.0,514.0,0.9841203703703704,0,106,5,7,0,0.3333333333333333
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,127.8,0,0,0.0,0.0,0.9879166666666667,0,126,18,0,0,0.36046511627906974
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.28,125.8,0,0,0.0,0.0,0.9881018518518518,0,124,18,0,0,0.37349397590361444
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.28,134.6,0,0,0.0,0.0,0.987175925925926,0,132,26,0,0,0.42328042328042326
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.3,130.1,0,0,0.0,0.0,0.987662037037037,0,128,21,0,0,0.35
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.3,130.3,0,0,0.0,0.0,0.9876157407407408,0,128,23,0,0,0.43010752688172044
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.27,127.3,0,0,0.0,0.0,0.9878935185185185,0,125,23,0,0,0.3546511627906977
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.3,129.1,0,0,0.0,0.0,0.9877546296296297,0,127,21,0,0,0.3804347826086957
+E:total_cost:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.45,125.7,0,0,0.0,0.0,0.988125,0,124,17,0,0,0.3391812865497076
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.27,126.5,0,0,0.0,0.0,0.9879398148148149,0,124,25,0,0,0.3473053892215569
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.28,124.0,0,0,0.0,0.0,0.9882407407407408,0,122,20,0,0,0.449438202247191
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.28,131.9,0,0,0.0,0.0,0.9873842592592592,0,129,29,0,0,0.4497354497354497
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.28,128.4,0,0,0.0,0.0,0.9877777777777778,0,126,24,0,0,0.3505747126436782
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.29,131.8,2,0,248.0,248.0,0.9851157407407407,0,124,23,2,0,0.39790575916230364
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.27,126.8,0,0,0.0,0.0,0.9878703703703704,0,124,28,0,0,0.3652694610778443
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.29,126.7,0,0,0.0,0.0,0.9878935185185185,0,124,27,0,0,0.3413173652694611
+E:total_cost:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.41,124.3,0,0,0.0,0.0,0.9881712962962963,0,122,23,0,0,0.3333333333333333
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.68,128.3,10,0,460.0,460.0,0.9846064814814814,0,108,3,6,0,0.4084507042253521
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,1.88,152.0,15,1,698.0,698.0,0.9822685185185185,0,103,5,6,0,0.3986013986013986
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.74,147.1,10,1,523.0,523.0,0.9833449074074074,0,113,6,3,0,0.296551724137931
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.85,146.9,11,1,550.0,550.0,0.9834490740740741,0,109,4,6,0,0.3586206896551724
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.08,182.8,19,1,983.0,983.0,0.9790162037037037,0,103,3,8,0,0.49056603773584906
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.09,133.5,12,0,522.0,522.0,0.9841203703703704,0,105,5,6,0,0.4316546762589928
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,1.86,144.5,12,1,517.0,517.0,0.9841782407407408,0,105,5,5,0,0.35251798561151076
+E:total_cost:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.77,143.5,7,2,312.0,312.0,0.9862731481481481,0,108,5,4,0,0.366412213740458
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},0,1.62,108.5,21,1,0.0,46056.0,0.4622222222222222,21,51,0,3,0,0.13043478260869565
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},1,1.63,156.5,21,6,4295.0,45384.0,0.47018518518518515,19,49,0,4,0,0.1368421052631579
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},2,1.7,162.5,23,6,5600.0,45722.0,0.4664583333333333,18,47,0,3,0,0.052083333333333336
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},3,1.82,163.5,23,6,4418.0,49910.0,0.4178935185185185,21,48,0,8,0,0.09278350515463918
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},4,1.79,155.5,21,5,6696.0,49023.0,0.4280671296296297,18,49,0,2,0,0.07368421052631578
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},5,1.8,132.0,23,3,8227.0,47297.0,0.4482291666666667,19,47,0,7,0,0.09
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},6,1.77,130.0,22,3,2714.0,45424.0,0.46972222222222226,20,49,0,6,0,0.08163265306122448
+E:total_cost:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 300.0},7,1.66,159.5,23,6,3926.0,47609.0,0.4444328703703704,21,49,0,5,0,0.12371134020618557
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},0,1.54,151.0,37,4,26074.0,43792.0,0.490462962962963,18,29,0,7,0,0.3764705882352941
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},1,1.48,207.0,40,8,29736.0,43441.0,0.49498842592592596,16,24,0,8,0,0.3625
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},2,1.43,224.5,37,11,26982.0,41968.0,0.5116666666666667,16,28,0,10,0,0.2976190476190476
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},3,1.69,204.0,35,8,22046.0,45929.0,0.46554398148148146,18,31,0,6,0,0.35714285714285715
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},4,1.66,232.5,39,10,24116.0,45609.0,0.4694328703703704,19,29,0,4,0,0.25925925925925924
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},5,1.58,149.0,35,5,24907.0,43712.0,0.4913888888888889,16,29,0,7,0,0.325
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},6,1.62,160.0,35,5,28371.0,43586.0,0.4927546296296297,17,30,0,10,0,0.26666666666666666
+E:total_cost:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},7,1.6,219.5,44,9,28984.0,44201.0,0.48637731481481483,19,22,0,11,0,0.23170731707317074
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},0,1.56,203.0,55,8,33666.0,43636.0,0.49356481481481485,19,15,0,1,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},1,1.67,257.5,53,11,33161.0,44051.0,0.4885763888888889,18,17,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},2,1.62,309.0,54,18,32097.0,41550.0,0.5177083333333333,18,15,0,0,0,0.02040816326530612
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},3,1.75,289.0,55,14,35541.0,46687.0,0.45825231481481477,19,15,0,2,0,0.01
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},4,1.7,291.0,57,12,35974.0,46146.0,0.46488425925925925,17,11,0,1,0,0.030303030303030304
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},5,1.67,212.0,52,8,33980.0,43978.0,0.4895138888888889,17,16,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},6,1.6,237.5,56,10,33977.0,44639.0,0.4818634259259259,21,16,0,0,0,0.0
+E:total_cost:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},7,1.72,246.0,54,9,33692.0,44655.0,0.4816782407407407,19,16,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},0,1.43,223.5,59,9,32710.0,42713.0,0.5046180555555555,19,11,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},1,1.64,264.5,56,11,34638.0,44066.0,0.48886574074074074,17,12,0,1,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},2,1.55,294.5,56,15,30968.0,40511.0,0.5299189814814815,18,13,0,0,0,0.01
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},3,1.9,305.5,59,15,34560.0,45155.0,0.4762615740740741,20,12,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},4,1.52,311.5,59,14,36150.0,45353.0,0.47424768518518523,17,9,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},5,2.85,228.0,57,9,33436.0,43065.0,0.5005439814814815,17,11,0,0,0,0.0
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},6,1.64,249.5,60,11,33829.0,42858.0,0.5029398148148148,20,11,0,1,0,0.01
+E:total_cost:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},7,2.78,268.0,59,11,33118.0,43625.0,0.49406249999999996,19,11,0,2,0,0.010101010101010102
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.35,120.6,24,0,6159.0,44456.0,0.47761574074074076,20,47,151,3,0,0.30612244897959184
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.64,137.9,25,0,12860.0,42384.0,0.5015740740740741,18,44,164,1,0,0.25806451612903225
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.34,162.0,29,2,14079.0,41834.0,0.5088657407407408,17,40,140,1,0,0.2828282828282828
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.9,149.3,25,1,9654.0,46888.0,0.4497685185185185,20,47,138,2,0,0.24175824175824176
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.89,152.9,26,1,12658.0,46485.0,0.45512731481481483,18,43,124,1,0,0.2903225806451613
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.45,115.6,23,0,10826.0,43471.0,0.48910879629629633,17,46,151,2,0,0.2692307692307692
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.57,139.6,24,3,8686.0,44223.0,0.481099537037037,19,46,121,3,0,0.3617021276595745
+E:total_cost:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.78,128.4,23,0,6035.0,44433.0,0.4781828703703703,20,48,134,1,0,0.2978723404255319
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.47,170.1,41,5,26032.0,44027.0,0.48714120370370373,19,24,46,12,0,0.40229885057471265
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,1.74,190.1,34,7,28749.0,42639.0,0.5026504629629629,15,30,46,8,0,0.3076923076923077
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.0,224.9,41,10,29567.0,41831.0,0.5126041666666667,16,24,44,9,0,0.26436781609195403
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.85,210.2,38,7,23646.0,45692.0,0.4673842592592593,18,29,47,7,0,0.4050632911392405
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,1.99,233.5,43,8,29448.0,45643.0,0.46846064814814814,19,24,45,4,0,0.3875
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,1.84,166.3,38,5,27863.0,43806.0,0.4895138888888889,18,28,38,9,0,0.40476190476190477
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,1.82,185.7,40,7,29684.0,43178.0,0.4969444444444444,16,24,47,8,0,0.379746835443038
+E:total_cost:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.75,190.1,39,6,25511.0,44070.0,0.48659722222222224,18,27,36,8,0,0.367816091954023
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.86,145.6,25,4,9362.0,44736.0,0.4746527777777778,20,44,151,5,0,0.36082474226804123
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,1.95,158.2,22,4,7084.0,44251.0,0.4799189814814815,18,45,162,6,0,0.5050505050505051
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.75,177.1,26,6,10938.0,43174.0,0.4933564814814815,17,41,136,3,0,0.4166666666666667
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.05,188.4,25,7,9690.0,48204.0,0.43500000000000005,19,43,134,9,0,0.4845360824742268
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,1.92,175.4,25,5,12022.0,46927.0,0.4500115740740741,18,43,124,3,0,0.41304347826086957
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.05,139.9,23,3,12499.0,45552.0,0.46546296296296297,17,43,144,1,0,0.5436893203883495
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.0,147.3,24,4,7762.0,44541.0,0.4777662037037037,19,43,118,9,0,0.46464646464646464
+E:total_cost:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,2.13,178.8,24,6,6660.0,45269.0,0.4687152777777778,20,46,133,9,0,0.36893203883495146
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,1.85,166.1,30,6,13413.0,43118.0,0.49564814814814817,18,37,81,3,0,0.47674418604651164
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,1.92,155.7,25,4,19335.0,43576.0,0.4902546296296296,15,39,77,7,0,0.43617021276595747
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,1.94,205.7,34,8,21188.0,42010.0,0.5091435185185185,17,32,72,9,0,0.35294117647058826
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,2.19,187.6,29,7,14706.0,46525.0,0.45633101851851854,18,37,76,4,0,0.37362637362637363
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,2.02,189.3,30,6,14634.0,46017.0,0.46207175925925925,19,38,78,4,0,0.41379310344827586
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,1.94,150.8,28,5,19000.0,43375.0,0.4925347222222223,16,38,83,4,0,0.47674418604651164
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,1.92,176.4,31,7,25440.0,43384.0,0.49310185185185185,16,33,74,10,0,0.449438202247191
+E:total_cost:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,1.86,188.4,33,6,19782.0,43957.0,0.4863078703703704,20,36,69,9,0,0.4090909090909091
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,34.15,194.7,46,6,6177.0,42511.0,0.5050347222222222,18,20,47,6,0,0.47058823529411764
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,37.94,246.5,44,11,10246.0,42477.0,0.505474537037037,16,20,45,6,0,0.6265060240963856
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,32.92,249.9,44,11,18737.0,41440.0,0.5174074074074074,16,21,44,5,0,0.6555555555555556
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,42.08,263.2,46,12,16679.0,45802.0,0.4669444444444445,18,20,47,8,0,0.6022727272727273
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,36.53,313.5,50,17,16413.0,45349.0,0.47251157407407407,19,17,45,6,0,0.6470588235294118
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,40.5,249.8,44,14,8186.0,43546.0,0.4931712962962963,17,21,38,9,0,0.6629213483146067
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,33.78,275.7,52,14,9102.0,42589.0,0.5046875,18,14,47,8,0,0.6206896551724138
+E:total_cost:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,40.2,268.1,49,12,11419.0,43649.0,0.4922106481481482,20,19,36,10,0,0.648936170212766
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},0,0.26,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.2692307692307692
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},1,0.28,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.125
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},2,0.31,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.037037037037037035
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},3,0.32,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.09523809523809523
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},4,0.28,131.0,1,0,41.0,41.0,0.9877662037037037,0,127,0,1,0,0.09375
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},5,0.3,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.08
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},6,0.37,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.13043478260869565
+E:priced:in_scenario,THRESHOLD_EDD,base,{'threshold_h': 100.0},7,0.3,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.3333333333333333
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},0,0.27,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.2692307692307692
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},1,0.28,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.125
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},2,0.27,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.037037037037037035
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},3,0.26,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.09523809523809523
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},4,0.27,131.0,1,0,41.0,41.0,0.9877662037037037,0,127,0,1,0,0.09375
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},5,0.28,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.08
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},6,0.29,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.13043478260869565
+E:priced:in_base,THRESHOLD_EDD,base,{'threshold_h': 100.0},7,0.34,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.3333333333333333
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},0,0.27,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},1,0.37,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},2,0.34,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},3,0.29,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},4,0.27,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},5,0.28,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},6,0.27,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:priced:in_scenario,FIXED_INTERVAL,base,{'interval_age_cycles': 130},7,0.25,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},0,0.26,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},1,0.28,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},2,0.29,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},3,0.27,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},4,0.42,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},5,0.3,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},6,0.3,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:priced:in_base,FIXED_INTERVAL,base,{'interval_age_cycles': 130},7,0.28,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.32,125.0,2,0,76.0,76.0,0.9872685185185185,0,118,40,2,0,0.40540540540540543
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.35,128.0,2,0,180.0,180.0,0.986087962962963,0,119,35,2,0,0.5581395348837209
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.34,129.6,1,0,144.0,144.0,0.9860416666666667,0,125,31,1,0,0.5581395348837209
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.44,129.8,3,0,118.0,118.0,0.9867361111111111,0,119,38,0,0,0.5
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.33,132.1,3,0,198.0,198.0,0.9855555555555555,0,121,41,2,0,0.5185185185185185
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.4,125.8,1,0,37.0,37.0,0.9874652777777778,0,120,43,0,0,0.4594594594594595
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.31,123.4,2,0,72.0,72.0,0.9875462962962963,0,117,34,2,0,0.48717948717948717
+E:priced:in_scenario,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.29,122.0,0,0,0.0,0.0,0.9881481481481481,0,118,40,0,0,0.5333333333333333
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,125.0,2,0,76.0,76.0,0.9872685185185185,0,118,40,2,0,0.40540540540540543
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.29,128.0,2,0,180.0,180.0,0.986087962962963,0,119,35,2,0,0.5581395348837209
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.28,129.6,1,0,144.0,144.0,0.9860416666666667,0,125,31,1,0,0.5581395348837209
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.26,129.8,3,0,118.0,118.0,0.9867361111111111,0,119,38,0,0,0.5
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.29,132.1,3,0,198.0,198.0,0.9855555555555555,0,121,41,2,0,0.5185185185185185
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.27,125.8,1,0,37.0,37.0,0.9874652777777778,0,120,43,0,0,0.4594594594594595
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.41,123.4,2,0,72.0,72.0,0.9875462962962963,0,117,34,2,0,0.48717948717948717
+E:priced:in_base,RISK_GREEDY,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.28,122.0,0,0,0.0,0.0,0.9881481481481481,0,118,40,0,0,0.5333333333333333
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.29,134.7,0,0,0.0,0.0,0.9865972222222222,0,128,67,0,0,0.39759036144578314
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.28,133.4,0,0,0.0,0.0,0.9866203703703704,0,126,74,0,0,0.49333333333333335
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.28,140.1,0,0,0.0,0.0,0.9860416666666667,0,133,71,0,0,0.4939759036144578
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.3,137.4,0,0,0.0,0.0,0.98625,0,130,74,0,0,0.35714285714285715
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.29,137.0,0,0,0.0,0.0,0.9863425925925926,0,130,70,0,0,0.4788732394366197
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.26,134.3,0,0,0.0,0.0,0.986550925925926,0,127,73,0,0,0.2807017543859649
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.38,134.7,0,0,0.0,0.0,0.9864583333333333,0,127,77,0,0,0.4722222222222222
+E:priced:in_scenario,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.32,131.2,0,0,0.0,0.0,0.9869907407407408,0,125,62,0,0,0.46511627906976744
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.28,134.7,0,0,0.0,0.0,0.9865972222222222,0,128,67,0,0,0.39759036144578314
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.37,133.4,0,0,0.0,0.0,0.9866203703703704,0,126,74,0,0,0.49333333333333335
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.33,140.1,0,0,0.0,0.0,0.9860416666666667,0,133,71,0,0,0.4939759036144578
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.26,137.4,0,0,0.0,0.0,0.98625,0,130,74,0,0,0.35714285714285715
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.28,137.0,0,0,0.0,0.0,0.9863425925925926,0,130,70,0,0,0.4788732394366197
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.29,134.3,0,0,0.0,0.0,0.986550925925926,0,127,73,0,0,0.2807017543859649
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.42,134.7,0,0,0.0,0.0,0.9864583333333333,0,127,77,0,0,0.4722222222222222
+E:priced:in_base,RISK_EDD,base,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.27,131.2,0,0,0.0,0.0,0.9869907407407408,0,125,62,0,0,0.46511627906976744
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.46,125.6,5,0,202.0,202.0,0.9861574074074074,0,114,41,5,0,0.5581395348837209
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,1.57,135.4,6,0,296.0,296.0,0.9850231481481482,0,115,39,1,0,0.525
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.46,137.0,5,0,236.0,236.0,0.9852546296296296,0,121,35,3,0,0.375
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.47,130.0,3,0,110.0,110.0,0.9867824074074074,0,119,40,1,0,0.3888888888888889
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,1.49,132.1,3,0,173.0,173.0,0.9858449074074074,0,121,41,2,0,0.4230769230769231
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,1.4,126.1,1,0,32.0,32.0,0.9874537037037037,0,120,46,1,0,0.40540540540540543
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,1.52,123.7,2,0,93.0,93.0,0.9872337962962963,0,117,37,1,0,0.42857142857142855
+E:priced:in_base,RISK_MILP,base,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.34,125.2,1,0,37.0,37.0,0.9877662037037037,0,117,42,0,0,0.4666666666666667
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},0,0.92,159.0,13,4,8789.0,10180.0,0.8726388888888889,2,103,0,5,0,0.2669683257918552
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},1,0.65,152.0,13,2,6646.0,8929.0,0.8871180555555556,3,103,0,6,0,0.23414634146341465
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},2,0.7,182.0,16,4,5025.0,9019.0,0.8859837962962963,7,104,0,5,0,0.2
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},3,0.72,156.0,10,3,9228.0,9520.0,0.8802777777777778,1,103,0,2,0,0.27586206896551724
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},4,0.86,154.0,11,1,9193.0,9623.0,0.8789930555555555,1,104,0,4,0,0.18433179723502305
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},5,0.71,157.5,11,3,8422.0,10181.0,0.8726273148148148,4,103,0,7,0,0.3225806451612903
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},6,0.68,148.5,8,2,8506.0,9311.0,0.8823263888888889,1,107,0,5,0,0.2905982905982906
+E:priced:in_scenario,THRESHOLD_EDD,tight_labour,{'threshold_h': 160.0},7,0.81,160.5,12,3,8741.0,10290.0,0.8714583333333333,1,102,0,5,0,0.273972602739726
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},0,0.78,167.5,21,4,10573.0,11415.0,0.8598263888888888,2,87,0,11,0,0.3033175355450237
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},1,0.57,180.0,19,5,7821.0,8236.0,0.8964351851851852,1,89,0,7,0,0.2681564245810056
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},2,1.57,196.0,20,6,6886.0,12050.0,0.8521990740740741,7,90,0,10,0,0.3497536945812808
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},3,1.22,154.5,18,2,10423.0,11019.0,0.8643171296296296,5,88,0,9,0,0.4198895027624309
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},4,0.69,171.0,15,3,9659.0,9720.0,0.8788888888888888,1,93,0,7,0,0.4010152284263959
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},5,0.62,135.0,16,0,7133.0,7396.0,0.9055092592592593,5,96,0,8,0,0.30256410256410254
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},6,0.74,177.5,20,5,8635.0,10760.0,0.8671296296296296,4,90,0,12,0,0.39090909090909093
+E:priced:in_base,THRESHOLD_EDD,tight_labour,{'threshold_h': 100.0},7,1.07,146.0,16,1,11602.0,11602.0,0.8572916666666667,0,91,0,9,0,0.41379310344827586
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},0,1.53,223.0,44,6,14746.0,15965.0,0.8077199074074074,7,81,0,2,0,0.022026431718061675
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},1,1.66,292.0,44,10,14394.0,15710.0,0.8106712962962963,8,81,0,3,0,0.017699115044247787
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},2,1.86,325.5,47,13,15532.0,17027.0,0.795798611111111,7,77,0,3,0,0.026905829596412557
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},3,2.22,289.0,47,9,16664.0,18044.0,0.7844907407407408,6,72,0,6,0,0.013392857142857142
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},4,1.82,353.5,53,14,17474.0,18692.0,0.7771759259259259,9,70,0,6,0,0.03571428571428571
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},5,1.61,253.5,43,8,14613.0,15925.0,0.8081828703703704,7,81,0,3,0,0.04017857142857143
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},6,1.87,262.0,50,8,18001.0,19553.0,0.7673032407407407,7,69,0,8,0,0.022026431718061675
+E:priced:in_scenario,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 70},7,1.69,275.5,44,9,15302.0,17138.0,0.7944212962962963,6,78,0,4,0,0.022222222222222223
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},0,1.16,267.0,56,9,11987.0,12854.0,0.844837962962963,6,69,0,1,0,0.022026431718061675
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},1,1.24,311.0,57,11,12656.0,13395.0,0.838761574074074,7,67,0,2,0,0.022123893805309734
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},2,1.2,353.0,60,14,13221.0,13971.0,0.8323726851851851,6,64,0,2,0,0.022222222222222223
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},3,1.64,338.0,56,13,12795.0,13439.0,0.8383449074074074,5,66,0,2,0,0.03070175438596491
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},4,1.19,399.0,63,16,13448.0,14355.0,0.8282060185185185,7,61,0,2,0,0.018018018018018018
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},5,1.13,291.0,59,10,12538.0,13529.0,0.8373958333333333,7,65,0,3,0,0.04128440366972477
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},6,1.25,305.5,58,12,13094.0,13954.0,0.8325694444444445,5,64,0,2,0,0.02702702702702703
+E:priced:in_base,FIXED_INTERVAL,tight_labour,{'interval_age_cycles': 130},7,1.07,315.0,52,12,12098.0,12427.0,0.8496875,2,70,0,0,0,0.017777777777777778
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.67,131.5,15,0,8506.0,8506.0,0.8902083333333334,0,100,90,2,0,0.585
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.83,145.7,19,0,6362.0,6744.0,0.9110416666666666,3,96,87,3,0,0.489010989010989
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.9,156.3,22,0,6887.0,8829.0,0.8867939814814815,6,97,88,3,0,0.5027624309392266
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.08,143.9,18,0,11987.0,12164.0,0.8491435185185185,2,89,79,8,0,0.4973821989528796
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.87,168.1,20,0,10462.0,10544.0,0.8673148148148149,1,91,96,6,0,0.494949494949495
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.81,135.2,13,0,7810.0,8075.0,0.8950810185185185,2,102,87,3,0,0.5970873786407767
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.62,136.3,15,0,6012.0,6012.0,0.9191203703703703,0,100,88,3,0,0.460093896713615
+E:priced:in_scenario,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.96,146.0,20,0,9625.0,9994.0,0.8738657407407407,2,93,80,7,0,0.5170731707317073
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.11,136.1,28,0,11261.0,12199.0,0.8506134259259259,3,77,46,12,0,0.5121951219512195
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.7,144.6,20,0,6669.0,6734.0,0.9126620370370371,2,90,46,5,0,0.47770700636942676
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.04,159.9,26,0,8197.0,10417.0,0.870636574074074,6,84,44,9,0,0.5087719298245614
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.02,181.6,28,3,11916.0,12283.0,0.8496412037037037,4,77,46,11,0,0.5654761904761905
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,1.26,186.7,32,0,14040.0,14180.0,0.8282638888888889,1,68,57,13,0,0.517948717948718
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.74,139.9,19,1,6751.0,6937.0,0.9098263888888889,4,92,59,6,0,0.5527950310559007
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.8,148.7,27,0,8387.0,9551.0,0.8805671296296296,4,83,52,11,0,0.5048543689320388
+E:priced:in_base,RISK_GREEDY,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.72,155.2,21,1,7136.0,7832.0,0.8998148148148148,2,90,52,5,0,0.5628415300546448
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.24,140.9,6,0,2258.0,12493.0,0.8423263888888889,5,109,129,4,0,0.4291845493562232
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.96,152.9,11,1,6465.0,9648.0,0.8759259259259259,2,103,124,6,0,0.5
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.2,197.2,20,4,6107.0,12888.0,0.8388194444444445,11,98,127,12,0,0.5
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.09,149.4,10,1,13307.0,13307.0,0.8340625,0,99,119,6,0,0.41935483870967744
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,1.09,150.2,7,0,6768.0,10858.0,0.8610416666666667,2,108,142,4,0,0.44155844155844154
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,1.1,154.7,8,2,5105.0,13676.0,0.8289351851851852,4,105,132,7,0,0.49107142857142855
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.82,138.4,4,0,5252.0,6583.0,0.910150462962963,1,114,134,2,0,0.4491525423728814
+E:priced:in_scenario,RISK_EDD,tight_labour,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.09,163.7,11,2,5149.0,13283.0,0.8339004629629629,5,103,122,6,0,0.5043478260869565
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,1.06,157.0,16,3,10931.0,12987.0,0.8393171296296296,3,92,80,9,0,0.5779816513761468
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,1.2,159.2,18,2,12314.0,13653.0,0.8323263888888889,4,85,77,13,0,0.49029126213592233
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,1.04,231.6,23,9,7687.0,12291.0,0.8478356481481482,10,88,76,13,0,0.45595854922279794
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,1.38,165.9,13,3,12949.0,13102.0,0.8382175925925925,2,91,74,7,0,0.5255102040816326
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,1.1,193.9,18,5,12480.0,12746.0,0.8427083333333334,1,87,74,7,0,0.47317073170731705
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,1.12,139.1,8,1,7372.0,10280.0,0.8699074074074074,2,101,76,5,0,0.5299539170506913
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.9,164.7,15,2,7148.0,10900.0,0.8629629629629629,5,97,82,10,0,0.5044642857142857
+E:priced:in_base,RISK_EDD,tight_labour,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,1.27,162.0,15,2,9866.0,11365.0,0.8582291666666666,1,93,70,9,0,0.4215686274509804
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,6.38,145.9,33,0,6814.0,6884.0,0.911875,1,79,49,0,0,0.6745562130177515
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,4.63,176.8,31,2,5124.0,5237.0,0.930775462962963,2,81,48,0,0,0.6027397260273972
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,6.41,175.6,29,1,6355.0,6835.0,0.9120486111111111,2,84,46,0,0,0.6774193548387096
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,5.02,217.4,39,4,6495.0,6495.0,0.9172106481481481,0,70,49,1,0,0.5641025641025641
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,7.33,219.5,38,2,7772.0,7939.0,0.9000578703703703,2,72,60,1,0,0.6686746987951807
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,3.95,138.4,27,0,4120.0,4584.0,0.9375231481481482,4,87,59,3,0,0.6558441558441559
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,5.7,177.2,41,1,5705.0,6017.0,0.922488425925926,2,72,52,2,0,0.6547619047619048
+E:priced:in_base,RISK_MILP,tight_labour,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,4.81,182.2,33,1,5995.0,5995.0,0.9220949074074074,0,79,52,2,0,0.6585365853658537
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},0,0.3,130.0,0,0,0.0,0.0,0.9879629629629629,0,130,0,0,0,0.18333333333333332
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},1,0.39,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.2
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},2,0.34,143.5,2,1,316.0,316.0,0.9841203703703704,0,132,0,1,0,0.13846153846153847
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},3,0.45,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.19444444444444445
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},4,0.32,143.0,4,0,313.0,313.0,0.9846180555555556,0,127,0,3,0,0.15517241379310345
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},5,0.28,128.0,0,0,0.0,0.0,0.9881481481481481,0,128,0,0,0,0.14
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},6,0.3,136.5,3,0,140.0,207.0,0.9858449074074074,1,127,0,3,0,0.02857142857142857
+E:priced:in_scenario,THRESHOLD_EDD,parts_tight,{'threshold_h': 130.0},7,0.29,128.0,0,0,0.0,0.0,0.9881481481481481,0,128,0,0,0,0.16
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},0,0.32,127.5,2,0,108.0,108.0,0.9874537037037037,0,122,0,1,0,0.08695652173913043
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},1,0.37,134.5,3,1,401.0,401.0,0.9843402777777778,0,119,0,3,0,0.234375
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},2,0.39,135.0,2,0,217.0,217.0,0.9857291666666667,0,127,0,2,0,0.07142857142857142
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},3,0.34,126.0,0,0,0.0,0.0,0.9883333333333333,0,126,0,0,0,0.16666666666666666
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},4,0.35,136.0,3,0,212.0,212.0,0.9860648148148148,0,124,0,2,0,0.1320754716981132
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},5,0.37,134.0,2,1,145.0,145.0,0.9872106481481482,0,120,0,2,0,0.09615384615384616
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},6,0.33,122.5,1,0,61.0,61.0,0.9880902777777778,0,121,0,1,0,0.13559322033898305
+E:priced:in_base,THRESHOLD_EDD,parts_tight,{'threshold_h': 100.0},7,0.32,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.18181818181818182
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},0,0.83,206.5,7,2,1510.0,1657.0,0.9647106481481481,1,174,0,3,0,0.03409090909090909
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},1,0.61,215.5,9,2,2298.0,2298.0,0.957662037037037,0,170,0,4,0,0.037037037037037035
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},2,0.61,222.0,8,3,1947.0,1947.0,0.9615393518518518,0,172,0,3,0,0.025495750708215296
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},3,0.61,223.5,11,3,2510.0,2667.0,0.9534837962962963,1,169,0,4,0,0.034383954154727794
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},4,0.74,249.5,14,5,2980.0,3306.0,0.9463657407407408,2,166,0,8,0,0.045584045584045586
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},5,0.57,195.0,8,1,1786.0,2050.0,0.9603472222222222,1,172,0,4,0,0.02824858757062147
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},6,0.6,208.5,10,1,2258.0,2465.0,0.9557291666666666,1,170,0,2,0,0.04297994269340974
+E:priced:in_scenario,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 70},7,0.58,208.5,10,1,2161.0,2402.0,0.9564583333333333,1,170,0,4,0,0.05157593123209169
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},0,0.28,199.5,9,1,597.0,597.0,0.9773495370370371,0,170,0,4,0,0.02601156069364162
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},1,0.29,213.5,12,1,873.0,873.0,0.9744328703703704,0,167,0,5,0,0.045714285714285714
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},2,0.28,263.0,14,8,1124.0,1124.0,0.9718055555555556,0,164,0,6,0,0.028985507246376812
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},3,0.26,254.0,13,6,983.0,983.0,0.9732523148148148,0,166,0,4,0,0.031609195402298854
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},4,0.3,231.0,13,3,1037.0,1037.0,0.9726273148148148,0,166,0,6,0,0.054441260744985676
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},5,0.28,199.5,9,1,648.0,648.0,0.9767592592592592,0,170,0,4,0,0.023054755043227664
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},6,0.28,216.5,13,2,1030.0,1030.0,0.9728009259259259,0,165,0,4,0,0.04011461318051576
+E:priced:in_base,FIXED_INTERVAL,parts_tight,{'interval_age_cycles': 130},7,0.28,234.5,13,4,1013.0,1013.0,0.9729050925925926,0,166,0,6,0,0.06321839080459771
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,126.7,10,0,649.0,649.0,0.9816319444444445,0,108,37,5,0,0.5151515151515151
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.27,126.5,6,0,588.0,588.0,0.9818287037037037,0,114,35,3,0,0.5967741935483871
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.27,134.6,5,0,515.0,515.0,0.9820023148148148,0,121,36,3,0,0.5517241379310345
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.27,135.5,5,0,293.0,293.0,0.9849652777777778,0,117,35,2,0,0.4090909090909091
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.28,152.5,9,0,712.0,854.0,0.9785416666666666,1,115,40,4,0,0.6623376623376623
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.27,127.5,5,0,329.0,329.0,0.984525462962963,0,116,40,1,0,0.5098039215686274
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.27,128.0,8,0,678.0,678.0,0.9811574074074074,0,110,35,5,0,0.5384615384615384
+E:priced:in_scenario,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.28,124.5,3,0,303.0,303.0,0.9851273148148149,0,114,35,1,0,0.6304347826086957
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.27,126.7,10,0,649.0,649.0,0.9816319444444445,0,108,37,5,0,0.5151515151515151
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.29,126.5,6,0,588.0,588.0,0.9818287037037037,0,114,35,3,0,0.5967741935483871
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.27,134.6,5,0,515.0,515.0,0.9820023148148148,0,121,36,3,0,0.5517241379310345
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.29,135.5,5,0,293.0,293.0,0.9849652777777778,0,117,35,2,0,0.4090909090909091
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.27,152.5,9,0,712.0,854.0,0.9785416666666666,1,115,40,4,0,0.6623376623376623
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.27,127.5,5,0,329.0,329.0,0.984525462962963,0,116,40,1,0,0.5098039215686274
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.28,128.0,8,0,678.0,678.0,0.9811574074074074,0,110,35,5,0,0.5384615384615384
+E:priced:in_base,RISK_GREEDY,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.29,124.5,3,0,303.0,303.0,0.9851273148148149,0,114,35,1,0,0.6304347826086957
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,135.2,0,0,0.0,0.0,0.9866203703703704,0,129,62,0,0,0.43478260869565216
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.27,132.2,0,0,0.0,0.0,0.9868981481481481,0,126,62,0,0,0.47058823529411764
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.28,140.4,0,0,0.0,0.0,0.9861111111111112,0,134,64,0,0,0.42727272727272725
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.27,137.5,1,0,84.0,84.0,0.9856018518518519,0,130,60,1,0,0.41975308641975306
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.28,148.8,2,1,281.0,281.0,0.9833217592592592,0,128,68,1,0,0.44954128440366975
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.27,134.6,0,0,0.0,0.0,0.9866203703703704,0,128,66,0,0,0.4
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.28,143.0,1,1,62.0,62.0,0.9859953703703703,0,126,70,1,0,0.46601941747572817
+E:priced:in_scenario,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.27,132.4,0,0,0.0,0.0,0.9868518518518519,0,126,64,0,0,0.5714285714285714
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.27,137.8,2,0,103.0,103.0,0.9855439814814815,0,125,73,2,0,0.42391304347826086
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.27,135.3,1,0,75.0,75.0,0.9859606481481481,0,124,73,0,0,0.5053763440860215
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.28,138.9,0,0,0.0,0.0,0.9861805555555555,0,132,69,0,0,0.4175824175824176
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.44,140.2,1,0,82.0,82.0,0.9854398148148148,0,129,72,1,0,0.3561643835616438
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.28,143.0,2,0,334.0,334.0,0.982662037037037,0,128,70,1,0,0.48863636363636365
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.43,133.9,0,0,0.0,0.0,0.9866435185185185,0,127,69,0,0,0.4225352112676056
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.29,142.1,1,1,64.0,64.0,0.9859027777777778,0,124,81,1,0,0.4787234042553192
+E:priced:in_base,RISK_EDD,parts_tight,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.41,131.3,0,0,0.0,0.0,0.9869675925925926,0,125,63,0,0,0.4339622641509434
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.74,133.8,8,0,420.0,420.0,0.9839583333333334,0,110,43,1,0,0.5178571428571429
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,1.67,126.9,7,0,615.0,615.0,0.9816319444444445,0,113,34,0,0,0.5522388059701493
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.81,137.9,6,0,417.0,417.0,0.9831597222222223,0,120,39,1,0,0.4576271186440678
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.6,133.7,5,0,228.0,228.0,0.9855555555555555,0,117,42,3,0,0.46938775510204084
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,1.89,150.8,10,0,694.0,694.0,0.9804166666666667,0,114,43,2,0,0.5441176470588235
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,1.57,128.1,5,0,276.0,276.0,0.985,0,116,46,2,0,0.46938775510204084
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,1.64,131.0,9,0,528.0,528.0,0.9829861111111111,0,109,35,2,0,0.5873015873015873
+E:priced:in_base,RISK_MILP,parts_tight,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.44,137.6,6,1,230.0,230.0,0.9861111111111112,0,111,41,2,0,0.45454545454545453
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},0,2.26,126.0,28,4,6197.0,52237.0,0.39262731481481483,24,30,0,4,0,0.08928571428571429
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},1,2.09,160.0,29,6,10727.0,52077.0,0.3946643518518519,23,28,0,2,0,0.14814814814814814
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},2,2.25,176.0,30,8,16709.0,52570.0,0.3894212962962963,19,23,0,5,0,0.08928571428571429
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},3,2.2,178.5,30,8,7234.0,55010.0,0.3607175925925926,25,28,0,5,0,0.1111111111111111
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},4,2.3,186.0,31,8,17303.0,55544.0,0.35490740740740745,21,24,0,6,0,0.14545454545454545
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},5,2.09,137.5,26,5,5649.0,53200.0,0.3813888888888889,23,31,0,5,0,0.2037037037037037
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},6,2.2,144.0,29,6,11187.0,52398.0,0.3910416666666666,22,27,0,4,0,0.17857142857142858
+E:priced:in_scenario,THRESHOLD_EDD,parts_shortage,{'threshold_h': 160.0},7,2.03,166.5,30,7,10964.0,52526.0,0.3895601851851852,23,27,0,3,0,0.20833333333333334
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},0,2.17,130.5,32,4,10759.0,51613.0,0.4002199074074074,24,26,0,1,0,0.3333333333333333
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},1,2.05,187.0,34,8,17530.0,51861.0,0.39762731481481484,23,23,0,4,0,0.12
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},2,2.11,176.5,31,8,19407.0,52103.0,0.3949189814814815,19,22,0,4,0,0.21428571428571427
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},3,2.25,195.5,36,8,19462.0,54559.0,0.3665856481481482,23,21,0,2,0,0.3541666666666667
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},4,2.28,191.5,34,8,26568.0,55608.0,0.354537037037037,20,20,0,7,0,0.19607843137254902
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},5,2.21,145.0,33,5,16547.0,52646.0,0.3885416666666667,22,23,0,6,0,0.3469387755102041
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},6,2.2,145.5,36,4,19255.0,51741.0,0.39929398148148143,22,20,0,1,0,0.3111111111111111
+E:priced:in_base,THRESHOLD_EDD,parts_shortage,{'threshold_h': 100.0},7,2.15,178.5,34,7,15928.0,52398.0,0.3914120370370371,23,23,0,4,0,0.3125
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},0,2.19,180.5,51,7,33420.0,51909.0,0.3985532407407407,23,7,0,0,0,0.030303030303030304
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},1,2.28,222.5,46,10,32741.0,53324.0,0.3818055555555555,22,11,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},2,2.2,251.0,48,13,35847.0,51813.0,0.39975694444444443,19,6,0,1,0,0.015384615384615385
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},3,2.27,269.5,50,14,33019.0,54955.0,0.3632060185185185,24,8,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},4,2.34,268.5,49,13,34238.0,55801.0,0.3535069444444444,22,7,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},5,2.11,200.5,49,9,31540.0,53407.0,0.3811226851851852,23,8,0,1,0,0.015151515151515152
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},6,2.2,205.5,49,9,33618.0,52516.0,0.39143518518518516,22,8,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},7,2.19,224.5,50,9,30581.0,52443.0,0.39228009259259256,24,8,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},0,2.2,180.5,51,7,33420.0,51909.0,0.3985532407407407,23,7,0,0,0,0.030303030303030304
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},1,2.26,222.5,46,10,32741.0,53324.0,0.3818055555555555,22,11,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},2,2.18,251.0,48,13,35847.0,51813.0,0.39975694444444443,19,6,0,1,0,0.015384615384615385
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},3,2.26,269.5,50,14,33019.0,54955.0,0.3632060185185185,24,8,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},4,2.35,268.5,49,13,34238.0,55801.0,0.3535069444444444,22,7,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},5,2.37,200.5,49,9,31540.0,53407.0,0.3811226851851852,23,8,0,1,0,0.015151515151515152
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},6,2.23,205.5,49,9,33618.0,52516.0,0.39143518518518516,22,8,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,parts_shortage,{'interval_age_cycles': 130},7,2.9,224.5,50,9,30581.0,52443.0,0.39228009259259256,24,8,0,1,0,0.0
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,3.17,123.4,28,3,7085.0,52574.0,0.38736111111111116,24,30,59,2,0,0.23728813559322035
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,2.98,154.0,29,4,11124.0,52617.0,0.3870254629629629,23,28,60,2,0,0.13636363636363635
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,3.46,153.4,29,4,16726.0,52496.0,0.38872685185185185,19,25,59,2,0,0.19402985074626866
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,2.76,156.6,30,3,8336.0,54858.0,0.3607407407407407,24,29,71,0,0,0.18333333333333332
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,3.65,151.9,28,3,9951.0,55677.0,0.35151620370370373,22,28,64,1,0,0.19672131147540983
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,2.51,132.3,27,4,8433.0,52309.0,0.3901273148148148,23,31,68,1,0,0.11475409836065574
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,3.57,115.8,30,1,13651.0,52505.0,0.3885763888888889,22,27,53,1,0,0.2571428571428571
+E:priced:in_scenario,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,2.54,139.5,28,3,9262.0,53076.0,0.38173611111111116,23,29,55,4,0,0.2
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,3.09,128.2,32,3,12430.0,51997.0,0.39535879629629633,24,25,22,6,0,0.2962962962962963
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.27,189.9,37,8,23067.0,51973.0,0.3961458333333333,22,19,24,6,0,0.2962962962962963
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.53,205.8,37,10,21491.0,52729.0,0.3878125,20,16,18,10,0,0.2698412698412698
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.3,204.2,39,8,21570.0,54351.0,0.36876157407407406,23,18,22,1,0,0.36
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.6,197.3,37,7,25827.0,55197.0,0.35892361111111115,20,17,28,2,0,0.36
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.37,136.7,33,4,17214.0,51938.0,0.3961111111111111,22,23,27,4,0,0.2641509433962264
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.47,128.8,30,4,11076.0,52345.0,0.3913078703703704,22,25,23,7,0,0.3392857142857143
+E:priced:in_base,RISK_GREEDY,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,2.3,193.8,38,8,20004.0,52193.0,0.3936226851851852,23,19,23,6,0,0.4339622641509434
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,2.54,140.3,27,5,5687.0,52271.0,0.3906828703703704,24,31,63,2,0,0.32142857142857145
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,2.5,168.8,28,6,9997.0,52392.0,0.38935185185185184,23,29,68,5,0,0.3898305084745763
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,2.57,160.5,27,6,12514.0,52521.0,0.3884375,19,26,55,5,0,0.3484848484848485
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,2.6,173.5,30,5,8824.0,54943.0,0.3597800925925926,24,29,70,4,0,0.18518518518518517
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,2.61,171.2,29,6,15351.0,55795.0,0.3504976851851852,21,26,57,7,0,0.3114754098360656
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,2.58,129.3,26,4,5476.0,52643.0,0.3861689814814815,23,32,68,3,0,0.2711864406779661
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,2.62,145.4,29,5,11792.0,52406.0,0.38981481481481484,22,27,49,8,0,0.3898305084745763
+E:priced:in_scenario,RISK_EDD,parts_shortage,"{'decision_horizon_h': 150.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,2.52,154.0,26,5,4393.0,52967.0,0.38271990740740736,24,32,55,8,0,0.288135593220339
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,2.51,144.8,31,5,10036.0,51802.0,0.39692129629629624,23,26,48,2,0,0.3137254901960784
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,2.47,170.4,31,6,14384.0,51882.0,0.396087962962963,23,26,44,4,0,0.35714285714285715
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,2.59,180.4,31,8,17971.0,52197.0,0.39292824074074073,19,22,39,4,0,0.2962962962962963
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,2.42,207.2,36,9,15866.0,54801.0,0.3626041666666666,24,22,47,6,0,0.29411764705882354
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,2.58,174.7,30,6,14981.0,55426.0,0.35532407407407407,21,25,37,3,0,0.24528301886792453
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,2.39,147.4,29,5,10397.0,52596.0,0.3878703703703704,23,28,34,8,0,0.2545454545454545
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,2.26,146.1,32,5,16944.0,52123.0,0.3935532407407407,22,24,41,3,0,0.3877551020408163
+E:priced:in_base,RISK_EDD,parts_shortage,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,2.14,190.0,35,8,18152.0,52317.0,0.39186342592592593,23,22,25,6,0,0.33962264150943394
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,40.4,175.7,41,6,6441.0,51362.0,0.4035416666666667,23,16,22,0,0,0.7213114754098361
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,60.02,270.6,45,16,6650.0,51319.0,0.4043171296296296,23,12,26,0,0,0.5686274509803921
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,41.32,226.7,37,13,8588.0,51708.0,0.399537037037037,19,16,22,1,0,0.6166666666666667
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,66.42,272.7,43,17,7560.0,54179.0,0.3711226851851852,23,14,22,1,0,0.48148148148148145
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,44.88,262.9,42,15,13752.0,55150.0,0.35990740740740745,21,12,29,1,0,0.6379310344827587
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,65.52,207.7,41,10,10811.0,51711.0,0.3993865740740741,23,16,27,0,0,0.6363636363636364
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,40.32,245.1,48,13,9696.0,51735.0,0.3999884259259259,22,8,21,4,0,0.6229508196721312
+E:priced:in_base,RISK_MILP,parts_shortage,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,61.36,252.9,44,14,4626.0,51639.0,0.4005671296296296,23,13,24,1,0,0.4716981132075472
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},0,0.29,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.2692307692307692
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},1,0.28,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.125
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},2,0.27,131.0,0,0,0.0,0.0,0.9878703703703704,0,131,0,0,0,0.037037037037037035
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},3,0.31,127.0,0,0,0.0,0.0,0.9882407407407408,0,127,0,0,0,0.09523809523809523
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},4,0.29,131.0,1,0,41.0,41.0,0.9877662037037037,0,127,0,1,0,0.09375
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},5,0.27,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.08
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},6,0.3,124.0,0,0,0.0,0.0,0.9885185185185186,0,124,0,0,0,0.13043478260869565
+E:priced:in_scenario,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 130.0},7,0.31,123.0,0,0,0.0,0.0,0.9886111111111111,0,123,0,0,0,0.3333333333333333
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},0,0.3,131.5,5,1,233.0,233.0,0.9868402777777778,0,113,0,5,0,0.043478260869565216
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},1,0.29,122.5,2,0,127.0,127.0,0.9876967592592593,0,117,0,2,0,0.05
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},2,0.25,143.5,3,2,164.0,164.0,0.9868055555555556,0,122,0,3,0,0.19047619047619047
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},3,0.24,140.5,7,1,378.0,378.0,0.9850694444444444,0,114,0,6,0,0.32
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},4,0.25,151.0,5,2,287.0,287.0,0.9856597222222222,0,119,0,3,0,0.4444444444444444
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},5,0.25,130.0,2,1,115.0,115.0,0.9879282407407407,0,116,0,1,0,0.125
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},6,0.25,125.0,4,0,237.0,237.0,0.9867013888888889,0,114,0,3,0,0.10714285714285714
+E:priced:in_base,THRESHOLD_EDD,degraded_predictions,{'threshold_h': 100.0},7,0.26,143.0,5,2,318.0,318.0,0.9860416666666667,0,111,0,5,0,0.22727272727272727
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},0,0.23,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},1,0.24,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},2,0.25,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},3,0.24,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},4,0.25,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},5,0.23,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},6,0.23,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:priced:in_scenario,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},7,0.24,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},0,0.26,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},1,0.24,203.0,0,0,0.0,0.0,0.9812037037037037,0,203,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},2,0.25,223.0,3,2,284.0,284.0,0.978287037037037,0,199,0,2,0,0.047619047619047616
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},3,0.25,206.0,1,0,65.0,65.0,0.9805439814814815,0,202,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},4,0.24,204.0,0,0,0.0,0.0,0.9811111111111112,0,204,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},5,0.29,201.0,0,0,0.0,0.0,0.9813888888888889,0,201,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},6,0.33,203.5,1,0,77.0,77.0,0.9804050925925926,0,202,0,0,0,0.0967741935483871
+E:priced:in_base,FIXED_INTERVAL,degraded_predictions,{'interval_age_cycles': 130},7,0.27,203.5,1,0,83.0,83.0,0.9803356481481481,0,202,0,1,0,0.0
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.28,135.1,2,0,83.0,83.0,0.9854050925925926,0,122,101,2,0,0.6133333333333333
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.27,132.6,1,0,54.0,54.0,0.9859722222222222,0,122,91,0,0,0.6216216216216216
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.28,139.7,0,0,0.0,0.0,0.9857175925925926,0,130,97,0,0,0.5675675675675675
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.28,133.9,0,0,0.0,0.0,0.9862268518518519,0,124,99,0,0,0.5606060606060606
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.29,136.2,1,0,93.0,93.0,0.9849652777777778,0,124,107,0,0,0.5862068965517241
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.31,133.7,0,0,0.0,0.0,0.9861342592592592,0,123,107,0,0,0.4090909090909091
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.29,134.8,0,0,0.0,0.0,0.9858796296296296,0,123,118,0,0,0.5483870967741935
+E:priced:in_scenario,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.28,133.0,0,0,0.0,0.0,0.9861574074074074,0,122,110,0,0,0.4716981132075472
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,159.8,14,3,1058.0,1058.0,0.9769907407407408,0,103,53,13,0,0.6029411764705882
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.28,149.9,11,1,637.0,637.0,0.9814699074074074,0,107,54,8,0,0.5636363636363636
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.29,160.5,16,1,974.0,974.0,0.9777314814814815,0,105,55,15,0,0.5822784810126582
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.27,162.3,12,2,626.0,626.0,0.9816203703703704,0,107,53,9,0,0.5306122448979592
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.29,176.3,15,2,1026.0,1026.0,0.9769675925925926,0,106,58,10,0,0.5625
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.28,134.2,10,0,542.0,542.0,0.9825925925925926,0,106,57,8,0,0.5192307692307693
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.31,155.6,16,2,957.0,957.0,0.9784606481481481,0,99,56,11,0,0.625
+E:priced:in_base,RISK_GREEDY,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.28,142.9,10,1,457.0,457.0,0.9838310185185185,0,104,54,6,0,0.5555555555555556
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.29,137.6,4,0,284.0,284.0,0.9832175925925926,0,118,111,4,0,0.6060606060606061
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.33,140.7,5,0,1283.0,1283.0,0.971724537037037,0,117,112,3,0,0.6371681415929203
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.29,148.9,2,1,278.0,278.0,0.9829166666666667,0,125,99,2,0,0.494949494949495
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.28,141.5,2,0,272.0,272.0,0.9828935185185185,0,122,115,1,0,0.4880952380952381
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.33,154.7,6,0,1127.0,1127.0,0.9732291666666667,0,119,117,3,0,0.5701754385964912
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.28,133.9,0,0,0.0,0.0,0.9859490740740741,0,122,119,0,0,0.391304347826087
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.3,138.2,3,0,700.0,700.0,0.9780555555555556,0,119,122,2,0,0.5666666666666667
+E:priced:in_scenario,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.3,142.8,3,1,585.0,585.0,0.9798726851851852,0,116,113,3,0,0.5333333333333333
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.29,137.6,4,0,284.0,284.0,0.9832175925925926,0,118,111,4,0,0.6060606060606061
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.32,140.7,5,0,1283.0,1283.0,0.971724537037037,0,117,112,3,0,0.6371681415929203
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.29,148.9,2,1,278.0,278.0,0.9829166666666667,0,125,99,2,0,0.494949494949495
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.32,141.5,2,0,272.0,272.0,0.9828935185185185,0,122,115,1,0,0.4880952380952381
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.33,154.7,6,0,1127.0,1127.0,0.9732291666666667,0,119,117,3,0,0.5701754385964912
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.3,133.9,0,0,0.0,0.0,0.9859490740740741,0,122,119,0,0,0.391304347826087
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.3,138.2,3,0,700.0,700.0,0.9780555555555556,0,119,122,2,0,0.5666666666666667
+E:priced:in_base,RISK_EDD,degraded_predictions,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.3,142.8,3,1,585.0,585.0,0.9798726851851852,0,116,113,3,0,0.5333333333333333
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.1,167.4,21,3,1174.0,1174.0,0.9763657407407408,0,95,54,17,0,0.5802469135802469
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.0,168.7,14,3,700.0,700.0,0.9809490740740741,0,104,57,10,0,0.640625
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.99,178.8,20,2,1097.0,1097.0,0.9766087962962963,0,101,58,17,0,0.5588235294117647
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,1.81,161.0,15,2,607.0,619.0,0.9819097222222222,1,103,60,12,0,0.6037735849056604
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.56,172.9,17,1,1255.0,1255.0,0.9745717592592592,0,103,59,13,0,0.6781609195402298
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,1.89,132.1,13,0,598.0,598.0,0.9823379629629629,0,102,56,10,0,0.46774193548387094
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.21,168.7,25,2,1323.0,1323.0,0.9748032407407408,0,90,67,18,0,0.5662650602409639
+E:priced:in_base,RISK_MILP,degraded_predictions,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,1.69,158.3,13,2,608.0,608.0,0.9822685185185185,0,101,58,10,0,0.6538461538461539
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},0,0.26,130.0,2,0,91.0,91.0,0.987650462962963,0,122,0,2,0,0.033783783783783786
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},1,0.26,127.5,2,0,161.0,161.0,0.9868402777777778,0,122,0,2,0,0.02702702702702703
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},2,0.28,141.0,1,1,139.0,139.0,0.9862615740740741,0,131,0,1,0,0.019230769230769232
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},3,0.26,137.0,1,1,45.0,45.0,0.9877199074074074,0,127,0,1,0,0.013986013986013986
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},4,0.26,145.0,4,1,188.0,188.0,0.9864351851851851,0,123,0,4,0,0.025974025974025976
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},5,0.26,123.5,1,0,43.0,43.0,0.9882060185185185,0,122,0,1,0,0.03496503496503497
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},6,0.26,126.0,0,0,0.0,0.0,0.9883333333333333,0,126,0,0,0,0.013793103448275862
+E:priced:in_scenario,THRESHOLD_EDD,approval_delay,{'threshold_h': 130.0},7,0.26,124.5,1,0,45.0,45.0,0.9880902777777778,0,123,0,1,0,0.014598540145985401
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},0,0.28,125.0,4,0,452.0,452.0,0.984212962962963,0,114,0,4,0,0.06622516556291391
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},1,0.28,138.5,7,1,567.0,567.0,0.9830671296296296,0,112,0,5,0,0.07947019867549669
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},2,0.29,166.0,8,3,590.0,590.0,0.9824305555555556,0,116,0,8,0,0.03225806451612903
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},3,0.27,164.5,9,3,577.0,577.0,0.9828587962962962,0,113,0,8,0,0.05921052631578947
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},4,0.26,143.0,6,1,345.0,345.0,0.9850810185185185,0,118,0,5,0,0.026490066225165563
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},5,0.26,123.5,4,0,230.0,230.0,0.9866898148148148,0,115,0,4,0,0.0
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},6,0.26,128.0,5,0,281.0,281.0,0.9862847222222222,0,113,0,4,0,0.028169014084507043
+E:priced:in_base,THRESHOLD_EDD,approval_delay,{'threshold_h': 100.0},7,0.26,126.5,4,0,336.0,336.0,0.9856481481481482,0,113,0,4,0,0.07092198581560284
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},0,0.26,219.0,1,1,107.0,107.0,0.9794097222222222,0,209,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},1,0.27,210.0,0,0,0.0,0.0,0.9805555555555555,0,210,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},2,0.28,231.0,3,2,332.0,332.0,0.9769907407407408,0,207,0,0,0,0.01293103448275862
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},3,0.27,213.0,1,0,115.0,115.0,0.9793171296296296,0,209,0,0,0,0.00847457627118644
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},4,0.29,213.0,1,0,94.0,94.0,0.9795601851851852,0,209,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},5,0.26,210.0,0,0,0.0,0.0,0.9805555555555555,0,210,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},6,0.27,216.0,2,0,174.0,174.0,0.9787268518518518,0,208,0,0,0,0.02127659574468085
+E:priced:in_scenario,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 115},7,0.28,210.5,1,0,131.0,131.0,0.9791319444444444,0,209,0,0,0,0.004310344827586207
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},0,0.26,202.0,4,1,210.0,210.0,0.9804398148148148,0,185,0,4,0,0.0
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},1,0.26,203.0,5,0,325.0,325.0,0.9792939814814815,0,183,0,5,0,0.0
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},2,0.26,231.0,6,4,436.0,436.0,0.9780092592592593,0,183,0,3,0,0.02843601895734597
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},3,0.26,214.0,6,1,384.0,384.0,0.9785185185185186,0,184,0,3,0,0.03125
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},4,0.27,204.0,5,0,358.0,358.0,0.9788194444444445,0,184,0,5,0,0.0
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},5,0.25,199.5,4,1,196.0,220.0,0.9803240740740741,1,185,0,4,0,0.0
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},6,0.27,208.0,6,1,416.0,416.0,0.9782407407407407,0,183,0,4,0,0.013888888888888888
+E:priced:in_base,FIXED_INTERVAL,approval_delay,{'interval_age_cycles': 130},7,0.26,209.0,6,1,399.0,399.0,0.9783449074074074,0,184,0,5,0,0.009216589861751152
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.3,126.6,1,0,36.0,36.0,0.9877083333333333,0,123,21,1,0,0.42073170731707316
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.28,128.5,3,0,150.0,150.0,0.9868055555555556,0,120,15,2,0,0.4294478527607362
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.28,134.3,1,0,53.0,53.0,0.9868402777777778,0,131,18,0,0,0.37777777777777777
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.28,130.1,2,0,89.0,89.0,0.9869097222222222,0,125,21,1,0,0.3764705882352941
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.3,140.3,5,0,441.0,441.0,0.983275462962963,0,121,18,4,0,0.3817204301075269
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.28,127.8,3,0,194.0,194.0,0.9860185185185185,0,121,23,2,0,0.3493975903614458
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.28,128.4,0,0,0.0,0.0,0.9877777777777778,0,126,24,0,0,0.3057324840764331
+E:priced:in_scenario,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.28,131.4,3,0,137.0,137.0,0.9868634259259259,0,120,19,2,0,0.39473684210526316
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,125.2,9,0,491.0,491.0,0.9841782407407408,0,109,2,7,0,0.363013698630137
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.28,134.8,8,0,601.0,601.0,0.9827893518518519,0,110,3,7,0,0.3684210526315789
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.3,158.0,12,2,909.0,909.0,0.9791782407407408,0,110,5,10,0,0.40372670807453415
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.27,145.8,7,2,340.0,340.0,0.9855324074074074,0,113,3,7,0,0.31690140845070425
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.3,149.5,11,0,922.0,922.0,0.9790277777777778,0,110,5,9,0,0.42857142857142855
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.27,125.5,6,0,329.0,329.0,0.9857986111111111,0,111,5,5,0,0.4
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.28,136.9,12,1,692.0,692.0,0.982175925925926,0,105,4,6,0,0.35135135135135137
+E:priced:in_base,RISK_GREEDY,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.34,132.0,8,1,514.0,514.0,0.9841203703703704,0,106,5,7,0,0.3333333333333333
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,0.28,127.8,0,0,0.0,0.0,0.9879166666666667,0,126,18,0,0,0.36046511627906974
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,0.29,125.8,0,0,0.0,0.0,0.9881018518518518,0,124,18,0,0,0.37349397590361444
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,0.28,134.6,0,0,0.0,0.0,0.987175925925926,0,132,26,0,0,0.42328042328042326
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,0.27,130.1,0,0,0.0,0.0,0.987662037037037,0,128,21,0,0,0.35
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,0.29,130.3,0,0,0.0,0.0,0.9876157407407408,0,128,23,0,0,0.43010752688172044
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,0.33,127.3,0,0,0.0,0.0,0.9878935185185185,0,125,23,0,0,0.3546511627906977
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,0.28,129.1,0,0,0.0,0.0,0.9877546296296297,0,127,21,0,0,0.3804347826086957
+E:priced:in_scenario,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,0.28,125.7,0,0,0.0,0.0,0.988125,0,124,17,0,0,0.3391812865497076
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,0.27,126.5,0,0,0.0,0.0,0.9879398148148149,0,124,25,0,0,0.3473053892215569
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,0.28,124.0,0,0,0.0,0.0,0.9882407407407408,0,122,20,0,0,0.449438202247191
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,0.27,131.9,0,0,0.0,0.0,0.9873842592592592,0,129,29,0,0,0.4497354497354497
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,0.29,128.4,0,0,0.0,0.0,0.9877777777777778,0,126,24,0,0,0.3505747126436782
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,0.29,131.8,2,0,248.0,248.0,0.9851157407407407,0,124,23,2,0,0.39790575916230364
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,0.27,126.8,0,0,0.0,0.0,0.9878703703703704,0,124,28,0,0,0.3652694610778443
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,0.28,126.7,0,0,0.0,0.0,0.9878935185185185,0,124,27,0,0,0.3413173652694611
+E:priced:in_base,RISK_EDD,approval_delay,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,0.27,124.3,0,0,0.0,0.0,0.9881712962962963,0,122,23,0,0,0.3333333333333333
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,1.8,128.3,10,0,460.0,460.0,0.9846064814814814,0,108,3,6,0,0.4084507042253521
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.29,152.0,15,1,698.0,698.0,0.9822685185185185,0,103,5,6,0,0.3986013986013986
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.43,147.1,10,1,523.0,523.0,0.9833449074074074,0,113,6,3,0,0.296551724137931
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.3,146.9,11,1,550.0,550.0,0.9834490740740741,0,109,4,6,0,0.3586206896551724
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,3.29,182.8,19,1,983.0,983.0,0.9790162037037037,0,103,3,8,0,0.49056603773584906
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,3.63,133.5,12,0,522.0,522.0,0.9841203703703704,0,105,5,6,0,0.4316546762589928
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.94,144.5,12,1,517.0,517.0,0.9841782407407408,0,105,5,5,0,0.35251798561151076
+E:priced:in_base,RISK_MILP,approval_delay,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,2.06,143.5,7,2,312.0,312.0,0.9862731481481481,0,108,5,4,0,0.366412213740458
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},0,3.68,152.0,25,6,6956.0,43987.0,0.48663194444444446,20,46,0,4,0,0.23333333333333334
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},1,3.92,147.0,24,4,13766.0,43731.0,0.48996527777777776,16,42,0,7,0,0.2
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},2,3.68,184.0,29,8,13004.0,42308.0,0.5066203703703704,18,40,0,4,0,0.12222222222222222
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},3,2.31,199.5,31,8,16292.0,46606.0,0.45687500000000003,20,40,0,8,0,0.06741573033707865
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},4,3.21,183.0,26,7,11462.0,46511.0,0.4577893518518519,18,42,0,6,0,0.13793103448275862
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},5,3.13,134.5,22,4,9551.0,44230.0,0.483912037037037,17,45,0,8,0,0.13186813186813187
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},6,2.31,140.0,25,4,7676.0,43147.0,0.49635416666666665,20,46,0,7,0,0.14285714285714285
+E:priced:in_scenario,THRESHOLD_EDD,adverse,{'threshold_h': 200.0},7,3.03,171.5,25,8,9542.0,44209.0,0.48406249999999995,20,46,0,5,0,0.12222222222222222
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},0,3.01,151.0,37,4,26074.0,43792.0,0.490462962962963,18,29,0,7,0,0.3764705882352941
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},1,3.42,207.0,40,8,29736.0,43441.0,0.49498842592592596,16,24,0,8,0,0.3625
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},2,3.25,224.5,37,11,26982.0,41968.0,0.5116666666666667,16,28,0,10,0,0.2976190476190476
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},3,3.2,204.0,35,8,22046.0,45929.0,0.46554398148148146,18,31,0,6,0,0.35714285714285715
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},4,3.62,232.5,39,10,24116.0,45609.0,0.4694328703703704,19,29,0,4,0,0.25925925925925924
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},5,3.05,149.0,35,5,24907.0,43712.0,0.4913888888888889,16,29,0,7,0,0.325
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},6,3.15,160.0,35,5,28371.0,43586.0,0.4927546296296297,17,30,0,10,0,0.26666666666666666
+E:priced:in_base,THRESHOLD_EDD,adverse,{'threshold_h': 100.0},7,3.78,219.5,44,9,28984.0,44201.0,0.48637731481481483,19,22,0,11,0,0.23170731707317074
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},0,3.43,203.0,55,8,33666.0,43636.0,0.49356481481481485,19,15,0,1,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},1,3.68,257.5,53,11,33161.0,44051.0,0.4885763888888889,18,17,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},2,3.67,309.0,54,18,32097.0,41550.0,0.5177083333333333,18,15,0,0,0,0.02040816326530612
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},3,3.95,289.0,55,14,35541.0,46687.0,0.45825231481481477,19,15,0,2,0,0.01
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},4,4.19,291.0,57,12,35974.0,46146.0,0.46488425925925925,17,11,0,1,0,0.030303030303030304
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},5,3.42,212.0,52,8,33980.0,43978.0,0.4895138888888889,17,16,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},6,3.74,237.5,56,10,33977.0,44639.0,0.4818634259259259,21,16,0,0,0,0.0
+E:priced:in_scenario,FIXED_INTERVAL,adverse,{'interval_age_cycles': 70},7,3.72,246.0,54,9,33692.0,44655.0,0.4816782407407407,19,16,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},0,3.11,223.5,59,9,32710.0,42713.0,0.5046180555555555,19,11,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},1,3.57,264.5,56,11,34638.0,44066.0,0.48886574074074074,17,12,0,1,0,0.0
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},2,3.33,294.5,56,15,30968.0,40511.0,0.5299189814814815,18,13,0,0,0,0.01
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},3,3.5,305.5,59,15,34560.0,45155.0,0.4762615740740741,20,12,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},4,3.42,311.5,59,14,36150.0,45353.0,0.47424768518518523,17,9,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},5,2.83,228.0,57,9,33436.0,43065.0,0.5005439814814815,17,11,0,0,0,0.0
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},6,3.45,249.5,60,11,33829.0,42858.0,0.5029398148148148,20,11,0,1,0,0.01
+E:priced:in_base,FIXED_INTERVAL,adverse,{'interval_age_cycles': 130},7,2.58,268.0,59,11,33118.0,43625.0,0.49406249999999996,19,11,0,2,0,0.010101010101010102
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,3.4,120.6,24,0,6159.0,44456.0,0.47761574074074076,20,47,151,3,0,0.30612244897959184
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,2.66,137.9,25,0,12860.0,42384.0,0.5015740740740741,18,44,164,1,0,0.25806451612903225
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.54,162.0,29,2,14079.0,41834.0,0.5088657407407408,17,40,140,1,0,0.2828282828282828
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.74,149.3,25,1,9654.0,46888.0,0.4497685185185185,20,47,138,2,0,0.24175824175824176
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.76,152.9,26,1,12658.0,46485.0,0.45512731481481483,18,43,124,1,0,0.2903225806451613
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.15,115.6,23,0,10826.0,43471.0,0.48910879629629633,17,46,151,2,0,0.2692307692307692
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.73,139.6,24,3,8686.0,44223.0,0.481099537037037,19,46,121,3,0,0.3617021276595745
+E:priced:in_scenario,RISK_GREEDY,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,2.12,128.4,23,0,6035.0,44433.0,0.4781828703703703,20,48,134,1,0,0.2978723404255319
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.42,170.1,41,5,26032.0,44027.0,0.48714120370370373,19,24,46,12,0,0.40229885057471265
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,1.89,190.1,34,7,28749.0,42639.0,0.5026504629629629,15,30,46,8,0,0.3076923076923077
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,1.94,224.9,41,10,29567.0,41831.0,0.5126041666666667,16,24,44,9,0,0.26436781609195403
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,2.07,210.2,38,7,23646.0,45692.0,0.4673842592592593,18,29,47,7,0,0.4050632911392405
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,2.02,233.5,43,8,29448.0,45643.0,0.46846064814814814,19,24,45,4,0,0.3875
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,2.36,166.3,38,5,27863.0,43806.0,0.4895138888888889,18,28,38,9,0,0.40476190476190477
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,2.01,185.7,40,7,29684.0,43178.0,0.4969444444444444,16,24,47,8,0,0.379746835443038
+E:priced:in_base,RISK_GREEDY,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,2.84,190.1,39,6,25511.0,44070.0,0.48659722222222224,18,27,36,8,0,0.367816091954023
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,2.26,145.6,25,4,9362.0,44736.0,0.4746527777777778,20,44,151,5,0,0.36082474226804123
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,3.2,158.2,22,4,7084.0,44251.0,0.4799189814814815,18,45,162,6,0,0.5050505050505051
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,2.46,177.1,26,6,10938.0,43174.0,0.4933564814814815,17,41,136,3,0,0.4166666666666667
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,3.41,188.4,25,7,9690.0,48204.0,0.43500000000000005,19,43,134,9,0,0.4845360824742268
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,3.24,175.4,25,5,12022.0,46927.0,0.4500115740740741,18,43,124,3,0,0.41304347826086957
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,3.17,139.9,23,3,12499.0,45552.0,0.46546296296296297,17,43,144,1,0,0.5436893203883495
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,3.25,147.3,24,4,7762.0,44541.0,0.4777662037037037,19,43,118,9,0,0.46464646464646464
+E:priced:in_scenario,RISK_EDD,adverse,"{'decision_horizon_h': 150.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,2.81,178.8,24,6,6660.0,45269.0,0.4687152777777778,20,46,133,9,0,0.36893203883495146
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",0,2.87,166.1,30,6,13413.0,43118.0,0.49564814814814817,18,37,81,3,0,0.47674418604651164
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",1,2.56,155.7,25,4,19335.0,43576.0,0.4902546296296296,15,39,77,7,0,0.43617021276595747
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",2,2.71,205.7,34,8,21188.0,42010.0,0.5091435185185185,17,32,72,9,0,0.35294117647058826
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",3,2.67,187.6,29,7,14706.0,46525.0,0.45633101851851854,18,37,76,4,0,0.37362637362637363
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",4,2.72,189.3,30,6,14634.0,46017.0,0.46207175925925925,19,38,78,4,0,0.41379310344827586
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",5,2.68,150.8,28,5,19000.0,43375.0,0.4925347222222223,16,38,83,4,0,0.47674418604651164
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",6,2.51,176.4,31,7,25440.0,43384.0,0.49310185185185185,16,33,74,10,0,0.449438202247191
+E:priced:in_base,RISK_EDD,adverse,"{'decision_horizon_h': 100.0, 'p_inspect': 0.1, 'p_urgent': 0.3}",7,3.01,188.4,33,6,19782.0,43957.0,0.4863078703703704,20,36,69,9,0,0.4090909090909091
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",0,49.87,194.7,46,6,6177.0,42511.0,0.5050347222222222,18,20,47,6,0,0.47058823529411764
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",1,43.33,246.5,44,11,10246.0,42477.0,0.505474537037037,16,20,45,6,0,0.6265060240963856
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",2,48.28,249.9,44,11,18737.0,41440.0,0.5174074074074074,16,21,44,5,0,0.6555555555555556
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",3,47.66,263.2,46,12,16679.0,45802.0,0.4669444444444445,18,20,47,8,0,0.6022727272727273
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",4,53.38,313.5,50,17,16413.0,45349.0,0.47251157407407407,19,17,45,6,0,0.6470588235294118
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",5,43.59,249.8,44,14,8186.0,43546.0,0.4931712962962963,17,21,38,9,0,0.6629213483146067
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",6,49.56,275.7,52,14,9102.0,42589.0,0.5046875,18,14,47,8,0,0.6206896551724138
+E:priced:in_base,RISK_MILP,adverse,"{'decision_horizon_h': 60.0, 'p_inspect': 0.05, 'p_urgent': 0.2}",7,44.1,268.1,49,12,11419.0,43649.0,0.4922106481481482,20,19,36,10,0,0.648936170212766
+E:none,RUN_TO_FAILURE,base,{},0,0.54,385.0,111,16,5149.0,5283.0,0.9388541666666667,5,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,base,{},1,0.5,461.5,105,19,4804.0,4807.0,0.9443634259259259,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,base,{},2,0.52,545.5,110,28,5009.0,5013.0,0.9419791666666667,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,base,{},3,0.44,541.5,109,28,5049.0,5086.0,0.9411342592592593,2,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,base,{},4,0.56,563.5,110,26,5013.0,5054.0,0.9415046296296297,4,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,base,{},5,0.55,432.0,112,19,4856.0,5007.0,0.9420486111111112,4,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,base,{},6,0.53,437.0,112,19,5143.0,5153.0,0.9403587962962963,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,base,{},7,0.57,479.5,109,21,5007.0,5040.0,0.9416666666666667,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},0,1.04,347.0,102,14,12567.0,12678.0,0.8532638888888888,3,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},1,0.69,446.0,102,18,9679.0,9930.0,0.8850694444444445,2,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},2,0.65,527.5,107,27,9821.0,10259.0,0.8812615740740741,6,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},3,0.59,501.0,104,25,9546.0,9902.0,0.8853935185185186,5,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},4,0.6,502.0,100,22,10888.0,10888.0,0.8739814814814815,0,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},5,0.39,392.5,102,17,8384.0,8448.0,0.9022222222222223,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},6,0.5,411.5,105,19,9252.0,9588.0,0.8890277777777778,6,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,tight_labour,{},7,0.52,466.5,103,22,9938.0,10018.0,0.8840509259259259,2,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},0,0.4,365.5,107,15,5915.0,5969.0,0.9309143518518519,2,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},1,0.48,461.5,105,19,5000.0,5001.0,0.9421180555555555,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},2,0.52,545.5,110,28,5517.0,5521.0,0.9360995370370371,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},3,0.48,541.5,109,28,5147.0,5184.0,0.94,2,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},4,0.53,559.5,109,26,5521.0,5537.0,0.9359143518518519,3,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},5,0.42,425.5,111,19,5002.0,5111.0,0.9408449074074074,3,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},6,0.4,450.0,111,21,5396.0,5451.0,0.9369097222222222,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_tight,{},7,0.45,485.5,109,22,5579.0,5588.0,0.935324074074074,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},0,4.13,193.0,55,8,32000.0,51518.0,0.40372685185185186,23,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},1,4.58,244.0,56,10,30339.0,51758.0,0.4009490740740741,24,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},2,2.77,272.0,53,15,36700.0,52138.0,0.3965509259259259,19,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},3,3.32,280.5,56,14,32832.0,54251.0,0.37209490740740736,24,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},4,2.95,277.5,53,13,33695.0,55234.0,0.3607175925925926,21,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},5,4.07,220.0,55,10,31904.0,51992.0,0.3982407407407408,22,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},6,3.56,218.5,54,10,34237.0,51851.0,0.39987268518518515,20,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,parts_shortage,{},7,2.94,241.5,56,10,31863.0,51840.0,0.4,23,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},0,0.33,385.0,111,16,5149.0,5283.0,0.9388541666666667,5,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},1,0.39,461.5,105,19,4804.0,4807.0,0.9443634259259259,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},2,0.33,545.5,110,28,5009.0,5013.0,0.9419791666666667,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},3,0.36,541.5,109,28,5049.0,5086.0,0.9411342592592593,2,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},4,0.42,563.5,110,26,5013.0,5054.0,0.9415046296296297,4,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},5,0.43,432.0,112,19,4856.0,5007.0,0.9420486111111112,4,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},6,0.43,437.0,112,19,5143.0,5153.0,0.9403587962962963,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,degraded_predictions,{},7,0.4,479.5,109,21,5007.0,5040.0,0.9416666666666667,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},0,0.34,385.0,111,16,5149.0,5283.0,0.9388541666666667,5,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},1,0.42,461.5,105,19,4804.0,4807.0,0.9443634259259259,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},2,0.46,545.5,110,28,5009.0,5013.0,0.9419791666666667,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},3,0.51,541.5,109,28,5049.0,5086.0,0.9411342592592593,2,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},4,0.47,563.5,110,26,5013.0,5054.0,0.9415046296296297,4,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},5,0.4,432.0,112,19,4856.0,5007.0,0.9420486111111112,4,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},6,0.35,437.0,112,19,5143.0,5153.0,0.9403587962962963,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,approval_delay,{},7,0.38,479.5,109,21,5007.0,5040.0,0.9416666666666667,1,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},0,1.96,225.5,66,9,33531.0,42393.0,0.5093402777777778,18,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},1,1.84,279.5,64,11,32661.0,42436.0,0.5088425925925926,16,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},2,2.58,333.0,65,18,34589.0,40850.0,0.5271990740740741,15,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},3,2.94,322.5,66,16,35307.0,45261.0,0.4761458333333334,18,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},4,2.06,335.5,67,15,36072.0,45298.0,0.4757175925925926,19,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},5,1.66,253.0,64,12,32952.0,42712.0,0.5056481481481481,16,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},6,1.94,263.5,66,12,33730.0,41979.0,0.5141319444444444,17,0,0,0,0,0.0
+E:none,RUN_TO_FAILURE,adverse,{},7,2.04,306.0,68,14,32425.0,42719.0,0.5055671296296296,19,0,0,0,0,0.0
