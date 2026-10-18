@@ -1,0 +1,202 @@
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop baseline --subset FD001
+[FD001] HGBR RMSE capped 14.17 raw 15.37 PHM08 327.8 | RF 14.55 | naive 41.94 | CV all-rows 14.75 random-trunc 16.63 last-cycle(leaky) 2.53 | 57.5 s
+  -> exit 0 in 60 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop baseline --subset FD002
+[FD002] HGBR RMSE capped 14.92 raw 26.99 PHM08 1027.7 | RF 15.17 | naive 44.93 | CV all-rows 15.32 random-trunc 15.71 last-cycle(leaky) 3.49 | 206.5 s
+  -> exit 0 in 209 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop baseline --subset FD003
+[FD003] HGBR RMSE capped 13.57 raw 15.32 PHM08 356.0 | RF 15.22 | naive 43.70 | CV all-rows 11.94 random-trunc 12.40 last-cycle(leaky) 2.98 | 70.8 s
+  -> exit 0 in 74 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop baseline --subset FD004
+[FD004] HGBR RMSE capped 15.15 raw 26.89 PHM08 1140.2 | RF 16.23 | naive 45.57 | CV all-rows 15.00 random-trunc 15.59 last-cycle(leaky) 6.87 | 254.4 s
+  -> exit 0 in 257 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop run --subset FD001 --stream-units 5
+[FD001] loading and preparing data
+[FD001] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD001] fitting anomaly detector and drift monitor on training data
+[FD001] running the Triage Agent on 100 test engines (batch) and 5 engines (stream); max_width 80.3
+[FD001] done in 36.6 s: HGBR RMSE 14.17 capped / 15.37 raw, PICP 0.940, MPIW 64.2, orders 40, escalation share 0.16
+artefacts in artifacts/<subset>/ ; audit logs artifacts/audit/decisions_<subset>.jsonl ; SQLite artifacts/sentinelloop.db ; MLflow sqlite:///artifacts/mlflow.db (paths are relative to the current directory: run from the project root)
+  -> exit 0 in 40 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop run --subset FD002 --stream-units 5
+[FD002] loading and preparing data
+[FD002] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD002] fitting anomaly detector and drift monitor on training data
+[FD002] running the Triage Agent on 259 test engines (batch) and 5 engines (stream); max_width 96.6
+[FD002] done in 45.2 s: HGBR RMSE 14.92 capped / 26.99 raw, PICP 0.892, MPIW 66.4, orders 67, escalation share 0.19
+artefacts in artifacts/<subset>/ ; audit logs artifacts/audit/decisions_<subset>.jsonl ; SQLite artifacts/sentinelloop.db ; MLflow sqlite:///artifacts/mlflow.db (paths are relative to the current directory: run from the project root)
+  -> exit 0 in 48 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop run --subset FD003 --stream-units 5
+[FD003] loading and preparing data
+[FD003] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD003] fitting anomaly detector and drift monitor on training data
+[FD003] running the Triage Agent on 100 test engines (batch) and 5 engines (stream); max_width 116.1
+[FD003] done in 36.3 s: HGBR RMSE 13.57 capped / 15.32 raw, PICP 0.920, MPIW 71.6, orders 25, escalation share 0.10
+artefacts in artifacts/<subset>/ ; audit logs artifacts/audit/decisions_<subset>.jsonl ; SQLite artifacts/sentinelloop.db ; MLflow sqlite:///artifacts/mlflow.db (paths are relative to the current directory: run from the project root)
+  -> exit 0 in 40 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe -m sentinelloop run --subset FD004 --stream-units 5
+[FD004] loading and preparing data
+[FD004] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD004] fitting anomaly detector and drift monitor on training data
+[FD004] running the Triage Agent on 248 test engines (batch) and 5 engines (stream); max_width 80.5
+[FD004] done in 44.8 s: HGBR RMSE 15.15 capped / 26.89 raw, PICP 0.847, MPIW 54.4, orders 73, escalation share 0.08
+artefacts in artifacts/<subset>/ ; audit logs artifacts/audit/decisions_<subset>.jsonl ; SQLite artifacts/sentinelloop.db ; MLflow sqlite:///artifacts/mlflow.db (paths are relative to the current directory: run from the project root)
+  -> exit 0 in 48 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e1_policy_replay.py --subsets FD001 FD002 FD003 FD004
+=== E1 FD001 ===
+[FD001] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 2.11)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.65)
+  fold 3/5: 20 engines predicted out of fold (qhat 7.07)
+  fold 4/5: 20 engines predicted out of fold (qhat 10.39)
+  fold 5/5: 20 engines predicted out of fold (qhat 1.71)
+[FD001] OOF done in 29 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD001_full.csv
+=== E1 FD002 ===
+[FD002] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 52 engines predicted out of fold (qhat 1.67)
+  fold 2/5: 52 engines predicted out of fold (qhat 2.06)
+  fold 3/5: 52 engines predicted out of fold (qhat 0.92)
+  fold 4/5: 52 engines predicted out of fold (qhat 4.34)
+  fold 5/5: 52 engines predicted out of fold (qhat 1.83)
+[FD002] OOF done in 40 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD002_full.csv
+=== E1 FD003 ===
+[FD003] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 6.37)
+  fold 2/5: 20 engines predicted out of fold (qhat 1.47)
+  fold 3/5: 20 engines predicted out of fold (qhat 4.30)
+  fold 4/5: 20 engines predicted out of fold (qhat 2.98)
+  fold 5/5: 20 engines predicted out of fold (qhat 5.93)
+[FD003] OOF done in 29 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD003_full.csv
+=== E1 FD004 ===
+[FD004] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 50 engines predicted out of fold (qhat 0.36)
+  fold 2/5: 50 engines predicted out of fold (qhat 1.75)
+  fold 3/5: 50 engines predicted out of fold (qhat 1.38)
+  fold 4/5: 50 engines predicted out of fold (qhat 1.35)
+  fold 5/5: 49 engines predicted out of fold (qhat 0.93)
+[FD004] OOF done in 38 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD004_full.csv
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e1_policy_replay
+H1 primary (pre-registered): (i) late rate C<A at equal threshold on 1/4 subsets (informative, i.e. any late orders at T=25, on 1/4); (ii) discarded life C<=B at matched late rate on 4/4 subsets; criterion (>=3/4 on both): NOT SUPPORTED. Secondary frontier (A-family vs C-family at matched late-rate targets [0.0, 0.025, 0.05, 0.1]): C better-or-equal on both metrics in 3/16 target points, C dominated in 3/16.
+  -> exit 0 in 251 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e2_abstention.py --subsets FD001 FD002 FD003 FD004
+=== E2 FD001 ===
+=== E2 FD002 ===
+=== E2 FD003 ===
+=== E2 FD004 ===
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e2_abstention
+H2: error rate among acted-upon engines is >=20% lower than among all engines with escalation share <=25% on 0/4 subsets. Pre-registered criterion (>=3/4): NOT SUPPORTED.
+  -> exit 0 in 5 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e5_decision_vs_rmse.py --subsets FD001 FD002 FD003 FD004
+=== E5 FD001 ===
+[FD001] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 2.11)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.65)
+  fold 3/5: 20 engines predicted out of fold (qhat 7.07)
+  fold 4/5: 20 engines predicted out of fold (qhat 10.39)
+  fold 5/5: 20 engines predicted out of fold (qhat 1.71)
+[FD001] OOF done in 153 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD001_full_bl.csv
+=== E5 FD002 ===
+[FD002] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 52 engines predicted out of fold (qhat 1.67)
+  fold 2/5: 52 engines predicted out of fold (qhat 2.06)
+  fold 3/5: 52 engines predicted out of fold (qhat 0.92)
+  fold 4/5: 52 engines predicted out of fold (qhat 4.34)
+  fold 5/5: 52 engines predicted out of fold (qhat 1.83)
+[FD002] OOF done in 542 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD002_full_bl.csv
+=== E5 FD003 ===
+[FD003] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 6.37)
+  fold 2/5: 20 engines predicted out of fold (qhat 1.47)
+  fold 3/5: 20 engines predicted out of fold (qhat 4.30)
+  fold 4/5: 20 engines predicted out of fold (qhat 2.98)
+  fold 5/5: 20 engines predicted out of fold (qhat 5.93)
+[FD003] OOF done in 196 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD003_full_bl.csv
+=== E5 FD004 ===
+[FD004] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 50 engines predicted out of fold (qhat 0.36)
+  fold 2/5: 50 engines predicted out of fold (qhat 1.75)
+  fold 3/5: 50 engines predicted out of fold (qhat 1.38)
+  fold 4/5: 50 engines predicted out of fold (qhat 1.35)
+  fold 5/5: 49 engines predicted out of fold (qhat 0.93)
+[FD004] OOF done in 689 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD004_full_bl.csv
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e5_decision_vs_rmse
+H5: an RMSE-vs-decision-metric inversion exists on 4/4 subsets. Pre-registered criterion (at least one): SUPPORTED.
+  -> exit 0 in 1604 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e3_stress.py --subsets FD001 FD002 FD003 FD004
+=== E3 FD001 ===
+=== E3 FD002 ===
+=== E3 FD003 ===
+=== E3 FD004 ===
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e3_stress
+H3 pre-registered faults fully passing (detect>=0.90, false-alarm<=0.05, silent-wrong-order reduced>=50%): 3/4. Per fault: bias2s: detect FAIL, false-alarm ok, silent-wrong-order ok; bias3s: detect FAIL, false-alarm ok, silent-wrong-order ok; missing20: detect ok, false-alarm ok, silent-wrong-order ok; noise3s: detect ok, false-alarm ok, silent-wrong-order ok; regime_shift: detect ok, false-alarm ok, silent-wrong-order ok. bias3s is a secondary row (added after the fast diagnostic). Fleet-level drift alarms are reported separately.
+  -> exit 0 in 83 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e4_retrain_gate.py --subsets FD001 FD002 FD003 FD004
+=== E4 FD001 ===
+[FD001] champion on 50 engines; validation 20; new data 30
+[FD001] A_accept_more_data: REJECT (expected PROMOTE) rmse 16.50->16.41 picp 0.950->0.780 late@10 0.000->0.000 ['picp 0.780 < 0.85']
+[FD001] B_reject_corrupted_data: REJECT (expected REJECT) rmse 16.50->17.80 picp 0.950->0.760 late@10 0.000->0.000 ['rmse 17.799 > 16.826 (champion 16.496 + 2%)', 'picp 0.760 < 0.85']
+[FD001] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD002 ===
+[FD002] champion on 130 engines; validation 52; new data 78
+[FD002] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 15.05->15.21 picp 0.923->0.904 late@10 0.000->0.000 []
+[FD002] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 15.05->15.26 picp 0.923->0.904 late@10 0.000->0.000 []
+[FD002] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD003 ===
+[FD003] champion on 50 engines; validation 20; new data 30
+[FD003] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 14.39->13.68 picp 0.940->0.930 late@10 0.000->0.000 []
+[FD003] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 14.39->12.98 picp 0.940->0.870 late@10 0.000->0.000 []
+[FD003] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD004 ===
+[FD004] champion on 124 engines; validation 50; new data 75
+[FD004] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 19.30->18.03 picp 0.944->0.892 late@10 0.000->0.020 []
+[FD004] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 19.30->18.53 picp 0.944->0.868 late@10 0.000->0.020 []
+[FD004] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e4_retrain_gate
+H4 gates: 4/8 scenario outcomes as expected (accept on more data, reject on corrupted data). Drift trigger: regime-shift and bias alarms fired and <=1 false alarm in 20 clean windows on all subsets: True. Pre-registered criterion: NOT SUPPORTED.
+  -> exit 0 in 169 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e4_retrain_gate.py --subsets FD001 FD002 FD003 FD004 --val-rows 20 --label-corruption --out e4_retrain_gate_secondary
+=== E4 FD001 ===
+[FD001] champion on 50 engines; validation 20; new data 30
+[FD001] A_accept_more_data: REJECT (expected PROMOTE) rmse 15.16->14.96 picp 0.975->0.830 late@10 0.000->0.000 ['picp 0.830 < 0.85']
+[FD001] B_reject_corrupted_data: REJECT (expected REJECT) rmse 15.16->15.69 picp 0.975->0.802 late@10 0.000->0.000 ['rmse 15.688 > 15.460 (champion 15.157 + 2%)', 'picp 0.802 < 0.85']
+[FD001] B2_reject_label_corruption: REJECT (expected REJECT) rmse 15.16->19.90 picp 0.975->0.775 late@10 0.000->0.000 ['rmse 19.898 > 15.460 (champion 15.157 + 2%)', 'picp 0.775 < 0.85']
+[FD001] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD002 ===
+[FD002] champion on 130 engines; validation 52; new data 78
+[FD002] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 16.35->16.15 picp 0.938->0.906 late@10 0.000->0.000 []
+[FD002] B_reject_corrupted_data: REJECT (expected REJECT) rmse 16.35->16.80 picp 0.938->0.899 late@10 0.000->0.000 ['rmse 16.797 > 16.675 (champion 16.348 + 2%)']
+[FD002] B2_reject_label_corruption: REJECT (expected REJECT) rmse 16.35->20.82 picp 0.938->0.895 late@10 0.000->0.000 ['rmse 20.819 > 16.675 (champion 16.348 + 2%)']
+[FD002] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD003 ===
+[FD003] champion on 50 engines; validation 20; new data 30
+[FD003] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 14.17->13.65 picp 0.905->0.912 late@10 0.000->0.000 []
+[FD003] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 14.17->13.18 picp 0.905->0.885 late@10 0.000->0.000 []
+[FD003] B2_reject_label_corruption: REJECT (expected REJECT) rmse 14.17->19.33 picp 0.905->0.738 late@10 0.000->0.100 ['rmse 19.328 > 14.448 (champion 14.165 + 2%)', 'picp 0.738 < 0.85', 'late_rate 0.100 > 0.020 (champion 0.000 + 0.02)']
+[FD003] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD004 ===
+[FD004] champion on 124 engines; validation 50; new data 75
+[FD004] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 17.78->16.18 picp 0.953->0.853 late@10 0.000->0.020 []
+[FD004] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 17.78->16.71 picp 0.953->0.857 late@10 0.000->0.020 []
+[FD004] B2_reject_label_corruption: REJECT (expected REJECT) rmse 17.78->20.65 picp 0.953->0.775 late@10 0.000->0.160 ['rmse 20.653 > 18.138 (champion 17.783 + 2%)', 'picp 0.775 < 0.85', 'late_rate 0.160 > 0.020 (champion 0.000 + 0.02)']
+[FD004] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e4_retrain_gate_secondary
+H4 gates: 9/12 scenario outcomes as expected (accept on more data, reject on corrupted data). Drift trigger: regime-shift and bias alarms fired and <=1 false alarm in 20 clean windows on all subsets: True. Pre-registered criterion: NOT SUPPORTED.
+  -> exit 0 in 213 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e6_audit_check.py
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e6_audit_check
+H6: 3409 decisions across 4 subset logs re-derived with 0 mismatches; chains valid True; tampering detected in every log True; 205 work orders carry model version and severity: True. SUPPORTED.
+  -> exit 0 in 3 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e7_ablation.py --subsets FD001 FD004
+=== E7 FD001 ===
+=== E7 FD004 ===
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e7_ablation
+Ablation table: each row removes or adds one component; compare with 'full'. The point-vs-lower-bound columns are the policy ablation.
+  -> exit 0 in 101 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e1_seed_sensitivity.py --subsets FD001 --seeds 42 43 44
+[FD001] seed 42: A@25 late 0.000 disc 25.2 | C@25 late 0.000 disc 40.3 | tuned C 6: late 0.014 disc 14.2 | tuned A 10: late 0.057 disc 10.0 (28.5 s)
+[FD001] seed 43: A@25 late 0.000 disc 24.6 | C@25 late 0.000 disc 40.9 | tuned C 2: late 0.200 disc 12.6 | tuned A 10: late 0.014 disc 10.1 (28.2 s)
+[FD001] seed 44: A@25 late 0.000 disc 25.1 | C@25 late 0.000 disc 41.7 | tuned C 0: late 0.543 disc 17.3 | tuned A 11: late 0.043 disc 11.8 (29.9 s)
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e1_seed_sensitivity
+FD001: over 3 seeds the lower-bound policy discards 15.0-16.6 more cycles than the point policy at T=25 (late rates A 0.000-0.000, C 0.000-0.000); tuned C thresholds 0-6
+  -> exit 0 in 98 s
+ALL DONE in 55.0 min; summaries under experiments/results/<exp>/summary.json

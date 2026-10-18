@@ -1,0 +1,236 @@
+{
+ "hypothesis": "H4",
+ "table": [
+  {
+   "subset": "FD001",
+   "scenario": "A_accept_more_data",
+   "expected": "PROMOTE",
+   "decision": "REJECT",
+   "as_expected": false,
+   "champion_rmse": 16.748232292509478,
+   "challenger_rmse": 16.70134757037496,
+   "champion_picp": 0.97,
+   "challenger_picp": 0.8,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "picp 0.800 < 0.85",
+   "mlflow_run_id": "dcada8f1ebf845a8a484e7452451b13d",
+   "champion_alias_version": 10,
+   "ts": "2026-10-18T03:32:18"
+  },
+  {
+   "subset": "FD001",
+   "scenario": "B_reject_corrupted_data",
+   "expected": "REJECT",
+   "decision": "REJECT",
+   "as_expected": true,
+   "champion_rmse": 16.748232292509478,
+   "challenger_rmse": 17.39766153400825,
+   "champion_picp": 0.97,
+   "challenger_picp": 0.8,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "rmse 17.398 > 17.083 (champion 16.748 + 2%); picp 0.800 < 0.85",
+   "mlflow_run_id": "3bef2eed0dff41aba0b7419081bdeca4",
+   "champion_alias_version": 10,
+   "ts": "2026-10-18T03:32:37"
+  },
+  {
+   "subset": "FD002",
+   "scenario": "A_accept_more_data",
+   "expected": "PROMOTE",
+   "decision": "PROMOTE",
+   "as_expected": true,
+   "champion_rmse": 15.365353719451493,
+   "challenger_rmse": 15.111661751869619,
+   "champion_picp": 0.9192307692307692,
+   "challenger_picp": 0.9076923076923077,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "",
+   "mlflow_run_id": "f93be65077084c3a92eb575e1ac21024",
+   "champion_alias_version": 2,
+   "ts": "2026-10-18T03:33:31"
+  },
+  {
+   "subset": "FD002",
+   "scenario": "B_reject_corrupted_data",
+   "expected": "REJECT",
+   "decision": "PROMOTE",
+   "as_expected": false,
+   "champion_rmse": 15.365353719451493,
+   "challenger_rmse": 15.075957507045501,
+   "champion_picp": 0.9192307692307692,
+   "challenger_picp": 0.9,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "",
+   "mlflow_run_id": "cd08e1231e1241c7a1f870444068e519",
+   "champion_alias_version": 3,
+   "ts": "2026-10-18T03:34:02"
+  },
+  {
+   "subset": "FD003",
+   "scenario": "A_accept_more_data",
+   "expected": "PROMOTE",
+   "decision": "PROMOTE",
+   "as_expected": true,
+   "champion_rmse": 14.130247786983135,
+   "challenger_rmse": 13.796052912529472,
+   "champion_picp": 0.95,
+   "challenger_picp": 0.91,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "",
+   "mlflow_run_id": "eb8d382cb523425ea28c00841318a594",
+   "champion_alias_version": 2,
+   "ts": "2026-10-18T03:34:42"
+  },
+  {
+   "subset": "FD003",
+   "scenario": "B_reject_corrupted_data",
+   "expected": "REJECT",
+   "decision": "PROMOTE",
+   "as_expected": false,
+   "champion_rmse": 14.130247786983135,
+   "challenger_rmse": 12.987974757116072,
+   "champion_picp": 0.95,
+   "challenger_picp": 0.91,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "",
+   "mlflow_run_id": "2a2503c1511349fbb6f2176e0246a1ac",
+   "champion_alias_version": 3,
+   "ts": "2026-10-18T03:34:59"
+  },
+  {
+   "subset": "FD004",
+   "scenario": "A_accept_more_data",
+   "expected": "PROMOTE",
+   "decision": "PROMOTE",
+   "as_expected": true,
+   "champion_rmse": 19.11816749495249,
+   "challenger_rmse": 18.09821280813683,
+   "champion_picp": 0.94,
+   "challenger_picp": 0.872,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "",
+   "mlflow_run_id": "b2399fa972c640849fbd875d6f7a49ac",
+   "champion_alias_version": 2,
+   "ts": "2026-10-18T03:35:50"
+  },
+  {
+   "subset": "FD004",
+   "scenario": "B_reject_corrupted_data",
+   "expected": "REJECT",
+   "decision": "PROMOTE",
+   "as_expected": false,
+   "champion_rmse": 19.11816749495249,
+   "challenger_rmse": 18.32705400097573,
+   "champion_picp": 0.94,
+   "challenger_picp": 0.86,
+   "champion_late_rate": 0.0,
+   "challenger_late_rate": 0.0,
+   "reasons": "",
+   "mlflow_run_id": "5388fe28bc7144d6988c0c557dfe40e2",
+   "champion_alias_version": 3,
+   "ts": "2026-10-18T03:36:09"
+  }
+ ],
+ "drift": {
+  "FD001": {
+   "false_alarms_in_20_clean_windows": 0,
+   "regime_shift_alarm": true,
+   "regime_shift_critical": [
+    "os1",
+    "os2"
+   ],
+   "bias_alarm": true,
+   "bias_severe": [
+    "s2",
+    "s3",
+    "s2_rm",
+    "s3_rm"
+   ],
+   "bias_share": 0.09375
+  },
+  "FD002": {
+   "false_alarms_in_20_clean_windows": 0,
+   "regime_shift_alarm": true,
+   "regime_shift_critical": [
+    "os1",
+    "os2"
+   ],
+   "bias_alarm": true,
+   "bias_severe": [
+    "s2",
+    "s3",
+    "s2_rm",
+    "s3_rm"
+   ],
+   "bias_share": 0.05555555555555555
+  },
+  "FD003": {
+   "false_alarms_in_20_clean_windows": 0,
+   "regime_shift_alarm": true,
+   "regime_shift_critical": [
+    "os1",
+    "os2"
+   ],
+   "bias_alarm": true,
+   "bias_severe": [
+    "s2",
+    "s3",
+    "s2_rm",
+    "s3_rm"
+   ],
+   "bias_share": 0.14705882352941177
+  },
+  "FD004": {
+   "false_alarms_in_20_clean_windows": 0,
+   "regime_shift_alarm": true,
+   "regime_shift_critical": [
+    "os1",
+    "os2"
+   ],
+   "bias_alarm": true,
+   "bias_severe": [
+    "s2",
+    "s3",
+    "s2_rm",
+    "s3_rm"
+   ],
+   "bias_share": 0.05555555555555555
+  }
+ },
+ "champion_metrics": {
+  "FD001": {
+   "rmse": 16.748232292509478,
+   "picp": 0.97,
+   "late_rate": 0.0,
+   "mpiw": 62.85287299956933
+  },
+  "FD002": {
+   "rmse": 15.365353719451493,
+   "picp": 0.9192307692307692,
+   "late_rate": 0.0,
+   "mpiw": 49.92375122731471
+  },
+  "FD003": {
+   "rmse": 14.130247786983135,
+   "picp": 0.95,
+   "late_rate": 0.0,
+   "mpiw": 52.47886437401871
+  },
+  "FD004": {
+   "rmse": 19.11816749495249,
+   "picp": 0.94,
+   "late_rate": 0.0,
+   "mpiw": 60.98939731699793
+  }
+ },
+ "conclusion": "H4 gates: 4/8 scenario outcomes as expected (accept on more data, reject on corrupted data). Drift trigger: regime-shift and bias alarms fired and <=1 false alarm in 20 clean windows on all subsets: True. Pre-registered criterion: NOT SUPPORTED.",
+ "fast": false,
+ "generated": "2026-10-18T03:36:10"
+}

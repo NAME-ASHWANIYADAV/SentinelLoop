@@ -1,0 +1,384 @@
+{
+ "case_id": 5,
+ "case_title": "Natural Language Vehicle Information using On-Device SLM/LLM (VehicleGPT)",
+ "web_research_performed": true,
+ "problem_interpretation": "WHAT THE PDF ACTUALLY ASKS (source_derived_requirement, from cs5.md, verbatim-faithful transcription of the 3-page PDF):\n- Problem: an in-vehicle (no cloud) SLM/LLM that \"continuously consumes vehicle data streams, events, and logs, making them searchable through natural language queries\", acting as an \"intelligent vehicle assistant\" that understands questions, retrieves vehicle information, identifies trends and anomalies, and presents understandable explanations.\n- Intended users (from Evaluation Criteria): drivers, service engineers, fleet operators, validation teams. The five example queries are the de-facto acceptance tests: range reduction over two weeks; largest fuel-efficiency drop; ADAS disengagement events from yesterday; what happened before a battery-overheating warning; city vs highway energy comparison.\n- Key points to address: (a) how driving scenarios and error-condition SEQUENCES are recreated (CARLA \"or other vehicle driving simulation or simulated/recorded data\" - recorded/simulated data is explicitly allowed); (b) vehicle data collection from CAN/CAN-FD, SOME/IP, Android Vehicle HAL, QNX services/logs, ADAS, camera feeds, diagnostic logs; (c) how real-time and historical data are retained.\n- Hard constraints: no cloud dependency; model must be designed to run on ~2 GB RAM, ~2 ARM A5X cores (demonstration platforms allowed: automotive ARM boards, Raspberry Pi 4/5 with AI HAT, cuttlefish, QEMU, AWS Graviton \"or equivalent\"); architecture must achieve <2 s response for common queries; history searchable for \"at least several weeks\"; safety-critical functions isolated from the AI system.\n- Expected output is explicitly ARCHITECTURE/DESIGN deliverables with engineering justification: high-level architecture, data collection strategy, SLM/LLM selection rationale, search & retrieval workflow, historical storage approach, edge deployment architecture, user interaction design. A working prototype is implied (\"could be used to demonstrate\"; Edge Performance = memory footprint + query latency) but not mandated.\n- Evaluation criteria (NO weights given; must be treated unweighted): System Architecture; AI Capability; Data Integration; Search & Analytics; Edge Performance; Privacy & Security; Innovation & Practicality.\n- No dataset, no round-wise deliverables, no suggested tools, no weights are given (verified against transcription).\n\nINTERPRETATION RISKS: (1) \"~2 ARM A5X cores\" most plausibly means Cortex-A5x-class (A53/A55) little cores, which are much weaker than a Pi 5's A76 - any latency numbers measured on a Pi 5 flatter the result; honest scaling (cgroup cpuset to 2 cores, or Pi 4 A72) is needed. (2) \"AI HAT\" on Pi: only the AI HAT+ 2 (Hailo-10H) runs LLMs; Hailo-8/8L AI HAT+ does NOT (verified on raspberrypi.com). (3) \"continuously consumes\" implies live ingestion, not batch CSV upload. (4) Camera feeds and QNX are listed as sources but cannot be demonstrated for real by a student team; they must be treated as adapter interfaces with explicit scope statements. (5) \"Accuracy of responses\" is a criterion but no benchmark is supplied - the team must create and publish its own labelled query set or judges have nothing to verify.",
+ "top_concepts": [
+  {
+   "name": "Concept A - 'Parser-not-Answerer' Grounded Query Engine (LLM compiles NL to structured queries; deterministic engine answers; evidence-cited)",
+   "summary": "A tiny SLM (Qwen2.5-0.5B/1.5B-Instruct Q4 via llama.cpp with JSON-schema-constrained output) is used ONLY to translate a question into a typed query plan (intent, signals, time window, aggregation, comparison). A deterministic analytics layer executes the plan over a tiered local store (SQLite/DuckDB: 1 Hz raw for 48 h, 1-minute aggregates for 8+ weeks, event table with FTS5) and returns numbers, event IDs and trend/anomaly findings with evidence rows. The answer is rendered from templates (optionally narrated by the SLM afterwards, streamed, with a numeric-consistency checker). A regex/embedding fast-path handles the most common query shapes with zero LLM tokens. Data arrives through a pluggable adapter bus: real SocketCAN vcan replay (ROAD candump logs / comma2k19 + opendbc DBC via python-can + cantools), a scenario engine that injects labelled fault sequences, and stub adapters for SOME/IP, VHAL, QNX logs, UDS/DTC.",
+   "why_feasible": "Everything is Python/SQL/REST/React - the team's core skills. Models: Qwen2.5-0.5B-Instruct is Apache-2.0, 0.49B params (verified HF card); community Pi measurements: ~8 tok/s on a 2 GB Pi 4 and ~19 tok/s on Pi 5 (Ollama, community sources). Qwen2.5-1.5B Q4_K_M uses ~1.85 GB RSS on Pi 5 in one benchmark - too tight for 2 GB with everything else, so 0.5B (or Gemma-3-270M for the fast path) is the realistic choice. llama-server exposes response_format json_schema, cache_prompt and per-request timings (verified server README), so sub-2 s is achievable when the LLM emits ~20-40 JSON tokens from a ~150-token cached prompt. VED (Apache-2.0, OBD-II CSVs with fuel rate, HV battery SOC/V/A, speed, OAT, AC power; 383 vehicles, 1 year) directly supports the range/efficiency/city-vs-highway questions over weeks of history.",
+   "weakness": "Breadth of 'Data Integration' (SOME/IP, VHAL, QNX, camera) is only stubbed; an automotive judge can tell. Also 0.5B parsing accuracy on paraphrased queries without fine-tuning is unknown and must be measured (and probably improved via a small LoRA on synthetic pairs)."
+  },
+  {
+   "name": "Concept B - Naive on-device RAG chatbot (embed logs/summaries, retrieve chunks, let a 1B-1.5B model write the answer)",
+   "summary": "Classic RAG: periodically summarise windows of vehicle data into text chunks, embed them with MiniLM, retrieve top-k for a question and let Llama-3.2-1B / Qwen2.5-1.5B generate a free-form answer with a system prompt. Ollama or llama.cpp on a Pi.",
+   "why_feasible": "Fastest to build (LangChain-style, days of work); matches what most tutorials show; demos look conversational.",
+   "weakness": "Fails the 2 s budget on the stated hardware: prompt processing on Pi 5 for a ~1.1B Q4 model is reported around ~100 tok/s (community), so a 1,000-token RAG prompt costs ~10 s before the first token, and far worse on 2 A5x-class cores. Numeric trend questions ('largest drop', 'compare city vs highway') cannot be answered correctly from retrieved text chunks - the model hallucinates numbers. This is exactly the 'generic AI wrapper' judges will penalise and is the likeliest competitor build."
+  },
+  {
+   "name": "Concept C - Fine-tuned text-to-SQL SLM with semantic layer and anomaly detectors (heavier ML variant of A)",
+   "summary": "Fine-tune Qwen2.5-Coder-0.5B/1.5B on a synthetic vehicle text-to-SQL dataset (schema-aware, VSS-named columns), add statistical anomaly detectors (rolling z-score, change-point, DTC correlation) that write 'findings' into the event table, and let the SQL model query both raw and findings tables.",
+   "why_feasible": "Small-model text-to-SQL is a known path (e.g. CscSQL-Merge Qwen2.5-Coder-0.5B reports 56.87% BIRD-dev execution accuracy after SFT+GRPO - community model card). LoRA fine-tuning of a 0.5B model fits a free Colab/Kaggle GPU. Fully local.",
+   "weakness": "Free-form SQL from a 0.5B model is brittle and hard to make safe (must be read-only, bounded cost, validated); more ML effort and GPU time than Concept A for a modest accuracy gain over a constrained query-plan DSL; higher demo fragility. Best used as an upgrade inside Concept A (LoRA on the query-plan JSON), not as the primary architecture."
+  }
+ ],
+ "recommended_concept": {
+  "name": "VehicleGPT-Edge: Grounded Query Engine with LLM-as-Parser, Tiered Local Time-Series Store, Replayable Scenario Engine, and Read-Only Safety Gateway",
+  "description": "Pipeline: (1) INGEST - adapter bus with a canonical signal schema named after COVESA VSS (e.g. Vehicle.Speed, Vehicle.Powertrain.TractionBattery.StateOfCharge; VSS is MPL-2.0, latest release v6.1, Sept 2026 - verified). Adapters: SocketCAN (python-can on vcan0 fed by canplayer replaying ROAD candump logs and comma2k19 raw CAN decoded with the opendbc Honda Civic 2016 DBC via cantools); OBD-II/VED CSV replayer (time-scaled so 1 year of VED weeks can be compressed into a demo); UDS/DTC adapter (udsoncan, MIT) emitting DTC events; stub adapters for SOME/IP (vsomeip, MPL-2.0 - proposed, documented message mapping), Android VHAL (property-ID to VSS mapping; AOSP 16 GRPCVehicleHardware/fake VHAL JSON config as integration point), QNX slog2 text logs, and camera (only derived ADAS events, never frames). All adapters are strictly one-way (read-only gateway; no TX path compiled in; separate process/cgroup/user). (2) STORE - SQLite (stdlib) or DuckDB (aarch64 wheels verified on PyPI 1.5.6) in tiers: 1 Hz raw for 48 h, 1-minute aggregates (min/max/mean/last/count) for 8+ weeks, trip table (city/highway classified by speed profile), event table (ADAS disengagements, warnings, DTCs, detector findings) with FTS5. (3) ANALYZE - scheduled detectors write findings with evidence: rolling z-score and EWMA for range/efficiency, change-point for 'largest drop', pre-event timeline reconstruction (N minutes before any warning), DTC-to-signal correlation. (4) QUERY - Router: tier-0 regex/keyword templates for the 20 most common shapes (0 LLM tokens, <100 ms); tier-1 Qwen2.5-0.5B-Instruct Q4_K_M via llama-server with response_format json_schema producing a QueryPlan {intent, signals[], window, agg, compare_by, event_type}; plan validator (whitelisted signals/intents, bounded windows) -> deterministic executor -> templated answer with evidence IDs; optional tier-2 narration by the same model, streamed after the deterministic answer is already on screen, with a numeric-consistency check that rejects any number not in the evidence set. (5) UI - small React/FastAPI panel with the answer, an evidence drawer (rows/plots), latency and RSS badges, and 'why' explanations. (6) DEPLOY - one container, enforced with --memory=2g --cpus=2 --cpuset-cpus (Docker resource flags verified), on a Raspberry Pi 4/5 if available, otherwise an ARM VM/Graviton-class host with the same cgroup caps; QEMU/Docker-arm64 on x86 only for functional CI, explicitly NOT for latency numbers.",
+  "differentiating_innovation": "The innovation judges can verify: (a) 'LLM compiles, engine answers' - the model never sees raw telemetry and never invents numbers; every answer carries evidence row IDs; (b) a tiered-retention store with a documented bytes/day budget showing several weeks fit on an SD card and query cost stays in milliseconds; (c) a replayable Scenario Engine that injects labelled fault SEQUENCES (battery over-temp build-up, ADAS disengagement bursts, range degradation) into real recorded CAN/OBD streams so anomaly precision/recall and 'what happened before X' can be scored against ground truth; (d) honest Edge Performance evidence: llama-server timings (prompt_ms/predicted_ms), /metrics, peak RSS, p50/p95 latency measured under a 2-core/2 GB cgroup, plus a scaling table (Pi 4 vs Pi 5 vs 2-core cap); (e) a measured baseline-vs-improved comparison against the naive RAG chatbot (Concept B) on the same query set.",
+  "why_this_one": "It maps one-to-one onto every evaluation criterion while staying inside the team's backend/Python/React strengths, needs no paid tools, no GPU (CARLA is explicitly avoided - UE4 docs require ~NVIDIA 2070 / 8 GB VRAM), and produces numbers a skeptical engineer can reproduce. The architecture is the only one of the three that can credibly meet the <2 s constraint on 2 GB / 2 A5x-class cores, which is the criterion most teams will fail or fake."
+ },
+ "resources": [
+  {
+   "claim": "Pi 5 single-prompt benchmark (Ollama, Q4_K_M): llama3.2:1b 11.22 tok/s at 2,416 MB RAM; qwen2.5:1.5b 9.97 tok/s at 1,849 MB; gemma3:1b 11.53 tok/s at 1,394 MB; qwen2.5:3b 5.2 tok/s at 3,026 MB; smollm2:1.7b 8.23 tok/s at 5,318 MB. No prompt-eval or TTFT reported.",
+   "url": "https://stratospherelinuxips.readthedocs.io/en/develop/immune/research_rpi_llm_performance.html",
+   "source_type": "tech report",
+   "establishes": "Realistic generation speed and RSS of 1B-1.5B Q4 models on a Pi 5; shows 1.5B already consumes ~1.85 GB under Ollama (context 8192), so a 2 GB total budget forces 0.5B-1B class or smaller context.",
+   "label": "verified_fact",
+   "limitations": "Ollama, not raw llama.cpp; RAM figures include Ollama runtime and 8k context; Pi 5 (A76) is much faster than A5x-class cores."
+  },
+  {
+   "claim": "qwen2.5:0.5b on a 2 GB Raspberry Pi 4 via Ollama: ~8.0 tokens/s, 0.40 GB model; Pi 5 qwen2.5-0.5b reported at 19.41 tok/s by DFRobot.",
+   "url": "https://simeononsecurity.com/articles/ai-models-raspberry-pi-4-5/",
+   "source_type": "community",
+   "establishes": "Order-of-magnitude generation throughput of the recommended parser model on Pi 4 class hardware.",
+   "label": "unverified_assumption",
+   "limitations": "Community blog measurements, methodology unclear; must be re-measured by the team with llama-bench."
+  },
+  {
+   "claim": "Ubuntu gemma3 inference snap claims Gemma 3 270M averages ~12 tok/s on Pi 4 and ~36 tok/s on Pi 5 (cpu-xsmall engine).",
+   "url": "https://discourse.ubuntu.com/t/call-for-testing-gemma3-inference-snap/73384",
+   "source_type": "community",
+   "establishes": "A 270M model is the fastest viable option for a 2-core budget; candidate for the router/parser fast path.",
+   "label": "unverified_assumption",
+   "limitations": "Vendor-run numbers, runtime and quantization unspecified."
+  },
+  {
+   "claim": "Qwen2.5-0.5B-Instruct: Apache-2.0, 0.49B params (0.36B non-embedding), 32k context, series claims improved structured/JSON output.",
+   "url": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct",
+   "source_type": "dataset card",
+   "establishes": "Permissive licence and size of the primary parser model.",
+   "label": "verified_fact",
+   "limitations": "No per-model function-calling or JSON accuracy numbers on the card."
+  },
+  {
+   "claim": "Qwen2.5-1.5B-Instruct: Apache-2.0, 1.54B params, 32k context.",
+   "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct",
+   "source_type": "dataset card",
+   "establishes": "Fallback larger model for narration if memory allows.",
+   "label": "verified_fact",
+   "limitations": "Card gives no benchmarks."
+  },
+  {
+   "claim": "Llama-3.2-1B-Instruct: gated, Llama 3.2 Community License; 1.23B params; BFCL V2 tool-use 25.7, IFEval 59.5, MMLU 49.3.",
+   "url": "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct",
+   "source_type": "dataset card",
+   "establishes": "Official evidence that 1B-class models are weak at tool calling (25.7 BFCL V2) - supports constraining output with a grammar instead of relying on native tool calling.",
+   "label": "verified_fact",
+   "limitations": "Gated download; custom licence may concern production SDV story."
+  },
+  {
+   "claim": "Gemma-3-270M-it: ~0.3B params, 32k context, IFEval 51.2, Gemma Terms of Use (must accept licence on HF).",
+   "url": "https://huggingface.co/google/gemma-3-270m-it",
+   "source_type": "dataset card",
+   "establishes": "Smallest instruction-tuned candidate; licence is not Apache.",
+   "label": "verified_fact",
+   "limitations": "Low reasoning benchmarks (ARC-c 28.2); only suitable for narrow classification/parsing after fine-tuning."
+  },
+  {
+   "claim": "SmolLM2-360M-Instruct: Apache-2.0; function calling is stated only for the 1.7B variant.",
+   "url": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct",
+   "source_type": "dataset card",
+   "establishes": "Alternative Apache-2.0 sub-0.5B model; not a tool-calling model.",
+   "label": "verified_fact",
+   "limitations": "English-centric; MT-Bench 3.66 vs Qwen2.5-0.5B 4.16."
+  },
+  {
+   "claim": "llama.cpp GBNF grammars and JSON-schema-to-grammar conversion constrain output; llama-server /v1/chat/completions accepts response_format {type: json_schema}; cache_prompt defaults true; responses include timings (prompt_ms, predicted_ms, prompt_n, cache_n, predicted_n); /metrics (Prometheus) with --metrics; slot save/restore.",
+   "url": "https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md",
+   "source_type": "official doc",
+   "establishes": "The exact mechanisms for guaranteed-valid QueryPlan JSON, system-prompt KV caching, and per-query latency instrumentation needed for the Edge Performance criterion.",
+   "label": "verified_fact",
+   "limitations": "JSON schema subset only; schema is not injected into the prompt (must describe it in the prompt)."
+  },
+  {
+   "claim": "GBNF grammar README: schema only constrains output, not injected into prompt; CLI uses --grammar/--grammar-file and -j/--json-schema.",
+   "url": "https://github.com/ggml-org/llama.cpp/blob/master/grammars/README.md",
+   "source_type": "official doc",
+   "establishes": "How to force valid structured output from a tiny model.",
+   "label": "verified_fact",
+   "limitations": "None material."
+  },
+  {
+   "claim": "Vehicle Energy Dataset (VED): Apache-2.0; 383 personal cars (264 ICE, 92 HEV, 27 PHEV/EV), Nov 2017-Nov 2018, ~374k miles; weekly CSVs with Timestamp(ms), lat/lon, speed, MAF, RPM, load, Outside Air Temp, Fuel Rate, AC/heater power, HV battery current/SOC/voltage, fuel trims; static vehicle metadata xlsx.",
+   "url": "https://github.com/gsoh/VED",
+   "source_type": "repo",
+   "establishes": "A permissively licensed, OBD-II-derived dataset with months of history and exactly the signals needed for range, efficiency, battery and city/highway questions.",
+   "label": "verified_fact",
+   "limitations": "Download is a 7z in the repo Data folder (no direct URL on README); sample rate not stated; no ADAS or DTC events - those must be synthesised."
+  },
+  {
+   "claim": "comma2k19: MIT; ~100 GB via Academic Torrents in ~10 GB chunks; includes raw CAN (capnp raw_log.bz2) plus processed numpy arrays (speed, steering angle, wheel speeds, radar), IMU, GNSS, video; a 1-minute sample segment is in the repo; chunks 1-2 RAV4, rest Civic; example code tested on Python 2.7/3.6.",
+   "url": "https://github.com/commaai/comma2k19",
+   "source_type": "repo",
+   "establishes": "Real recorded CAN data for the CAN adapter demo; the sample segment avoids the 100 GB download.",
+   "label": "verified_fact",
+   "limitations": "Highway-only commute; old tooling; raw CAN decoding needs the matching DBC."
+  },
+  {
+   "claim": "opendbc (MIT) ships honda_civic_touring_2016_can.dbc under opendbc/dbc/generator/honda/ (generated full DBCs are produced by a preprocessor); Toyota DBCs in opendbc/dbc/.",
+   "url": "https://github.com/commaai/opendbc",
+   "source_type": "repo",
+   "establishes": "DBC definitions to decode comma2k19 Civic CAN frames with cantools.",
+   "label": "verified_fact",
+   "limitations": "Generated file must be produced by the repo's generator script; exact match to the comma2k19 Civic trim is a technical inference."
+  },
+  {
+   "claim": "ROAD CAN dataset (ORNL): CC BY 4.0; 556.7 MB zip; >3.5 h of one vehicle's CAN in can-utils candump format, signal time-series CSVs for ambient and 17 of 33 attack captures, JSON metadata; includes real fuzzing/fabrication attacks.",
+   "url": "https://zenodo.org/records/10462796",
+   "source_type": "dataset card",
+   "establishes": "Small, permissively licensed CAN logs in candump format, ideal for live replay on vcan0 with canplayer and for anomaly/intrusion-style event demos.",
+   "label": "verified_fact",
+   "limitations": "No DBC; signals are reverse-engineered; attack captures are security anomalies, not powertrain faults."
+  },
+  {
+   "claim": "cantools README shows loading a DBC, encoding/decoding with python-can on a SocketCAN vcan0 bus, and piping candump into cantools decode.",
+   "url": "https://github.com/cantools/cantools",
+   "source_type": "repo",
+   "establishes": "Standard, free toolchain for the CAN adapter.",
+   "label": "verified_fact",
+   "limitations": "vcan requires a Linux kernel with the vcan module (Pi OS has it; WSL2 default kernel may not)."
+  },
+  {
+   "claim": "vsomeip (COVESA, originally BMW) is the open-source SOME/IP implementation, MPL-2.0, C++14 + CMake + Boost.",
+   "url": "https://github.com/COVESA/vsomeip",
+   "source_type": "repo",
+   "establishes": "A real SOME/IP adapter is possible in principle, but it is a C++ build effort - proposed/stubbed rather than demonstrated.",
+   "label": "verified_fact",
+   "limitations": "Significant build effort; no Python bindings in the official repo."
+  },
+  {
+   "claim": "AAOS emulator VHAL: property metadata via *-types-meta.json; reference FakeVehicleHardware loads property config JSON from /vendor/etc/automotive/vhalconfig/; Android 16 adds GRPCVehicleHardware (VHAL proxies to a remote gRPC server); Genymotion tutorial injects VHAL values via gRPC.",
+   "url": "https://source.android.com/docs/automotive/vhal/reference-implementation",
+   "source_type": "official doc",
+   "establishes": "VHAL integration can be designed as a gRPC/JSON property feed mapped to VSS; full AAOS emulator work is optional.",
+   "label": "verified_fact",
+   "limitations": "Running an AAOS/cuttlefish image is heavy (AOSP build or prebuilt images); the team should present this as an adapter spec with a mock VHAL property stream."
+  },
+  {
+   "claim": "Raspberry Pi AI HAT+ (Hailo-8L 13 TOPS / Hailo-8 26 TOPS) does NOT support LLMs; only AI HAT+ 2 (Hailo-10H, 40 TOPS INT4, 8 GB on-board) supports LLM/VLM up to ~6B; all require a Pi 5.",
+   "url": "https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html",
+   "source_type": "official doc",
+   "establishes": "Do not plan on the common Hailo-8 HAT for LLM acceleration; CPU inference via llama.cpp is the portable baseline.",
+   "label": "verified_fact",
+   "limitations": "AI HAT+ 2 is ~USD 130 (third-party price) and its LLM toolchain is young."
+  },
+  {
+   "claim": "CARLA quick-start requires a dedicated GPU 'equivalent to an NVIDIA 2070 or better', 8 GB VRAM, ~20 GB disk (UE4 branch); UE5 branch needs RTX 3000 / 16 GB VRAM.",
+   "url": "https://carla.readthedocs.io/en/latest/start_quickstart/",
+   "source_type": "official doc",
+   "establishes": "CARLA is impractical for a team without a gaming GPU; the PDF explicitly allows simulated/recorded data instead.",
+   "label": "verified_fact",
+   "limitations": "None."
+  },
+  {
+   "claim": "Docker resource flags: --memory (min 6m), --memory-swap, --cpus, --cpuset-cpus.",
+   "url": "https://docs.docker.com/engine/containers/resource_constraints/",
+   "source_type": "official doc",
+   "establishes": "Mechanism to enforce the ~2 GB / 2-core envelope on any host for reproducible Edge Performance numbers.",
+   "label": "verified_fact",
+   "limitations": "Caps resources but does not emulate a slower core; must be run on real ARM for honest latency."
+  },
+  {
+   "claim": "DuckDB 1.5.6 on PyPI ships manylinux aarch64 wheels (CPython 3.10-3.14).",
+   "url": "https://pypi.org/project/duckdb/",
+   "source_type": "official doc",
+   "establishes": "DuckDB is installable on Pi/ARM64 for aggregate queries; SQLite (stdlib) is the zero-dependency alternative.",
+   "label": "verified_fact",
+   "limitations": "Memory usage must be capped (SET memory_limit) inside the 2 GB budget."
+  },
+  {
+   "claim": "QEMU 'virt' machine supports 64-bit guests cortex-a53/a55/a72/a76 etc. under TCG; emulation of arm64 containers on x86 is 'much slower than native' (BuildKit docs) - unsourced rule of thumb 5-10x.",
+   "url": "https://www.qemu.org/docs/master/system/arm/virt.html",
+   "source_type": "official doc",
+   "establishes": "QEMU is acceptable for functional demos but any latency figure from TCG emulation is not representative.",
+   "label": "technical_inference",
+   "limitations": "No rigorous slowdown benchmark found."
+  },
+  {
+   "claim": "COVESA Vehicle Signal Specification: MPL-2.0; latest release v6.1 (17 Sept 2026).",
+   "url": "https://github.com/COVESA/vehicle_signal_specification",
+   "source_type": "repo",
+   "establishes": "An industry-standard canonical signal naming for the adapter bus, improving the 'ease of deployment in production SDVs' story.",
+   "label": "verified_fact",
+   "limitations": "Only naming; no transport."
+  },
+  {
+   "claim": "udsoncan is a Python 3 ISO-14229 UDS implementation, MIT; python-OBD (GPL-2.0, v0.7.3 Apr 2025) reads OBD-II via ELM327.",
+   "url": "https://pypi.org/project/udsoncan/",
+   "source_type": "official doc",
+   "establishes": "Free libraries to build the diagnostics (UDS/DTC) adapter and schema; GPL note for python-OBD.",
+   "label": "verified_fact",
+   "limitations": "Without a real ECU, UDS traffic must be simulated (udsoncan has a simulated-connection concept; not verified here)."
+  },
+  {
+   "claim": "Small-model text-to-SQL: CscSQL-Merge-Qwen2.5-Coder-0.5B reports 56.87% execution accuracy on BIRD-dev after SFT+GRPO; Qwen2.5-Coder report evaluates Spider/BIRD.",
+   "url": "https://arxiv.org/pdf/2409.12186",
+   "source_type": "paper",
+   "establishes": "Free-form SQL from 0.5B models is only ~57% even after heavy tuning on a general benchmark - supports a constrained QueryPlan DSL over free-form text-to-SQL.",
+   "label": "verified_fact",
+   "limitations": "BIRD is far harder than a 10-table vehicle schema; domain-specific accuracy will differ."
+  },
+  {
+   "claim": "Base Qwen2.5-1.5B-Instruct scores ~48.8 overall on BFCL (authors' own run, Nov 2025) and third-party card lists Llama-3.2-1B at ~38% Non-Live AST.",
+   "url": "https://arxiv.org/pdf/2604.20316",
+   "source_type": "paper",
+   "establishes": "Native tool calling in sub-2B models is unreliable; grammar-constrained single-schema output plus validation is the safer design.",
+   "label": "unverified_assumption",
+   "limitations": "Non-official leaderboard numbers; versions differ."
+  }
+ ],
+ "feasibility_analysis": "DATA EXISTS AND IS ACCESSIBLE (verified_fact): VED (Apache-2.0, OBD-II, 383 vehicles, 12 months, weekly CSVs with fuel rate, HV battery SOC/V/A, speed, OAT, AC/heater power) covers four of the five PDF example questions directly and provides 'several weeks' of real history. ROAD (CC BY 4.0, 557 MB, candump format) and the comma2k19 1-minute sample (MIT) plus opendbc Honda Civic DBC (MIT) provide real CAN frames for a genuine SocketCAN ingestion path. What does NOT exist publicly in usable form: labelled ADAS disengagement events and battery-overheating sequences - these must come from a Scenario Engine that injects labelled fault sequences into real streams (explicitly allowed by the PDF: 'simulated/recorded data'). CARLA is out for ordinary hardware (official docs: ~NVIDIA 2070 / 8 GB VRAM).\n\nCORE FUNCTIONALITY DEMOABLE IN A STUDENT HACKATHON (technical_inference): yes, because the hard parts are backend engineering (adapters, tiered storage, analytics, API, UI) rather than ML research. The LLM component is a single llama-server process with a JSON schema.\n\nLATENCY MATH FOR THE <2 s CONSTRAINT (technical_inference from the cited community numbers): On a Pi 5, a 1B-1.5B Q4 model generates ~10-11 tok/s (verified table) and TinyLlama-class prompt processing is reported around ~100 tok/s (community snippet; site unreachable for re-fetch). A naive RAG prompt of 800-1,500 tokens therefore costs 8-15 s before the first token - impossible under 2 s, and 3-5x worse on 2 A5x-class cores. The only way to meet 2 s is to make the LLM path short: cached system prompt (cache_prompt=true, cache_n reported), a ~40-80 token user turn, and ~20-40 constrained JSON output tokens. With Qwen2.5-0.5B at ~19 tok/s (Pi 5) that is ~1-2 s; at ~8 tok/s (Pi 4, 4 cores) ~2.5-5 s, and worse with 2 cores. Conclusion: on the literal 2-core A5x target, common queries MUST bypass the LLM (tier-0 regex/embedding templates, <100 ms) and the LLM is reserved for less common phrasings, with narration streamed after the deterministic answer. This should be stated openly in the architecture with a scaling table - it is the honest engineering answer and judges reward it.\n\nMEMORY MATH (technical_inference): Pi OS Lite headless ~300-400 MB; llama-server with Qwen2.5-0.5B Q4_K_M (~400 MB file) and 2k context ~600-750 MB RSS; SQLite/DuckDB with memory_limit 256 MB; Python ingest + FastAPI ~120 MB; optional MiniLM int8 embeddings ~60-100 MB. Total ~1.3-1.6 GB, inside 2 GB with margin. A 1.5B model (~1.85 GB RSS in the Pi 5 benchmark) does not fit with everything else - this is a measurable, defensible SLM selection rationale.\n\nSTORAGE MATH FOR 'SEVERAL WEEKS' (technical_inference): assume 200 decoded signals at 10 Hz. Keep 1 Hz raw for 48 h (200 x 8 B x 86,400 = ~138 MB/day) and 1-minute aggregates (5 stats x 4 B x 200 signals x 1,440 = ~5.8 MB/day) for 8 weeks (~325 MB), plus events (tiny). An 8-week window of one signal is ~80k aggregate rows - millisecond queries with an index on (signal_id, ts). Fits an SD card with 10x margin.\n\nFREE TOOLS: everything listed is free/open (llama.cpp MIT, Qwen Apache-2.0, python-can/cantools, SQLite, DuckDB, FastAPI, React, Docker). Fine-tuning a 0.5B LoRA on a few thousand synthetic NL-to-QueryPlan pairs fits a free Colab/Kaggle GPU session (unverified_assumption about quota availability on the day).\n\nALREADY-STANDARD FEATURES (will not impress): chat UI, Ollama + LangChain RAG, embedding search over logs, 'runs locally' claims without measurement. ACHIEVABLE NOVELTY: grammar-constrained QueryPlan compilation with validation; tiered retention with a published budget; scenario engine with ground truth; evidence-cited answers with a numeric-consistency guard; cgroup-enforced measurements and scaling table; read-only gateway design with process isolation.\n\nMEASURABLE RESULT VS BASELINE: build a 200-300 query benchmark (5 PDF categories x paraphrases x time windows), gold QueryPlans and gold numeric answers computed by SQL. Compare naive RAG (Concept B, same model) vs recommended pipeline on answer accuracy, hallucinated-number rate, p50/p95 latency, peak RSS. Expected (technical_inference, must be measured): naive RAG p50 latency >8 s and numeric accuracy <40%; recommended pipeline tier-0+tier-1 p95 <2 s on Pi 5 and numeric accuracy >85% on in-scope queries with 0% unsupported numbers by construction.\n\nHIDDEN DIFFICULTIES: vcan needs a Linux kernel module (WSL2 default kernel may lack it - use Docker on Linux, a VM, or the Pi); the opendbc Civic DBC must be generated by the repo's preprocessor; comma2k19 raw logs are capnp and need openpilot's cereal schema (use processed numpy arrays instead); 0.5B models are sensitive to prompt wording - need a prompt/few-shot set and the fine-tune fallback; thermal throttling on a Pi without a fan can halve throughput (community note) - use a fan/heatsink and report temperature; a synthetic ADAS/battery scenario must be clearly labelled as synthetic or judges will call it fabricated.\n\nWHAT A SKEPTICAL INDUSTRY ENGINEER WILL CHALLENGE: 'Your Pi 5 is not 2 A5x cores' (answer: cpuset to 2 cores and Pi 4 numbers plus scaling table); 'How do you stop the LLM from inventing a number?' (answer: it never generates numbers; narration is checked against evidence set); 'How is safety isolated?' (answer: read-only adapters, no CAN TX compiled, separate user/cgroup/container, no write path to any ECU, UDS limited to read services); 'SOME/IP, VHAL, QNX are just boxes' (answer: yes - one real path end-to-end (CAN), one semi-real (OBD/UDS simulation), others specified with message-to-VSS mappings and a mock feed; do not oversell); 'Where is your accuracy evaluation?' (answer: published benchmark set and confusion matrix); 'What about privacy?' (answer: local-only, no outbound network by firewall rule demonstrated with tcpdump/nftables, at-rest encryption option, PII-free schema, retention policy).",
+ "architecture_and_mvp": "TARGET SHAPE: one Docker image (arm64) running under --memory=2g --cpus=2 --cpuset-cpus=0,1 on a Raspberry Pi 4/5 (or any ARM64 host), plus a developer laptop for the UI. Components and OS/protocol rationale:\n- OS: Raspberry Pi OS Lite / Debian arm64 (SocketCAN in kernel, systemd for watchdogs); in a production SDV this maps to a Linux HPC partition or an Android Automotive/QNX guest with the AI stack in its own VM/container (hypervisor isolation argument).\n- Adapter bus (Python, asyncio): each adapter is a read-only process emitting normalised samples {ts, vss_path, value, unit, source} and events {ts, type, severity, payload, source}. Adapters: (1) socketcan_adapter: python-can on vcan0 + cantools with DBC; fed by canplayer replaying ROAD candump logs or comma2k19 Civic frames; (2) obd_ved_adapter: replays VED weekly CSVs at configurable time-scale; (3) uds_dtc_adapter: simulated ECU responding to ReadDTCInformation via udsoncan, emitting DTC events; (4) scenario_engine: injects labelled fault sequences (e.g. coolant temp ramp -> battery over-temp warning; ADAS disengagement bursts; gradual SOC-to-range degradation) with ground-truth JSON; (5) stubs with documented mappings: someip_adapter (vsomeip service/event IDs -> VSS), vhal_adapter (VHAL property IDs -> VSS; gRPC feed per AOSP GRPCVehicleHardware), qnx_slog_adapter (slog2 text -> events), camera_adapter (receives only derived ADAS events, never frames).\n- Store: SQLite WAL (or DuckDB with memory_limit) with tables samples_1hz (48 h TTL), agg_1min (8+ weeks), trips (segmented by ignition/speed; labelled city/highway by speed distribution), events (FTS5 on text), findings (detector outputs with evidence row IDs), retention job every 10 min.\n- Analytics: rolling z-score/EWMA on efficiency (km per kWh or L/100 km), change-point (largest drop) via windowed differences, pre-event timeline (N minutes before an event of type X), correlation of DTCs with signals, city-vs-highway comparison by trip class.\n- Query service (FastAPI): Router tier-0 (regex/keyword templates + optional MiniLM int8 cosine routing) -> tier-1 llama-server (Qwen2.5-0.5B-Instruct Q4_K_M, -t 2, -c 2048, cache_prompt, response_format json_schema for QueryPlan) -> validator (whitelist of signals/intents, bounded windows, read-only) -> executor (parameterised SQL) -> answer templates with evidence IDs -> optional tier-2 narration (streamed; numeric-consistency guard). Every response includes timings from llama-server and executor, cache_n, and current RSS.\n- UI (React): chat panel, evidence drawer (table + sparkline), 'explain' panel showing QueryPlan JSON, latency/RSS badges, scenario selector for judges.\n- Safety/privacy: no CAN TX code path; adapters run as a separate unprivileged user with read-only socket; outbound network blocked by nftables rule in the container (demonstrate with a failed curl); no PII fields; optional SQLCipher/at-rest encryption noted; audit log of queries.\n\nMINIMUM WORKING PROTOTYPE (in build order): (1) VED replayer -> SQLite agg_1min + trips; (2) executor + templates for the 5 PDF example queries; (3) llama-server + QueryPlan schema + validator; (4) benchmark set (200+ queries) and eval script producing accuracy/latency/RSS tables; (5) vcan + ROAD replay + cantools decode into the same store (real CAN path); (6) scenario engine with 3 labelled sequences and detectors; (7) React UI with evidence drawer; (8) Dockerfile arm64 + cgroup caps + run on Pi (or ARM VM) and record scaling table; (9) stub adapters with mapping docs; (10) baseline naive-RAG implementation for the comparison. Stretch: LoRA fine-tune of the 0.5B parser on synthetic pairs; Gemma-3-270M as tier-0 classifier; AAOS emulator VHAL feed via gRPC.",
+ "demo_plan": "LIVE DEMO SCRIPT (8-10 min): (1) Show the hardware/VM and the cgroup caps (docker stats showing 2 CPUs / 2 GB; free -m). (2) Start replay: canplayer on vcan0 with ROAD log and VED replayer at 60x; show candump and decoded signals flowing into the store. (3) Ask the five PDF questions live; each answer shows numbers, evidence row IDs, a sparkline, the QueryPlan JSON, and latency breakdown (router/LLM prompt_ms/predicted_ms/executor). (4) Trigger a scenario (battery over-temp sequence) from the judge panel; ask 'What happened before the battery overheating warning?' and show the reconstructed timeline against ground truth. (5) Show privacy proof: outbound curl blocked; tcpdump shows no egress. (6) Show the benchmark dashboard (precomputed, reproducible with one command).\n\nMETRICS AND HOW COMPUTED:\n- Query understanding accuracy = exact match of predicted QueryPlan fields (intent, signals, window, agg, compare_by) vs gold, over the 200-300 query benchmark; report per-category confusion matrix. Baseline: tier-0 regex only; Improved: tier-0 + tier-1 LLM; Stretch: + LoRA.\n- Answer numeric accuracy = fraction of benchmark queries whose returned numbers match gold SQL results within tolerance (1% relative or unit-specific absolute); gold computed by hand-written SQL.\n- Unsupported-number rate (hallucination proxy) = numbers in the final text not present in the evidence set / total numbers; by construction 0 for templated answers; measured for the narration tier and for the naive-RAG baseline.\n- Latency: p50/p95 end-to-end wall-clock per query on target hardware with cgroup caps, split into router, prompt_ms, predicted_ms, executor; target p95 <2 s for the 'common' subset (the tier-0 set), reported honestly for the LLM subset on Pi 4, Pi 5, and 2-core cap.\n- Memory: peak RSS of the whole container (docker stats / cgroup memory.peak) during the benchmark; target <1.6 GB.\n- Storage: bytes/day per tier measured from the DB after 24 simulated hours; weeks-of-history achievable on a given card computed from it.\n- Anomaly/trend detection: precision/recall/F1 of detector findings vs scenario-engine ground truth over 20+ injected sequences; time-to-detect.\n- Baseline vs improved table: naive RAG chatbot (same 0.5B or 1B model, retrieved text chunks) vs recommended pipeline on all metrics above.\n- Reproducibility: `make bench` regenerates every table and plot from the raw logs in the repo; README states exact hardware, OS, llama.cpp commit, model SHA256, and quantization.",
+ "risks_and_objections": [
+  {
+   "risk": "No ARM hardware available (no Pi) - latency/memory numbers from an x86 laptop or QEMU TCG are not credible and judges will discount them.",
+   "severity": "critical",
+   "mitigation": "Secure a Pi 4/5 (low cost) or an ARM64 cloud VM (AWS Graviton or any ARM64 host - availability of free tiers is unverified, so budget for a few hours of paid time) early; always publish numbers with the cgroup caps and a scaling table; use QEMU/Docker-arm64 only for functional CI and say so."
+  },
+  {
+   "risk": "0.5B parser misreads paraphrased queries; AI Capability score suffers.",
+   "severity": "high",
+   "mitigation": "Grammar-constrained single schema, few-shot prompt, tier-0 templates for common shapes, validator with clarifying question on low-confidence plans, and a LoRA fine-tune on 2-5k synthetic NL->QueryPlan pairs; publish the benchmark so the accuracy is honest and reproducible."
+  },
+  {
+   "risk": "Judges call the synthetic ADAS/battery sequences 'fabricated data'.",
+   "severity": "high",
+   "mitigation": "Label every synthetic sequence explicitly, show the generator and ground-truth JSON, inject into REAL recorded streams (VED/ROAD/comma2k19), and cite the PDF clause permitting simulated/recorded data."
+  },
+  {
+   "risk": "Data Integration criterion rewards breadth (SOME/IP, VHAL, QNX, camera) that cannot be demonstrated for real.",
+   "severity": "high",
+   "mitigation": "One fully real path (SocketCAN+DBC), one simulated diagnostics path (UDS/DTC), and precise adapter specs with message-to-VSS mappings plus mock feeds for the rest; state scope limits upfront rather than overclaiming."
+  },
+  {
+   "risk": "The <2 s constraint cannot be met for LLM-routed queries on 2 A5x-class cores.",
+   "severity": "high",
+   "mitigation": "Design so common queries bypass the LLM; cached system prompt; <=40 output tokens; stream deterministic answer first; report honest per-tier latency and the hardware scaling path (Pi 5 / AI HAT+ 2 / vehicle HPC)."
+  },
+  {
+   "risk": "vcan/SocketCAN unavailable on teammates' Windows/WSL2 machines.",
+   "severity": "medium",
+   "mitigation": "Develop CAN adapter inside a Linux Docker container or VM; python-can also supports a virtual in-process bus for unit tests; final demo on the Pi."
+  },
+  {
+   "risk": "Thermal throttling or SD-card I/O stalls during the live demo.",
+   "severity": "medium",
+   "mitigation": "Active cooling, pre-warmed model and KV cache, WAL mode with batched writes, recorded fallback video, and a precomputed benchmark dashboard."
+  },
+  {
+   "risk": "Memory blow-up (1.5B model + DuckDB) exceeding 2 GB and getting OOM-killed under the cgroup.",
+   "severity": "medium",
+   "mitigation": "Use 0.5B Q4_K_M, -c 2048, DuckDB memory_limit or SQLite, measure RSS continuously; keep 1.5B only as an optional narration model when RAM allows."
+  },
+  {
+   "risk": "Licensing objections (Llama community licence, Gemma terms, python-OBD GPL-2.0).",
+   "severity": "low",
+   "mitigation": "Default to Apache-2.0 Qwen2.5 and MIT/BSD libraries; avoid python-OBD in the shipped code or isolate it."
+  }
+ ],
+ "competitor_hypotheses": "HYPOTHESES (labelled; no evidence about actual competing teams exists):\nH1 (most likely, 50%+ of teams): Ollama/LangChain RAG chatbot over a CSV or synthetic logs with a 1B-7B model on a laptop, a Streamlit/React chat UI, and slides claiming it 'can run on a Raspberry Pi'. Weakness: no latency/memory evidence on ARM, hallucinated numbers, no real protocol ingestion.\nH2 (20-30%): text-to-SQL with a 1.5B-3B model over SQLite, perhaps on a Pi 5 8 GB, with no accuracy benchmark and >2 s latencies.\nH3 (10-20%): architecture-only submission (slides, no running code) with extensive automotive protocol diagrams; may score on System Architecture and Data Integration but nothing measurable.\nH4 (small minority): teams with real CAN hardware/vehicles or CARLA on a gaming GPU, producing impressive-looking simulation footage but typically weak on the SLM/latency side.\nHOW TO OUTPERFORM: (1) be the team whose numbers are measured under the stated envelope (2 GB / 2 cores) with llama-server timings and a scaling table; (2) publish a benchmark set and a baseline-vs-improved comparison (beats H1/H2 on AI Capability and Edge Performance); (3) ingest REAL recorded CAN via SocketCAN with a DBC and real OBD-II data via VED (beats H1/H3 on Data Integration); (4) scenario engine with ground truth and anomaly precision/recall (beats everyone on Search & Analytics); (5) evidence-cited answers with a numeric-consistency guard (addresses the hallucination objection H1/H2 cannot answer); (6) demonstrate privacy/safety concretely (egress blocked, read-only adapters) rather than as a bullet; (7) match H3's architecture depth with the written deliverables the PDF explicitly lists (seven sections) while also having a running system.",
+ "effort_and_unknowns": "RELATIVE EFFORT (deadline and team size unknown; expressed as shares of total effort, ~100%): data replay + tiered store + analytics 25%; query service (router, llama-server integration, schema, validator, executor, templates) 20%; benchmark set + eval harness + baseline RAG 15%; CAN path (vcan, canplayer, DBC generation, cantools) 10%; scenario engine + detectors 10%; UI 8%; ARM deployment, cgroup caps, measurements, thermal 7%; adapter specs/stubs + written architecture deliverables 5%. Optional LoRA fine-tune adds ~10% and a free GPU session.\nDEPENDENCIES: a Raspberry Pi 4/5 (or ARM64 VM); Linux environment with vcan; VED 7z download from the GitHub Data folder; ROAD zip (557 MB) from Zenodo; comma2k19 sample segment (in repo) and opendbc generator; llama.cpp build on arm64; Qwen2.5-0.5B-Instruct GGUF (Q4_K_M, community or self-converted).\nUNKNOWNS: exact 0.5B parsing accuracy on the domain before/after fine-tuning; actual tok/s on 2 A5x-class cores (no public benchmark found - must be measured; expect 2-4x slower than Pi 4 four-core numbers); whether ROAD candump files replay directly with canplayer (format compatibility to verify); availability/cost of an ARM64 cloud instance if no Pi; whether judges expect a physical demo or accept video + repo; how heavily judges weigh the breadth of protocols versus measured depth (no weights given).",
+ "rubric_scores": [
+  {
+   "criterion": "System Architecture (completeness of hardware and software components along with logical integration of simulation and interface to user)",
+   "weight": "unweighted (no weights in PDF)",
+   "expected_score_0_10": 8,
+   "rationale": "Full hardware+software stack with justified OS/model/protocol choices, simulation (replay + scenario engine) integrated end-to-end into the user interface; loses points only if adapter stubs look thin."
+  },
+  {
+   "criterion": "AI Capability (ability to understand natural language vehicle queries; accuracy of responses and summaries)",
+   "weight": "unweighted",
+   "expected_score_0_10": 7,
+   "rationale": "Grammar-constrained parsing and evidence-grounded answers give high accuracy on in-scope queries and zero invented numbers, but a 0.5B model will miss some paraphrases; score depends on the measured benchmark and the LoRA stretch goal."
+  },
+  {
+   "criterion": "Data Integration (support for multiple automotive protocols and data sources)",
+   "weight": "unweighted",
+   "expected_score_0_10": 6,
+   "rationale": "Real CAN (SocketCAN+DBC) and OBD-II/UDS paths are demonstrable; SOME/IP, VHAL, QNX and camera are specified adapters with mock feeds only - honest but limited breadth."
+  },
+  {
+   "criterion": "Search & Analytics (find historical events, trends, anomalies; explain causes)",
+   "weight": "unweighted",
+   "expected_score_0_10": 8,
+   "rationale": "Tiered store with weeks of history, FTS events, change-point/z-score detectors, pre-event timelines and city/highway comparisons scored against scenario ground truth; causal 'explanations' remain correlational and template-based."
+  },
+  {
+   "criterion": "Edge Performance (memory footprint; query latency; scalability from reference board/Raspberry Pi/VM to vehicle HPC)",
+   "weight": "unweighted",
+   "expected_score_0_10": 7,
+   "rationale": "Measured RSS <1.6 GB and sub-2 s for common (tier-0) queries under cgroup caps on real ARM; LLM-routed queries will exceed 2 s on 2 A5x-class cores, which must be reported honestly with a scaling table (Pi 5 / AI HAT+ 2 / HPC). Falls to 4-5 if no ARM hardware is obtained."
+  },
+  {
+   "criterion": "Privacy & Security (local-only processing; protection of vehicle and driver data)",
+   "weight": "unweighted",
+   "expected_score_0_10": 7,
+   "rationale": "Demonstrated egress block, read-only adapters, separate user/cgroup, PII-free schema, retention policy and audit log; lacks hardware-backed secure boot/TEE which real SDVs would have."
+  },
+  {
+   "criterion": "Innovation & Practicality (ease of deployment in production SDVs; value for drivers, service engineers, fleet operators, validation teams)",
+   "weight": "unweighted",
+   "expected_score_0_10": 7,
+   "rationale": "Single-container deployment, VSS-based canonical schema, per-persona query templates and the scenario engine (valuable for validation teams) are practical; the core idea is sound engineering rather than headline novelty."
+  }
+ ],
+ "official_score_potential_0_10": 7.4,
+ "execution_adjusted_0_10": 6.8,
+ "dimension_scores": {
+  "skill_fit": 8,
+  "complete_prototype": 7,
+  "measurable_results": 8,
+  "demo_reliability": 6,
+  "differentiation": 7,
+  "data_availability": 8,
+  "free_tools_feasibility": 9,
+  "engineering_depth": 8,
+  "rubric_alignment": 8,
+  "low_failure_risk": 6,
+  "explainability": 9,
+  "reproducible_evidence": 8
+ },
+ "argument_against": "This case rewards breadth across automotive stacks (CAN-FD, SOME/IP, Android VHAL, QNX, ADAS, camera feeds, diagnostics) that a backend-oriented student team can only stub, and the Data Integration criterion is one-seventh of an unweighted rubric that an automotive judge from Tata Elxsi will probe deeply. Credible Edge Performance evidence requires ARM hardware the team may not have, and the honest answer to the <2 s constraint is 'only if the LLM is bypassed for common queries', which a less scrupulous competitor can paper over with a Pi 5 8 GB and a flashy chat demo. The topic is also the most 'LLM-trendy' of the case studies, so it will attract the largest number of teams and the judges will have seen many chatbots by the time they see yours; standing out requires an unusually disciplined evaluation story. Finally, two of the five example questions (ADAS disengagements, battery overheating) have no public real-data source, so part of the demo is necessarily synthetic and open to the 'fabricated data' objection. If another case lets the team show a complete, measured pipeline on real public data with less protocol breadth to fake, that case has a lower variance path to a top score.",
+ "critical_claims_to_verify": [
+  {
+   "claim": "Qwen2.5-0.5B-Instruct Q4_K_M via llama.cpp reaches roughly 8 tok/s generation on a Raspberry Pi 4 and roughly 19 tok/s on a Pi 5, with total process RSS under ~750 MB at 2k context.",
+   "url": "https://simeononsecurity.com/articles/ai-models-raspberry-pi-4-5/",
+   "why_critical": "The entire latency and memory budget (sub-2 s with <=40 output tokens inside 2 GB) rests on these community numbers; they come from Ollama blog tests, not llama-bench, and no 2-core A5x measurement exists."
+  },
+  {
+   "claim": "The VED dataset (Apache-2.0) is downloadable as VED_DynamicData.7z from the gsoh/VED GitHub repo Data folder and contains the listed OBD-II columns (Fuel Rate, HV Battery SOC/Current/Voltage, Vehicle Speed, OAT, AC/Heater power) in weekly CSVs.",
+   "url": "https://github.com/gsoh/VED",
+   "why_critical": "VED is the only real multi-week source for the range/efficiency/battery/city-vs-highway questions; if the 7z is missing or columns differ, the data strategy must change."
+  },
+  {
+   "claim": "llama-server's /v1/chat/completions accepts response_format {type: json_schema, schema: ...} and returns a timings object with prompt_ms, predicted_ms, prompt_n, cache_n, predicted_n, with cache_prompt enabled by default.",
+   "url": "https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md",
+   "why_critical": "Guaranteed-valid QueryPlan JSON and the per-query latency instrumentation for the Edge Performance criterion depend on these exact features."
+  },
+  {
+   "claim": "ROAD dataset raw CAN logs are in can-utils candump log format and can be replayed on a vcan0 interface with canplayer, and decoded/ingested with python-can; the dataset is CC BY 4.0 and 556.7 MB.",
+   "url": "https://zenodo.org/records/10462796",
+   "why_critical": "This is the planned 'real CAN frames on a real SocketCAN interface' demonstration; if the file format needs conversion or vcan is unavailable, the Data Integration demo weakens."
+  },
+  {
+   "claim": "opendbc provides honda_civic_touring_2016_can.dbc under opendbc/dbc/generator/honda/ (MIT) and its generator produces a full DBC that decodes the Civic CAN frames in the comma2k19 sample segment.",
+   "url": "https://github.com/commaai/opendbc",
+   "why_critical": "Needed to show DBC-based decoding of real recorded vehicle CAN; file existence is verified but trim/version compatibility with the comma2k19 Civic is an inference."
+  }
+ ],
+ "confidence": "medium",
+ "confidence_rationale": "The problem statement, constraints and unweighted criteria are verified from the transcription. Model licences/sizes, llama.cpp structured-output and timing features, dataset licences/contents (VED, ROAD, comma2k19, opendbc), CARLA GPU requirements, AI HAT LLM support and Docker/DuckDB platform facts were fetched from official or primary pages. The main uncertainties are performance: all Pi tokens/sec figures are community Ollama measurements (the one llama.cpp-specific source could not be re-fetched), no measurement exists for the literal 2 x A5x-core target, and the 0.5B model's domain parsing accuracy is unknown until the team builds the benchmark. Hardware availability for the team is also unknown. These unknowns are directly addressed in the critical claims list and the demo plan, so the recommendation is robust in direction but its score estimates could move by about +/-1 point depending on measured results."
+}

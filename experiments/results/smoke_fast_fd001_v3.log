@@ -1,0 +1,357 @@
+[FD001] loading and preparing data
+[FD001] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD001] fitting anomaly detector and drift monitor on training data
+2026/10/18 03:15:41 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:15:41 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/10/18 03:15:47 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+2026/10/18 03:15:47 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:15:47 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+Registered model 'sentinelloop-FD001' already exists. Creating a new version of this model...
+Created version '3' of model 'sentinelloop-FD001'.
+[FD001] running the Triage Agent on 100 test engines (batch) and 2 engines (stream); max_width 102.3
+[FD001] done in 14.4 s: HGBR RMSE 14.58 capped / 15.81 raw, PICP 0.930, MPIW 81.9, orders 21, escalation share 0.14
+artefacts in artifacts/<subset>/ ; audit log artifacts/audit/decisions.jsonl ; SQLite artifacts/sentinelloop.db ; MLflow sqlite:///artifacts/mlflow.db
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e1_policy_replay.py --subsets FD001 --fast
+=== E1 FD001 ===
+[FD001] computing out-of-fold CQR predictions (5 folds, fast)
+  fold 1/5: 20 engines predicted out of fold (qhat 0.96)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.49)
+  fold 3/5: 20 engines predicted out of fold (qhat 1.83)
+  fold 4/5: 20 engines predicted out of fold (qhat 2.80)
+  fold 5/5: 20 engines predicted out of fold (qhat 0.00)
+[FD001] OOF done in 7 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD001_fast.csv
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e1_policy_replay
+H1 primary (pre-registered): (i) late rate C<A at equal threshold on 0/1 subsets (informative, i.e. any late orders at T=25, on 0/1); (ii) discarded life C<=B at matched late rate on 1/1 subsets; criterion (>=3/4 on both): NOT SUPPORTED. Secondary frontier (A-family vs C-family at matched late-rate targets [0.0, 0.025, 0.05, 0.1]): C better-or-equal on both metrics in 1/4 target points, C dominated in 1/4.
+  -> exit 0 in 26 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e2_abstention.py --subsets FD001 --fast
+=== E2 FD001 ===
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e2_abstention
+H2: error rate among acted-upon engines is >=20% lower than among all engines with escalation share <=25% on 0/1 subsets. Pre-registered criterion (>=3/4): NOT SUPPORTED.
+  -> exit 0 in 3 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e5_decision_vs_rmse.py --subsets FD001 --fast
+=== E5 FD001 ===
+[FD001] computing out-of-fold CQR predictions (5 folds, fast)
+  fold 1/5: 20 engines predicted out of fold (qhat 0.96)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.49)
+  fold 3/5: 20 engines predicted out of fold (qhat 1.83)
+  fold 4/5: 20 engines predicted out of fold (qhat 2.80)
+  fold 5/5: 20 engines predicted out of fold (qhat 0.00)
+[FD001] OOF done in 47 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD001_fast_bl.csv
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e5_decision_vs_rmse
+H5: an RMSE-vs-decision-metric inversion exists on 1/1 subsets. Pre-registered criterion (at least one): SUPPORTED.
+  -> exit 0 in 52 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e3_stress.py --subsets FD001
+=== E3 FD001 ===
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[393.89242768 394.53586283 389.76546205 390.90461434 392.9736202
+ 394.1054213  390.8112366  389.78393691 394.33585254 393.20948283
+ 396.92855946 395.0359977  389.98147442 390.93483559 394.28020404
+ 390.88889705 392.29619594 391.37178499 394.10238205 394.82250193]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[399.69735009 395.43787823 396.87253758 395.08935369 391.06907816
+ 393.41799094 389.51994147 392.33101123 394.02309512 392.18569455
+ 401.14672319 385.25666728 395.97233374 392.87672387 391.2192277
+ 390.2813061  395.54406311 393.61069944 395.67923106 398.23197717]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[395.20671275 392.14209484 394.60354582 390.19141984 395.12898963
+ 388.72507718 391.09579495 391.25637702 387.40425719 393.51241054
+ 392.78474384 391.39595444 394.14938255 394.91018342 393.69491773
+ 393.61289368 388.58417004 396.94134639 386.74740093 395.98433309]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[394.34428678 393.81701941 389.98806671 395.21150763 391.96216854
+ 394.70555263 394.89455828 393.11769367 395.07769247 396.37670724
+ 391.00206881 391.61679054 392.70223273 393.37463546 396.57331355
+ 394.02967857 395.82727939 393.97177066 391.44289394 394.09143694]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[390.72013407 395.47810597 396.80124224 392.82774277 387.89091703
+ 395.28023583 395.6825293  395.86539556 392.91840484 398.38418025
+ 397.63163139 393.37204304 395.57308577 398.95532177 396.16384535
+ 394.50995451 399.26544163 388.02665403 396.51016058 391.22523799]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[387.11245436 392.16775096 385.50458746 386.02687643 398.94510692
+ 388.69739358 389.60207019 400.28076148 389.17471892 393.15637177
+ 393.64599754 392.93855619 393.25510171 394.14592141 392.0482784
+ 390.16419706 396.20305102 391.48948451 392.51376102 395.55568802]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[394.2233456  394.29392743 389.8674249  393.24416134 391.06095565
+ 393.52604943 395.63225787 396.52395466 394.26102489 394.65568494
+ 391.44404435 390.52707446 395.86796119 392.14288486 391.73293494
+ 392.89167607 390.9351872  392.20786145 392.40461739 392.35427141]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[393.33689334 391.67001905 387.86642316 395.13349992 396.27768056
+ 395.34341337 393.14144137 394.20868183 396.56940012 391.60540108
+ 390.47680752 387.04348581 393.49089504 390.15140559 389.08409957
+ 392.62197422 392.1467175  393.75897457 393.86691381 394.73608503]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[393.02195595 393.38804369 394.98982078 401.07493309 391.98420486
+ 390.17958884 393.10387433 392.3132185  391.40878629 400.83312796
+ 388.6378339  392.99608254 387.24782598 395.63280809 396.76068879
+ 390.51157822 393.74079466 392.02399141 396.76977682 394.92858223]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[389.82316082 390.12556446 392.32345379 394.95992532 391.76438048
+ 395.10104145 391.05912906 392.4063506  392.02552336 395.99885393
+ 397.06590958 389.86048911 394.66956537 395.69506269 392.0612141
+ 396.92285086 398.48914314 391.93329632 398.01697951 398.51363798]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[393.0665733  394.49314686 388.76324988 389.40841895 394.86594565
+ 396.89295409 389.9283037  397.59465453 392.67413981 390.46158782
+ 391.439625   389.41448256 390.26301348 395.14256738 389.5591378
+ 398.70799925 394.72537411 390.94040877 391.25750782 395.50549281]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[391.68440912 393.54239146 387.11384571 392.50248071 394.13092769
+ 395.05948388 395.66100329 387.03270055 393.16478088 393.34185544
+ 399.09305515 393.02239576 396.06280933 390.62616024 389.34806061
+ 397.38475464 390.54082003 388.06255494 391.0992499  395.28955586]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[391.2370791  393.28392753 391.32125723 394.86801354 399.02693728
+ 397.10226024 394.89777293 395.01184956 390.08154043 392.82059175
+ 405.8683383  395.67479526 393.75075096 402.70603352 400.11750925
+ 394.31478977 392.14291675 392.0835951  402.11140272 399.55006069]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[398.90485888 393.12474051 392.4493227  397.10317591 391.41347184
+ 390.36793599 390.89225776 394.02860484 394.75169316 388.23821981
+ 395.46032508 397.2747828  389.6206652  396.72913568 390.06767461
+ 388.9650354  394.2972685  394.27859138 393.20273151 391.68610579]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[391.22049923 394.40111146 391.71096469 396.31873956 391.64531728
+ 390.49247547 395.68293866 392.18199703 392.93911644 402.93728228
+ 394.76507954 392.73452011 396.96789966 396.77253756 388.89616781
+ 392.73693739 389.91203499 396.22127144 390.38147453 394.57224096]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[392.99676531 396.01598007 394.7520356  397.23838901 394.58817283
+ 395.73001152 391.17739383 401.21415506 385.22692108 390.53246514
+ 399.49488061 391.14687385 400.21864363 391.25550505 399.2640822
+ 398.01873548 388.07970216 404.19915244 394.24270619 393.35120705]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[392.24132105 399.44718603 392.43939723 391.76400198 392.49501557
+ 398.53418998 392.89218705 402.35741001 395.12959051 396.39458958
+ 402.11539613 402.61343907 393.98013206 393.40678775 393.7084839
+ 397.59339918 399.39917001 393.99602281 394.02582602 390.11407876]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[398.8877818  388.44787526 396.96025819 396.41185387 390.06582529
+ 389.7391616  392.43823499 395.36208141 392.32340304 398.5142961
+ 397.02318605 396.81253194 398.57579203 401.60035193 392.07747782
+ 403.00302619 395.83300491 393.45433794 396.78057562 395.4586013 ]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.35375697 390.90757341 391.7817896  396.72988832 389.51824618
+ 392.66388187 388.11960558 393.69672273 390.43729269 395.13110867
+ 397.17443872 399.3116281  390.54467635 397.13314792 394.04851946
+ 387.03857649 391.35580745 395.18344786 390.42743034 390.99582904]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[393.83100695 394.01269896 395.62217045 392.18118193 391.20531165
+ 393.17436977 394.56789751 396.24076812 393.6599438  394.61108492
+ 392.60080388 398.52535529 400.23637815 395.91405049 396.48478175
+ 396.83204721 393.97837101 392.94131438 393.38049008 395.8869805 ]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[390.97628412 391.71708722 392.46774198 391.72374681 389.92755228
+ 397.26648095 393.94023192 386.58871179 395.97083257 394.2263609
+ 397.73173842 397.31138728 393.71622006 395.42206418 397.386594
+ 394.72233235 393.28918666 390.52561255 394.95494141 388.88448329]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[390.74958132 397.1873184  395.19012215 393.70517037 396.0141696
+ 396.55198527 391.47487244 388.15633197 391.83302908 398.36139457
+ 396.76356736 395.26366409 397.22749854 390.99827162 391.02095866
+ 393.66888756 393.96687239 389.69890885 395.88428029 392.06332799]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[395.95475611 398.03700374 395.29067422 406.79754745 397.48020447
+ 393.61180287 391.81184626 394.1188247  388.1277561  397.44875367
+ 393.47781016 405.15885995 394.02341758 391.11903976 395.34624429
+ 393.90319467 395.76693456 400.4944489  396.9741486  392.27527358]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[394.33777851 396.81734053 392.56595019 387.35623031 390.63713384
+ 396.1121613  393.63090728 398.14440141 397.74825267 398.99622649
+ 387.78929733 394.17669682 399.19323546 397.13088751 395.93212865
+ 393.39424455 396.62830006 390.22013547 396.06532842 393.47901825]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[391.45589806 390.92472092 389.90587743 396.75040573 394.74001309
+ 393.37857218 389.78609913 392.40969511 390.59913196 388.99085394
+ 393.28886855 386.72852465 386.49923451 391.99958805 393.07598014
+ 392.92726394 388.82903527 392.98036222 394.36624432 394.1001479 ]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.41253636 393.25036145 397.35237096 393.3053405  391.46878017
+ 388.21421012 390.19570148 391.89449231 394.35330934 384.75527036
+ 394.64484341 397.82892671 390.89626149 395.40996141 392.66012264
+ 398.94767247 390.58156353 393.4574536  399.36382513 396.83844411]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[392.33574238 389.8797957  387.63406038 395.94860613 390.54820368
+ 393.63279139 393.6226996  389.82919717 395.25638733 394.27166099
+ 397.0574787  396.77098516 387.84319604 393.43842544 392.48641713
+ 392.59442725 389.85419195 389.45804672 393.41233994 392.94254085]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[393.47673397 392.12678346 396.48885496 389.38095216 384.86982215
+ 391.78448109 389.65485016 393.65065928 393.89782248 392.41231997
+ 392.34163045 392.40350043 390.9006908  389.1233175  391.38595533
+ 391.70919895 384.78644032 390.61253976 388.87321097 389.71922926]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.60111189 397.35094697 396.0675164  392.5100906  399.36654045
+ 394.98277239 388.38872396 392.81555054 392.73970197 395.54320159
+ 395.09778438 397.44073952 389.70929947 394.84794352 390.75335703
+ 400.32511193 389.52610409 393.90835072 392.00499815 391.1035609 ]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[399.02505873 393.0129606  390.81232529 393.41802284 400.70522213
+ 393.59326439 392.24314342 398.58779568 392.15086726 400.68809365
+ 392.23610508 396.57126485 394.7311037  395.58364988 397.54003069
+ 395.9297854  390.46069793 390.98779825 395.10345574 396.87244039]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[392.74479003 396.60189439 390.56359162 389.18268548 388.23120478
+ 396.65177701 391.47813271 391.58050502 395.04470893 393.41611756
+ 387.18174824 392.27426192 396.16616595 399.23663092 395.40737694
+ 392.399379   392.51812165 390.43923915 389.89822363 396.20799697]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[398.80849665 389.96393243 396.46985682 391.35969501 398.39264943
+ 395.10299341 394.22437809 391.08206378 394.93739012 391.32426245
+ 392.71767245 395.08605048 401.23407944 395.47958984 394.53829054
+ 391.19848545 390.77286078 389.2647727  396.70536819 396.56161779]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[389.10129063 392.88616489 390.27553218 389.36336751 388.72341509
+ 391.64095969 395.35885342 387.70382139 390.36507021 391.95442813
+ 394.19347732 388.64526454 397.44569123 393.44506526 396.75530529
+ 392.12466933 391.73816016 389.06174275 392.69821894 392.38706018]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.67005348 391.12534989 388.56161565 393.24793905 393.1144972
+ 395.20430294 393.30731422 396.27698481 391.95081584 401.91096107
+ 396.84912471 395.94381714 392.6790469  391.08745406 392.62491815
+ 393.95711516 386.69489983 389.79267754 394.07953405 393.22555969]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[394.40984356 386.88974198 390.32613292 393.77653676 396.4467015
+ 397.43896708 394.71396663 388.78420847 387.4406442  388.8843579
+ 393.36614684 393.1298568  391.70443798 389.88973785 393.14571805
+ 394.71651303 396.06476458 389.96015312 394.31297757 387.74709962]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[390.33241188 392.07665506 393.56398027 386.9225331  395.60076993
+ 393.89381248 398.02862914 396.01589732 396.70573926 396.05075557
+ 394.57370401 396.15713188 392.20116455 388.60548382 392.05062718
+ 393.16002567 395.77529652 391.37035897 393.75920403 396.6867015 ]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[389.17927787 390.75937397 387.79885308 394.30203614 390.85297012
+ 387.79579706 388.82222128 394.45786588 393.53756674 388.58607792
+ 392.34925013 392.34529583 392.99169583 393.27899041 390.76309343
+ 394.15117926 391.60460581 393.58683474 388.50737634 393.22875478]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[391.87478365 393.90365866 396.02928929 391.13522617 396.92410287
+ 393.8061428  395.1927308  391.80610403 395.03373987 390.93278021
+ 393.02691716 393.16322548 392.80086767 392.16910555 393.16072586
+ 396.98753829 393.6764125  396.64285666 395.0424966  394.10653842]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[392.96198115 388.30701977 393.98955327 389.09284137 395.0846104
+ 394.0077076  395.98451163 391.43751073 389.11563051 393.86952191
+ 393.24979211 389.34156252 393.1958134  396.41641051 392.18006964
+ 390.95905853 396.15216617 394.58680121 400.16783891 390.05130469]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.11531922 391.00551958 396.0230721  390.12750402 393.33193378
+ 392.9305567  396.25153482 396.02617302 388.29756771 389.54828069
+ 401.45152638 401.27469185 391.9644174  393.77402329 398.7431797
+ 401.11201432 391.15459884 395.74313133 393.92670194 395.14639198]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[389.71386135 386.25641594 390.07799959 393.50516796 392.02629163
+ 393.15483885 384.08544496 394.41572822 386.95913874 392.1616954
+ 391.24511024 395.79002334 390.76505084 398.07112111 390.71883139
+ 390.0107022  390.52253716 394.02875853 392.10363135 399.37519967]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[390.39633929 388.0150089  393.56736089 393.99966285 389.90333013
+ 390.10503426 393.09593886 394.90525732 396.2251702  392.63945855
+ 390.02329211 394.09654886 392.02132514 394.26970229 391.60059333
+ 390.79087062 390.1458274  393.07640874 396.80607849 387.82608045]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.99375118 396.58814446 399.96085238 392.37035086 397.1289971
+ 388.57015562 403.16612548 387.49705967 392.90215289 389.06573633
+ 387.99920537 389.42316566 395.23288633 390.67228113 395.18324997
+ 392.58314118 393.70830308 391.76893505 387.04030084 394.70982636]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[388.44396335 390.58157518 396.56085886 393.15935614 392.08767572
+ 389.45399377 397.50431836 395.00720449 391.80949788 392.79447717
+ 396.46604635 395.34117616 394.65486404 391.32383606 394.81830662
+ 390.98098756 397.52683505 390.13114021 394.638342   391.18864144]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[391.04599302 394.29682146 392.2944581  392.1497481  390.88188606
+ 395.65829622 389.95204569 390.61301807 396.66009816 391.28706994
+ 388.51298564 389.98422303 389.36463019 395.0802552  390.02211395
+ 390.97628034 384.90766895 389.54741158 395.10656422 395.46617575]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[388.18940818 388.51269357 391.99048254 392.51685826 391.8731664
+ 395.67206229 392.06343625 390.99043085 389.95478335 398.35064516
+ 397.18944854 394.29746638 394.43263194 390.47808149 392.20660124
+ 397.15481644 390.23789393 393.12242305 396.12763653 396.53598299]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[397.36370952 398.3573783  397.88469293 399.09514127 394.66861492
+ 391.74668014 392.30514075 393.89217088 398.5723937  393.37315374
+ 390.87245275 391.20926151 395.31652236 398.20353095 388.93437089
+ 392.7206737  396.74243581 390.61881342 394.53141777 399.86011029]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[388.20627852 395.15715594 388.47843131 399.30373114 401.19326398
+ 397.99648216 397.18151808 400.50436434 395.01151416 390.20881788
+ 394.27222972 398.31102403 394.95718133 390.69650297 392.58931806
+ 398.56082283 397.34894739 393.61417637 395.74535117 393.69739803]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[391.75147446 395.16777873 397.9990993  395.5338728  397.63088489
+ 393.05804905 382.23418467 391.30065888 396.96566921 396.14193874
+ 393.80090094 388.45247083 392.98172946 387.76639942 389.68457327
+ 398.02144642 392.06781095 393.27006262 393.3372448  396.34972734]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:37: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[386.2609551  390.08107862 391.38213809 393.07105008 397.67124693
+ 393.55025236 392.22552784 393.55210578 392.57959519 392.20578478
+ 392.52984106 389.03545105 400.76860466 392.84948898 392.76094835
+ 390.2557939  398.03828669 388.9484663  398.38364293 398.15629122]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, c] = out.loc[mask, c].to_numpy(dtype=float) + noise
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:45: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.07779116 396.07779116 395.07779116 396.07779116 394.07779116
+ 395.07779116 394.07779116 394.07779116 393.07779116 396.07779116
+ 397.07779116 395.07779116 396.07779116 395.07779116 395.07779116
+ 394.07779116 395.07779116 395.07779116 395.07779116 395.07779116]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, sensor] = out.loc[mask, sensor].to_numpy(dtype=float) + k_std * sd
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:45: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.04458247 397.04458247 398.04458247 397.04458247 396.04458247
+ 396.04458247 397.04458247 397.04458247 397.04458247 397.04458247
+ 398.04458247 396.04458247 397.04458247 398.04458247 395.04458247
+ 397.04458247 397.04458247 396.04458247 397.04458247 396.04458247]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, sensor] = out.loc[mask, sensor].to_numpy(dtype=float) + k_std * sd
+C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\stress.py:45: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[396.49244502 395.49244502 399.49244502 394.49244502 395.49244502
+ 396.49244502 399.49244502 396.49244502 397.49244502 398.49244502
+ 398.49244502 397.49244502 399.49244502 396.49244502 396.49244502
+ 397.49244502 396.49244502 398.49244502 397.49244502 398.49244502]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  out.loc[mask, sensor] = out.loc[mask, sensor].to_numpy(dtype=float) + k_std * sd
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e3_stress
+H3 per fault (all subsets): bias2s: detect FAIL, false-alarm ok, silent-wrong-order ok; missing20: detect ok, false-alarm ok, silent-wrong-order ok; noise3s: detect ok, false-alarm ok, silent-wrong-order ok; regime_shift: detect ok, false-alarm ok, silent-wrong-order ok
+  -> exit 0 in 10 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e4_retrain_gate.py --subsets FD001 --fast
+=== E4 FD001 ===
+2026/10/18 03:17:30 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:17:30 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[FD001] champion on 50 engines; validation 20; new data 30
+2026/10/18 03:17:37 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+2026/10/18 03:17:37 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:17:37 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+Registered model 'sentinelloop-FD001-gated' already exists. Creating a new version of this model...
+Created version '7' of model 'sentinelloop-FD001-gated'.
+2026/10/18 03:17:43 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD001-gated' already exists. Creating a new version of this model...
+Created version '8' of model 'sentinelloop-FD001-gated'.
+[FD001] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 16.94->16.85 picp 0.920->0.900 late 0.000->0.000 []
+2026/10/18 03:17:50 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD001-gated' already exists. Creating a new version of this model...
+Created version '9' of model 'sentinelloop-FD001-gated'.
+[FD001] B_reject_corrupted_data: REJECT (expected REJECT) rmse 16.94->17.70 picp 0.920->0.910 late 0.000->0.000 ['rmse 17.699 > 17.283 (champion 16.944 + 2%)']
+[FD001] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e4_retrain_gate
+H4 gates: 2/2 scenario outcomes as expected (accept on more data, reject on corrupted data). Drift trigger: regime-shift and bias alarms fired and <=1 false alarm in 20 clean windows on all subsets: True. Pre-registered criterion: SUPPORTED.
+  -> exit 0 in 29 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e6_audit_check.py
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e6_audit_check
+H6: 180 decisions re-derived with 0 mismatches; chain valid True; tampered copy detected True (re-derivation mismatches after tamper: 1); 21 work orders carry model version and severity: True. SUPPORTED.
+  -> exit 0 in 3 s
+$ C:\Users\HP\OneDrive\Desktop\tata\.venv\Scripts\python.exe C:\Users\HP\OneDrive\Desktop\tata\experiments\e7_ablation.py --subsets FD001 --fast
+=== E7 FD001 ===
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e7_ablation
+Ablation table: each row removes or adds one component; compare with 'full'. The point-vs-lower-bound columns are the policy ablation.
+  -> exit 0 in 12 s
+ALL DONE in 2.2 min; summaries under experiments/results/<exp>/summary.json
+exit=0

@@ -1,0 +1,5 @@
+[FD001] HGBR RMSE capped 14.39 raw 15.53 PHM08 336.1 | RF 14.57 | naive 41.94 | CV all-rows 14.70 random-trunc 16.65 last-cycle(leaky) 2.56 | 68.4 s
+[FD002] HGBR RMSE capped 14.88 raw 27.10 PHM08 1006.7 | RF 15.16 | naive 44.93 | CV all-rows 15.28 random-trunc 15.68 last-cycle(leaky) 3.53 | 236.7 s
+[FD003] HGBR RMSE capped 13.88 raw 15.54 PHM08 398.2 | RF 15.25 | naive 43.70 | CV all-rows 11.94 random-trunc 12.47 last-cycle(leaky) 3.04 | 97.3 s
+[FD004] HGBR RMSE capped 15.36 raw 27.05 PHM08 1218.8 | RF 16.23 | naive 45.57 | CV all-rows 15.02 random-trunc 15.63 last-cycle(leaky) 7.20 | 320.4 s
+exit=0

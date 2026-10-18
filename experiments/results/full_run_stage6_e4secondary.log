@@ -1,0 +1,85 @@
+=== E4 FD001 ===
+2026/10/18 03:41:12 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:41:12 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[FD001] champion on 50 engines; validation 20; new data 30
+2026/10/18 03:41:41 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+2026/10/18 03:41:41 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:41:41 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+Registered model 'sentinelloop-FD001-gated' already exists. Creating a new version of this model...
+Created version '13' of model 'sentinelloop-FD001-gated'.
+2026/10/18 03:42:00 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD001-gated' already exists. Creating a new version of this model...
+Created version '14' of model 'sentinelloop-FD001-gated'.
+[FD001] A_accept_more_data: REJECT (expected PROMOTE) rmse 15.19->15.01 picp 0.975->0.835 late 0.000->0.000 ['picp 0.835 < 0.85']
+2026/10/18 03:42:18 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD001-gated' already exists. Creating a new version of this model...
+Created version '15' of model 'sentinelloop-FD001-gated'.
+[FD001] B_reject_corrupted_data: REJECT (expected REJECT) rmse 15.19->15.57 picp 0.975->0.818 late 0.000->0.000 ['rmse 15.575 > 15.492 (champion 15.188 + 2%)', 'picp 0.818 < 0.85']
+2026/10/18 03:42:32 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD001-gated' already exists. Creating a new version of this model...
+Created version '16' of model 'sentinelloop-FD001-gated'.
+[FD001] B2_reject_label_corruption: REJECT (expected REJECT) rmse 15.19->19.84 picp 0.975->0.767 late 0.000->0.000 ['rmse 19.840 > 15.492 (champion 15.188 + 2%)', 'picp 0.767 < 0.85']
+[FD001] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD002 ===
+[FD002] champion on 130 engines; validation 52; new data 78
+2026/10/18 03:43:00 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD002-gated' already exists. Creating a new version of this model...
+Created version '4' of model 'sentinelloop-FD002-gated'.
+2026/10/18 03:43:16 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD002-gated' already exists. Creating a new version of this model...
+Created version '5' of model 'sentinelloop-FD002-gated'.
+[FD002] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 16.43->16.15 picp 0.914->0.898 late 0.000->0.000 []
+2026/10/18 03:43:38 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD002-gated' already exists. Creating a new version of this model...
+Created version '6' of model 'sentinelloop-FD002-gated'.
+[FD002] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 16.43->16.55 picp 0.914->0.894 late 0.000->0.000 []
+2026/10/18 03:44:03 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD002-gated' already exists. Creating a new version of this model...
+Created version '7' of model 'sentinelloop-FD002-gated'.
+[FD002] B2_reject_label_corruption: REJECT (expected REJECT) rmse 16.43->20.90 picp 0.914->0.885 late 0.000->0.000 ['rmse 20.904 > 16.757 (champion 16.429 + 2%)']
+[FD002] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD003 ===
+[FD003] champion on 50 engines; validation 20; new data 30
+2026/10/18 03:44:33 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD003-gated' already exists. Creating a new version of this model...
+Created version '4' of model 'sentinelloop-FD003-gated'.
+2026/10/18 03:45:07 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD003-gated' already exists. Creating a new version of this model...
+Created version '5' of model 'sentinelloop-FD003-gated'.
+[FD003] A_accept_more_data: PROMOTE (expected PROMOTE) rmse 13.95->13.63 picp 0.953->0.907 late 0.000->0.000 []
+2026/10/18 03:46:24 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD003-gated' already exists. Creating a new version of this model...
+Created version '6' of model 'sentinelloop-FD003-gated'.
+[FD003] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 13.95->13.36 picp 0.953->0.915 late 0.000->0.000 []
+2026/10/18 03:46:52 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD003-gated' already exists. Creating a new version of this model...
+Created version '7' of model 'sentinelloop-FD003-gated'.
+[FD003] B2_reject_label_corruption: REJECT (expected REJECT) rmse 13.95->19.11 picp 0.953->0.743 late 0.000->0.000 ['rmse 19.113 > 14.225 (champion 13.946 + 2%)', 'picp 0.743 < 0.85']
+[FD003] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+=== E4 FD004 ===
+[FD004] champion on 124 engines; validation 50; new data 75
+2026/10/18 03:47:56 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD004-gated' already exists. Creating a new version of this model...
+Created version '4' of model 'sentinelloop-FD004-gated'.
+2026/10/18 03:48:17 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD004-gated' already exists. Creating a new version of this model...
+Created version '5' of model 'sentinelloop-FD004-gated'.
+[FD004] A_accept_more_data: REJECT (expected PROMOTE) rmse 17.97->16.09 picp 0.954->0.849 late 0.000->0.000 ['picp 0.849 < 0.85']
+2026/10/18 03:48:39 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD004-gated' already exists. Creating a new version of this model...
+Created version '6' of model 'sentinelloop-FD004-gated'.
+[FD004] B_reject_corrupted_data: PROMOTE (expected REJECT) rmse 17.97->16.58 picp 0.954->0.862 late 0.000->0.000 []
+2026/10/18 03:48:57 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Registered model 'sentinelloop-FD004-gated' already exists. Creating a new version of this model...
+Created version '7' of model 'sentinelloop-FD004-gated'.
+[FD004] B2_reject_label_corruption: REJECT (expected REJECT) rmse 17.97->20.63 picp 0.954->0.756 late 0.000->0.000 ['rmse 20.626 > 18.330 (champion 17.971 + 2%)', 'picp 0.756 < 0.85']
+[FD004] drift: false alarms 0/20, regime-shift alarm True, bias alarm True
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e4_retrain_gate_secondary
+H4 gates: 7/12 scenario outcomes as expected (accept on more data, reject on corrupted data). Drift trigger: regime-shift and bias alarms fired and <=1 false alarm in 20 clean windows on all subsets: True. Pre-registered criterion: NOT SUPPORTED.
+exit=0

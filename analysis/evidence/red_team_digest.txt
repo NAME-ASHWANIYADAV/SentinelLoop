@@ -1,0 +1,187 @@
+
+=== Compliance with the official Case Study 1 requirements (ground rules, Round 1 / Round 2 de ===
+SUMMARY: I read the Case Study 1 PDF (4 pages: layers, ground rules, dataset, round deliverables, rubric), docs/OFFICIAL_REQUIREMENTS.md R1-R15, the Round 1 slide content and rendered PNG, the Round 2 deck plan, CLAIM_EVIDENCE_MATRIX, SYSTEM_DESIGN, DEMO_RUNBOOK/SCRIPT, KNOWN_LIMITATIONS, the code behind each row (cli, pipeline, agent, retrain, clean, dashboard, e4 script, configs), and opened every metrics.json, e0/e3/e4/e6 summary.json, retrain_log.json, mlflow.db and sentinelloop.db (read-only); I ran the fast test suite (97 passed, 103 collected). No ground rule is violated (no LLM anywhere in the lock file or source, open-source stack, one-command pipeline, all four C-MAPSS subsets) and all four
+  [high] CMP-01: R7 'retraining flow when new data arrives' marked VERIFIED, but no trigger exists in the package (docs/OFFICIAL_REQUIREMENTS.md:56)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> medium
+  [high] CMP-02: SYSTEM_DESIGN.md documents CLI commands, a retrain trigger, DB tables and artefacts that do not exist, while P (docs/SYSTEM_DESIGN.md:65)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> medium
+  [high] CMP-03: Scripted demo retraining run is on FD001, whose stored retrain log contains only REJECT decisions (no PROMOTE  (docs/DEMO_RUNBOOK.md:36)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=True -> low
+  [high] CMP-04: Rendered Round 1 slide still carries a team/college placeholder (submission/round1_slide.png:1)  VERDICTS: REPRODUCE refuted=True -> low; severity_ refuted=False -> low
+  [high] CMP-05: FD004 raw RMSE quoted as 27.1 in two submission documents; the artefact and the rendered slide say 27.0 (submission/CLAIM_EVIDENCE_MATRIX.md:7)  VERDICTS: REPRODUCE refuted=False -> low; SEVERITY  refuted=False -> low
+  [high] CMP-06: Anomaly detection (half of the PDF's ML layer) has no reported performance on real degradation and never produ (docs/OFFICIAL_REQUIREMENTS.md:53)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> medium
+  [medi] CMP-07: '33-46 s per subset' is quoted as the pipeline runtime but the stored metrics.json files record 51-76 s (submission/CLAIM_EVIDENCE_MATRIX.md:24)
+  [medi] CMP-08: Round 1 slide has no problem-understanding block although it is 15% of the Round 1 rubric (submission/round1_slide_content.md:7)
+  [medi] CMP-09: Slide body text is 6.3-6.7 pt on a 13.3 in canvas; the content plan claims 'readable at thumbnail scale' (submission/make_round1_slide.py:44)
+  [medi] CMP-10: 'Cluster purity 100%' claimed for FD002 and FD004; evidence exists only for FD004 (submission/make_round1_slide.py:103)
+  [medi] CMP-11: 'Tests written before the code' is asserted on the slide and marked VERIFIED, but there is no version history  (submission/make_round1_slide.py:189)
+  [medi] CMP-12: PDF asks the cleaning step to handle 'basic noise'; no denoising or outlier treatment is active in cleaning (src/sentinelloop/clean.py:34)
+  [low] CMP-13: Slide footer says Python 3.11 while the stored baseline run records Python 3.12.1 (submission/make_round1_slide.py:189)
+  [low] CMP-14: Health index described as top-3 deviations in two documents; configuration and artefact use top-2 (submission/round1_slide_content.md:21)
+  [low] CMP-15: round1_slide_content.md is stale relative to the rendered slide (deep challenger in MLflow, width > 60, baseli (submission/round1_slide_content.md:23)
+  [low] CMP-16: R15 cites a deck PPTX and recording that do not exist; deck slide 7 has an unfilled placeholder (docs/OFFICIAL_REQUIREMENTS.md:64)
+
+=== ML validity and leakage ===
+SUMMARY: I read the cleaning/feature/target/evaluation/conformal/OOF/anomaly/drift modules, the pipeline, all seven experiment scripts and configs, cross-checked every number in EXPERIMENT_RESULTS.md and REPRODUCIBILITY.md against the stored summary.json/metrics.json files, verified fold/calibration/tune-split disjointness and config hashes with one-liners, recomputed regime purity, reproduced the FD003 drift alarm from the stored monitor, and ran the fast test suite (97 passed). No fitted parameter is learned from test data and the OOF folds are engine-disjoint, but the worst problems are that (a) preprocessing/model variants (EMA, regime normalisation, asymmetric CQR) and the monitoring rules were 
+  [high] ML-1: Preprocessing and model variants were selected on the official test set; threat model claims test was used onc (configs/default.yaml:8)  VERDICTS: REPRODUCE refuted=False -> medium; severity_ refuted=False -> low
+  [high] ML-2: Monitoring rules were iterated against official test engines, and the final 'zero false alarm' numbers are rep (docs/DECISION_LOG.md:22)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> low
+  [high] ML-3: Stored E3 output shows a severe false drift alarm on untouched FD003 test engines; docs claim 0 false alarms a (experiments/results/e3_stress/summary.json:1)  VERDICTS: REPRODUCE refuted=False -> high; SEVERITY  refuted=False -> medium
+  [high] ML-4: Threat-model leakage controls cite a test file and assertions that do not exist (docs/THREAT_MODEL_AND_FAILURE_MODES.md:8)  VERDICTS: REPRODUCE refuted=False -> low; SEVERITY  refuted=False -> low
+  [high] ML-5: REPRODUCIBILITY.md drop list contradicts the stored artefacts (docs/REPRODUCIBILITY.md:17)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> low
+  [high] ML-6: Pre-registered 5-seed protocol was never run; every verdict rests on a single seed-42 split with one-engine ef (docs/EXPERIMENT_PLAN.md:3)  VERDICTS: REPRODUCE refuted=False -> high; SEVERITY  refuted=False -> medium
+  [medi] ML-7: OOF tables and all 'held-out' splits share a CleanState fitted on every training engine, so they are not fully (src/sentinelloop/oof.py:4)
+  [medi] ML-8: All engine splits derive from one permutation: E1 tuning engines = deployed model's calibration engines = OOF  (experiments/common.py:87)
+  [medi] ML-9: E5 'inversion' criterion is partly satisfied by construction: the lower-bound row carries the point model's RM (experiments/e5_decision_vs_rmse.py:38)
+  [low] ML-10: Batch imputation uses backward fill (non-causal) while stream mode is forward-fill only (src/sentinelloop/clean.py:28)
+  [low] ML-11: Experiment agent hard-codes 14 sensors for the imputed fraction; pipeline uses the real kept-sensor count (experiments/common.py:110)
+  [low] ML-12: E0 baseline artefacts were produced under a different configuration than the shipped configs (experiments/results/e0_baseline/FD001_metrics.json:1)
+  [low] ML-13: 'Cluster purity 100%' is marked VERIFIED but is computed nowhere and stored in no artefact (submission/CLAIM_EVIDENCE_MATRIX.md:12)
+  [low] ML-14: Conformal calibration treats correlated within-engine rows as independent and includes pre-warmup cycles absen (src/sentinelloop/conformal.py:108)
+  [low] ML-15: Headline RMSE is the all-engine HGBR, not the 70%-engine model the agent actually acts on (src/sentinelloop/pipeline.py:94)
+
+=== METRIC CORRECTNESS AND NUMBER CONSISTENCY ===
+SUMMARY: I verified the PHM08/PICP/MPIW/replay formulas in src/sentinelloop/{metrics,replay,policy,retrain}.py against tests, then cross-checked every number in README.md, docs/EXPERIMENT_RESULTS.md, submission/CLAIM_EVIDENCE_MATRIX.md, round1_slide_content.md (plus the rendered PNG) and round2_deck_content.md against experiments/results/*/summary.json, e0_baseline/*_metrics.json, artifacts/*/metrics.json and the stage logs; the headline per-subset RMSE/PHM08/PICP/MPIW/order/escalation values and the E1–E7 tables all reproduce from the artefacts, and the fast test suite passes (97 tests, 103 collected). The worst problem is that the headline "model performance" RMSE/PHM08 (14.39/336 etc.) belong to a
+  [high] M1: Headline RMSE/PHM08 come from a model the agent does not use and that is not the registered champion (src/sentinelloop/pipeline.py:129)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> low
+  [high] M2: E5 'better-RMSE model discards 0.3–1.8 cycles MORE on every subset' is contradicted by the artefact (docs/EXPERIMENT_RESULTS.md:121)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> medium
+  [high] M3: 'Label-corrupted challenger RMSE 4–5 worse than the champion' is false for FD004 (2.66) (docs/EXPERIMENT_RESULTS.md:75)  VERDICTS: REPRODUCE refuted=False -> low; SEVERITY  refuted=False -> low
+  [medi] M4: PHM08 citation string swaps the paper's a1/a2 and is stamped into every metrics.json (src/sentinelloop/metrics.py:8)
+  [medi] M5: '33–46 s per subset' contradicts the elapsed_s stored in the final artefacts (51–76 s) (submission/CLAIM_EVIDENCE_MATRIX.md:24)
+  [medi] M6: Fleet-level drift monitor alarms on CLEAN FD003 data in E3; undisclosed while README says 'zero false alarms' (docs/EXPERIMENT_RESULTS.md:51)
+  [medi] M7: Mean discarded life is computed over on-time orders only, contrary to the pre-registered definition and undisc (src/sentinelloop/replay.py:55)
+  [medi] M8: Interval coverage is quoted without saying it is against capped truth; raw-truth coverage is 0.87/0.68/0.80/0. (README.md:9)
+  [medi] M9: 'Cluster purity 100%' has no stored artefact; the cited decision-log row carries stale numbers (submission/CLAIM_EVIDENCE_MATRIX.md:12)
+  [medi] M10: Demo script overstates escalation on corrupted inputs ('65–100%'); artefact minimum is 24% (docs/DEMO_SCRIPT.md:25)
+  [medi] M11: 'PICP 0.80 vs 0.97 is within the noise of 100 validation rows' is an unsupported statistical claim (docs/EXPERIMENT_RESULTS.md:64)
+  [medi] M12: The lower-bound extra discarded life is quoted as '11–17' in one place and '12–17' in another; artefact is 11. (docs/EXPERIMENT_RESULTS.md:122)
+  [low] M13: Cost-tuned thresholds '12–18 cycles (expensive failures)' wrong: FD003 stays at 10 for every cost ratio (docs/EXPERIMENT_RESULTS.md:25)
+  [low] M14: 'C lower late rate at 11/16 points at the cost of 1–8 cycles' misstates the cost range (docs/EXPERIMENT_RESULTS.md:24)
+  [low] M15: Leakage ratio '2–6×' understates the artefact (2.2–6.5×) (docs/EXPERIMENT_RESULTS.md:8)
+  [low] M16: E2 'relative change −2% to −11%' omits FD003 (0%) and misrounds FD004 (−1.1%) (docs/EXPERIMENT_RESULTS.md:38)
+  [low] M17: Tuned lower-bound 'late rates 1–5%' hides that FD002's tuned C* is 5.5% on eval, above the 5% target (docs/EXPERIMENT_RESULTS.md:28)
+  [low] M18: E3 bias +2σ naive silent-wrong-order for FD004 printed 0.07; artefact 0.0645 rounds to 0.06 (docs/EXPERIMENT_RESULTS.md:48)
+  [low] M19: 'Naive agent silent-wrong-order 2–19%' is a range over non-zero rows only; 3 of 20 rows are 0% (submission/CLAIM_EVIDENCE_MATRIX.md:18)
+  [low] M20: FD004 raw RMSE quoted as 27.1 in C1 and the slide content plan; artefact 27.05 rounds to 27.0, which is what t (submission/CLAIM_EVIDENCE_MATRIX.md:7)
+  [low] M21: Round-1 content plan quotes honest CV as '≈ 14–16'; artefact is 12.5–16.7 and the rendered slide already says  (submission/round1_slide_content.md:17)
+  [low] M22: Stale placeholder sections for E6 and E7 left at the end of the results document (docs/EXPERIMENT_RESULTS.md:126)
+  [low] M23: Deck slide 7 still carries an unfilled E5 placeholder (submission/round2_deck_content.md:13)
+  [low] M24: Config comment quotes EMA ablation numbers that match no stored artefact (configs/default.yaml:8)
+
+=== Prior art and novelty claims ===
+SUMMARY: I read the prior-art document, innovation hypotheses, D11, both submission content files, the rendered Round 1 slide (PNG + generator script), README, demo script, claim-evidence matrix, and cross-checked citations live (Robinson IJPHM 17(1) 2026 and Romano et al. NeurIPS 2019 both verified as real and correctly attributed; Saxena PHM08 is correct) and the E2 artefact against the docs (numbers match). The worst problems are (a) the headline "escalates only untrustworthy cases to a human" on the slide title band, README and deck slide 1, which the project's own E2 result (escalated engines have equal or lower error rates than acted-upon engines on all four subsets) does not support, and (b) t
+  [high] PA-01: Headline 'escalates only untrustworthy cases to a human' is contradicted by E2 on clean data (submission/make_round1_slide.py:63)  VERDICTS: REPRODUCE refuted=True -> low; SEVERITY  refuted=True -> low
+  [high] PA-02: 'Cited in every deck and README where H1 appears' is false: IntelliTwin is cited in no submission file (docs/INNOVATION_HYPOTHESES.md:7)  VERDICTS: REPRODUCE refuted=False -> medium; severity_ refuted=False -> low
+  [high] PA-03: 'Not found anywhere' overstates what the prior-art search can support (docs/INNOVATION_HYPOTHESES.md:9)  VERDICTS: REPRODUCE refuted=False -> low; SEVERITY  refuted=True -> low
+  [medi] PA-04: Round 2 deck names no prior work; the decision metrics it presents are uncredited (submission/round2_deck_content.md:16)
+  [medi] PA-05: Threat-model mitigation D3 claims citations (Javanmardi 2023, Mitici 2023) that exist nowhere in the submissio (docs/THREAT_MODEL_AND_FAILURE_MODES.md:43)
+  [medi] PA-06: 'Design as in Robinson, IJPHM 2026' overstates the match: Robinson is asymmetric CQR, the pipeline default is  (submission/make_round1_slide.py:175)
+  [medi] PA-07: 'Published gain ≈ 1–2 RMSE' for deep models is uncited and inconsistent with the project's own literature note (submission/make_round1_slide.py:179)
+  [medi] PA-08: D11 still lists 'measured escalation (H2)' as the lead differentiator after H2 was rejected; no later decision (docs/DECISION_LOG.md:26)
+  [low] PA-09: Romano et al. 2019 is cited on the slide but absent from the prior-art document that README names as the refer (submission/make_round1_slide.py:174)
+  [low] PA-10: Prior-art document's own search counts and date disagree with themselves and with the claim matrix (research/PRIOR_ART_AND_DIFFERENTIATION.md:23)
+  [low] PA-11: Demo script asserts what competitors build ('the standard student build') though the prior-art document says n (docs/DEMO_SCRIPT.md:9)
+  [low] PA-12: Decision-stability (churn) is listed as a not-found differentiator but never shown as a result in the deck (docs/INNOVATION_HYPOTHESES.md:9)
+
+=== RELIABILITY AND REPRODUCIBILITY ===
+SUMMARY: I read README.md, pyproject.toml, requirements.lock.txt, Makefile (which was edited mid-review at 04:09, findings are against the current version), docs/REPRODUCIBILITY.md, docs/DEMO_RUNBOOK.md, cli/pipeline/data/config/tracking.py, experiments/run_all.py and common.py, .claude/launch.json; ran `doctor` (exit 0: "python 3.12.1 numpy 2.2.6 pandas 2.3.3 scikit-learn 1.7.2 mlflow 3.0.1 streamlit 1.66.0 / data: all 12 C-MAPSS files present in data\raw / archive pcoe_turbofan.zip: checksum OK / archive CMAPSSData.zip: checksum OK / doctor: OK") and `pytest tests -q -m "not slow"` (exit 0, output is only two dot lines "[ 74%]" and "[100%]" with no summary because pyproject addopts already has -q; 
+  [crit] RR-01: Lock file contains an editable install of this laptop's OneDrive path; README setup fails on any fresh machine (requirements.lock.txt:77)  VERDICTS: REPRODUCE refuted=False -> high; SEVERITY  refuted=False -> high
+  [high] RR-02: Lock pins pywin32==312 (Windows-only wheels) while README promises Windows, macOS or Linux (requirements.lock.txt:69)  VERDICTS: REPRODUCE refuted=False -> high; severity- refuted=False -> medium
+  [high] RR-03: The only recorded run_all.py invocation failed (exit=1); 'reproduces stages 1-6 in one command' is unsupported (docs/REPRODUCIBILITY.md:63)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> low
+  [high] RR-04: '33-46 s per subset (metrics elapsed_s)' contradicts the stored metrics.json (51-76 s) (submission/CLAIM_EVIDENCE_MATRIX.md:24)  VERDICTS: REPRODUCE refuted=False -> medium; severity- refuted=False -> low
+  [high] RR-05: E0 evidence folder is a hand copy; `baseline` writes into artifacts/<subset>/ and overwrites the pipeline's fi (src/sentinelloop/baseline.py:93)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> medium
+  [medi] RR-06: Runbook's 'expected console line' says 37 work orders; the pipeline prints 39 (docs/DEMO_RUNBOOK.md:20)
+  [medi] RR-07: MLflow store and metrics.json embed absolute OneDrive paths; registry/artefacts are not relocatable (src/sentinelloop/tracking.py:26)
+  [medi] RR-08: Whole project, venv, SQLite databases and pickles live inside a OneDrive-synced folder (docs/REPRODUCIBILITY.md:5)
+  [medi] RR-09: No version control: artefacts and MLflow runs cannot be tied to a code state (requirements.lock.txt:76)
+  [medi] RR-10: pyproject allows mlflow 2.x but tracking.py uses the MLflow-3-only `name=` keyword (src/sentinelloop/tracking.py:48)
+  [medi] RR-11: OOF caches are reused by filename only; config_hash is recorded but never checked, and run_all.py re-reads rat (experiments/common.py:66)
+  [medi] RR-12: No thread pinning; cross-machine bitwise reproducibility of HGBR/KMeans not controlled, and troubleshooting te (src/sentinelloop/models.py:42)
+  [low] RR-13: Python version guidance is inconsistent and unbounded (README.md:18)
+  [low] RR-14: Doubled -q hides the pass/fail count; '103 passed' was inferred from dots (pyproject.toml:33)
+  [low] RR-15: CLI prints a wrong audit-log path and all defaults are cwd-relative without saying so (src/sentinelloop/cli.py:62)
+  [low] RR-16: Experiment summaries and E0 metrics lack provenance fields (seed, config_hash, dependent pipeline run) (experiments/common.py:31)
+  [low] RR-17: Experiments divide imputed count by a hard-coded 14 sensors; pipeline uses len(kept_sensors) (experiments/common.py:110)
+  [low] RR-18: Shipped mlflow.db mixes smoke/fast runs with the evidence run; champion alias history is not interpretable (docs/DEMO_RUNBOOK.md:40)
+  [low] RR-19: Windows-only tooling paths in launch config and Makefile variable cannot be overridden (.claude/launch.json:6)
+
+=== DEMO RISK ===
+SUMMARY: I read the runbook, script, dashboard/viewdata/cli code, launch.json and every stored artefact the demo touches (artifacts/FD00x/*.json|csv, audit logs, retrain logs, experiments/results/*/summary.json, stage logs, mlflow.db read-only) and executed only read-only checks (doctor, audit, pytest, Arrow-serialisation of every dashboard table). The worst problem is that the scripted demo itself destroys its own evidence: step 3.2 runs the FAST pipeline into the default artifacts/ directory, overwriting the full-run FD001 metrics/decisions/audit log and moving the MLflow champion alias to a fast model before the dashboard is opened, so every number the presenter is told to say (RMSE 14.39, PICP 0.
+  [crit] DR-01: Scripted demo step 2 overwrites the full-run artefacts and moves the champion alias before the dashboard beats (docs/DEMO_RUNBOOK.md:31)  VERDICTS: REPRODUCE refuted=False -> high; SEVERITY  refuted=False -> high
+  [high] DR-02: The CRITICAL-engine stream replay the script promises cannot be shown: only engines 1-5 are streamed and none  (docs/DEMO_SCRIPT.md:15)  VERDICTS: REPRODUCE refuted=True -> low; SEVERITY  refuted=False -> low
+  [high] DR-03: Beat 5 and the runbook promise PROMOTE rows and an 'accepted challenger' on FD001; the FD001 retraining log an (docs/DEMO_SCRIPT.md:21)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=True -> low
+  [high] DR-04: The reset procedure deletes evidence the demo needs (retrain logs, gated registry, FD002-FD004) and the docume (docs/DEMO_RUNBOOK.md:24)  VERDICTS: REPRODUCE refuted=False -> medium; severity_ refuted=False -> medium
+  [high] DR-05: The presenter is told to say 'the recorded run is in the annex' but no recording exists (docs/DEMO_SCRIPT.md:30)  VERDICTS: REPRODUCE refuted=False -> low; SEVERITY  refuted=True -> low
+  [medi] DR-06: Engine tab prints 'escalation `nan`' for every non-escalated engine, including all 12 CRITICAL ones (src/sentinelloop/dashboard.py:87)
+  [medi] DR-07: Experiments tab cannot show the E1 'frontier table' the script calls for, and shows 'NOT SUPPORTED' captions t (src/sentinelloop/dashboard.py:116)
+  [medi] DR-08: Runbook 'expected console lines' do not match what the CLI prints (orders 39 not 37; PHM08 never printed; audi (docs/DEMO_RUNBOOK.md:20)
+  [medi] DR-09: The 'five log lines' of the live run are interleaved with 13 lines of MLflow/alembic INFO and WARNING noise (docs/DEMO_SCRIPT.md:12)
+  [medi] DR-10: Runbook timing claims are not backed by the logs (6x overstated pipeline time; no estimate for the 30-90 minut (docs/DEMO_RUNBOOK.md:3)
+  [medi] DR-11: Spoken ranges in Beats 5 and 6 do not match the E1/E3 summary.json exactly (docs/DEMO_SCRIPT.md:20)
+  [low] DR-12: Beat 4 quotes '3,409 decisions' while the FD001 Audit tab shows 510 (or 306 after the demo's fast run) (docs/DEMO_SCRIPT.md:15)
+  [low] DR-13: `sentinelloop dashboard` launches Streamlit without headless/usage-stats flags; on a machine without ~/.stream (src/sentinelloop/cli.py:76)
+  [low] DR-14: The 8-minute script has zero slack: beats sum to exactly 480 s with the 30 s live run, dashboard start-up, a 1 (docs/DEMO_SCRIPT.md:1)
+  [low] DR-15: Fallback 'unzip over the project' breaks MLflow links on any other path, and the whole demo tree lives under O (docs/DEMO_RUNBOOK.md:27)
+  [low] DR-16: Runbook promises 'calibration engines' in the Model & monitoring tab; the dashboard shows only the row count (docs/DEMO_RUNBOOK.md:36)
+
+=== SAFETY AND MISLEADING CLAIMS ===
+SUMMARY: I read README.md, the Round 1 slide (content plan and rendered PNG), the Round 2 deck plan, DEMO_SCRIPT, EXPERIMENT_RESULTS, KNOWN_LIMITATIONS, FAILURE_ANALYSIS, INNOVATION_HYPOTHESES, DECISION_LOG and CLAIM_EVIDENCE_MATRIX, then opened every summary.json and metrics.json they cite and the code paths behind the "zero false alarms", "deterministic / no LLM", "never look ahead", "tamper detected" and "retrain triggered by drift" claims. The worst problem is that the headline E3 result ("98–100% detection with zero false alarms; silent-wrong-order rate driven to zero") is largely true by construction: false alarms are change-relative to a clean run whose per-engine inputs are byte-identical, th
+  [high] S1: "Zero false alarms" is zero by construction, and the redefinition that made it so is undisclosed (C:\Users\HP\OneDrive\Desktop\tata\README.md:16)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=True -> low
+  [high] S2: "Silent-wrong-order rate driven to zero" is produced by the fleet drift alarm escalating every HIGH/CRITICAL e (C:\Users\HP\OneDrive\Desktop\tata\submission\round2_deck_content.md:14)  VERDICTS: REPRODUCE refuted=False -> high; SEVERITY  refuted=False -> medium
+  [high] S3: Demo script's "on corrupted inputs for 65–100%" escalation share contradicts e3_stress/summary.json (C:\Users\HP\OneDrive\Desktop\tata\docs\DEMO_SCRIPT.md:24)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> medium
+  [high] S4: H4's pre-registered failure is replaced on the deck and in the README by an unlabelled post-hoc run (C:\Users\HP\OneDrive\Desktop\tata\submission\round2_deck_content.md:15)  VERDICTS: REPRODUCE refuted=False -> high; SEVERITY  refuted=True -> low
+  [high] S5: "33–46 s per subset" contradicts the elapsed_s stored in artifacts/<subset>/metrics.json (C:\Users\HP\OneDrive\Desktop\tata\submission\round2_deck_content.md:9)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> low
+  [high] S6: FD004 champion (PICP 0.82) fails the system's own promotion-gate floor and was never gated (C:\Users\HP\OneDrive\Desktop\tata\submission\round1_slide_content.md:12)  VERDICTS: REPRODUCE refuted=True -> not_a_finding; SEVERITY  refuted=True -> low
+  [medi] S7: Round 1 slide presents a drift-triggered retraining job as built; nothing in the package triggers retraining (C:\Users\HP\OneDrive\Desktop\tata\submission\make_round1_slide.py:92)
+  [medi] S8: Batch imputer back-fills from future cycles; "never look ahead" and "stream equals batch (tested)" hold only o (C:\Users\HP\OneDrive\Desktop\tata\src\sentinelloop\clean.py:28)
+  [medi] S9: "Tampering is detected" is only demonstrated for an edit that leaves the hash untouched; the chain has no secr (C:\Users\HP\OneDrive\Desktop\tata\README.md:16)
+  [medi] S10: README coverage column shows capped-truth coverage only, while the RMSE column shows both; raw coverage is 0.5 (C:\Users\HP\OneDrive\Desktop\tata\README.md:9)
+  [medi] S11: H1 spun as "never late" when the point policy is also never late on 3/4 subsets (C:\Users\HP\OneDrive\Desktop\tata\submission\round2_deck_content.md:13)
+  [medi] S12: "Tests were written before the code" is unverifiable (no git history) yet marked VERIFIED (C:\Users\HP\OneDrive\Desktop\tata\submission\CLAIM_EVIDENCE_MATRIX.md:25)
+  [medi] S13: Round 1 slide wording presents Round 2 evidence as already shown and misdescribes where thresholds are set (C:\Users\HP\OneDrive\Desktop\tata\submission\make_round1_slide.py:156)
+  [low] S14: "227 work orders" double-counts stream-replay orders for engines already ordered in batch; README table gives  (C:\Users\HP\OneDrive\Desktop\tata\docs\EXPERIMENT_RESULTS.md:78)
+  [low] S15: Stale placeholders left in documents that claim to be final (C:\Users\HP\OneDrive\Desktop\tata\docs\EXPERIMENT_RESULTS.md:126)
+
+=== Business value and judge persuasion ===
+SUMMARY: I read the Case Study 1 PDF (pdftotext), PROBLEM_SELECTION, SCORING_AND_RISKS, both submission content files, the rendered Round 1 slide, DEMO_SCRIPT, DEMO_RUNBOOK, EXPERIMENT_RESULTS, KNOWN_LIMITATIONS, README, the claim matrix, and verified every quoted number against artifacts/FD00x/metrics.json, retrain_log.json, the audit logs and experiments/results/e0-e7 summaries. The worst problem is persuasion order: the thesis sentence on the Round 1 slide, Round 2 slide 1 and the README leads with "work orders from the RUL lower bound" and "escalates only untrustworthy cases", which are precisely the two mechanisms the entry's own E1/E2 results do not support (lower bound = +70% discarded life at
+  [high] BV-01: Thesis leads with the one mechanism the experiments did not support (submission/round2_deck_content.md:7)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=True -> low
+  [high] BV-02: 'Escalates only untrustworthy cases to a human' is contradicted by the entry's own audit logs and E2 (README.md:3)  VERDICTS: REPRODUCE refuted=True -> low; SEVERITY  refuted=True -> low
+  [high] BV-03: Primary demo subset FD001 has no PROMOTE row; the script says the gate promotes (docs/DEMO_RUNBOOK.md:16)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=True -> low
+  [high] BV-04: Demo agent runs on thresholds the entry's own analysis says would over-maintain (configs/default.yaml:33)  VERDICTS: REPRODUCE refuted=False -> low; SEVERITY  refuted=True -> low
+  [high] BV-05: Deck quotes '33-46 s per subset' but the current metrics.json artefacts say 51-76 s (submission/round2_deck_content.md:9)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> medium
+  [medi] BV-06: Late rate and discarded life are never translated into the PDF's business terms; the cost-sensitive sweep is l (submission/round2_deck_content.md:13)
+  [medi] BV-07: No 'what it would take to deploy' story for an engineering-services judge (submission/round2_deck_content.md:16)
+  [medi] BV-08: Stale placeholders and a stale promise in the submission texts (submission/round2_deck_content.md:13)
+  [medi] BV-09: Model performance (15%) is the weakest rubric line and slide 5 hides the comparison that matters (submission/round2_deck_content.md:11)
+  [medi] BV-10: Demo script quotes ranges that drop the weak E3 rows (docs/DEMO_SCRIPT.md:25)
+  [medi] BV-11: Round 1 slide never states the business objective in the PDF's own words (submission/make_round1_slide.py:64)
+  [low] BV-12: Round 1 slide polish: placeholder team line, Python version, inconsistent rounding (submission/make_round1_slide.py:189)
+  [low] BV-13: '103 tests' claim is backed by a log with no pytest summary line (experiments/results/test_full_phase5.log:1)
+
+=== SUBMISSION FORMAT AND LOGISTICS ===
+SUMMARY: I read docs/OFFICIAL_REQUIREMENTS.md, docs/SCORING_AND_RISKS.md, PROJECT_STATUS.md, submission/make_round1_slide.py, round1_slide_content.md, round2_deck_content.md, CLAIM_EVIDENCE_MATRIX.md and docs/DEMO_RUNBOOK.md, viewed round1_slide.png at full size and at 320/640 px thumbnails, inspected round1_slide.pdf in binary (1 page, 70,482 bytes, 16:9, Type 3 fonts, no Title metadata), extracted the Round 1 wording from the official Case Study 1 PDF, and cross-checked every number on the slide against experiments/results/e0_baseline/*_metrics.json. The worst problems are logistical rather than technical: with 5 days to the registration deadline and 6 to the Round 1 deadline, registration, upload 
+  [crit] SF-01: Registration and upload mechanics still unconfirmed 5 days before the registration deadline; listing shows 'Re (PROJECT_STATUS.md:17)  VERDICTS: REPRODUCE refuted=False -> critical; SEVERITY  refuted=True -> low
+  [high] SF-02: Shipped PDF/PNG carry the placeholder '(college to be filled)'; script default is underscores (submission/make_round1_slide.py:51)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=False -> low
+  [high] SF-03: Single-slide format rests on the Unstop listing; the official PDF says 'design and Architecture slides deck' ( (docs/OFFICIAL_REQUIREMENTS.md:36)  VERDICTS: REPRODUCE refuted=False -> medium; SEVERITY  refuted=True -> low
+  [high] SF-04: Slide is ~800 words at 6.0–6.7 pt body text: illegible at thumbnail scale, below projector minimums, not reada (submission/make_round1_slide.py:44)  VERDICTS: REPRODUCE refuted=False -> high; SEVERITY  refuted=False -> medium
+  [high] SF-05: CLAIM_EVIDENCE_MATRIX and the Round 1 content plan quote FD004 raw RMSE as 27.1; the artefact and the rendered (submission/CLAIM_EVIDENCE_MATRIX.md:7)  VERDICTS: REPRODUCE refuted=False -> low; SEVERITY  refuted=False -> low
+  [medi] SF-06: No labelled 'Problem understanding' section (15% of Round 1) and no explicit rubric map on the slide (submission/make_round1_slide.py:101)
+  [medi] SF-07: Round 2 deliverables (PPTX, recording, repo link) not built and depend on still-open team actions; attachment  (docs/OFFICIAL_REQUIREMENTS.md:64)
+  [medi] SF-08: Slide footer promises a 'public repository' while the IP clause is unaccepted and no remote exists (submission/make_round1_slide.py:190)
+  [low] SF-09: Rule-table text 'schedule maintenance (order)' overflows the orange panel border (submission/make_round1_slide.py:138)
+  [low] SF-10: PDF uses Type 3 fonts, has no Title/Author metadata and a generic file name (submission/round1_slide.pdf:1)
+  [low] SF-11: Round 2 deck plan still carries a '[filled from ...]' placeholder although the E5 artefact now exists (submission/round2_deck_content.md:13)
+  [low] SF-12: SCORING_AND_RISKS.md target row names IsolationForest as the Round 1 ML story; the slide presents a healthy-ba (docs/SCORING_AND_RISKS.md:10)
+
+=== CRITIC ===
+SUMMARY: I opened the Case Study 1 PDF, every test file, the agent/audit/pipeline/stream/drift/retrain/dashboard modules, the experiment scripts, all per-subset artefacts, both SQLite databases (read-only) and the stored experiment summaries, ran the fast test suite (97 passed, 6 deselected) and cross-checked stored artefacts against the claims that cite them. The worst problems: the "decision-metric" promotion gate that the entry presents as its differentiator has a late-rate branch that is identically 0.0 in all 20 stored gate evaluations (it replays at threshold 25 where the entry's own E1 says nobody is late); the MLflow registry's live `champion` alias for the FD002–FD004 gated models points to 
+  [high] CC-1: The gate's late-rate check (the entry's claimed differentiator) is inert: 0.0 in all 20 stored evaluations (experiments/e4_retrain_gate.py:49)
+  [high] CC-2: MLflow registry's live `champion` alias for FD002/FD003/FD004 gated models is the corrupted-data challenger; s (experiments/e4_retrain_gate.py:79)
+  [high] CC-3: 'Stream mode equals batch (tested)' is contradicted by the stored artefacts: 40-49% of stream rows carry diffe (submission/CLAIM_EVIDENCE_MATRIX.md:11)
+  [medi] CC-4: Stream path is weaker than batch and non-causal: it reuses the whole-test-set drift alarm, has no window quali (src/sentinelloop/pipeline.py:216)
+  [medi] CC-5: Agent outcomes against ground truth on the official test set are never reported; computed numbers show misses  (submission/round2_deck_content.md:12)
+  [medi] CC-6: Audit log is not append-only and truncation is undetectable; E6 tests only an in-place edit (src/sentinelloop/pipeline.py:174)
+  [medi] CC-7: Threat-model, design and decision-log 'controls' describe eight mechanisms that do not exist in the code (beyo (docs/THREAT_MODEL_AND_FAILURE_MODES.md:21)
+  [medi] CC-8: SYSTEM_DESIGN config excerpt contradicts configs/default.yaml on five keys, and `drift.window` is dead configu (docs/SYSTEM_DESIGN.md:79)
+  [medi] CC-9: Test-suite blind spots: stream cleaning, pipeline helpers, CLI, dashboard, every experiment script, multi-regi (tests/test_stream.py:8)
+  [medi] CC-10: Stored retrain_log.json artefacts were not written by the shipped e4_retrain_gate.py (missing `checks` key) (experiments/e4_retrain_gate.py:89)
+  [medi] CC-11: The auto-generated work order carries no actionable content, is never closed, and the 'names the sensors' expl (src/sentinelloop/agent.py:125)
+  [medi] CC-12: No .gitignore while the slide promises a public repository: the NASA archive the docs say is 'not redistribute (docs/REPRODUCIBILITY.md:12)
+  [medi] CC-13: Monitoring view and MLflow tracking omit the agent-level signals: no per-engine quality/drift columns, no regi (src/sentinelloop/dashboard.py:47)
+  [low] CC-14: PROJECT_STATUS.md contradicts itself about what is finished (claims to be updated after every phase) (PROJECT_STATUS.md:29)
+  [low] CC-15: EXPERIMENT_PLAN promises plots and per-experiment metrics.json that no results folder contains (docs/EXPERIMENT_PLAN.md:3)

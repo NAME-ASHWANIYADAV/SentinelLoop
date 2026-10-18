@@ -1,0 +1,131 @@
+{
+ "table": [
+  {
+   "subset": "FD001",
+   "variant": "full",
+   "n_features": 62,
+   "test_rmse_capped": 15.054008286014064,
+   "test_rmse_raw": 16.131191983916892,
+   "test_picp": 0.9,
+   "test_mpiw": 65.62602971514978,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 22.65,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 32.4
+  },
+  {
+   "subset": "FD001",
+   "variant": "raw_sensors_only_no_rolling",
+   "n_features": 17,
+   "test_rmse_capped": 17.74530795084912,
+   "test_rmse_raw": 18.86104644112642,
+   "test_picp": 0.89,
+   "test_mpiw": 53.88876706116549,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 25.95,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 41.05
+  },
+  {
+   "subset": "FD001",
+   "variant": "with_ema_0.3",
+   "n_features": 58,
+   "test_rmse_capped": 13.676212558865588,
+   "test_rmse_raw": 14.723067178545188,
+   "test_picp": 0.93,
+   "test_mpiw": 67.49684221651539,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 25.3,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 35.65
+  },
+  {
+   "subset": "FD001",
+   "variant": "asymmetric_cqr",
+   "n_features": 62,
+   "test_rmse_capped": 15.054008286014064,
+   "test_rmse_raw": 16.131191983916892,
+   "test_picp": 0.92,
+   "test_mpiw": 68.02017165470863,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 22.65,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 35.4
+  },
+  {
+   "subset": "FD004",
+   "variant": "full",
+   "n_features": 70,
+   "test_rmse_capped": 16.551211648083672,
+   "test_rmse_raw": 28.016117054575723,
+   "test_picp": 0.8266129032258065,
+   "test_mpiw": 54.359642798688085,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 30.32,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 39.86
+  },
+  {
+   "subset": "FD004",
+   "variant": "no_regime_normalisation",
+   "n_features": 86,
+   "test_rmse_capped": 17.698936334386428,
+   "test_rmse_raw": 28.768435095149957,
+   "test_picp": 0.8911290322580645,
+   "test_mpiw": 70.4929671446782,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 34.34,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 55.62
+  },
+  {
+   "subset": "FD004",
+   "variant": "raw_sensors_only_no_rolling",
+   "n_features": 19,
+   "test_rmse_capped": 18.24294927188452,
+   "test_rmse_raw": 29.044115205753837,
+   "test_picp": 0.8790322580645161,
+   "test_mpiw": 64.59129570020664,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 32.92,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 51.06
+  },
+  {
+   "subset": "FD004",
+   "variant": "with_ema_0.3",
+   "n_features": 86,
+   "test_rmse_capped": 23.198553890388975,
+   "test_rmse_raw": 33.787303005378284,
+   "test_picp": 0.8387096774193549,
+   "test_mpiw": 77.59611649694442,
+   "holdout_late_rate_point": 0.04,
+   "holdout_discarded_point": 31.291666666666668,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 58.3
+  },
+  {
+   "subset": "FD004",
+   "variant": "asymmetric_cqr",
+   "n_features": 70,
+   "test_rmse_capped": 16.551211648083672,
+   "test_rmse_raw": 28.016117054575723,
+   "test_picp": 0.8870967741935484,
+   "test_mpiw": 56.79011079669244,
+   "holdout_late_rate_point": 0.0,
+   "holdout_discarded_point": 30.32,
+   "holdout_late_rate_lower": 0.0,
+   "holdout_discarded_lower": 43.78
+  }
+ ],
+ "conclusion": "Ablation table: each row removes or adds one component; compare with 'full'. The point-vs-lower-bound columns are the policy ablation.",
+ "fast": false,
+ "generated": "2026-10-18T06:16:43",
+ "config_hashes": {
+  "FD001": "83fdcf31e3fd",
+  "FD002": "fd253a160a87",
+  "FD003": "f8eed41381fa",
+  "FD004": "e32edc97c814"
+ },
+ "seed": 42
+}

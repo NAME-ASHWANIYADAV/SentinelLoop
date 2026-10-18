@@ -1,0 +1,34 @@
+........................................................................ [ 64%]
+......F.................................                                 [100%]
+================================== FAILURES ===================================
+_____ test_stream_replay_reproduces_batch_decisions_bitwise_on_real_data ______
+
+tmp_path = WindowsPath('C:/Users/HP/AppData/Local/Temp/pytest-of-HP/pytest-53/test_stream_replay_reproduces_0')
+
+    @pytest.mark.slow
+    def test_stream_replay_reproduces_batch_decisions_bitwise_on_real_data(tmp_path):
+        """The stream path (CleanStream -> FeatureStream -> CQR -> agent) must give the same predictions, flags and
+        severities as the batch path for the same engine-cycles, and must record escalation reasons and input quality."""
+        import pandas as pd
+        if not (DATA_RAW / "train_FD001.txt").exists():
+            pytest.skip("real data not present")
+        pipeline.run("FD001", data_dir=DATA_RAW, out_dir=tmp_path, config_dir=ROOT / "configs", fast=True, stream_units=2, mlflow=False)
+        out = tmp_path / "FD001"
+        s = pd.read_csv(out / "decisions_stream.csv")
+        p = pd.read_csv(out / "predictions_test_all_cycles.csv")
+        j = s.merge(p, on=["unit", "cycle"], suffixes=("_s", "_b"))
+>       assert len(j) == len(s) > 100
+E       assert 80 > 100
+E        +  where 80 = len(    unit  cycle       point  ...  imputed_frac  quality_flag  drift_flag\n0      1      1  119.157552  ...           0....     False       False\n79     2     49  120.867097  ...           0.0         False       False\n\n[80 rows x 16 columns])
+
+tests\test_pipeline_smoke.py:43: AssertionError
+---------------------------- Captured stdout call -----------------------------
+[FD001] loading and preparing data
+[FD001] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD001] fitting anomaly detector and drift monitor on training data
+[FD001] running the Triage Agent on 100 test engines (batch) and 2 engines (stream); max_width 102.6
+[FD001] done in 6.0 s: HGBR RMSE 14.54 capped / 15.84 raw, PICP 0.910, MPIW 80.2, orders 23, escalation share 0.13
+=========================== short test summary info ===========================
+FAILED tests/test_pipeline_smoke.py::test_stream_replay_reproduces_batch_decisions_bitwise_on_real_data
+1 failed, 111 passed in 82.83s (0:01:22)
+exit=1

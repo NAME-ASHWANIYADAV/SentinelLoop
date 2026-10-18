@@ -1,0 +1,315 @@
+{
+ "role": "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+ "findings": [
+  {
+   "case_id": 1,
+   "finding": "CROSS-CUTTING FORMAT RISK (applies to all five): the only evidence on TELIPORT's format is a third-party Season 3 summary: Round 1 = one-slide PDF, Round 2 = 10-slide deck (.ppt/.pptx/.pdf, max 5 MB) with prototypes/spreadsheets only as annexures; no official Season 4 page, rules or judging commentary exists online (two searches, direct fetch of the blog returned its homepage). If Season 4 mirrors this, no judge runs code or watches a live demo in Rounds 1-2; 'Working pipeline 20%' and 'Demo & explanation 20%' in Case 1 (and every 'live demo' plan in Cases 2-5) are really judged through a deck plus an annexed repo link/video. This penalises candidates whose evidence does not compress into slides (Case 5 hardware/latency demo, Case 3 live experiments) and rewards candidates whose evidence is tabular (Case 1 per-subset metrics table, Case 4 precision/recall table). Label: unverified_assumption (Season 3 only, third-party).",
+   "severity": "high",
+   "evidence": "WebSearch results for 'TELIPORT Season 3 one slide 10 slides annexure' consistently summarise frontlinesmedia.in/?p=45831 (one-slide Round 1, 10-slide Round 2, 5 MB, annexures allowed); direct WebFetch of that URL returned only the site homepage; no tataelxsi.com or Unstop page for Season 4 found.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://frontlinesmedia.in/?p=45831"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Dataset and literature claims verified; data.nasa.gov is flaky. The PCoE S3 zip returned HTTP 200, Content-Length 12,429,152, ETag a83e8f128c59fc5614a4ca2e42a2e30c (exact match to the specialist). The PDF's official link data.nasa.gov returned a connection failure (curl code 000) on the first attempt and 200 on two retries, confirming intermittent reachability. Robinson (IJPHM vol 17 no 1, 27 Apr 2026) exists and its abstract states GBM + asymmetric CQR on all four C-MAPSS subsets with test RMSE 13.26-16.85 and 88-92% coverage at 90% nominal. arXiv 2607.16493 (submitted 17 Jul 2026) exists and is about leakage in sliding-window splits on C-MAPSS. Label: verified_fact.",
+   "severity": "low",
+   "evidence": "curl -I on the S3 URL; two curl attempts on data.nasa.gov (000 then 200, 200); WebFetch of the IJPHM article page and the arXiv abstract page.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip",
+    "https://www.papers.phmsociety.org/index.php/ijphm/article/view/4724",
+    "https://arxiv.org/abs/2607.16493"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Hidden dependency in the MLOps design: the MLflow Model Registry (champion/challenger promotion gate) does NOT work on the default local 'mlruns' file store; the official FAQ says 'To use the Model Registry functionality with MLflow tracking, you must use database backed store.' Still offline and free (sqlite:///mlflow.db), but the architecture text must say so or the registry demo fails at first run. Evidently 0.7.23 (11 Sep 2026, Apache-2.0, Python>=3.10) verified; its API churn remains a pin-the-version risk. Label: verified_fact.",
+   "severity": "low",
+   "evidence": "WebFetch of mlflow.org/docs/latest/ml/tracking/ (quote above) and pypi.org/project/evidently/.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://mlflow.org/docs/latest/ml/tracking/",
+    "https://pypi.org/project/evidently/"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Residual differentiation risk is real but not disqualifying: the case is a textbook benchmark with 53+ public repos (not re-counted here), so the team's edge is engineering hygiene (conformal-interval triage, drift-gated retraining, leakage audit) rather than a visible idea. In a 10-slide deck-first format, that edge must be made visual (one 'honest metrics' slide with the 2.48-vs-14.22 leakage trap and the capped-vs-raw RMSE table). Judges who want 'innovation' may score it as competent rather than winning. Label: technical_inference.",
+   "severity": "medium",
+   "evidence": "Case 1 PDF weights: Model performance only 15%, Working pipeline 20% + Demo 20%; Season 3 deck-only format evidence above.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://github.com/topics/cmapss"
+   ]
+  },
+  {
+   "case_id": 2,
+   "finding": "The single free thermal-validation source is fragile and proprietary-marked: the reseller-hosted Samsung 'Introduction of INR18650-25R' PDF now returns HTTP 301 then HTTP 520 (empty body) from this machine; search snippets confirm it is marked proprietary to Samsung SDI. The independent lygte-info review of the 25R contains discharge/capacity curves but NO cell-temperature measurements, so there is no second free source for the 30.9-97.8 C temperature table the validation page depends on. The team must transcribe and archive the values immediately and must not redistribute the PDF. Label: verified_fact (URL status), source_derived_requirement (no second thermal source found).",
+   "severity": "high",
+   "evidence": "curl -L on the kiwiquads URL: 'samsung 520 16 bytes'; WebSearch snippets describing the document as proprietary, dated Oct 2013; WebFetch of lygte-info review: 'Cell temperature at high current: None is reported'.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.kiwiquads.co.nz/wp-content/uploads/INR18650-25R-datasheet.pdf",
+    "https://lygte-info.dk/review/batteries2012/Samsung%20INR18650-25R%202500mAh%20(Green)%20UK.html"
+   ]
+  },
+  {
+   "case_id": 2,
+   "finding": "AIS 156 Amendment 3 clauses verified from the ACMA-hosted PDF (7 pages, 204,494 bytes): 'at least 4 temperature sensors', 'In case the temperature crosses 60 C an audio-visual alarm shall come', BMS 'shall gradually cut off the traction battery power', fuses/bond wires for parallel strings, cell-to-cell spacing, IS 16893 Part 2/3 cell certification, per-REESS traceability document, BMS data retained 'at least one month', thermal-propagation warning >= 5 minutes. The constraint-engine rules are citable. Caveat: this is an L-category vehicle standard; a judge can object to applying it to a generic 'battery energy system'. Label: verified_fact.",
+   "severity": "low",
+   "evidence": "Local pypdf extraction and keyword search of the downloaded PDF.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.acma.in/uploads/ciculer-attachement/Amendment%203%20to%20AIS%20156.pdf"
+   ]
+  },
+  {
+   "case_id": 2,
+   "finding": "Silent expertise dependency: the lumped-thermal (Bi < 0.1) defence is weaker than the specialist states. With an 18650 radius of 9 mm (Lc = r/2 = 4.5 mm) and radial k = 0.2 W/mK, Bi = h*Lc/k = 0.18 at h = 8 W/m2K (natural convection) but 0.63 at h = 28 W/m2K, i.e. exactly the forced-air 'Alt B' case the demo relies on. A Tata Elxsi thermal engineer will ask this; the answer must be 'first-order, +/-5-10 C' rather than 'validated'. PyBaMM 26.10.1.0 (14 Oct 2026, BSD, pure-Python wheel) is verified and its Thevenin docs DO list a 'diffusion element' option, so the specialist's runtime failure indicates a doc/API mismatch: pin the version and keep PyBaMM as an optional cross-check only. Label: technical_inference (Biot calc), verified_fact (PyBaMM).",
+   "severity": "medium",
+   "evidence": "Biot calculation above using the specialist's own k and h ranges; WebFetch of pypi.org/project/pybamm and docs.pybamm.org Thevenin page.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://pypi.org/project/pybamm/",
+    "https://docs.pybamm.org/en/latest/source/api/models/equivalent_circuit/thevenin.html"
+   ]
+  },
+  {
+   "case_id": 2,
+   "finding": "CALCE and Oxford data access verified: CALCE lists direct zip links with no registration, INR 18650-20R low-current and incremental OCV at 0/25/45 C plus DST/FUDS/US06/BJDST, citation requested, no licence stated (so do not redistribute); Oxford Dataset 1 is ODC-ODbL, 253.8 MB, Kokam pouch cells (different format from 18650, as the specialist says). Label: verified_fact.",
+   "severity": "low",
+   "evidence": "WebFetch of calce.umd.edu/battery-data and ora.ox.ac.uk record.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://calce.umd.edu/battery-data",
+    "https://ora.ox.ac.uk/objects/uuid:03ba4b01-cfed-46d3-9b1a-7d4a7bdf6fac"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "WSL claim verified and the CI escape hatch is weaker than claimed. The linux-msft-wsl-6.6.y config has CONFIG_NET_SCH_HTB=m, NETEM=m, FQ_CODEL=m, CLS_FLOWER=m, IFB=m and '# CONFIG_NET_SCH_CAKE is not set'. The current ubuntu-24.04 GitHub runner image (20261012.334.1) runs kernel 6.17.0-1022-azure; packages.ubuntu.com lists sch_cake.ko only for 6.8.0-1007-azure, 6.17 generic and 6.17 azure-fde flavours, not for that exact runner kernel, and the fetched runner documentation page does not state passwordless sudo or module availability. Therefore 'CAKE reference comparison in CI' and 'tc/netem experiments in CI' are both unverified until one spike workflow is run. Label: verified_fact (WSL config, runner kernel), unverified_assumption (CAKE/netem on the runner).",
+   "severity": "medium",
+   "evidence": "curl + grep of the raw config-wsl file; WebFetch of actions/runner-images Ubuntu2404-Readme.md (kernel 6.17.0-1022-azure, iproute2 6.1.0 listed, iperf3 not listed); WebFetch of packages.ubuntu.com contents search for sch_cake.ko (noble and noble-updates); WebFetch of GitHub-hosted runner docs.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://raw.githubusercontent.com/microsoft/WSL2-Linux-Kernel/linux-msft-wsl-6.6.y/arch/x86/configs/config-wsl",
+    "https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md",
+    "https://packages.ubuntu.com/search?searchon=contents&keywords=sch_cake.ko&mode=filename&suite=noble-updates&arch=any"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "Skill gap is the dominant residual risk: every step needs root, a Linux kernel with the right modules, and tc semantics that fail silently (traffic falls to the default class with no error). The specialist's own skill_fit of 6 is the lowest of the five candidates, and the team has demonstrated no Linux networking work. Mitigations (make doctor, Ubuntu VM, scripted runs) address environment, not judgement; a mis-shaped direction (ingress vs egress) can produce a convincing-looking but wrong result. Judges from a broadband/MCV practice know OpenWrt SQM and cake-autorate. Label: technical_inference.",
+   "severity": "medium",
+   "evidence": "Specialist 3 dimension_scores.skill_fit = 6 (lowest across candidates); PDF requires 'Linux traffic control or another open and inspectable enforcement mechanism' and automated reset/evidence scripts.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://man7.org/linux/man-pages/man8/tc-htb.8.html"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "ISCXVPN2016 licensing is murkier than stated: the CIC page says the dataset is 'publicly available for researchers', links a plain download directory, has an empty 'License' heading and only requests citation of the ICISSP 2016 paper; it does not say 'redistribution allowed'. Given the PDF's hard rule on third-party licences, the team must not redistribute any ISCX slice and should prefer self-generated captures (which the specialist already recommends). Label: verified_fact.",
+   "severity": "low",
+   "evidence": "WebFetch of unb.ca/cic/datasets/vpn.html.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.unb.ca/cic/datasets/vpn.html"
+   ]
+  },
+  {
+   "case_id": 4,
+   "finding": "Data and rule sources verified live: api.fda.gov/device/udi.json returns 200 (4,293-byte record) without a key; rate limits are exactly 240/min and 1,000/day keyless, 120,000/day with a free key; openFDA licence is CC0 with a GMDN exception requiring a licence for commercial/AI-training extraction (DUNS not mentioned on the licence page); the EUR-Lex consolidated MDR PDF (CELEX 02017R0745-20250110) returns 200 at 1,936,314 bytes; accessdata.fda.gov P200045C.pdf returns 200 at 1,539,568 bytes; 21 CFR 801.18 YYYY-MM-DD with NDC and radiological exceptions confirmed; FDA recognition numbers 5-134 (ISO 15223-1:2021, 12/20/2021) and 5-148 (incl. AMD1:2025, 12/22/2025) confirmed; EC MDR language table dated 18 Aug 2025 confirmed. IMDRF N52 page timed out again (60 s), so no IMDRF specifics should be cited. Label: verified_fact (all except IMDRF).",
+   "severity": "low",
+   "evidence": "curl status checks and WebFetch of each page listed.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://api.fda.gov/device/udi.json?search=brand_name:stent&limit=1",
+    "https://open.fda.gov/apis/authentication/",
+    "https://open.fda.gov/license/",
+    "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:02017R0745-20250110",
+    "https://www.accessdata.fda.gov/cdrh_docs/pdf20/P200045C.pdf",
+    "https://www.law.cornell.edu/cfr/text/21/801.18",
+    "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfStandards/results.cfm?title=15223",
+    "https://health.ec.europa.eu/publications/overview-language-requirements-manufacturers-medical-devices_en"
+   ]
+  },
+  {
+   "case_id": 4,
+   "finding": "Hidden privacy/credibility trap in the LLM layer: the Gemini API unpaid-tier terms state Google 'uses the content you submit ... and any generated responses' to improve products, 'human reviewers may read, annotate, and process your API input and output', and 'Do not submit sensitive, confidential, or personal information to the Unpaid Services.' A medical-device labeling compliance tool that ships label artwork and IFU text to a free cloud LLM contradicts the case's own patient-safety and compliance framing, and an HLS judge will notice. The local alternative (Ollama 7-8B) needs ~8-16 GB RAM, which is unverified for this team. The deterministic core needs no LLM, so this is survivable, but the LLM layer should be local-only or clearly off by default. Label: verified_fact (terms), unverified_assumption (team RAM).",
+   "severity": "medium",
+   "evidence": "WebFetch of ai.google.dev/gemini-api/terms (quotes above).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://ai.google.dev/gemini-api/terms",
+    "https://docs.ollama.com/capabilities/structured-outputs"
+   ]
+  },
+  {
+   "case_id": 4,
+   "finding": "Judge-domain exposure confirmed: Tata Elxsi's HLS page advertises a 'Medical Device Packaging & Labeling' service that 'standardizes and automates labeling workflows across sites' and a regulatory-intelligence platform TEDREG. Judges will be labeling/regulatory practitioners; a wrong clause citation or an over-claimed 'full MDR compliance' is highly visible. Combined with no mandated prototype and no weights, slide-heavy teams with regulatory vocabulary can tie on 5 of 7 criteria. This is the main reason Case 4 is not a safer pick than Case 1. Label: verified_fact (page content), technical_inference (judge composition).",
+   "severity": "medium",
+   "evidence": "WebFetch of the Tata Elxsi medical-device regulatory compliance page.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.tataelxsi.com/industries/healthcare-and-life-sciences/medical-device-regulatory-compliance"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "Confirmed hidden environment dependency: the stock WSL2 kernel config has CONFIG_CAN=m but '# CONFIG_CAN_VCAN is not set', so the planned 'real SocketCAN vcan0 replay with canplayer' cannot run on teammates' Windows laptops under WSL2 or Docker Desktop (same kernel). It needs a Linux VM, a custom WSL kernel, or the Pi. The specialist only said 'may not'. Label: verified_fact.",
+   "severity": "high",
+   "evidence": "curl + grep of the raw linux-msft-wsl-6.6.y config-wsl file: 'CONFIG_CAN=m' and '# CONFIG_CAN_VCAN is not set'.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://raw.githubusercontent.com/microsoft/WSL2-Linux-Kernel/linux-msft-wsl-6.6.y/arch/x86/configs/config-wsl"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "The <2 s constraint cannot be met by the LLM path on the stated hardware, and the parser model is weak at following instructions. Community measurements (author-run via Ollama): qwen2.5:0.5b = 8.0 tok/s on a 2 GB Pi 4, 28.4 tok/s and 675 MB peak RSS on an 8 GB Pi 5; the same page reports qwen2.5:0.5b followed all checked rules in only 11/18 replies (61%) on Pi 5 and 2/6 on Pi 4. Arithmetic: a 30-40 token QueryPlan at 8 tok/s is 3.75-5 s of generation alone on four A72 cores, before prompt evaluation; two Cortex-A5x-class cores are slower still. So only the regex/template tier meets 2 s; the LLM tier will be reported as >2 s on target. Honest, but it concedes the headline constraint, and grammar-constrained JSON fixes syntax, not intent errors. The stratosphere Pi 5 benchmark page does not include a 0.5B model (only 1.5B at 9.97 tok/s and 1,849 MB), so no llama.cpp-specific 0.5B number exists. Label: verified_fact (sources), technical_inference (latency arithmetic).",
+   "severity": "high",
+   "evidence": "WebFetch of simeononsecurity.com Pi 4/5 article and the stratospherelinuxips Pi 5 benchmark page; Case 5 PDF constraint text ('~2 GB RAM, ~2 ARM A5X Cores', 'under 2 seconds for common queries').",
+   "changes_recommendation": false,
+   "urls": [
+    "https://simeononsecurity.com/articles/ai-models-raspberry-pi-4-5/",
+    "https://stratospherelinuxips.readthedocs.io/en/develop/immune/research_rpi_llm_performance.html"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "Partial mitigation for the 'no ARM hardware' critical risk exists but has caveats: Oracle Always Free includes VM.Standard.A1.Flex at 2 OCPUs / 12 GB (home region only, frequent 'out of host capacity' errors, idle instances reclaimed after 7 days below 20% utilisation); AWS offers t4g.small free for up to 750 h/month until 31 Dec 2026. Both are Neoverse-class cores far faster than Cortex-A5x; Docker --cpus/--cpuset caps core count, not core speed, so latency numbers from these VMs still flatter the target. This downgrades the risk from critical to high, not to medium. Label: verified_fact (offers), technical_inference (speed caveat).",
+   "severity": "medium",
+   "evidence": "WebFetch of docs.oracle.com Always Free resources page and aws.amazon.com/ec2/instance-types/t4/ ('free for up to 750 hours / month until Dec 31st 2026'); Docker resource-constraint docs cited by the specialist.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm",
+    "https://aws.amazon.com/ec2/instance-types/t4/",
+    "https://docs.docker.com/engine/containers/resource_constraints/"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "The 'real CAN ingestion' story is thinner than it reads: ROAD (CC BY 4.0, 556.7 MB, candump format, channel can0) ships NO DBC; its CSV signals are reverse-engineered and labelled only as 'Signal-i-of-ID', so replaying ROAD proves SocketCAN plumbing but yields no named vehicle signals. Named decoding depends entirely on the comma2k19 sample segment plus an opendbc Honda Civic DBC whose trim compatibility is an inference. VED (Apache-2.0) is verified and remains the only multi-week real source; its README gives no sampling rate or download link beyond the repo Data folder. The other listed sources (SOME/IP, VHAL, QNX, camera) are stubs, and the Data Integration criterion explicitly rewards breadth. AI HAT facts verified: only AI HAT+ 2 (Hailo-10H) runs LLMs and both HATs require a Pi 5. CARLA verified to need an RTX 2070-class GPU with 8 GB VRAM. Label: verified_fact.",
+   "severity": "medium",
+   "evidence": "WebFetch of zenodo record 10462796, github.com/gsoh/VED, raspberrypi.com AI HAT+ documentation, carla.readthedocs.io quick start.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://zenodo.org/records/10462796",
+    "https://github.com/gsoh/VED",
+    "https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html",
+    "https://carla.readthedocs.io/en/latest/start_quickstart/"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "Structural safety/credibility risk: two of the five acceptance-test queries (ADAS disengagements, battery-overheating precursors) have no public real data, so they must be synthesised; an automotive judge can call this fabricated unless the generator and ground truth are published and the injection into real streams is shown. Together with the most crowded, most LLM-trendy framing, this is the highest-variance candidate for this team. Label: technical_inference.",
+   "severity": "medium",
+   "evidence": "Case 5 PDF example queries vs. verified contents of VED/ROAD/comma2k19 (none contain ADAS or battery-fault events).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://github.com/gsoh/VED",
+    "https://github.com/commaai/comma2k19"
+   ]
+  }
+ ],
+ "leader_assessment": "Case 1 survives red-teaming as the leader, and the reasons are evidentiary, not consensus. Every load-bearing dependency was re-verified today: the mandated dataset downloads with free tools (S3, exact ETag), the two papers that justify the differentiators (Robinson IJPHM 2026; arXiv 2607.16493) exist and say what is claimed, every tool is free and offline-capable, the ML core was reproduced on this laptop on CPU, and the PDF is the only one of the five that gives explicit rounds, deliverables and weights, which removes the format uncertainty that hurts the other four. The residual risks are modest and mitigable: (a) the MLflow registry needs a SQLite backend rather than the default file store (one line of config); (b) data.nasa.gov is intermittently unreachable (use the S3 mirror); (c) a verified dependency-fragility pattern on Windows (pin versions, Docker); (d) the real risk, which is that a crowded benchmark gives a low ceiling for 'wow' and the team's edge (uncertainty-aware triage, drift-gated retraining, leakage-audited evaluation, four subsets) is engineering hygiene that must be deliberately made visible in a deck-first format. None of these moves it below any other candidate, because the other four each carry at least one unmitigated structural risk: Case 4 (expert-judge regulatory exposure, no dataset, slideware parity on 5/7 criteria), Case 3 (lowest skill fit, root/kernel fragility, CAKE unavailable on WSL and unverified in CI), Case 2 (fitted-not-validated thermal physics against a now-unreachable proprietary-marked datasheet, 30% of weight on desirability/business pitch), Case 5 (no vcan on WSL, <2 s infeasible for the LLM tier on target hardware, ARM hardware unknown, synthetic fault data). Case 1 is the candidate with the highest realistic probability of a top score for a backend-strong student team, provided the deck carries the metrics tables and the honest-evaluation story explicitly.",
+ "assumption_sensitivity": "Case 1 loses its advantage under three plausible changes. (1) If a teammate has demonstrated Linux networking/tc experience and the team has at least two uninterrupted weeks, Case 3 overtakes it: all five of Case 3's criteria are directly measurable with order-of-magnitude effects (p95 RTT under load), the testbed is verified to run on the team's own WSL, and the field of competent entries is likely smaller than for a C-MAPSS benchmark; the remaining CAKE/CI gap is a one-workflow spike. (2) If the team includes someone with regulatory-affairs, QA or pharma background (or if Season 4 is strictly deck-only with no code ever examined), Case 4 overtakes it, because its two engineering-dominant criteria (Accuracy & validation, Traceability & auditability) stay winnable while the five narrative criteria become answerable with authority; without that person the expert-judge exposure keeps Case 4 second. (3) If the team already owns a Raspberry Pi 5 (ideally with AI HAT+ 2) plus a Linux box with vcan, and judges weight measured edge performance over protocol breadth, Case 5 becomes competitive, but it never beats Case 1 on residual risk because two of five acceptance queries still need synthetic data and the LLM tier still cannot meet 2 s on two A5x-class cores. Case 2 overtakes Case 1 only if a teammate has real battery/thermal engineering experience and the team can archive the 25R datasheet values before the reseller mirror disappears; otherwise the 'fitted, not validated' objection and the 30% desirability/business weight keep it fourth. Case 1 is also vulnerable if judges interpret 'Demo & explanation' as an innovation showcase rather than articulation of trade-offs; in that case Case 4's regulation-as-data registry or Case 3's verify-or-rollback loop reads as more inventive.",
+ "ranking": [
+  {
+   "case_id": 1,
+   "rank": 1,
+   "rationale": "Lowest residual risk after mitigation: mandated, verified dataset; explicit rounds and weights; all tools free, offline and reproduced locally on CPU; differentiators backed by two verified 2026 papers. Remaining risks are config-level (SQLite registry backend, pinned deps, S3 mirror) plus a crowded-benchmark differentiation problem that a well-built deck can address."
+  },
+  {
+   "case_id": 4,
+   "rank": 2,
+   "rationale": "Deterministic, offline core on verified free public data (openFDA CC0, EUR-Lex MDR PDF, PMA IFUs, CFR, FDA recognised-standard numbers, EC language table). Residual risk is domain exposure: Tata Elxsi HLS judges run labeling-automation and regulatory-intelligence services, no dataset or prototype is mandated so slideware can tie on 5 of 7 criteria, the Gemini free tier is unusable for anything resembling confidential label data, and one wrong clause is highly visible. Beats Case 3 only on execution safety, not on measurability."
+  },
+  {
+   "case_id": 3,
+   "rank": 3,
+   "rationale": "Most measurable rubric (five criteria, all quantifiable, large effect sizes) and the testbed is verified on the team's WSL, but the team's skill fit is the lowest (6/10), everything needs root and a Linux kernel, CAKE is absent on WSL and unverified on the current 6.17 azure CI runner, failures are silent, and broadband-domain judges know SQM/cake-autorate. Residual risk is execution, not feasibility; it flips to rank 2 if a teammate has Linux networking experience."
+  },
+  {
+   "case_id": 2,
+   "rank": 4,
+   "rationale": "Highly reliable demo (sub-second, deterministic) and verified regulatory anchor (AIS 156 Amd 3 clauses), but the physics is fitted to a single proprietary-marked reseller datasheet that now returns HTTP 520, the lumped-thermal assumption fails Bi<0.1 under forced air (Bi about 0.6 at h=28 W/m2K), no independent temperature data exists, and 30% of the weight (Desirability, Business viability) is pitch-driven. A software team without a thermal/battery engineer carries an unmitigable credibility risk in Q&A."
+  },
+  {
+   "case_id": 5,
+   "rank": 5,
+   "rationale": "Highest residual risk: vcan is confirmed absent in the stock WSL kernel (no SocketCAN demo on Windows laptops or Docker Desktop); the LLM tier cannot meet the 2 s constraint on 2 A5x-class cores (0.5B at 8 tok/s on a four-core Pi 4 already exceeds it); the 0.5B parser follows instructions only ~61% of the time in a community test; ARM hardware is unknown (free Oracle A1/AWS t4g mitigate availability but flatter latency); ROAD ships no DBC; two of five acceptance queries require synthetic fault data; and it is the most crowded, chatbot-trendy case. Honest engineering is possible but variance is the widest."
+  }
+ ],
+ "score_adjustments": [
+  {
+   "case_id": 1,
+   "dimension": "demo_reliability",
+   "delta": 0.5,
+   "reason": "If Season 4 follows the Season 3 deck-plus-annexure format (unverified, third-party), the verified Windows dependency breakage (LightGBM crash, Streamlit/plotly mismatch) matters less than the specialist's 7/10 implies, because evidence is delivered as tables, a repo and a recorded run rather than a live session; the MLflow registry backend requirement is a one-line fix."
+  },
+  {
+   "case_id": 1,
+   "dimension": "differentiation",
+   "delta": -0.5,
+   "reason": "Differentiators are hygiene-level and must be made visible in 10 slides; a crowded benchmark (53+ public repos) and a likely very large entrant pool cap the ceiling further than 6/10 suggests."
+  },
+  {
+   "case_id": 2,
+   "dimension": "data_availability",
+   "delta": -1,
+   "reason": "The sole free thermal-validation table lives on a reseller mirror marked proprietary that returned HTTP 520 today; lygte-info has no temperature data; no second free source for the 30.9-97.8 C table exists."
+  },
+  {
+   "case_id": 2,
+   "dimension": "engineering_depth",
+   "delta": -0.5,
+   "reason": "Lumped-thermal validity: Bi = h*Lc/k is about 0.18 at h=8 and about 0.63 at h=28 W/m2K for an 18650 (k=0.2 W/mK, Lc=4.5 mm), so the forced-air alternative is outside the lumped regime; must be presented as first-order."
+  },
+  {
+   "case_id": 3,
+   "dimension": "reproducible_evidence",
+   "delta": -0.5,
+   "reason": "CI reproduction and the CAKE reference comparison are unverified: the ubuntu-24.04 runner kernel is 6.17.0-1022-azure, sch_cake is listed only for other 6.17 flavours, and the fetched runner docs do not confirm passwordless sudo or module availability; one spike workflow is required before claiming it."
+  },
+  {
+   "case_id": 3,
+   "dimension": "demo_reliability",
+   "delta": -0.5,
+   "reason": "Root-only, kernel-module-dependent, silently-failing tc configuration on a team with no demonstrated Linux networking experience; WSL stock kernel lacks sch_cake and sch_pie (verified)."
+  },
+  {
+   "case_id": 4,
+   "dimension": "demo_reliability",
+   "delta": -0.5,
+   "reason": "The LLM layer's hosted fallback (Gemini unpaid tier) is contractually unsuitable for confidential/sensitive content and subject to human review; the local alternative needs 8-16 GB RAM (team hardware unverified). Deterministic core unaffected."
+  },
+  {
+   "case_id": 4,
+   "dimension": "low_failure_risk",
+   "delta": -0.5,
+   "reason": "Judge composition confirmed as labeling/regulatory practitioners (Tata Elxsi labeling service and TEDREG); no dataset, no weights and no prototype mandate make slideware parity on 5 of 7 criteria a real failure mode."
+  },
+  {
+   "case_id": 5,
+   "dimension": "demo_reliability",
+   "delta": -1,
+   "reason": "CONFIG_CAN_VCAN is not set in the stock WSL2 kernel (verified), so the SocketCAN replay cannot be developed or shown on Windows laptops or Docker Desktop; requires a Linux VM, custom kernel or Pi."
+  },
+  {
+   "case_id": 5,
+   "dimension": "low_failure_risk",
+   "delta": -0.5,
+   "reason": "LLM tier cannot meet the 2 s target on 2 A5x-class cores (0.5B at 8 tok/s on a 4-core Pi 4 gives 3.75-5 s for a 30-40 token plan), 0.5B instruction compliance ~61% in a community test, synthetic fault data exposure; partially offset by verified free ARM64 options (Oracle A1 2 OCPU/12 GB; AWS t4g.small free to 31 Dec 2026)."
+  },
+  {
+   "case_id": 5,
+   "dimension": "data_availability",
+   "delta": -0.5,
+   "reason": "ROAD ships no DBC (signals labelled Signal-i-of-ID), VED README gives no sampling rate or direct download link, and no public ADAS-disengagement or battery-overheat sequences exist; named-signal CAN decoding rests on an inferred opendbc/comma2k19 trim match."
+  }
+ ]
+}

@@ -1,0 +1,541 @@
+[
+ {
+  "case_id": 1,
+  "title": "Self-Healing Machines: Predictive Maintenance for a Connected Fleet (Tata Elxsi TELIPORT Season 4, Case Study 1 \"ACTG\")",
+  "spec_official": 8.3,
+  "spec_exec": 7.6,
+  "spec_conf": "high",
+  "dims": {
+   "skill_fit": 9.0,
+   "complete_prototype": 8.0,
+   "measurable_results": 9.0,
+   "demo_reliability": 7.0,
+   "differentiation": 6.0,
+   "data_availability": 10.0,
+   "free_tools_feasibility": 10.0,
+   "engineering_depth": 7.0,
+   "rubric_alignment": 9.0,
+   "low_failure_risk": 8.0,
+   "explainability": 8.0,
+   "reproducible_evidence": 9.0
+  },
+  "base": 8.28,
+  "equal": 8.33,
+  "ambition": 7.93,
+  "safety": 8.49,
+  "judges": [
+   [
+    "Independent Judge B: pragmatic hackathon",
+    7.8,
+    8,
+    "high"
+   ],
+   [
+    "Independent Judge A: senior product-engi",
+    7.6,
+    7.5,
+    "high"
+   ]
+  ],
+  "judge_official_mean": 7.7,
+  "judge_exec_mean": 7.75,
+  "reviewer_ranks": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    1
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    1
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    1
+   ]
+  ],
+  "adjustments": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "differentiation",
+    0.5,
+    "Verified that none of the 53 'cmapss' topic repos mention MLflow, drift, retrain"
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "low_failure_risk",
+    -0.5,
+    "My re-run reproduced the metrics but emitted a joblib/_winapi.CreateProcess trac"
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "reproducible_evidence",
+    0,
+    "Held at 9: FD001 RMSE 14.22/15.38, score 314, CV last-cycle 2.48 reproduced loca"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "demo_reliability",
+    0.5,
+    "If Season 4 follows the Season 3 deck-plus-annexure format (unverified, third-pa"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "differentiation",
+    -0.5,
+    "Differentiators are hygiene-level and must be made visible in 10 slides; a crowd"
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "differentiation",
+    -1,
+    "GBM + conformal intervals across all four C-MAPSS subsets is already published ("
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "demo_reliability",
+    -0.5,
+    "Registry requires a DB backend and stages are deprecated (MLflow docs/issue #103"
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "complete_prototype",
+    -0.5,
+    "~12 components for a four-week Round 2 window; effort estimate is ~40% light (da"
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "measurable_results",
+    0,
+    "Held at 9: baseline numbers reproduced exactly on a second run with a newer scik"
+   ]
+  ],
+  "verifications": [
+   [
+    "confirmed",
+    "The official C-MAPSS archive is downloadable today without login from https://phm-datasets"
+   ],
+   [
+    "partially_confirmed",
+    "MLflow tracking and the Model Registry run fully locally (file store `mlruns` or SQLite ba"
+   ],
+   [
+    "partially_confirmed",
+    "Split-conformal or CQR intervals on top of a gradient-boosting RUL model reach roughly 88-"
+   ],
+   [
+    "partially_confirmed",
+    "A no-tuning scikit-learn HistGradientBoostingRegressor with rolling mean/std/slope feature"
+   ]
+  ]
+ },
+ {
+  "case_id": 2,
+  "title": "Reusable Digital Platform for Designing Battery Energy System",
+  "spec_official": 7.5,
+  "spec_exec": 7,
+  "spec_conf": "medium",
+  "dims": {
+   "skill_fit": 8.0,
+   "complete_prototype": 8.0,
+   "measurable_results": 7.0,
+   "demo_reliability": 8.0,
+   "differentiation": 6.0,
+   "data_availability": 7.0,
+   "free_tools_feasibility": 9.0,
+   "engineering_depth": 6.0,
+   "rubric_alignment": 8.0,
+   "low_failure_risk": 7.0,
+   "explainability": 8.0,
+   "reproducible_evidence": 7.0
+  },
+  "base": 7.41,
+  "equal": 7.42,
+  "ambition": 7.07,
+  "safety": 7.67,
+  "judges": [
+   [
+    "Independent Judge B: pragmatic hackathon",
+    6.3,
+    5.3,
+    "medium"
+   ],
+   [
+    "Independent Judge A: senior product-engi",
+    6.5,
+    5.3,
+    "medium"
+   ]
+  ],
+  "judge_official_mean": 6.4,
+  "judge_exec_mean": 5.3,
+  "reviewer_ranks": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    3
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    4
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    4
+   ]
+  ],
+  "adjustments": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "reproducible_evidence",
+    -1,
+    "Re-run of ecm_test2.py shows only the 10 A discharge step executed (total simula"
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "differentiation",
+    0.5,
+    "No open-source browser-based cell-to-module configurator with coupled electrical"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "data_availability",
+    -1,
+    "The sole free thermal-validation table lives on a reseller mirror marked proprie"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "engineering_depth",
+    -0.5,
+    "Lumped-thermal validity: Bi = h*Lc/k is about 0.18 at h=8 and about 0.63 at h=28"
+   ]
+  ],
+  "verifications": []
+ },
+ {
+  "case_id": 3,
+  "title": "Adaptive QoS Engine for Mixed Home Broadband Traffic",
+  "spec_official": 7.8,
+  "spec_exec": 7,
+  "spec_conf": "medium",
+  "dims": {
+   "skill_fit": 6.0,
+   "complete_prototype": 8.0,
+   "measurable_results": 9.0,
+   "demo_reliability": 7.0,
+   "differentiation": 6.0,
+   "data_availability": 7.0,
+   "free_tools_feasibility": 10.0,
+   "engineering_depth": 8.0,
+   "rubric_alignment": 9.0,
+   "low_failure_risk": 7.0,
+   "explainability": 8.0,
+   "reproducible_evidence": 9.0
+  },
+  "base": 7.8,
+  "equal": 7.83,
+  "ambition": 7.65,
+  "safety": 7.88,
+  "judges": [
+   [
+    "Independent Judge B: pragmatic hackathon",
+    7,
+    7,
+    "medium"
+   ],
+   [
+    "Independent Judge A: senior product-engi",
+    6.9,
+    6.6,
+    "medium"
+   ]
+  ],
+  "judge_official_mean": 6.95,
+  "judge_exec_mean": 6.8,
+  "reviewer_ranks": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    2
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    3
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    2
+   ]
+  ],
+  "adjustments": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "differentiation",
+    0,
+    "Held at 6: primitives are crowded (tcconfig 854, LibreQoS 723, cake-autorate 573"
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "demo_reliability",
+    0,
+    "Held at 7: modprobe check on the team machine confirms htb/fq_codel/netem/flower"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "reproducible_evidence",
+    -0.5,
+    "CI reproduction and the CAKE reference comparison are unverified: the ubuntu-24."
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "demo_reliability",
+    -0.5,
+    "Root-only, kernel-module-dependent, silently-failing tc configuration on a team "
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "measurable_results",
+    0.5,
+    "Independent reproduction on the team's laptop: mean RTT under load 638 ms -> 41."
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "low_failure_risk",
+    -0.5,
+    "WSL2 timing jitter (82 ms max / 12.6 ms mdev on an idle 40 ms path) can false-tr"
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "differentiation",
+    0.5,
+    "Verify-or-rollback with ground-truth-scored capacity estimation is genuinely unc"
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "rubric_alignment",
+    -0.5,
+    "'Accuracy of classification' on self-generated traffic is tautological and the P"
+   ]
+  ],
+  "verifications": [
+   [
+    "confirmed",
+    "ISCXVPN2016 can be downloaded via the CIC request form without login, and redistribution/u"
+   ],
+   [
+    "confirmed",
+    "Stock WSL2 on the team's machine (WSL 2.6.1.0, kernel 6.6.87.2-microsoft-standard-WSL2) lo"
+   ],
+   [
+    "confirmed",
+    "NFStream installs on Linux with Python 3.12 and provides live early-flow (splt) and 48 sta"
+   ],
+   [
+    "partially_confirmed",
+    "GitHub-hosted ubuntu-latest runners allow passwordless sudo and their kernel ships sch_cak"
+   ]
+  ]
+ },
+ {
+  "case_id": 4,
+  "title": "End-to-End Labeling Automation Management for Medical Devices (Tata Elxsi TELIPORT Season 4, HLS)",
+  "spec_official": 7.7,
+  "spec_exec": 6.8,
+  "spec_conf": "medium",
+  "dims": {
+   "skill_fit": 8.0,
+   "complete_prototype": 7.0,
+   "measurable_results": 8.0,
+   "demo_reliability": 8.0,
+   "differentiation": 6.0,
+   "data_availability": 6.0,
+   "free_tools_feasibility": 9.0,
+   "engineering_depth": 7.0,
+   "rubric_alignment": 8.0,
+   "low_failure_risk": 7.0,
+   "explainability": 9.0,
+   "reproducible_evidence": 8.0
+  },
+  "base": 7.49,
+  "equal": 7.58,
+  "ambition": 7.22,
+  "safety": 7.54,
+  "judges": [
+   [
+    "Independent Judge B: pragmatic hackathon",
+    6.3,
+    5.6,
+    "medium"
+   ],
+   [
+    "Independent Judge A: senior product-engi",
+    6.2,
+    4.8,
+    "medium"
+   ]
+  ],
+  "judge_official_mean": 6.25,
+  "judge_exec_mean": 5.2,
+  "reviewer_ranks": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    4
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    2
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    3
+   ]
+  ],
+  "adjustments": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "rubric_alignment",
+    -1,
+    "The recommended concept omits any AI label-design element although 'Innovation i"
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "differentiation",
+    1,
+    "Search found no open-source medical-device label compliance checker (only an MDR"
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "measurable_results",
+    -1,
+    "No dataset, no weights, no mandated prototype; all metrics come from a self-buil"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "demo_reliability",
+    -0.5,
+    "The LLM layer's hosted fallback (Gemini unpaid tier) is contractually unsuitable"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "low_failure_risk",
+    -0.5,
+    "Judge composition confirmed as labeling/regulatory practitioners (Tata Elxsi lab"
+   ]
+  ],
+  "verifications": [
+   [
+    "confirmed",
+    "api.fda.gov/device/udi.json returns full GUDID records without an API key under CC0 (excep"
+   ],
+   [
+    "confirmed",
+    "FDA PMA labeling PDFs such as accessdata.fda.gov/cdrh_docs/pdf20/P200045C.pdf are publicly"
+   ],
+   [
+    "confirmed",
+    "The EUR-Lex consolidated MDR PDF (CELEX 02017R0745-20250110) is freely downloadable and it"
+   ],
+   [
+    "partially_confirmed",
+    "zxing-cpp (pip install zxing-cpp, Apache-2.0) decodes GS1 DataMatrix rendered by BWIPP/tre"
+   ]
+  ]
+ },
+ {
+  "case_id": 5,
+  "title": "Natural Language Vehicle Information using On-Device SLM/LLM (VehicleGPT)",
+  "spec_official": 7.4,
+  "spec_exec": 6.8,
+  "spec_conf": "medium",
+  "dims": {
+   "skill_fit": 8.0,
+   "complete_prototype": 7.0,
+   "measurable_results": 8.0,
+   "demo_reliability": 6.0,
+   "differentiation": 7.0,
+   "data_availability": 8.0,
+   "free_tools_feasibility": 9.0,
+   "engineering_depth": 8.0,
+   "rubric_alignment": 8.0,
+   "low_failure_risk": 6.0,
+   "explainability": 9.0,
+   "reproducible_evidence": 8.0
+  },
+  "base": 7.54,
+  "equal": 7.67,
+  "ambition": 7.55,
+  "safety": 7.32,
+  "judges": [
+   [
+    "Independent Judge B: pragmatic hackathon",
+    6.5,
+    6.3,
+    "medium"
+   ],
+   [
+    "Independent Judge A: senior product-engi",
+    6.4,
+    6,
+    "medium"
+   ]
+  ],
+  "judge_official_mean": 6.45,
+  "judge_exec_mean": 6.15,
+  "reviewer_ranks": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    5
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    5
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    5
+   ]
+  ],
+  "adjustments": [
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "differentiation",
+    -1,
+    "Peykan/MCP-CAN (virtual CAN + ECU simulator + DBC + MCP tools for LLMs) and Mate"
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "low_failure_risk",
+    -1,
+    "Edge Performance evidence depends on ARM hardware of unknown availability; only "
+   ],
+   [
+    "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+    "data_availability",
+    -1,
+    "VED/ROAD/comma2k19 cover four of five example queries, but ADAS disengagement an"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "demo_reliability",
+    -1,
+    "CONFIG_CAN_VCAN is not set in the stock WSL2 kernel (verified), so the SocketCAN"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "low_failure_risk",
+    -0.5,
+    "LLM tier cannot meet the 2 s target on 2 A5x-class cores (0.5B at 8 tok/s on a 4"
+   ],
+   [
+    "Red-Team Reviewer (adversarial review of five TELIPORT Season 4 case candidates; live web verification performed 2026-10-18 with WebSearch/WebFetch/curl)",
+    "data_availability",
+    -0.5,
+    "ROAD ships no DBC (signals labelled Signal-i-of-ID), VED README gives no samplin"
+   ],
+   [
+    "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+    "low_failure_risk",
+    -0.5,
+    "All Edge Performance inputs are unverified community numbers and the plan has a "
+   ]
+  ],
+  "verifications": []
+ }
+]

@@ -1,0 +1,54 @@
+# SentinelLoop default configuration. Subset files (FD001.yaml ...) override keys.
+seed: 42
+data_dir: data/raw
+artifacts_dir: artifacts
+rul_cap: 125
+
+clean:
+  ema_alpha: 0.0            # causal EMA denoising DISABLED by default: ablation showed it lags the degradation signal
+                            # (the ablation is E7, experiments/results/e7_ablation: with_ema_0.3 costs 6-7 RMSE on FD004 and helps FD001 by about 1). Kept as an option.
+  drop_sensor_std_threshold: 0.001   # sensors with per-regime std below this on TRAIN are dropped
+  n_regimes: 1              # KMeans clusters on the three operating settings (6 for FD002/FD004)
+
+features:
+  window: 20
+
+model:
+  max_iter: 400
+  learning_rate: 0.05
+  max_leaf_nodes: 31
+
+conformal:
+  alpha: 0.10               # 90% nominal interval
+  calib_frac: 0.30          # fraction of TRAINING ENGINES held out for calibration
+  truncations_per_engine: 5
+
+anomaly:
+  healthy_frac: 0.40        # first 40% of each training engine's life is "healthy"
+  threshold_pct: 99.0
+  sustain: 3
+  top_k: 2                  # health index = RMS of the top-2 |z| (a biased sensor shows in the sensor and its rolling mean)
+
+agent:
+  t_critical: 10
+  t_high: 25
+  t_medium: 50
+  max_width: auto           # 'auto' = 75th percentile of interval width on serious calibration rows (per model); or a number
+  quality_max_imputed_frac: 0.10   # fraction of sensor values imputed in the trailing window above which the agent escalates
+  quality_max_out_of_range_frac: 0.05
+  quality_max_critical_out_of_range_frac: 0.5   # operating settings outside the training range in most of the window
+
+drift:
+  psi_threshold: 0.2
+  share_threshold: 0.30
+  severe_psi_threshold: 1.0
+  window: 500
+  early_life_max_cycle: 50  # age-matched monitoring: compare rows with warmup <= cycle <= 50 against the same slice of training engines
+
+gate:
+  rmse_tol: 0.02
+  min_picp: 0.85
+  max_late_rate_increase: 0.02
+
+cv:
+  n_folds: 5

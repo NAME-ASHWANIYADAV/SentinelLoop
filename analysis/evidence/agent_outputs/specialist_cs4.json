@@ -1,0 +1,389 @@
+{
+ "case_id": 4,
+ "case_title": "End-to-End Labeling Automation Management for Medical Devices (Tata Elxsi TELIPORT Season 4, HLS)",
+ "web_research_performed": true,
+ "problem_interpretation": "WHAT THE PDF ACTUALLY ASKS (source_derived_requirement, from cs4.md): design an \"Intelligent Medical Device Labeling Automation Platform\" that transforms the end-to-end labeling lifecycle (Product/Design Information -> Identify Applicable Markets -> Regulatory Requirement Assessment -> Gap Assessment -> Label Content Development -> Redline/Artwork Modification -> Stakeholder Review -> Regulatory/Quality Approval -> Change Order -> Document/Configuration Control -> Final QC -> Label Release -> Manufacturing). Intended users are the named stakeholders: Regulatory Affairs (compliance management, change impact assessment), Product Owners, Labeling Engineers (label creation/maintenance), QA (verification and validation), Manufacturing (print readiness/release), Supply Chain (traceability), Clinical (safety/usage information), IT/Digital Transformation. Regulatory frames named: EU MDR, US FDA, \"Global Submission\".\n\nThe \"Proposed Solutions should explicitly address\" list is effectively the functional spec (10 items): (1) time-consuming manual process, (2) frequent regulatory updates / missing affected labels, (3) symbol management (applicable symbols, versions, placement, associated text, market applicability), (4) multiple sources of truth (PLM, ERP, requirements docs, regulatory DBs, specs, spreadsheets, artwork, previous labels, QMS), (5) expertise dependency, (6) manual redlining (CV / document intelligence), (7) repetitive review (product number, manufacturer, symbols, UDI, dates, warnings, language, formatting -> \"candidates for rules-based automation\"), (8) traceability (why each label element exists; trace to product data, requirement, source document, approval, change order), (9) variant explosion (products x configurations x markets x languages), (10) human error classes (copy/paste, outdated symbols, incorrect identifiers, missing information, inconsistent terminology, wrong revisions, wrong market info).\n\nConstraints/prohibitions: NONE are stated. No dataset, no tools, no hardware, no round-wise deliverables, no weights, no explicit prototype mandate. The only stated expectation is \"New Approach using AI with artifacts or supported data\" and the Recommended Steps (process map; RCA/FMEA/VSM -> Automation Opportunity Matrix; technology applicability; design and development of labels using AI; system architecture + automation workflow; measure Time reduction, Error reduction, Compliance improvement, Cost savings). The 10 \"Potential Approaches\" are explicitly options, not requirements.\n\nEvaluation criteria (verbatim, unweighted): Understanding of labeling problem; Regulatory/compliance awareness; Innovation ideas considering Label Design using AI; AI/automation platform; End-to-end process coverage; Accuracy & validation approach; Traceability & auditability.\n\nINTERPRETATION RISKS: (a) \"End-to-end\" is huge; a prototype will necessarily cover a subset, so the submission must show the full process map and clearly mark which stages are automated, assisted, or out of scope. (b) \"Design and development of labels using AI\" could be read as \"GenAI writes label text\" (dangerous: unsupported medical-safety claims) or as \"AI assembles label content from controlled product data and a requirement registry\" (defensible). Choose the latter and say why. (c) \"Accuracy & validation approach\" is a criterion with no dataset, so the team must manufacture its own ground truth (seeded-error benchmark) and be transparent that it is synthetic. (d) \"Regulatory/compliance awareness\" will be judged by Tata Elxsi HLS people who know MDR Annex I 23.2, 21 CFR 801, ISO 15223-1, GS1 UDI; wrong clause citations will be noticed. (e) Because no prototype is mandated, slideware can score on 5 of 7 criteria; the two criteria where engineering wins decisively are \"Accuracy & validation approach\" and \"Traceability & auditability\".",
+ "top_concepts": [
+  {
+   "name": "Concept A: LabelGuard - rules-first Label Compliance, Change-Impact and Traceability Engine (recommended)",
+   "summary": "A platform where every regulatory requirement is encoded as DATA in a 'Requirement Registry' (rule id, market, clause citation URL, applicability predicate such as sterile/implantable/non-EU-manufacturer, check function, severity). Inputs: a label PDF/artwork (vector or raster), the product master record (modelled on a GUDID/openFDA UDI JSON record), target markets and languages. Pipeline: text + coordinate extraction (pdfplumber/PyMuPDF, Tesseract for raster), GS1 DataMatrix decode (zxing-cpp) and AI parsing, deterministic checks for MDR Annex I 23.2 (a)-(s)/23.3, 21 CFR 801.15/801.18/801.20, GS1 structure, symbol glossary/version, market language table; an LLM layer only for semantic checks (warnings consistency between label and IFU, terminology) with a 'citation guard' that rejects any LLM finding whose cited rule id is not in the registry. Every finding links to clause text, evidence bounding box on the label image, and the product-data field, forming an auto-generated Requirements Traceability Matrix. A change-impact module answers 'if parameter X changes, which of N label variants/markets are affected' from a variant graph. Approval workflow with append-only hash-chained audit log. Validated on a synthetic seeded-error benchmark with precision/recall per error class.",
+   "why_feasible": "All inputs are public and free: GUDID records via openFDA (CC0, verified live today, 7,385 'stent' records), public PMA IFUs on accessdata.fda.gov (verified: P200045C.pdf is the 61-page RelayPro IFU, and its GUDID record is in openFDA with premarket_submissions P200045), the consolidated MDR PDF from EUR-Lex (verified: Annex I 23.2 (a)-(s) extracted), 21 CFR 801 (LII, free), GS1 General Specifications (free PDF, 579 pages, verified). All tools are free/open source (pdfplumber MIT, zxing-cpp Apache-2.0 with ContentType.GS1, Tesseract Apache-2.0, LaBSE Apache-2.0, Ollama structured outputs, free Gemini tier as fallback). It is a Python backend + React front end problem, which matches the team's strengths. Deterministic core means the demo cannot hallucinate and works offline.",
+   "weakness": "Breadth: covers 'repetitive review', 'symbol management', 'traceability', 'variant explosion', 'change impact' and partially 'redlining', but not label authoring, regulatory monitoring, or translation beyond a basic consistency check. Needs a self-built synthetic label generator because no public label-image dataset exists; judges may ask 'did you test on real labels'. Requires careful, correct encoding of ~40-60 rules; one wrong clause costs credibility."
+  },
+  {
+   "name": "Concept B: Change-Impact and Variant-Explosion Engine with GenAI-assisted change orders",
+   "summary": "A product-data graph (product -> configurations -> markets -> languages -> packaging levels -> label templates -> label elements -> source requirement) where a single parameter change (e.g., new sterilization method, new manufacturer address, new ISO 15223-1 amendment, new market) propagates to the exact set of impacted labels, markets and required actions, generating a draft change order and redline list. GenAI drafts the change-order narrative strictly from graph deltas. Includes a 'regulation-update simulation': ingest a new rule in the registry and compute affected labels.",
+   "why_feasible": "Pure backend/graph engineering (Node/Python + a graph or relational DB), deterministic, easy to demonstrate at scale (generate 2,000+ label variants synthetically). No CV or OCR required. Directly addresses PDF items 2, 4, 8, 9 and Potential Approach 3 (Smart Change Impact Engine).",
+   "weakness": "Without the compliance-checking layer it does not demonstrate 'AI reviews labels', so 'Innovation ideas considering Label Design using AI' and 'Accuracy & validation approach' would be weaker; impact propagation correctness is true by construction, so the 'measurable result' is mostly time saved rather than error detection. Likely to be judged as 'a PLM feature' rather than a platform."
+  },
+  {
+   "name": "Concept C: Multi-language Label/IFU Consistency and Symbol Validator (Smart Translation Validation)",
+   "summary": "For a multilingual label (e.g., EN/DE/FR/ES panels) and its IFUs, align sentences across languages with LaBSE embeddings, flag missing/extra/inconsistent warnings, numeric/unit mismatches, and inconsistent terminology; validate the market language set against the European Commission MDR language-requirements table; verify symbol usage against a free ISO 15223-1-derived symbol catalogue (MedTech Europe guidance + FDA symbols FAQ). Suggest harmonized terminology.",
+   "why_feasible": "LaBSE (Apache-2.0, 109 languages, 0.5B params) runs on CPU; numeric/unit checks are regex; language table is a free Commission PDF (rev. 18 Aug 2025). Clear ground truth: seed translation errors and measure detection.",
+   "weakness": "Narrow versus the 'end-to-end' criterion; machine-translation models with permissive licenses for medical text are limited (NLLB-200 is CC-BY-NC, research only); judges may consider translation QA a solved vendor feature; students cannot credibly validate medical translation quality in 20+ languages."
+  }
+ ],
+ "recommended_concept": {
+  "name": "LabelGuard: Executable Requirement Registry + Evidence-Linked Compliance, Change-Impact and Audit Engine (Concept A, absorbing Concept B's change-impact module)",
+  "description": "A web platform (React front end, Python FastAPI backend, PostgreSQL or SQLite, local file store) with five modules. (1) INGEST: upload label PDF/artwork (vector PDF preferred; raster via Tesseract OCR), the product master record (JSON following GUDID/openFDA UDI field names: brand_name, version_or_model_number, company_name, identifiers[].id, sterilization, is_single_use, has_lot_or_batch_number, has_expiration_date, mri_safety, storage, product_codes, premarket_submissions), the IFU PDF, and the target market/language set. (2) EXTRACT: words with bounding boxes (pdfplumber), symbols (template matching against a free symbol sheet, or vector-object fingerprints in the PDF), GS1 DataMatrix / GS1-128 decode (zxing-cpp, ContentType.GS1) parsed into AI (01) GTIN, (10) lot, (11) manufacturing date, (17) expiry, (21) serial. (3) CHECK: the Requirement Registry (YAML/JSON rows: id, jurisdiction, source clause, URL, applicability predicate, check type, severity, version/effective date) is executed by deterministic checkers: presence/value checks for MDR Annex I 23.2 (a)-(s) and 23.3, 21 CFR 801.1 name/place, 801.15(c) stand-alone symbol glossary, 801.18 YYYY-MM-DD date format, 801.20 UDI presence in plain text + AIDC, GS1 GTIN-14 check digit, UDI-DI equals product record identifier, UDI-PI fields consistent with human-readable LOT/expiry, lot-vs-serial requirement for implantables (23.2(s)), EC REP when manufacturer is outside the EU (23.2(d)), sterile state + method when sterile (23.2(l)), single-use indication (23.2(n)), MD indication (23.2(q)), market language coverage vs the Commission MDR language table, symbol version (ISO 15223-1:2021 + Amd 1:2025 as FDA Rec# 5-148). An LLM layer (Ollama local, Gemini free tier fallback, JSON-schema constrained) performs only semantic checks: label warnings vs IFU warnings consistency, inconsistent terminology, intended-purpose clarity; each LLM finding must cite a registry rule id and quote the exact label text span; a 'citation guard' verifies the quote exists on the label and the rule id exists, otherwise the finding is downgraded to 'unverified suggestion' and never counted as a compliance failure. (4) REDLINE + CHANGE IMPACT: approved vs revised artwork compared by text-diff with coordinates (word-level) plus SSIM/absdiff region diff for graphics and barcode re-decode (detects barcode content change even if visually similar); variant graph (product x configuration x market x language x packaging level) answers 'what is impacted if field X changes' and generates a draft change order. (5) GOVERN: approval workflow (Labeling Engineer -> RA -> QA -> Manufacturing release gate), electronic sign-off, append-only hash-chained audit log, auto-generated Requirements Traceability Matrix (label element -> product data field -> rule -> clause URL -> evidence box -> approver -> change order), exportable as PDF/CSV. A benchmark harness generates N synthetic labels from real GUDID records with seeded errors and reports per-class precision/recall/F1.",
+  "differentiating_innovation": "Three things typical student submissions will not have: (a) 'Regulation as data, not prompts': a versioned, citable Requirement Registry that makes the platform self-explaining and lets a judge click any finding through to the exact MDR/CFR clause and the exact pixel region on the label; this is also how 'labels become self-validating' and how 'frequent regulatory updates' are handled (add/version a registry row, re-run, see impacted labels), satisfying PDF items 2, 7, 8 together. (b) A hallucination-proof LLM layer: LLM findings are admissible only when they pass the citation guard (rule id exists AND quoted span exists on the label), and the demo shows the guard rejecting a fabricated finding. (c) A reproducible, honest validation: a seeded-error benchmark built from real public GUDID records and public IFUs, with per-error-class precision/recall and a baseline comparison (LLM-only zero-shot vs rules+LLM hybrid vs manual checklist timing), plus a traceability-coverage metric (100% of findings linked to clause + evidence).",
+  "why_this_one": "It maps onto the most criteria at once (Regulatory/compliance awareness, AI/automation platform, Accuracy & validation approach, Traceability & auditability are directly demonstrated; Understanding of labeling problem and End-to-end process coverage are shown through the process map, automation opportunity matrix and the workflow module; Innovation via the registry + citation guard + change impact). It is deterministic at its core, so the live demo is reliable offline, and it is backend/data engineering, which is where this team is strongest. It avoids the two credibility traps: GenAI writing medical safety text, and unverifiable 'AI says compliant' claims. All data and tools are verified free."
+ },
+ "resources": [
+  {
+   "claim": "The consolidated text of Regulation (EU) 2017/745 (version 10.01.2025) is freely downloadable as PDF (1.94 MB, 233 pages); Annex I section 23.2 lists label particulars (a) through (s) and 23.3 lists sterile-packaging particulars; Annex VI Part C defines Basic UDI-DI, Unit of Use DI, AIDC.",
+   "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:02017R0745-20250110",
+   "source_type": "official doc",
+   "establishes": "The primary EU rule source for the Requirement Registry; exact clause text for citations (I downloaded and extracted 23.2 (a)-(s), 23.3 and Annex VI Part C today).",
+   "label": "verified_fact",
+   "limitations": "EUR-Lex HTML pages did not render via the fetch tool (JS); use the PDF URL. The PDF link in the case study (02017R0745-20230320) is an older consolidation."
+  },
+  {
+   "claim": "FDA 'General Device Labeling Requirements' page cites 21 CFR Part 801 (801.1 name/place of business, 801.4 intended use, 801.5 adequate directions, 801.6 misleading statements, 801.15 prominence, English-language rule); page last updated 2018-03-27.",
+   "url": "https://www.fda.gov/medical-devices/device-labeling/general-device-labeling-requirements",
+   "source_type": "official doc",
+   "establishes": "Free US rule source listed in the case-study PDF; basis for US registry rows.",
+   "label": "verified_fact",
+   "limitations": "Overview page; the operative text is in the CFR."
+  },
+  {
+   "claim": "21 CFR 801.18 requires dates on device labels in YYYY-MM-DD (example 2014-01-02) with exceptions for NDC-bearing combination products and radiological electronic products; 21 CFR 801.15(c) permits stand-alone symbols only if from an FDA-recognized standard or an SDO standard and explained in a symbols glossary, with a conspicuous statement locating the glossary; 'Rx only' per 801.109(b)(1).",
+   "url": "https://www.law.cornell.edu/cfr/text/21/801.18",
+   "source_type": "official doc (CFR text via Cornell LII)",
+   "establishes": "Two deterministic, high-value checks (date format; symbol glossary) with exact citations. Part 801 subparts A-H structure also confirmed at https://www.law.cornell.edu/cfr/text/21/part-801 and 801.15 at https://www.law.cornell.edu/cfr/text/21/801.15.",
+   "label": "verified_fact",
+   "limitations": "ecfr.gov blocked the fetch tool (redirect to unblock page) and its API returned 406 from this client; LII mirrors the CFR text."
+  },
+  {
+   "claim": "FDA 'Use of Symbols in Labeling FAQ' states the glossary must list the symbol, standard title and designation number, symbol title/reference number and meaning; three options: no symbols, symbols with adjacent text, or stand-alone SDO symbols with glossary; home-grown stand-alone symbols are not allowed.",
+   "url": "https://www.fda.gov/medical-devices/device-labeling/use-symbols-labeling-frequently-asked-questions",
+   "source_type": "official doc",
+   "establishes": "Symbol-management rules for the registry (PDF item 3).",
+   "label": "verified_fact",
+   "limitations": "FAQ is guidance-level; cite 801.15 as the rule."
+  },
+  {
+   "claim": "FDA Recognized Consensus Standards database lists ISO 15223-1 Fourth edition 2021-07 as Rec# 5-134 (entry 2021-12-20) and 'Including AMD1:2025' as Rec# 5-148 (entry 2025-12-22), status Complete.",
+   "url": "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfStandards/results.cfm?title=15223",
+   "source_type": "official doc (database)",
+   "establishes": "Symbol-version management can be demonstrated with real recognition numbers (e.g., 'EC REP symbol changed by Amd 1:2025' as a regulatory-update event).",
+   "label": "verified_fact",
+   "limitations": "Database pages are dynamic; capture a screenshot for the submission."
+  },
+  {
+   "claim": "ISO 15223-1:2021 is paid (iso.org lists CHF 196; Amd 1:2025 CHF 18; a mirror showed CHF 177) and ISO 20417 is paid (resellers USD 215 / 2,790 SEK; ISO 20417:2026 replaces 2021). The iso.org pages returned HTTP 403 to the fetch tool.",
+   "url": "https://www.iso.org/standard/77326.html",
+   "source_type": "official doc (store) via search snippets",
+   "establishes": "The team cannot legally embed ISO text; symbol catalogue must be built from free secondary sources (MedTech Europe guidance, FDA FAQ, MDR text) and clearly labelled as such.",
+   "label": "verified_fact",
+   "limitations": "Prices seen in search snippets only; exact current price unverified by direct fetch."
+  },
+  {
+   "claim": "MedTech Europe 'Use of Symbols to Indicate Compliance with the MDR' Version 3.0 (Nov 2021) is a free PDF aligned to ISO 15223-1:2021 covering ~18 label items (MD, UDI, sterile, implant card etc.).",
+   "url": "https://www.medtecheurope.org/wp-content/uploads/2019/05/211108_md-labelling_symbols-guidance_version-3_final_publication.pdf",
+   "source_type": "tech report (industry association)",
+   "establishes": "A free, citable mapping from MDR Annex I label items to symbols for the symbol checker.",
+   "label": "source_derived_requirement",
+   "limitations": "PDF text could not be parsed by the fetch tool (compressed streams); content known from search snippets and MedTech Europe resource page. MedTech Europe disclaims liability; symbol artwork itself belongs to ISO."
+  },
+  {
+   "claim": "IMDRF/GRRP WG/N52 'Principles of Labelling for Medical Devices and IVD Medical Devices' exists as Edition 2 FINAL:2024 (PDF on imdrf.org), superseding Edition 1 (2019); reproduction permitted with conditions (non-commercial, keep disclaimers).",
+   "url": "https://www.imdrf.org/sites/default/files/2024-04/IMDRF%20GRRP%20WG%20N52%20%28Edition%202%29.pdf",
+   "source_type": "official doc (IMDRF)",
+   "establishes": "Free global labelling principles for the 'Global Submission' angle and for IFU content rules.",
+   "label": "unverified_assumption",
+   "limitations": "Both the documents page and the PDF timed out from this network (curl 28); existence confirmed only via search results. Must be re-downloaded and read before citing specific sections."
+  },
+  {
+   "claim": "openFDA device UDI endpoint (api.fda.gov/device/udi.json) returns full GUDID records without an API key (live query today: 7,385 records for brand_name:stent; fields include brand_name, company_name, version_or_model_number, identifiers[].id/issuing_agency, sterilization, is_single_use, has_lot_or_batch_number, has_expiration_date, has_manufacturing_date, mri_safety, storage, product_codes, premarket_submissions, gmdn_terms). Rate limits: 240 req/min and 1,000/day without key; 120,000/day with a free key. Data is public domain CC0 except GMDN terms (licence needed for commercial reuse) and D&B DUNS data.",
+   "url": "https://open.fda.gov/apis/device/udi/",
+   "source_type": "official doc + live API",
+   "establishes": "The product master data source for synthetic labels and for UDI-DI/record consistency checks; license clarity. Searchable fields at https://open.fda.gov/apis/device/udi/searchable-fields/, auth at https://open.fda.gov/apis/authentication/, license at https://open.fda.gov/license/.",
+   "label": "verified_fact",
+   "limitations": "openFDA disclaimer: data unvalidated; avoid GMDN text in any commercial framing."
+  },
+  {
+   "claim": "AccessGUDID offers full bulk downloads (latest full release 522 MB dated 2026-10-01; daily/weekly/monthly deltas; pipe-delimited files; RSS) and an API; terms require an NLM attribution statement and restrict GMDN and DUNS reuse.",
+   "url": "https://accessgudid.nlm.nih.gov/download",
+   "source_type": "official doc (NLM)",
+   "establishes": "Offline, reproducible product-data corpus if the team wants to scale the variant-explosion demo to thousands of records.",
+   "label": "verified_fact",
+   "limitations": "Terms page prohibits automated harvesting of the website (use the download files, not scraping)."
+  },
+  {
+   "claim": "openFDA device recall endpoint exposes root_cause_description with labeling-specific categories; live counts today: 'Error in labeling' 897, 'Labeling design' 856, 'Labeling Change Control' 604, 'Labeling mix-ups' 574, 'Labeling False and Misleading' 392, 'Incorrect or no expiration date' 187; free-text search root_cause_description:labeling returns 3,323 recalls (since 2002).",
+   "url": "https://api.fda.gov/device/recall.json?count=root_cause_description.exact&limit=40",
+   "source_type": "official data (live API)",
+   "establishes": "A real, quantitative motivation slide ('labeling is a top-10 recall root cause') and a source for realistic seeded error types; optionally a small 'predictive label quality' feature trained on recall reasons.",
+   "label": "verified_fact",
+   "limitations": "Counts are cumulative 2002-2026 and reflect FDA classification practice; do not present as incidence rates."
+  },
+  {
+   "claim": "FDA PMA labeling PDFs are public: accessdata.fda.gov/cdrh_docs/pdf20/P200045C.pdf is the 61-page RelayPro Thoracic Stent-Graft IFU (HTTP 200, 1.5 MB, text-extractable), and the same device's GUDID record (brand_name 'RelayPro NBS Thoracic Stent-Graft System', premarket_submissions P200045, GS1 DI 00843576164437, sterile, single-use, MR Conditional) is in openFDA.",
+   "url": "https://www.accessdata.fda.gov/cdrh_docs/pdf20/P200045C.pdf",
+   "source_type": "official doc",
+   "establishes": "A verified pairing of public IFU + structured product record for the same real device, enabling realistic label-vs-IFU consistency demos without proprietary data.",
+   "label": "verified_fact",
+   "limitations": "The 'C' suffix convention for labeling PDFs is not documented on an FDA page I could fetch; verify each PMA individually. IFUs are copyrighted by manufacturers: use for internal testing/demo excerpts only, not redistribution."
+  },
+  {
+   "claim": "GS1 General Specifications are a free PDF (12.2 MB, 579 pages) with AI definitions: 3.4.1 Batch or lot number AI (10), 3.4.2 Production date AI (11), 3.5.2 Serial number AI (21), GTIN AI (01) in section 1.3.1; AI (17) expiry appears 11 times.",
+   "url": "https://ref.gs1.org/standards/genspecs/",
+   "source_type": "official doc (GS1)",
+   "establishes": "Authoritative, free UDI barcode structure rules for the GS1 parser and GTIN check-digit validation.",
+   "label": "verified_fact",
+   "limitations": "The ref.gs1.org/ai/ web page is JS-rendered (placeholders only); use the PDF."
+  },
+  {
+   "claim": "FDA guidance 'UDI System: Form and Content of the UDI' (final, July 7, 2021, docket FDA-2016-D-1853) explains plain-text and AIDC forms, DI and PI segments, and FDA's interpretation of 21 CFR 801.40.",
+   "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/unique-device-identification-system-form-and-content-unique-device-identifier-udi",
+   "source_type": "official doc",
+   "establishes": "US UDI form rules for the registry (plain-text + AIDC both required on label).",
+   "label": "source_derived_requirement",
+   "limitations": "The PDF link fda.gov/media/99084/download returned HTTP 404 today and the HHS mirror returned a 518-byte stub; the landing page is verified, the PDF content is not. Locate the current PDF link from the landing page before citing specifics."
+  },
+  {
+   "claim": "European Commission 'Overview of language requirements for manufacturers of medical devices' provides free MDR (18 Aug 2025 revision, 243 KB) and IVDR language tables per EU/EEA country for label/IFU, implant card, DoC, FSN, GUI.",
+   "url": "https://health.ec.europa.eu/publications/overview-language-requirements-manufacturers-medical-devices_en",
+   "source_type": "official doc",
+   "establishes": "A real country-specific rule table for the 'Identify Applicable Markets -> language coverage' check and the multi-language demo.",
+   "label": "verified_fact",
+   "limitations": "Table PDF not parsed by me; download and encode the rows."
+  },
+  {
+   "claim": "EUDAMED public site exposes registered Basic UDI-DI/UDI-DI/device data free to non-registered users; first modules mandatory from 28 May 2026; no public bulk download/API found.",
+   "url": "https://www.basg.gv.at/en/companies/medical-devices/eudamed",
+   "source_type": "official doc (Austrian competent authority) via search",
+   "establishes": "EU product data exists publicly but is not bulk-accessible; use GUDID as the structured source and mention EUDAMED as an integration target.",
+   "label": "unverified_assumption",
+   "limitations": "Only search snippets; the EUDAMED site itself was not fetched."
+  },
+  {
+   "claim": "pdfplumber is MIT-licensed, actively maintained (Python 3.10-3.14), extracts words with x0/top/x1/bottom bounding boxes, rects, image metadata and renders debug images.",
+   "url": "https://github.com/jsvine/pdfplumber",
+   "source_type": "repo",
+   "establishes": "Coordinate-aware text extraction for vector label PDFs and for evidence bounding boxes (MIT avoids AGPL issues).",
+   "label": "verified_fact",
+   "limitations": "Does not reconstruct image pixels; use PyMuPDF (AGPL-3.0, fine for a hackathon but note the licence) or pdf2image for rasterisation."
+  },
+  {
+   "claim": "zxing-cpp is Apache-2.0, Python wrapper 'pip install zxing-cpp' returns text, format, content_type and position; the ContentType enum includes GS1 (Text, Binary, Mixed, GS1, ISO15434, UnknownECI); DataMatrix ECC200 and Code 128 are supported.",
+   "url": "https://github.com/zxing-cpp/zxing-cpp",
+   "source_type": "repo",
+   "establishes": "Free GS1 DataMatrix decoding with GS1 content detection for the UDI AIDC check and for barcode-change detection in redlines. ContentType verified at https://raw.githubusercontent.com/zxing-cpp/zxing-cpp/master/core/src/ContentType.h.",
+   "label": "verified_fact",
+   "limitations": "GS1 AI parsing (splitting (01)(17)(10)(21)) must be implemented by the team; FNC1 handling on synthetic images untested by me."
+  },
+  {
+   "claim": "treepoem (MIT) renders ~100 barcode types via vendored BWIPP + Ghostscript, including Code 128, QR, PDF417; Ghostscript must be installed separately.",
+   "url": "https://github.com/adamchainz/treepoem",
+   "source_type": "repo",
+   "establishes": "A free way to generate GS1 DataMatrix/GS1-128 for synthetic labels (BWIPP has 'gs1datamatrix' and 'gs1-128' encoders).",
+   "label": "technical_inference",
+   "limitations": "The repo page does not name gs1datamatrix explicitly; BWIPP support is well known but must be tested on the team's Windows machines. Alternative: pylibdmtx (needs libdmtx DLL) or a Node library such as bwip-js."
+  },
+  {
+   "claim": "Tesseract OCR is Apache-2.0, 5.x stable, recognizes 100+ languages, with Windows installers.",
+   "url": "https://github.com/tesseract-ocr/tesseract",
+   "source_type": "repo",
+   "establishes": "Free OCR fallback for raster artwork (PNG/JPG scans) in the extraction module.",
+   "label": "verified_fact",
+   "limitations": "OCR accuracy on small label fonts and rotated panels is a demo risk; prefer vector PDFs in the live demo."
+  },
+  {
+   "claim": "sentence-transformers/LaBSE is Apache-2.0, ~0.5B parameters, maps 109 languages into a shared embedding space.",
+   "url": "https://huggingface.co/sentence-transformers/LaBSE",
+   "source_type": "model card",
+   "establishes": "CPU-feasible cross-lingual alignment of label/IFU sentences for the translation-consistency check.",
+   "label": "verified_fact",
+   "limitations": "Semantic similarity is not a certified translation check; present as 'inconsistency flagging'."
+  },
+  {
+   "claim": "facebook/nllb-200-distilled-600M is CC-BY-NC-4.0, research-only, explicitly out of scope for medical/legal domain text.",
+   "url": "https://huggingface.co/facebook/nllb-200-distilled-600M",
+   "source_type": "model card",
+   "establishes": "Do NOT build a 'GenAI translates labels' feature on NLLB; translation validation, not generation, is the defensible scope.",
+   "label": "verified_fact",
+   "limitations": "Other MT models (opus-mt) exist but were not checked."
+  },
+  {
+   "claim": "Ollama supports structured outputs by passing a JSON schema in the 'format' parameter via REST /api/chat and the Python library (Pydantic model_json_schema), recommending temperature 0; Ollama cloud does not support structured outputs.",
+   "url": "https://docs.ollama.com/capabilities/structured-outputs",
+   "source_type": "official doc",
+   "establishes": "A free local LLM path producing schema-valid findings (rule_id, quoted_span, rationale) for the citation guard.",
+   "label": "verified_fact",
+   "limitations": "7-8B models need roughly 8-16 GB RAM on CPU (community sources only: https://www.hostinger.com/tutorials/?p=156543); slow on laptops; have Gemini free tier as fallback."
+  },
+  {
+   "claim": "Google Gemini API has a free tier (page updated 2026-10-16) including Gemini 2.5 Flash / Flash-Lite and newer Flash models; free-tier RPM/RPD are shown only in AI Studio, not on the pricing/rate-limit pages.",
+   "url": "https://ai.google.dev/gemini-api/docs/pricing",
+   "source_type": "official doc",
+   "establishes": "A zero-cost hosted LLM fallback for the semantic layer; free-tier usage may be used to improve Google products (do not send confidential data).",
+   "label": "verified_fact",
+   "limitations": "Exact free-tier limits unverified; network dependency during a live demo."
+  },
+  {
+   "claim": "Recent research on regulatory RAG stresses per-rule attribution and citation verification (RegOps-Bench/RefWalk 2026; a 2026 benchmark of fabricated GDPR/PDPL article citations by free LLMs; Umar et al. 2025 RePASS metric for obligation coverage).",
+   "url": "https://papers.cool/arxiv/2605.29742",
+   "source_type": "paper (via index)",
+   "establishes": "Academic backing for the 'citation guard' design and for the claim that LLMs fabricate article numbers in regulatory QA.",
+   "label": "unverified_assumption",
+   "limitations": "Seen via search aggregators only; read the arXiv papers before citing numbers."
+  },
+  {
+   "claim": "Tata Elxsi markets medical device labeling workflow standardisation/automation services and a regulatory intelligence platform (TEDREG), and is presenting labeling/market-access topics at a 2026 regulatory summit.",
+   "url": "https://www.tataelxsi.com/industries/healthcare-and-life-sciences/medical-device-regulatory-compliance",
+   "source_type": "community/vendor page via search",
+   "establishes": "Judges likely come from a labeling/regulatory services practice; they will probe regulatory correctness and process coverage, not just AI novelty.",
+   "label": "unverified_assumption",
+   "limitations": "The Tata Elxsi EU MDR labeling whitepaper URL returned 404; judge composition is unknown."
+  }
+ ],
+ "feasibility_analysis": "DOES THE DATA EXIST AND IS IT ACCESSIBLE? Partly, and the gap is specific. (verified_fact) Structured product data: openFDA /device/udi returns complete GUDID records with no key (live today), CC0 licence, and AccessGUDID offers a 522 MB full release. (verified_fact) Public IFUs: FDA PMA documents (e.g., P200045C.pdf, 61 pages, text-extractable) pair with GUDID records of the same device. (verified_fact) Rule sources: MDR consolidated PDF (Annex I 23.2 (a)-(s) extracted), 21 CFR 801 text, FDA symbols FAQ, GS1 General Specifications PDF, EC language-requirements table are all free. (verified_fact) ISO 15223-1 and ISO 20417 are paid (CHF ~196 / USD ~215) so symbol semantics must come from free secondary sources. (technical_inference) THE GAP: there is no public dataset of medical device LABEL ARTWORK with ground-truth compliance annotations. The team must generate its own: an HTML/SVG-to-PDF label template filled from real GUDID records, with GS1 DataMatrix rendered by BWIPP/treepoem, and a seeded-error generator. This is feasible in 1-2 days of work and, done transparently, is a strength (reproducible benchmark) rather than a weakness. Augment with 5-10 real label images photographed from devices/packaging the team can legally access (OTC devices from a pharmacy) for a 'real-world' sanity check.\n\nCAN CORE FUNCTIONALITY BE DEMOED IN A STUDENT HACKATHON? Yes. (technical_inference) The deterministic core is: PDF word extraction with coordinates (pdfplumber), regex/field checks, GTIN-14 mod-10 check digit, GS1 AI parsing, date-format check, presence checks driven by applicability predicates from the product record (sterile -> 23.2(l); implantable -> 23.2(s); non-EU manufacturer -> 23.2(d); single-use -> 23.2(n)), market -> language coverage. None of this requires a GPU. The CV redline (SSIM/absdiff + contours, PyImageSearch pattern) and barcode re-decode are standard. The LLM semantic layer is optional for the demo path and guarded.\n\nWHAT IS DOABLE WITH FREE TOOLS? Everything listed: Python/FastAPI, React, SQLite/Postgres, pdfplumber (MIT), PyMuPDF (AGPL, acceptable for a hackathon, disclose), zxing-cpp (Apache-2.0), Tesseract (Apache-2.0), scikit-image/OpenCV, LaBSE (Apache-2.0), Ollama with JSON-schema structured outputs, Gemini free tier fallback. No paid API, no enterprise PLM/ERP needed: simulate PLM/ERP as JSON/CSV 'source systems' with a connector abstraction, and state that real connectors (SAP, Windchill, Teamcenter) are integration work, not research.\n\nWHICH FEATURES ARE ALREADY STANDARD IN INDUSTRY? (unverified_assumption, from vendor pages seen in search) Commercial artwork-proofreading tools do pixel/text compare and barcode grading; label-management systems do templates/approvals; regulatory-intelligence feeds exist (Tata Elxsi's own TEDREG). Students cannot out-feature these. A judge will not be impressed by 'we diff two PDFs'. What is NOT standard and is credible for students: a transparent requirement registry with clickable clause citations and evidence bounding boxes, automated requirement-to-evidence traceability, a citation-guarded LLM, and a published seeded-error benchmark with precision/recall.\n\nACHIEVABLE NOVELTY: (technical_inference) moderate. The novelty is architectural and evidentiary (regulation-as-data, hallucination guard, measurable validation), not a new model. Framing matters: the PDF's own words 'labeling become self-validating' and 'labels predict compliance risks before release' can be mapped exactly to the registry + pre-release scorecard.\n\nMEASURABLE RESULT VS BASELINE: (technical_inference) achievable and strong. Baselines: (1) LLM-only zero-shot checker (same label, prompt 'list compliance issues') scored against ground truth -> expect lower precision and fabricated clauses; (2) naive pixel diff vs text-aware diff on artwork pairs; (3) manual checklist review time by teammates (clearly declared as a self-measured proxy). Metrics: per-error-class precision/recall/F1, traceability coverage, false-positive rate on clean labels, time per label.\n\nHIDDEN DIFFICULTIES: (a) Encoding rules correctly, especially applicability (which 23.2 items apply to which device), and resisting the urge to claim 'full MDR compliance'; (b) symbol detection on arbitrary artwork is hard (fonts, vector vs raster) - mitigate by checking symbols via vector object fingerprints in the team's own templates and by OCR of adjacent text, and by being explicit that symbol recognition on arbitrary third-party artwork is a known limitation; (c) OCR on raster labels is fragile in a live demo - use vector PDFs live, show raster as a recorded path; (d) multilingual checks beyond consistency flagging are not validatable by students; (e) Windows setup of Ghostscript/libdmtx/Tesseract DLLs - test early; (f) the ISO paywall - never paste ISO text or symbol artwork into the product; (g) GMDN/DUNS reuse restrictions in GUDID data - exclude those fields.\n\nWHAT A SKEPTICAL INDUSTRY ENGINEER WOULD CHALLENGE: 'Where is your validation per IEC 62304/ISO 13485 design controls? Your tool would itself need software validation before use in a QMS' (answer: it is decision support with human approval gates; provide a validation plan and the benchmark as the start of OQ/PQ evidence). 'Your rules are a subset; how do you keep them current?' (answer: registry rows are versioned with effective dates and source URLs; regulatory-update ingestion is a workflow, show it). 'LLMs hallucinate clauses' (answer: show the guard rejecting a fabricated finding live). 'Real labels are in Illustrator/InDesign with outlined fonts' (answer: acknowledge; vector PDF export with live text is the enterprise norm for proofing; OCR fallback exists). 'How does this plug into SAP/PLM?' (answer: connector abstraction + event-driven change impact; demo with simulated PLM JSON). 'Your synthetic benchmark is not real data' (answer: records are real GUDID records and real public IFUs; only the layout and seeded errors are synthetic; publish the generator).",
+ "architecture_and_mvp": "ARCHITECTURE (all free/open source, runs on one laptop, Docker optional):\n- Front end: React (Vite) + a PDF viewer (pdf.js) with overlay boxes for evidence; pages: Dashboard (label portfolio, compliance score), Label Review (finding list <-> highlighted regions), Requirement Registry browser (rule id, jurisdiction, clause text snippet, URL, version/effective date), Change Impact (parameter change -> impacted variants/markets), Redline (approved vs revised), Workflow (role-based approvals), Audit Trail / Traceability Matrix export.\n- Backend: Python FastAPI; services: ingest (PDF/PNG/JSON), extract (pdfplumber words+bboxes; PyMuPDF/pdf2image rasterisation; Tesseract for raster; zxing-cpp barcode decode + custom GS1 AI parser + GTIN check digit), rules engine (registry rows in YAML; each row has applicability predicate over the product record and market, a check function name, severity, citation; engine outputs Finding{rule_id, status, evidence_bbox, extracted_value, expected_value, citation_url, confidence, source='deterministic'|'llm'}), semantic layer (Ollama local or Gemini free tier; JSON schema {rule_id, quoted_span, issue, rationale}; citation guard verifies rule_id in registry AND quoted_span found in extracted text, else downgrade to 'suggestion'), redline (word-level text diff with positions; SSIM/absdiff region diff; barcode re-decode and compare), change-impact (variant graph in SQLite/Postgres: product -> config -> market -> language -> packaging level -> label version; query impacted set; draft change order record), workflow + audit (state machine Draft -> In Review -> RA Approved -> QA Approved -> Released; append-only audit table with SHA-256 chaining prev_hash; traceability matrix join query), benchmark harness (label generator from openFDA records; seeded-error injector; scorer producing precision/recall/F1 CSV and charts).\n- Data: product master JSON (GUDID schema), markets/languages table (EC language table rows), symbol catalogue (symbol id, meaning, standard reference, version/amendment, market applicability, built from free sources), registry YAML (~40-60 rules: MDR 23.2 (a)-(s), 23.3 (a)-(i), 21 CFR 801.1/801.15/801.18/801.20/801.109, GS1 structure, language coverage, symbol version).\n- Simulated enterprise sources: /sources/plm.json, /sources/erp.csv, /sources/regulatory_feed.json with a connector interface, to address 'Multiple Sources of Truth' honestly.\n\nMINIMUM WORKING PROTOTYPE (what must run live):\n1. Upload a vector label PDF + select product record (fetched live or cached from openFDA) + choose markets (US, EU-DE, EU-FR).\n2. Extraction shows words with boxes and decoded GS1 DataMatrix: (01) GTIN, (17) expiry, (10) lot.\n3. Rules engine returns findings with status PASS/FAIL/N/A, each with clause citation and highlighted region; N/A rules show why (applicability predicate) - this is the 'why each label element exists' traceability.\n4. Seeded-error label: show failures for missing LOT symbol/text (MDR 23.2(g)), date not YYYY-MM-DD (801.18), GTIN check-digit error, UDI-DI mismatch vs record, missing EC REP for non-EU manufacturer (23.2(d)), sterile method missing (23.2(l)), missing French for FR market (language table), outdated EC REP symbol version (ISO 15223-1 Amd 1:2025 / FDA Rec# 5-148).\n5. LLM semantic check on label-vs-IFU warnings with the citation guard; include one deliberately fabricated finding to show rejection.\n6. Change impact: change 'sterilization method' or 'manufacturer address' in the product record -> list of impacted label variants and markets, draft change order.\n7. Redline: approved vs revised PDF -> text diffs with boxes, graphic diff regions, barcode content change detected.\n8. Workflow: RA approves, QA approves, release gate blocked while any critical finding is open; audit log and traceability matrix export.\n9. Benchmark page: precision/recall/F1 per error class, LLM-only vs hybrid, time per label.\n\nStretch (only if core is solid): regulatory-update simulation (add registry row, re-run portfolio, show newly failing labels); predictive risk score trained on openFDA recall root causes (clearly labelled exploratory); translation consistency via LaBSE; AR/voice features: do not build.",
+ "demo_plan": "BENCHMARK CONSTRUCTION (reproducible, scripted): pull 50 real GUDID records via openFDA /device/udi (mix: sterile implant, single-use instrument, OTC diagnostic, reusable instrument; US and non-US labelers so 23.2(d) EC REP applies to some). Generate one 'golden' label per record (HTML/SVG template -> PDF, GS1 DataMatrix via BWIPP) for 3 market sets (US; EU-DE/FR; US+EU), giving 150 clean labels. Seed errors with a scripted injector across 12 classes, one or two errors per label, producing 150 faulty labels (300 total), ground truth stored as JSON. Error classes: E1 missing LOT/SN (23.2(g)); E2 date format not YYYY-MM-DD (801.18); E3 GTIN check digit wrong; E4 UDI-DI mismatch vs product record; E5 UDI-PI (expiry/lot in barcode) mismatches human-readable text; E6 missing EC REP for non-EU manufacturer (23.2(d)); E7 sterile state or method missing (23.2(l)); E8 single-use indication missing (23.2(n)); E9 MD indication missing (23.2(q)); E10 required market language panel missing (EC language table); E11 outdated symbol version (pre-Amd1 EC REP variant); E12 warning present in IFU but absent on label (semantic, LLM layer).\n\nMETRICS AND HOW COMPUTED: (1) Per-class precision = TP/(TP+FP), recall = TP/(TP+FN), F1; TP when a finding's rule_id and bbox overlaps the seeded error (IoU > 0.3 or same field); overall micro-F1. Target (technical_inference): deterministic classes E1-E11 F1 >= 0.95 on vector PDFs; E12 reported honestly, likely 0.6-0.8. (2) False-positive rate on the 150 clean labels (findings per clean label; target < 0.1). (3) Baseline comparison: LLM-only zero-shot (Gemini free tier or Ollama 8B, prompt 'list compliance issues with clause') scored with the same scorer; report its precision/recall and the fraction of cited clauses that do not exist in the registry (fabrication rate). (4) Citation-guard effectiveness: number of LLM findings rejected and verified by manual inspection (sample of 30). (5) Traceability coverage: % of findings with clause URL + evidence bbox + product field (must be 100% for deterministic). (6) Redline accuracy: 30 artwork pairs with scripted edits (text change, barcode content change, symbol swap, layout shift); report detection recall per change type, text-aware diff vs naive pixel diff. (7) Change impact: 2,000 synthetic variants (50 products x 4 configs x 5 markets x 2 packaging levels); 10 parameter-change scenarios; report impacted-set exactness (should be 100% by construction) and query latency (ms). (8) Time: automated check wall-clock per label (target < 5 s on laptop without LLM; < 60 s with local LLM) vs manual checklist time measured on 10 labels by two teammates (declare as proxy, not industry data). (9) Robustness: run the pipeline on 5-10 photographed real OTC device labels (OCR path) and report what works and what fails; this honesty will be noticed.\n\nLIVE DEMO SCRIPT (8-10 minutes, offline-capable): problem framing with the openFDA recall counts (labeling categories ~3,300 recalls) -> process map and automation opportunity matrix (1 slide) -> live: clean label passes, seeded label fails with clickable citations and highlighted regions -> LLM fabricated finding rejected by guard -> change impact on manufacturer address -> redline with barcode change caught -> approval gate and audit chain -> benchmark dashboard. Record a backup video and keep a cached openFDA response.",
+ "risks_and_objections": [
+  {
+   "risk": "Regulatory errors in the rule registry (wrong clause, wrong applicability) exposed by domain-expert judges from Tata Elxsi's HLS practice; this would collapse the 'Regulatory/compliance awareness' score.",
+   "severity": "critical",
+   "mitigation": "Encode only rules with a verified free primary source (MDR Annex I 23.2/23.3 text extracted from EUR-Lex PDF; 21 CFR 801.15/801.18/801.20 from LII; GS1 GenSpecs; EC language table); show the clause text snippet next to every rule; keep the rule count modest (40-60) and label scope as 'representative subset'; have one teammate act as 'regulatory reviewer' and cross-check every rule against the source; never claim 'full MDR/FDA compliance'."
+  },
+  {
+   "risk": "No public label-artwork dataset: judges may dismiss a synthetic benchmark as not real-world.",
+   "severity": "high",
+   "mitigation": "Build labels from real GUDID records and real public IFUs; publish the generator and seeded-error spec; add 5-10 real photographed OTC labels with honest results; frame the benchmark as the validation approach the criterion asks for (test set with ground truth) and compare against LLM-only baseline."
+  },
+  {
+   "risk": "Scope creep toward the 10 Potential Approaches (AR, voice, autonomous regulatory bot, agentic ecosystem) leading to a shallow, fragile prototype.",
+   "severity": "high",
+   "mitigation": "Freeze MVP to modules 1-5 above; map every Potential Approach to 'built / simulated / roadmap' in one slide; the 'Agentic ecosystem' becomes a roadmap diagram, not code."
+  },
+  {
+   "risk": "LLM hallucination or non-determinism in the live demo (fabricated clauses, schema failures, slow local inference).",
+   "severity": "high",
+   "mitigation": "Deterministic core needs no LLM; LLM findings are advisory and pass the citation guard; JSON-schema structured outputs with temperature 0; cache LLM responses for the demo; have Ollama local and Gemini free tier as alternates."
+  },
+  {
+   "risk": "Symbol recognition on arbitrary artwork (fonts, outlined vectors, raster scans) is unreliable; a failed symbol check live looks bad.",
+   "severity": "medium",
+   "mitigation": "Demo on the team's own vector templates where symbols are identifiable objects; use OCR of adjacent text and glossary presence as secondary evidence; state the limitation explicitly and show the 'needs human review' state."
+  },
+  {
+   "risk": "Paid ISO standards (15223-1, 20417) cannot be embedded; judges may expect symbol semantics from ISO 15223-1.",
+   "severity": "medium",
+   "mitigation": "Use MDR text, FDA symbols FAQ, FDA recognized-standards database entries (Rec# 5-134/5-148) and MedTech Europe guidance as free citable sources; store symbol meanings as the team's own descriptions; add a registry field 'licensed source required' for enterprise deployment."
+  },
+  {
+   "risk": "Windows toolchain fragility (Ghostscript for BWIPP, Tesseract binaries, libdmtx, PyMuPDF AGPL concerns).",
+   "severity": "medium",
+   "mitigation": "Pin versions, provide a Dockerfile or a requirements.txt plus install script, test on every teammate's machine in week 1; fall back to bwip-js (Node) for barcode generation; disclose PyMuPDF licence or use pdfplumber + pdf2image only."
+  },
+  {
+   "risk": "Slideware competitors scoring equally on 5 of 7 unweighted criteria because no prototype is mandated.",
+   "severity": "medium",
+   "mitigation": "Also produce the Recommended Steps artifacts (process map, FMEA/RCA, Automation Opportunity Matrix, architecture, measured outcomes) so the submission wins on the two engineering criteria without losing the five narrative ones."
+  },
+  {
+   "risk": "Judges ask about enterprise integration (SAP/PLM/EUDAMED/GUDID submission) and software validation for use in a QMS.",
+   "severity": "low",
+   "mitigation": "Connector abstraction with simulated PLM/ERP sources; openFDA/GUDID as a real external integration; a one-page validation plan (IQ/OQ/PQ using the benchmark) and explicit human approval gates; position as decision support."
+  },
+  {
+   "risk": "Data licensing missteps (GMDN terms, DUNS data, manufacturer IFU copyright).",
+   "severity": "low",
+   "mitigation": "Strip gmdn_terms and labeler_duns_number from stored records; use IFU excerpts only for testing; cite CC0 for openFDA and the NLM attribution statement for GUDID."
+  }
+ ],
+ "competitor_hypotheses": "HYPOTHESES (not verified; no information about actual competing teams was found): H1 'GenAI compliance chatbot wrapper' (most common): upload label PDF, prompt a hosted LLM to 'check compliance with MDR/FDA', display the answer; no ground truth, hallucinated clause numbers, no bounding-box evidence. Outperform by: deterministic registry with clause links, citation guard shown rejecting fabricated findings, precision/recall table, and an LLM-only baseline row in the benchmark that exposes fabrication rate. H2 'Slide-heavy agentic ecosystem': polished process maps, multi-agent architecture diagrams (writer agent, validator agent, reviewer agent), n8n/RPA flow screenshots, little running code. Outperform by: delivering the same process artifacts (process map, FMEA, Automation Opportunity Matrix) plus a running pipeline with measured outcomes; make 'Accuracy & validation approach' and 'Traceability & auditability' impossible for them to match. H3 'CV artwork diff demo': OpenCV/SSIM comparing two label images, maybe barcode decode; strong visual but covers one PDF item (6). Outperform by including text-aware diff plus barcode content diff AND the compliance/traceability layers; show that pixel diff misses a GS1 content change hidden in a visually similar DataMatrix. H4 'Translation/LLM label generator': GenAI writes label and IFU text in many languages. Judges with regulatory background will see patient-safety risk; outperform by explicitly refusing to generate safety text, generating only from controlled product data and registry templates, and validating rather than authoring translations. H5 'Regulatory monitoring bot': scrapes FDA/EU pages and summarises updates. Outperform by linking updates to impacted labels via the registry and variant graph (what actually matters is 'missing affected labels', PDF item 2). GENERAL EDGE: most student teams will not read Annex I 23.2 or 21 CFR 801.18; citing them precisely, with the openFDA recall statistics as motivation, signals the 'Understanding of labeling problem' and 'Regulatory/compliance awareness' criteria better than any model choice.",
+ "effort_and_unknowns": "RELATIVE EFFORT (deadline and team size unknown; estimates in engineer-days of focused work, technical_inference): Requirement Registry research + encoding 40-60 rules with sources: 3-4 days (highest value, needs the most careful person). Synthetic label generator from openFDA records + GS1 DataMatrix + seeded-error injector + scorer: 2-3 days. Extraction (pdfplumber words/bboxes, rasterise, Tesseract path) + barcode decode + GS1 parser + GTIN check digit: 2 days. Rules engine + findings model + evidence overlay API: 2 days. React UI (review screen with pdf.js overlays, registry browser, benchmark dashboard, workflow): 4-5 days. Change-impact variant graph + change order: 1.5 days. Redline (text diff with positions, SSIM/contours, barcode re-decode): 1.5 days. LLM semantic layer + citation guard + caching: 1.5 days. Workflow + hash-chained audit + traceability export: 1.5 days. Process map / FMEA / Automation Opportunity Matrix / architecture deck / video: 2-3 days. Total about 22-27 engineer-days; with 3-4 people in parallel, roughly 2-3 weeks of part-time student effort, or a compressed 4-5 day sprint if the MVP is cut to modules 1-3 + benchmark + deck.\n\nDEPENDENCIES: Python 3.10+, Node 18+, Ghostscript (for BWIPP) or bwip-js, Tesseract binary, zxing-cpp wheel, scikit-image/OpenCV, pdfplumber, optional Ollama with an 7-8B model (needs ~8-16 GB RAM), optional Gemini free API key, openFDA (no key, or free key for 120k/day).\n\nUNKNOWNS: number of rounds and their deliverables (PDF gives none); whether a live demo or only a deck/video is judged; judge composition (regulatory experts vs software architects); whether cloud deployment is expected ('Cloud Technologies' is in the theme; a Docker image plus a free-tier deployment such as Render/Fly is cheap insurance); team size and hardware (RAM for local LLM); whether any teammate can validate German/French label text; whether IMDRF N52 Ed.2 content aligns with the registry (PDF could not be fetched from this network); exact FDA UDI guidance PDF link (404 today).",
+ "rubric_scores": [
+  {
+   "criterion": "Understanding of labeling problem",
+   "weight": "unweighted (PDF gives no weights)",
+   "expected_score_0_10": 8,
+   "rationale": "The submission will include the full Traditional Approach process map annotated with pain points, an FMEA/RCA and Automation Opportunity Matrix as the PDF recommends, plus real openFDA recall statistics (about 3,300 labeling-root-cause recalls) and an explicit mapping of all 10 'should explicitly address' items to built/simulated/roadmap. Loses points only if the team cannot speak to real labeling operations (no industry experience)."
+  },
+  {
+   "criterion": "Regulatory/compliance awareness",
+   "weight": "unweighted",
+   "expected_score_0_10": 7.5,
+   "rationale": "Precise, source-linked encoding of MDR Annex I 23.2 (a)-(s)/23.3, Annex VI UDI concepts, 21 CFR 801.15/801.18/801.20, GS1 AI structure, EC language table and FDA recognized-standard numbers for ISO 15223-1 is above typical student level. Capped because ISO 15223-1/20417 text is unavailable, IMDRF N52 content was not verified, and judges may probe areas (IVDR, Japan/China rules) the team cannot cover."
+  },
+  {
+   "criterion": "Innovation ideas considering Label Design using AI",
+   "weight": "unweighted",
+   "expected_score_0_10": 7,
+   "rationale": "Regulation-as-data registry, citation-guarded LLM, auto-generated traceability matrix and change-impact graph are distinctive, but the concept deliberately avoids 'GenAI designs the label', which some judges may expect to see; mitigate by showing AI-assisted label assembly from controlled data and templates (content, not safety text)."
+  },
+  {
+   "criterion": "AI/automation platform",
+   "weight": "unweighted",
+   "expected_score_0_10": 7.5,
+   "rationale": "A real multi-module platform with API, UI, workflow, connectors abstraction, rules engine, CV redline and LLM layer; realistic for the team's backend/React skills. Not 10 because enterprise integrations are simulated and the 'cloud' aspect is a Docker image at best."
+  },
+  {
+   "criterion": "End-to-end process coverage",
+   "weight": "unweighted",
+   "expected_score_0_10": 6.5,
+   "rationale": "Covers requirement assessment, gap assessment, redline, review/approval, change order, configuration control, final QC and release gate; weak or simulated on product understanding, label content development/authoring, translation and manufacturing/print readiness. The process map must honestly show coverage; slideware competitors may claim more coverage on paper."
+  },
+  {
+   "criterion": "Accuracy & validation approach",
+   "weight": "unweighted",
+   "expected_score_0_10": 8.5,
+   "rationale": "A scripted seeded-error benchmark on real GUDID-derived labels with per-class precision/recall/F1, false-positive rate on clean labels, LLM-only baseline with fabrication rate, redline detection recall, plus a software validation plan. This is where the concept beats most submissions; slightly capped because the benchmark is synthetic."
+  },
+  {
+   "criterion": "Traceability & auditability",
+   "weight": "unweighted",
+   "expected_score_0_10": 9,
+   "rationale": "Every finding carries rule id, clause URL, evidence bounding box, product-data field, approver and change order; append-only hash-chained audit log; exportable Requirements Traceability Matrix; N/A rules explain applicability ('why each label element exists'). This directly answers PDF item 8 and is cheap to build well."
+  }
+ ],
+ "official_score_potential_0_10": 7.7,
+ "execution_adjusted_0_10": 6.8,
+ "dimension_scores": {
+  "skill_fit": 8,
+  "complete_prototype": 7,
+  "measurable_results": 8,
+  "demo_reliability": 8,
+  "differentiation": 6,
+  "data_availability": 6,
+  "free_tools_feasibility": 9,
+  "engineering_depth": 7,
+  "rubric_alignment": 8,
+  "low_failure_risk": 7,
+  "explainability": 9,
+  "reproducible_evidence": 8
+ },
+ "argument_against": "This case has no dataset, no mandated prototype, no weights and an enormous 'end-to-end' scope, so it structurally favours consulting-style submissions: a team with a regulatory-affairs or pharma background can score well on five of the seven criteria with a process map, a GenAI/agentic architecture deck and correct regulatory vocabulary, while this team's engineering advantage only shows up clearly in 'Accuracy & validation approach' and 'Traceability & auditability'. The judges are likely Tata Elxsi HLS labeling/regulatory practitioners who will probe domain details (IVDR, Japan PMDA, China NMPA, ISO 20417 specifics, QMS validation) that a software team cannot credibly answer, and a single wrong clause citation is highly visible. The team must also manufacture its own ground truth, cannot access ISO standards, and must avoid the trap of 'GenAI writes medical safety text' that the theme itself invites. Compared with a case that ships a dataset and a measurable target, winning here depends as much on narrative polish and regulatory credibility as on code, which is the team's weaker side. If another case in the set rewards pure backend/ML execution on provided data, that case is probably the safer bet; this one is a good choice only if the team commits to the registry-plus-benchmark strategy and to doing the process-analysis deliverables properly.",
+ "critical_claims_to_verify": [
+  {
+   "claim": "api.fda.gov/device/udi.json returns full GUDID records without an API key under CC0 (except GMDN/DUNS), with fields identifiers[].id, sterilization, is_single_use, has_lot_or_batch_number, has_expiration_date, premarket_submissions; limits 240/min and 1,000/day keyless, 120,000/day with a free key.",
+   "url": "https://api.fda.gov/device/udi.json?search=brand_name:stent&limit=1",
+   "why_critical": "The entire synthetic benchmark and the UDI-DI consistency check depend on this free structured product data; if access or licence terms differ, the data plan changes."
+  },
+  {
+   "claim": "The EUR-Lex consolidated MDR PDF (CELEX 02017R0745-20250110) is freely downloadable and its Annex I section 23.2 lists label particulars (a) through (s), 23.3 sterile-packaging particulars, and Annex VI Part C defines the UDI system.",
+   "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:02017R0745-20250110",
+   "why_critical": "These clauses are the backbone of the EU rule registry and of every citation shown to judges; mis-citation would damage the 'Regulatory/compliance awareness' score."
+  },
+  {
+   "claim": "FDA PMA labeling PDFs such as accessdata.fda.gov/cdrh_docs/pdf20/P200045C.pdf are publicly downloadable, text-extractable IFUs, and the same device appears in openFDA UDI with premarket_submissions P200045.",
+   "url": "https://www.accessdata.fda.gov/cdrh_docs/pdf20/P200045C.pdf",
+   "why_critical": "This pairing is the only verified source of real IFU text plus structured record for label-vs-IFU consistency demos; if PMA labeling PDFs are not systematically available, the semantic-check demo must rely on fewer examples."
+  },
+  {
+   "claim": "zxing-cpp (pip install zxing-cpp, Apache-2.0) decodes GS1 DataMatrix rendered by BWIPP/treepoem (with Ghostscript) on Windows and reports content_type GS1 so that AI (01)(17)(10)(21) can be parsed.",
+   "url": "https://github.com/zxing-cpp/zxing-cpp",
+   "why_critical": "UDI AIDC checks and barcode-change detection in redlines depend on round-tripping GS1 DataMatrix generation and decoding entirely with free tools; a failure forces a switch to bwip-js/pylibdmtx and costs time."
+  },
+  {
+   "claim": "21 CFR 801.18 requires YYYY-MM-DD dates on device labels and 21 CFR 801.15(c) requires a symbols glossary for stand-alone symbols; ISO 15223-1:2021 (+Amd 1:2025) is FDA-recognized as Rec# 5-134 / 5-148.",
+   "url": "https://www.law.cornell.edu/cfr/text/21/801.18",
+   "why_critical": "These are the headline US deterministic checks and the 'symbol version update' demo scenario; the registry's US half and the regulatory-update story depend on them being current and correctly stated."
+  }
+ ],
+ "confidence": "medium",
+ "confidence_rationale": "High confidence in data/tool feasibility: the MDR text, CFR sections, openFDA endpoints (queried live), PMA IFU PDF, GS1 General Specifications, EC language table, FDA recognized-standards entries and all key open-source licences were verified by direct fetch or download today. Medium confidence overall because (a) the case study gives no weights, no rounds and no prototype mandate, so how judges will trade off slideware against engineering is unknown; (b) judge composition and competitor behaviour are hypotheses; (c) two sources could not be fetched (IMDRF N52 Ed.2 PDF timed out; FDA UDI form-and-content guidance PDF link returned 404) and ISO pages returned 403, so some regulatory details are cited from landing pages or search snippets rather than full text; (d) the benchmark is synthetic and target F1 values are technical inferences, not measured results; (e) local-LLM hardware feasibility rests on community sources only."
+}

@@ -1,0 +1,44 @@
+[FD001] loading and preparing data
+[FD001] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD001] fitting anomaly detector and drift monitor on training data
+2026/10/18 03:21:04 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:21:04 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/10/18 03:21:09 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+2026/10/18 03:21:10 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/18 03:21:10 INFO mlflow.store.db.utils: Updating database tables
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+Registered model 'sentinelloop-FD001' already exists. Creating a new version of this model...
+Created version '5' of model 'sentinelloop-FD001'.
+[FD001] running the Triage Agent on 100 test engines (batch) and 5 engines (stream); max_width 82.0
+[FD001] done in 33.2 s: HGBR RMSE 14.39 capped / 15.53 raw, PICP 0.940, MPIW 65.1, orders 39, escalation share 0.15
+[FD002] loading and preparing data
+[FD002] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD002] fitting anomaly detector and drift monitor on training data
+2026/10/18 03:21:50 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Successfully registered model 'sentinelloop-FD002'.
+Created version '1' of model 'sentinelloop-FD002'.
+[FD002] running the Triage Agent on 259 test engines (batch) and 5 engines (stream); max_width 77.2
+[FD002] done in 46.4 s: HGBR RMSE 14.88 capped / 27.10 raw, PICP 0.896, MPIW 56.9, orders 92, escalation share 0.09
+[FD003] loading and preparing data
+[FD003] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD003] fitting anomaly detector and drift monitor on training data
+2026/10/18 03:22:26 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Successfully registered model 'sentinelloop-FD003'.
+Created version '1' of model 'sentinelloop-FD003'.
+[FD003] running the Triage Agent on 100 test engines (batch) and 5 engines (stream); max_width 111.7
+[FD003] done in 34.6 s: HGBR RMSE 13.88 capped / 15.54 raw, PICP 0.910, MPIW 68.8, orders 24, escalation share 0.11
+[FD004] loading and preparing data
+[FD004] training point model (all engines) and CQR interval model (70/30 engine split)
+[FD004] fitting anomaly detector and drift monitor on training data
+2026/10/18 03:23:08 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+Successfully registered model 'sentinelloop-FD004'.
+Created version '1' of model 'sentinelloop-FD004'.
+[FD004] running the Triage Agent on 248 test engines (batch) and 5 engines (stream); max_width 80.5
+[FD004] done in 39.4 s: HGBR RMSE 15.36 capped / 27.05 raw, PICP 0.823, MPIW 54.1, orders 72, escalation share 0.07
+artefacts in artifacts/<subset>/ ; audit log artifacts/audit/decisions.jsonl ; SQLite artifacts/sentinelloop.db ; MLflow sqlite:///artifacts/mlflow.db
+exit=0

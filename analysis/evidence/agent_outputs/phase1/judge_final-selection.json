@@ -1,0 +1,86 @@
+{
+ "decision_case_id": 1,
+ "confidence": "high",
+ "rationale": "Decision: Case 1 (Predictive Maintenance, C-MAPSS), on evidence, expected execution quality and the time actually available; not because its data is easy and not because Case 3 sounds more impressive (it does).\n\n1. The format now known raises Case 3's delivery risk more than Case 1's. The Round 2 window is 30 days (14 Nov-13 Dec) [verified_fact, platform-level], likely overlapping end-semester exams [unverified_assumption]. The effort review puts Case 1's minimum complete submission at 13-16 person-days (fits a 2-3 person team inside the window) and Case 3's at 20-26 person-days, which fits only with a 3-person team pre-building at risk during the 20-day gap before the shortlist is known [technical_inference]. Team size (2 or 3) is not confirmed. The decision must be robust to a 2-person team; only Case 1 is.\n\n2. Case 3's critical path is serial and wall-clock bound (netns topology -> enforcement -> harness -> estimator tuning -> verify/rollback -> N>=10 runs), on one root-enabled WSL2 machine with measured 82 ms idle spikes on a 40 ms path that threaten the stability criterion [verified_fact]. Claude Max shortens typing, not 2-3 minute experiment loops or silent tc misconfiguration. Case 1's failure modes are pip-level and already identified (pandas 3 pull, streamlit/plotly mismatch, LightGBM crash) [verified_fact] and are fixed by a lock file and a fresh venv.\n\n3. Round 1 (one slide, six days) favours the case with prescribed content. Case 1's PDF names the four Round-1 items and seven weighted criteria [source_derived_requirement]; every element exists in the prior report and the four-subset baseline is reproduced four times within 0.4 RMSE on this laptop [verified_fact]. Case 3's PDF has no round structure, so the slide must be invented, and the Case 3 advocate's own plan spends two of six days re-running the testbed before a go/no-go gate, leaving four days for an untemplated slide [technical_inference].\n\n4. Rubric expectation: every input view, weighting scheme, both blind judges and all three reviewers rank Case 1 first (7.86 vs 7.26 risk-adjusted; official potential 7.90 vs 7.23) [verified_fact about the prior analysis]. Both advocates concede the rubric mean favours Case 1 by roughly half a point. Case 3's case rests on hypotheses about assessor behaviour and field size for which no TELIPORT data exists [unverified_assumption].\n\n5. Skill fit 9 vs 6.0, and the stated flip condition (a teammate with demonstrated tc/netem/netns fluency) is absent today [verified_fact about the team profile].\n\nWhat Case 1 must do to deserve this: make the closed loop visible on the one slide (agent on the conformal lower bound, drift-gated promotion with accept and reject, 2.5-vs-14.2 leakage audit, four-subset table), cite Robinson IJPHM 2026 as the ML baseline, and treat the recorded clean-clone run as mandatory because judges may never execute code.",
+ "strongest_argument_for_the_loser": "Round 1 is a shortlisting tournament on one slide from a pool of unknown size, and tournaments reward variance, not expected value. Case 1 is the hypothesised modal choice (mandated dataset, prescribed deck items), so most Case 1 slides will show the same data->features->model->agent chain and the same FD001 number; Case 3's slide can carry a 15x hard-to-fake measurement (638 -> 41 ms mean RTT under load, bulk still at 82% of link) from a script that already ran on the team's own laptop [verified_fact, single run, WSL2 emulation], in a system-level niche where no public intent-aware verify-or-rollback controller was found [verified_fact for the search], inside Tata Elxsi's own MCV vertical. Its PDF prescribes exactly the prototype-as-annex evidence format the platform accepts (automated baseline-vs-optimised experiments, scripted reset/impair/collect/report), while Case 1's 40% on working pipeline and demo must be evidenced through screenshots and a recording. Its one-sentence finale story (\"every shaping change is a hypothesis; if it did not help it is undone\") lands with senior leaders without an ML explanation, whereas Case 1's differentiators are honesty-level engineering that must be explained to be appreciated. If shortlisting is a tight top-k cut within a large Case 1 pool, a memorable high-variance slide may beat a competent low-variance one even though its expected rubric score is lower.",
+ "what_would_flip": "Any one of the following, verified rather than hoped: (1) A teammate demonstrates Linux networking fluency this week by running evidence/wsl2_tc_testbed_check.sh under `wsl -u root` on their own machine, explaining the HTB/fq_codel/flower output unprompted, and extending it to an N=5 run with p95 RTT; with that, the prior model calls it a toss-up (8.23 vs 8.13) and all three reviewers would pick Case 3. (2) The team confirms three active members with >=12-15 h/week each from 25 Oct through 13 Dec with no exam clash, so the 20-26 person-day Case 3 minimum fits with gap pre-build. (3) Official Tata Elxsi Season 4 guidance appears (not third-party) stating that Round 1 shortlisting is judged on innovation/impact or measured results rather than design soundness, or that shortlisting is relative within each case with Case 1 the largest pool. Conditions (1) and (2) must both hold to flip; (3) alone makes it a toss-up. Nothing short of these should flip it: a dramatic number on a slide does not change the Round-2 delivery arithmetic for a 2-person team.",
+ "conditions_to_verify_this_week": "By 24 Oct 23:59 IST, in priority order: (a) Registration status: the Unstop listing shows registration as closed with contradictory deadlines (10 Oct vs 23 Oct 2026) [verified_fact, platform-level]; confirm on the portal that the team is registered and can upload a Round 1 file, and whether only the team leader can submit. (b) Round 1 submission mechanics on the live portal: single PDF, page count enforced or not, any size limit (5 MB is Season 3 precedent [unverified_assumption]), any template fields; if the portal accepts more than one page, keep the one-slide version as the primary and do not pad. (c) Team facts: exact member count, each member's weekly hours through 13 Dec, exam dates, and an explicit yes/no on any Linux tc/netem experience (flip condition 1). (d) Environment lock on every teammate's machine: fresh Python 3.11 venv, pinned pandas 2.x / scikit-learn / mlflow 3 / evidently 0.7.23 / streamlit with compatible plotly, LightGBM excluded; run evidence/cmapss_baseline.py on FD001 and obtain RMSE 14.2 +/- 0.4 and NASA score ~310-315 so the slide's numbers are the team's own [verified_fact that this reproduces on this laptop]. (e) Dataset: local copy of the 12.4 MB zip stored in the repo's data cache with the ETag recorded; confirm the S3 mirror works since data.nasa.gov is intermittently unreachable [verified_fact]. (f) A git remote exists from day 1 (single laptop is a single point of failure). (g) Slide readability test on day 4-5: a non-team reader states in 20 seconds what the system does and names at least one differentiator. (h) The team reads and accepts the IP clause (\"exclusive property of Tata Elxsi\") before investing the gap weeks [verified_fact, platform-level]. (i) Submit by 23 Oct, leaving one day for portal problems.",
+ "requirement_checklist_for_winner": [
+  {
+   "requirement": "Round 1 deliverable is a single slide in PDF format on one problem statement only, submitted within the window 23 Sep 11:00 to 24 Oct 2026 23:59 IST",
+   "source": "platform",
+   "must_show": "One 16:9 page exported to PDF with embedded fonts, uploaded by 23 Oct; file kept under 5 MB (Season 3 precedent, unverified); only Case 1 referenced"
+  },
+  {
+   "requirement": "Architecture diagram: data -> features -> model -> agent -> work order",
+   "source": "PDF",
+   "must_show": "One diagram occupying ~40-45% of the slide in exactly that chain (C-MAPSS replay -> clean -> rolling features -> IsolationForest + HGBR RUL + conformal interval -> Triage Agent -> work order store), with the MLflow registry / drift monitor / retrain loop drawn as a side loop in a second colour"
+  },
+  {
+   "requirement": "Approach for cleaning data and building features",
+   "source": "PDF",
+   "must_show": "Named steps with one-line reasons: per-unit missing-value handling, EMA denoise, constant-sensor drop list, train-only regime clustering and per-regime scaling for FD002/FD004, rolling mean/std/slope W=20, engine-level GroupKFold with random truncation, plus the proof line 'naive last-cycle validation 2.5 vs honest test 14.2'"
+  },
+  {
+   "requirement": "Choice of anomaly-detection and RUL models, with reasoning",
+   "source": "PDF",
+   "must_show": "IsolationForest on healthy windows (explicitly addresses the 'mild imbalance' ground rule); HistGradientBoosting RUL with cap-125 target plus conformalized quantile 90% interval; one line on why not LSTM/transformer (15% model weight, explainability, CPU retrain in minutes); Robinson IJPHM 2026 cited as the GBM+CQR baseline"
+  },
+  {
+   "requirement": "Logic the Triage Agent will use (rule-based, non-LLM)",
+   "source": "PDF",
+   "must_show": "A 5-row severity rule table keyed on rul_lower / anomaly flag / drift / interval width -> CRITICAL, HIGH, MEDIUM, WATCH, ESCALATE_TO_HUMAN; one open order per engine; human steps in only for exceptions"
+  },
+  {
+   "requirement": "Round 1 weighted criteria: Problem understanding 15, Architecture clarity 20, Data engineering approach 15, ML approach & reasoning 20, MLOps & agent logic 15, Dataset coverage 10, Communication quality 5",
+   "source": "PDF",
+   "must_show": "Every criterion has a visibly attributable element on the slide; dataset coverage shown as 'all four subsets by configuration' with the already-measured capped RMSE 14.2 / 16.2 / 14.1 / 17.9 re-run by the team; no wall of text (readable at thumbnail scale)"
+  },
+  {
+   "requirement": "Ground rules: handle mild imbalance; pipeline runs end-to-end without manual steps; no LLM, simple rules/thresholds; open-source tools with a clearly documented design",
+   "source": "PDF",
+   "must_show": "Imbalance named and handled (anomaly detector on healthy baseline, severity-class framing); 'make demo' one-command run; footer states no LLM; tool list Python/scikit-learn/MLflow/Evidently/Streamlit"
+  },
+  {
+   "requirement": "Round 2 deliverable: 10-slide PPT plus any multimedia or prototype, within 14 Nov 10:00 to 13 Dec 2026 23:59 IST; 'full solution with an implementation roadmap'",
+   "source": "platform",
+   "must_show": "Exactly 10 slides; slide 10 is the implementation roadmap to a real fleet (telemetry windowing, CMMS work-order contract, residual drift once labels arrive); annex = public repo link, 3-5 minute recorded clean-clone run hosted externally, Dockerfile; submitted by 11-12 Dec"
+  },
+  {
+   "requirement": "Round 2: working pipeline on the chosen C-MAPSS subset(s)",
+   "source": "PDF",
+   "must_show": "`make demo SUBSET=FD001` from a clean clone with pinned lock file, pytest green, offline; config switch covers FD002-FD004; recorded run as proof for judges who never execute code"
+  },
+  {
+   "requirement": "Round 2: trained model with RUL predictions",
+   "source": "PDF",
+   "must_show": "Per-subset table of capped and raw test RMSE, PHM08 score with its convention printed, and interval coverage (PICP/MPIW) calibrated on held-out engines; literature band stated honestly"
+  },
+  {
+   "requirement": "Round 2: a simple monitoring dashboard",
+   "source": "PDF",
+   "must_show": "Streamlit with at least fleet view, engine drill-down with interval band, work-order queue, and MLflow/drift/retrain log; screenshots in the deck"
+  },
+  {
+   "requirement": "Round 2: agent auto-generating a work order plus a demo retraining run",
+   "source": "PDF",
+   "must_show": "Work orders written to SQLite/JSON by unit-tested rules with de-duplication and escalation; decision confusion matrix; Evidently feature-drift alarm -> retrain job -> promotion gate shown accepting one challenger and rejecting a worse one; MLflow registry on SQLite with alias history"
+  },
+  {
+   "requirement": "Round 2 weighted criteria: Working pipeline 20, Data engineering quality 15, Model performance 15, MLOps in action 10, Agent behavior 10, Dataset coverage 10, Demo & explanation 20",
+   "source": "PDF",
+   "must_show": "One deck slide per criterion cluster; the 'honest metrics' slide (2.5-vs-14.2 leakage trap, capped vs raw) and the decision-replay policy table (point threshold vs fixed margin vs interval lower bound: late-order rate, discarded life, lead time, churn, escalation share) carry Demo & explanation in a deck-first format"
+  },
+  {
+   "requirement": "Use the NASA C-MAPSS dataset; may use one subset or all four",
+   "source": "PDF",
+   "must_show": "Saxena et al. PHM08 citation; ETag-checked download with S3 mirror fallback; FD004 train/test unit-count swap vs readme noted as a verified dataset fact"
+  },
+  {
+   "requirement": "Submitted ideas become the exclusive property of Tata Elxsi",
+   "source": "platform",
+   "must_show": "Team acknowledges the clause before submitting; nothing on the slide the team is unwilling to hand over"
+  }
+ ],
+ "scoring_and_risk_notes": "Score basis (all prior-analysis numbers [verified_fact about that analysis]): risk-adjusted 7.86 (Case 1) vs 7.26 (Case 3); official-score potential 7.90 vs 7.23; blind judges 7.6/7.8 vs 7.0/6.9; Case 1 first under all four weighting schemes and all four input views; closest scheme is ambition-weighted (7.76 vs 7.70). Flip scenario (Linux-fluent teammate) gives 8.23 vs 8.13, a toss-up.\n\nMy format adjustments [technical_inference]: Round 1 Case 1 weighted target ~7.9 (Architecture clarity and Communication each -0.2 for compression on one slide); Round 2 Case 1 ~7.8 with Demo & explanation the largest variable in a deck-first round. Case 3 unweighted mean 7.2-8.0 only if the Week-4 verify-or-rollback and Week-3 estimator both land; 6.9-7.2 otherwise. Case 3's one sure criterion (latency reduction, 8-9) is offset by classification (<=7, near-tautological on self-generated traffic) and stability (6.5-7.5, exposed to WSL2 timing noise). Case 3's weights are unknown, so its mean is an unweighted guess; Case 1's weights are official.\n\nWhere I disagree with the advocates: (a) Case 3 advocate's claim that AI assistance narrows its deficit more than Case 1's lead: the dominant Case 3 cost is observation-bound tuning loops and silent tc failures, which AI cannot see; the effort review's 20-26 person-day minimum stands. (b) Case 3's Day-2 gate tests testbed reproduction, not Round-2 capacity, and burns a third of the Round-1 window. (c) Case 1 advocate's slide numbers must be the team's own re-run, not the agents' runs, and conformal coverage must be quoted as Robinson's published 88-92%, not claimed.\n\nCase 1 residual risks and controls: commoditisation (53 cmapss repos) controlled by making the closed loop and leakage audit visible on the slide itself; environment fragility (pandas 3 pull, streamlit/plotly mismatch, LightGBM crash, joblib CreateProcess traceback on Windows) [verified_fact] controlled by a lock file, HGBR not LightGBM, fresh venv on every machine; single laptop with OneDrive sync controlled by a git remote from day 1; deck-size limit (5 MB precedent, unverified) controlled by compressed screenshots and an externally hosted recording; unknown shortlist date means 25 Oct-13 Nov work is at risk but low-regret; the registration deadline contradiction on the platform listing is the one item that could make the whole plan moot and must be checked first.\n\nLabels: competition format and dates are platform-level verified facts, not Tata Elxsi official; the 5 MB limit is a Season 3 precedent [unverified_assumption]; exam overlap [unverified_assumption]; pool size per case and assessor behaviour [hypothesis, no data]; judge composition [technical_inference]."
+}

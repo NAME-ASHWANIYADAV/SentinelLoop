@@ -1,0 +1,399 @@
+{
+ "case_id": 3,
+ "case_title": "Adaptive QoS Engine for Mixed Home Broadband Traffic",
+ "web_research_performed": true,
+ "problem_interpretation": "The PDF (Tata Elxsi TELIPORT Season 4, Case Study 3, tag \"MCV\") asks for an intent-aware QoS controller for a residential gateway that (1) classifies broad traffic categories WITHOUT decrypting payloads, (2) estimates WAN link capacity, (3) applies queueing/shaping via Linux traffic control (tc) or another open, inspectable mechanism, and (4) VERIFIES that a policy actually improved user experience. It must support a temporary user intent (e.g. \"prioritise my work call\") while retaining fairness and preventing starvation of bulk traffic. Intended users: a household on one broadband link; the explicit audience is students producing a \"technically credible reference implementation using openly documented interfaces and measurable experiments\", not a commercial product clone. Required system components (Expected Output): traffic-class and link-capacity estimator; dynamic QoS policy engine + enforcement module; dashboard for latency, jitter, loss, throughput, queue depth and fairness; automated baseline-versus-optimized experiments; API/UI for temporary service intent; architecture diagram (device, edge, network, data, analytics, UI); setup guide with exact versions/commands; a scripted demonstration that can reset the environment, introduce the selected condition, collect evidence and generate a report; a known-limitations section. Mandatory constraints: no decryption; Linux tc or equivalent open enforcement; IPv4 and IPv6 where available; policy rollback and no starvation; classifiers must expose confidence and allow correction of misclassification; document third-party licenses; include generated data and impairment settings for reproducibility; label emulated hardware as emulation; no secrets in source control; automated remediation must be bounded, observable, reversible and fail to a known safe state. Modules must be independently testable with inputs/outputs/state transitions/failure handling/success conditions; any AI must be compared with a deterministic baseline and shown to improve a measurable outcome. Evaluation criteria (NO weights given in the PDF): Accuracy of classification and link estimation; Reduction in interactive latency, jitter and packet loss; Fairness and absence of starvation; Adaptation speed and policy stability; CPU overhead, reproducibility and clarity of results. No dataset, no rounds, no tools, no hardware are specified. Three illustrative scenarios: ISO download during a video call; WAN drop 100 Mbps to 20 Mbps; three TV streams plus a gaming device. Ambiguities/interpretation risks: (a) \"classifies broad traffic categories\" is deliberately coarse (interactive / real-time / streaming / bulk), so a fine-grained app classifier is NOT required and would over-scope; (b) \"estimates link capacity\" is open as to active vs passive methods; (c) \"verifies whether the policy improved user experience\" is a distinct deliverable most teams will skip; (d) no hardware is mandated, so a Linux network-namespace testbed is legitimate provided it is labelled as emulation with its model and limitations; (e) \"where AI is used\" is conditional, so AI is optional and must beat a deterministic baseline if used.",
+ "top_concepts": [
+  {
+   "name": "Concept A: Closed-loop, self-verifying QoS controller on a reproducible network-namespace home-gateway testbed (HTB+fq_codel enforcement, latency-feedback capacity estimator, heuristic-vs-ML early-flow classifier, intent API with TTL, automatic rollback)",
+   "summary": "Build a 3-namespace testbed (LAN hosts -> 'router' namespace -> WAN server) with veth pairs; netem on the WAN leg emulates capacity/RTT/loss; the controller (Python) programs HTB class tree + fq_codel leaves on the router's egress interfaces, classifies flows from header/flow statistics only (tc flower 5-tuple steering), estimates capacity with a cake-autorate-style latency-feedback loop, applies a temporary intent token with TTL, and VERIFIES each policy change against KPIs (p95 RTT, jitter, loss, Jain index), rolling back automatically if the KPI did not improve. Everything runs from one script that resets, impairs, measures, and writes a report; CI on GitHub Actions re-runs it.",
+   "why_feasible": "Verified on this team's own Windows machine on 2026-10-18: stock WSL 2.6.1 (kernel 6.6.87.2) ships sch_netem, sch_htb, sch_fq_codel, ifb, cls_flower, cls_fw, act_mirred and the smoke test (netns+veth+HTB+fq_codel+netem+fw filter+tc JSON stats+IPv6) passed; all tools are free (iproute2, iperf3 BSD-3, irtt GPL-2, Python). Pure software, backend-style engineering, no hardware, no paid APIs.",
+   "weakness": "No sch_cake in the stock WSL kernel (CAKE comparison must run in CI/VM or a custom WSL kernel); classification of QUIC/ECH/DoH traffic is inherently coarse; a veth testbed is emulation and must be labelled as such; controller tuning (hysteresis) takes iteration to avoid oscillation."
+  },
+  {
+   "name": "Concept B: CAKE-centric thin controller (DSCP/fwmark marking + CAKE tins + autorate) with a dashboard",
+   "summary": "Let the kernel's CAKE qdisc do fairness, AQM and DiffServ tiers; the controller only sets CAKE bandwidth (from an estimator), marks flows (nft/iptables DSCP or fwmark -> tin) and exposes an intent API. Evaluate with flent/RRUL-style tests.",
+   "why_feasible": "CAKE is in mainline since Linux 4.19 and documented in tc-cake(8); Ubuntu 24.04 generic and azure kernels ship sch_cake.ko (verified package lists), so it runs on a native Ubuntu VM or GitHub Actions runner; cake-autorate shows the estimator pattern.",
+   "weakness": "sch_cake is NOT in the stock WSL2 kernel (verified: CONFIG_NET_SCH_CAKE 'is not set' and modprobe fails on this machine), so the team cannot develop/demo it on their Windows laptops without building a custom WSL kernel or running a VM; judges may see 'we configured CAKE' as thin engineering; fairness/AQM credit goes to the kernel, not the team."
+  },
+  {
+   "name": "Concept C: ML-first encrypted-traffic classifier trained on ISCXVPN2016 (+ self-generated captures), replayed into the controller",
+   "summary": "Train a Random-Forest/GBM on flow statistics (packet-size and inter-arrival features, first-N-packet sequences via NFStream) over ISCXVPN2016 and own captures; run live classification on the router namespace; feed classes to an HTB policy engine.",
+   "why_feasible": "ISCXVPN2016 is free (CIC form, no login, redistribution allowed with citation); NFStream (LGPL-3) extracts 48 statistical + early-packet features on Linux; literature shows 85-90% accuracy on 14-class ISCX scenarios and >90% from the first 4-7 packets (Bernaille 2006).",
+   "weakness": "The PDF only needs BROAD categories and explicitly warns against AI that does not beat a deterministic baseline; ISCX (2016) predates QUIC/HTTP3/ECH so models transfer poorly; ML consumes effort that judges score under only one of five criteria; demo value is low unless enforcement and verification are also complete."
+  }
+ ],
+ "recommended_concept": {
+  "name": "Concept A: 'Verify-or-Rollback' adaptive QoS controller on a reproducible netns home-gateway testbed",
+  "description": "A Python controller (systemd-style daemon + FastAPI/Flask intent API + React or plain-JS dashboard) running in a 'router' network namespace between emulated LAN devices (call client, gamer, 3 TVs, downloader) and an emulated WAN server. Enforcement: HTB root class with per-category child classes (interactive/real-time, streaming, best-effort, bulk) each with a non-zero guaranteed rate (starvation floor) and ceil = link rate, fq_codel leaves for per-flow fairness and AQM, tc flower filters steering 5-tuples into classes (no netfilter dependency; IPv4 and IPv6 via protocol ip/ipv6). Classification: deterministic baseline (port/protocol/packet-size heuristics with explicit confidence) and an optional early-flow ML classifier (first-N packet sizes/directions/IATs via NFStream or a custom AF_PACKET sniffer) that must beat the baseline on held-out self-generated labelled captures; both expose confidence and a /correct endpoint that pins a flow or host to a class. Capacity estimation: latency-feedback loop (cake-autorate pattern): irtt/ping probes measure RTT under load; when p95 RTT rises above baseline+threshold the shaper rate is cut multiplicatively, when load is high and RTT is flat it is raised additively (AIMD with hysteresis and refractory period); min/base/max rates bound the actuator. Intent: POST /intent {host|flow, class, ttl_s} creates a temporary override that expires automatically. Verification: every policy change is an experiment: KPIs (p50/p95/p99 RTT, IPDV jitter, loss, per-class throughput, queue backlog from tc -j -s, Jain index) are compared before/after over a window; if the target KPI did not improve, the previous policy is restored (bounded, observable, reversible remediation; the known safe state is 'fq_codel only, no shaping'). Experiments: one CLI (make demo SCENARIO=1..3) resets namespaces, applies the impairment (e.g. netem rate 100mbit -> 20mbit at t=30s), runs baseline (pfifo/no controller) then optimized, repeats N=5-10 times, computes bootstrap 95% CIs, and renders an HTML/Markdown report plus JSON evidence. CI: GitHub Actions ubuntu-latest (passwordless sudo, sch_cake available) re-runs the suite and additionally compares HTB+fq_codel against CAKE as a reference, labelled as emulation.",
+  "differentiating_innovation": "Three things a typical student submission will not have: (1) the controller treats itself as falsifiable: each policy action carries a predicted KPI improvement and is auto-reverted if the measured improvement is not realised (this directly implements the PDF's 'verifies whether the policy improved user experience' and 'bounded, observable and reversible' remediation); (2) link-capacity estimation accuracy is quantified against GROUND TRUTH because the testbed controls the true capacity (netem/HTB rate), giving an honest estimator error (%) and convergence time (s) after the 100->20 Mbps drop; (3) a one-command, CI-reproducible evidence pipeline with repeated runs and confidence intervals, plus a deterministic-vs-ML classifier ablation, so every one of the five criteria maps to a numbered table in the report.",
+  "why_this_one": "It maximises score on the four criteria that are measurable with certainty (latency/jitter/loss reduction, fairness/no starvation, adaptation speed/stability, CPU/reproducibility/clarity) using only free tools that were empirically verified to work on this team's own Windows machine via WSL2, and it limits exposure on the weakest criterion (classification accuracy on encrypted traffic) by scoping to the broad categories the PDF actually asks for and by using a deterministic baseline with an optional ML add-on. It plays to the team's backend/Python/REST/React strengths rather than requiring kernel or ML research."
+ },
+ "resources": [
+  {
+   "claim": "Stock WSL2 kernel config (linux-msft-wsl-6.6.y) has CONFIG_NET_SCH_NETEM=m, CONFIG_NET_SCH_HTB=m, CONFIG_NET_SCH_FQ_CODEL=m, CONFIG_NET_SCH_INGRESS=m, CONFIG_NET_CLS_FLOWER=m, CONFIG_NET_CLS_FW=m, CONFIG_IFB=m, CONFIG_VETH=y, CONFIG_NET_NS=y, CONFIG_NF_TABLES=y, but '# CONFIG_NET_SCH_CAKE is not set'.",
+   "url": "https://raw.githubusercontent.com/microsoft/WSL2-Linux-Kernel/linux-msft-wsl-6.6.y/arch/x86/configs/config-wsl",
+   "source_type": "official doc",
+   "establishes": "The whole HTB/fq_codel/netem/namespace testbed is possible on Windows laptops via WSL2 without a custom kernel; CAKE is not.",
+   "label": "verified_fact",
+   "limitations": "Config of the 6.6.y branch; the running kernel on the team machine is 6.6.87.2 and was separately checked with modprobe -n -v (netem/htb/ifb/flower present, cake absent)."
+  },
+  {
+   "claim": "On this machine (WSL 2.6.1.0, kernel 6.6.87.2-microsoft-standard-WSL2, 12 vCPU, 7.9 GB RAM) a netns+veth+HTB+fq_codel+netem+fw-filter+IPv6 smoke test succeeded: 0.056 ms baseline RTT, 30.96 ms after netem delay 30ms; tc -j -s qdisc returns JSON with backlog/qlen/drops.",
+   "url": "https://learn.microsoft.com/en-us/windows/wsl/wsl-config",
+   "source_type": "official doc (plus local empirical test 2026-10-18)",
+   "establishes": "The testbed runs on the team's existing hardware; .wslconfig 'kernel' and 'kernelModules' settings exist if a custom kernel with CAKE is ever wanted.",
+   "label": "verified_fact",
+   "limitations": "Tested with ping only, not iperf3 (not yet installed); needs 'wsl -u root' or sudo."
+  },
+  {
+   "claim": "tc-cake(8): shaper via 'bandwidth', diffserv3/diffserv4/besteffort tins, triple-isolate/dual-srchost/dual-dsthost flow isolation, ack-filter, overhead keywords, 'autorate-ingress' capacity estimation that only sees traffic arriving at the qdisc.",
+   "url": "https://man7.org/linux/man-pages/man8/tc-cake.8.html",
+   "source_type": "official doc",
+   "establishes": "Reference qdisc for the CI comparison and the 'production-scale' discussion; autorate-ingress is a documented but limited passive estimator.",
+   "label": "verified_fact",
+   "limitations": "Not available in stock WSL; available in Ubuntu generic/azure kernels."
+  },
+  {
+   "claim": "tc-netem(8): delay with jitter and distributions, random/state/gemodel loss, rate emulation with overhead, reorder, corrupt, seed for reproducible randomness; warns that timer granularity causes bursts and that combining netem with other qdiscs 'may not always work'.",
+   "url": "https://man7.org/linux/man-pages/man8/tc-netem.8.html",
+   "source_type": "official doc",
+   "establishes": "Impairment model for the WAN leg; 'seed' enables reproducible loss; keep netem on its own interface (WAN veth), not stacked under the controller's HTB.",
+   "label": "verified_fact",
+   "limitations": "Rate emulation accuracy depends on kernel timers; 100 Mbps emulation on a VM is fine, multi-Gbps is not."
+  },
+  {
+   "claim": "tc-htb(8): 'rate' is the guaranteed rate for a class and children, 'ceil' allows borrowing from parent spare bandwidth, 'prio' orders service, quantum/r2q control DRR service amounts.",
+   "url": "https://man7.org/linux/man-pages/man8/tc-htb.8.html",
+   "source_type": "official doc",
+   "establishes": "Starvation prevention via non-zero per-class 'rate' floors; work-conserving sharing via ceil.",
+   "label": "verified_fact",
+   "limitations": "Man page does not formally prove non-starvation; must be demonstrated experimentally (bulk class throughput never below its floor)."
+  },
+  {
+   "claim": "tc-fq_codel(8)/RFC 8290: defaults target 5 ms, interval 100 ms, quantum 1514, 1024 flows, ECN on; DRR with new/old flow lists gives sparse flows (VoIP, DNS, ACKs) low latency without explicit classification; stats expose drop_overlimit, ecn_mark, new/old_flows_len.",
+   "url": "https://www.rfc-editor.org/rfc/rfc8290.html",
+   "source_type": "paper (IETF Experimental RFC)",
+   "establishes": "Leaf qdisc choice and the per-flow fairness mechanism; the 'known safe state' (fq_codel only) is itself a strong baseline.",
+   "label": "verified_fact",
+   "limitations": "Experimental status; parameters tuned for ~100 ms RTT paths."
+  },
+  {
+   "claim": "tc-flower(8) matches ip_proto, src_ip/dst_ip prefixes (IPv4/IPv6 per 'protocol'), src_port/dst_port (masks or ranges), ip_tos, and assigns 'classid X:Y' or actions.",
+   "url": "https://man7.org/linux/man-pages/man8/tc-flower.8.html",
+   "source_type": "official doc",
+   "establishes": "Per-flow steering into HTB classes without any netfilter/nft dependency, for both IPv4 and IPv6; cls_flower verified present in WSL.",
+   "label": "verified_fact",
+   "limitations": "Filter churn per new flow has overhead; batch with 'tc -batch'."
+  },
+  {
+   "claim": "tc-fw(8) classifies by fwmark (set via iptables MARK/CONNMARK or nft meta mark) into classid; tc-mirred(8) with ifb allows ingress traffic to be redirected through an egress qdisc.",
+   "url": "https://man7.org/linux/man-pages/man8/tc-mirred.8.html",
+   "source_type": "official doc",
+   "establishes": "Alternative marking path and the standard ingress-shaping technique (IFB) for a real gateway; in the namespace testbed the router's LAN-side veth egress shapes downloads directly, so IFB is optional.",
+   "label": "verified_fact",
+   "limitations": "nft 'ip dscp set' syntax was not confirmed from a primary page in this research; treat as technical_inference."
+  },
+  {
+   "claim": "CAKE paper (Høiland-Jørgensen, Täht, Morton, arXiv 1804.07617, CC BY-SA 4.0): on a 10 Mbps/50 ms link an EF-marked 2 Mbps real-time flow competing with 32 bulk TCP flows settles at ~200 ms (CAKE without DiffServ) or oscillates 50-500 ms (FQ-CoDel) whereas DiffServ-enabled CAKE adds no latency; ACK filtering on a 30/1 Mbps link raises upload goodput ~10% (conservative) to ~40% (aggressive) and download ~15%, latency range 2.6-7.5 ms; evaluation dataset on Zenodo doi 10.5281/zenodo.1226887.",
+   "url": "https://arxiv.org/abs/1804.07617",
+   "source_type": "paper",
+   "establishes": "Quantitative reference results and a scenario design (real-time flow vs N bulk flows) the team can replicate; shows why per-flow fairness alone does not protect unresponsive real-time flows.",
+   "label": "verified_fact",
+   "limitations": "arXiv preprint; numbers read from extracted PDF text."
+  },
+  {
+   "claim": "CAKE was merged in Linux 4.19 ('This release includes a new queuing discipline ... CAKE').",
+   "url": "https://kernelnewbies.org/Linux_4.19",
+   "source_type": "community (kernel changelog summary)",
+   "establishes": "Any modern distro kernel can offer CAKE; absence in WSL is a Microsoft config choice.",
+   "label": "verified_fact",
+   "limitations": "None."
+  },
+  {
+   "claim": "Ubuntu 24.04 (noble) linux-modules-6.8.0-31-generic and linux-modules-6.8.0-1007-azure (and others) contain /lib/modules/.../net/sched/sch_cake.ko.zst.",
+   "url": "https://packages.ubuntu.com/search?searchon=contents&keywords=sch_cake.ko&mode=filename&suite=noble&arch=any",
+   "source_type": "official doc (package index)",
+   "establishes": "A native Ubuntu VM and (azure kernel) GitHub-hosted runners can run CAKE comparisons.",
+   "label": "verified_fact",
+   "limitations": "Runner images may use a different kernel flavour; must be confirmed by one CI run."
+  },
+  {
+   "claim": "GitHub-hosted Linux runners run with passwordless sudo.",
+   "url": "https://docs.github.com/en/actions/reference/github-hosted-runners-reference",
+   "source_type": "official doc (via search snippet)",
+   "establishes": "tc/ip netns experiments can run in CI as evidence of reproducibility.",
+   "label": "verified_fact",
+   "limitations": "Whether netem/HTB modules load on the runner kernel was not executed; one test workflow needed."
+  },
+  {
+   "claim": "ISCXVPN2016 (UNB CIC): 14 categories (browsing, email, chat, streaming, file transfer, VoIP, P2P, each regular and VPN), ~28 GB pcap plus ISCXFlowMeter CSV features; downloads go through a short form, 'We do not use login pages and passwords'; 'any use or redistribution of the data must include a citation'; cite Draper-Gil et al., ICISSP 2016.",
+   "url": "https://www.unb.ca/cic/datasets/vpn.html",
+   "source_type": "dataset card",
+   "establishes": "A free labelled dataset for an optional classifier pre-training/ablation and for the licence section.",
+   "label": "verified_fact",
+   "limitations": "2016 traffic predates QUIC/HTTP3/ECH; large; the direct cicresearch.ca directory redirects to the index page, so the form path must be used."
+  },
+  {
+   "claim": "Draper-Gil, Lashkari, Mamun, Ghorbani, 'Characterization of Encrypted and VPN Traffic using Time-related Features', ICISSP 2016, pp. 407-414, DOI 10.5220/0005740704070414: time-related flow features (duration, fwd/bwd IAT, active/idle, bytes/s, packets/s) with C4.5 and KNN; shorter flow timeouts helped.",
+   "url": "https://www.scitepress.org/papers/2016/57407/57407.pdf",
+   "source_type": "paper",
+   "establishes": "Feature set precedent for payload-free classification.",
+   "label": "verified_fact",
+   "limitations": "Accuracy figures vary widely by split; later work reports ~85-88% on 14 classes with Random Forest."
+  },
+  {
+   "claim": "Bernaille, Teixeira, Salamatian, 'Early Application Identification', ACM CoNEXT 2006 (Best Paper): sizes and directions of the first 4-7 packets of a TCP connection classify applications with >90% accuracy, enabling online classification.",
+   "url": "https://www.caida.org/archive/networkingbib/entries/bernaille06early/",
+   "source_type": "paper (bibliographic record)",
+   "establishes": "Early-flow classification is a 20-year-old, well-founded technique; justifies classifying within the first few packets so QoS can act early.",
+   "label": "verified_fact",
+   "limitations": "Sources disagree on 4 vs 5-7 packets; pre-QUIC."
+  },
+  {
+   "claim": "QUIC v1 exposes only one unencrypted byte, SNI is hidden in QUIC/ECH, DoH hides DNS; classification beyond port/5-tuple needs behavioural (size/timing/direction) features; ~88% service accuracy in a QUIC study is dataset-specific.",
+   "url": "https://arxiv.org/abs/2310.10676",
+   "source_type": "paper",
+   "establishes": "The honest limit of payload-free classification in 2026 and the right 'known limitations' text.",
+   "label": "verified_fact",
+   "limitations": "Vendor slides in the same search are claims, not measurements."
+  },
+  {
+   "claim": "NFStream (LGPL-3.0): Python, Linux/macOS/Windows (Npcap on Windows), pcap or live capture, nDPI app/category labels, 48 statistical features (packet-size/IAT min/mean/std/max per direction), splt_analysis early-packet sequences up to 255 packets, pandas/CSV export, NFPlugin for ML.",
+   "url": "https://github.com/nfstream/nfstream",
+   "source_type": "repo",
+   "establishes": "Fast path to flow features and an nDPI-based 'oracle' label for building labelled training data from the team's own captures.",
+   "label": "verified_fact",
+   "limitations": "Python-version/wheel availability for 3.12 not confirmed; nDPI is LGPL-3 with some dual-licensed dissectors (document it)."
+  },
+  {
+   "claim": "nDPI is LGPL-3.0 (some dissectors dual-licensed); Zeek is BSD; both inspect metadata (e.g. TLS SNI) without decrypting.",
+   "url": "https://github.com/ntop/nDPI",
+   "source_type": "repo",
+   "establishes": "Licence-compatible inspection tools; SNI/metadata use is allowed by the 'do not decrypt' constraint but should be treated as optional hints.",
+   "label": "verified_fact",
+   "limitations": "Repo page did not list categories; README.license.md must be read."
+  },
+  {
+   "claim": "iperf3 is BSD-3 licensed, offers JSON output, UDP mode with loss, primary targets Ubuntu/FreeBSD/macOS.",
+   "url": "https://github.com/esnet/iperf",
+   "source_type": "repo",
+   "establishes": "Load generator for bulk/streaming flows with machine-readable results.",
+   "label": "verified_fact",
+   "limitations": "Not installed in the team's WSL yet (apt install iperf3)."
+  },
+  {
+   "claim": "irtt (GPL-2.0, Go) sends isochronous UDP probes and reports RTT, one-way delay, IPDV jitter, loss up/down, with JSON output; version 0.9.x.",
+   "url": "https://github.com/heistp/irtt",
+   "source_type": "repo",
+   "establishes": "The VoIP-like probe for latency/jitter/loss KPIs (e.g. -i 20ms -l 172 to mimic G.711).",
+   "label": "verified_fact",
+   "limitations": "Release list not visible in capture; build from source with Go if no package."
+  },
+  {
+   "claim": "Flent (GPL-3) wraps netperf/iperf for RRUL bufferbloat tests; netperf is in Debian/Ubuntu non-free; RRUL spec: >=4 TCP streams each way plus sparse UDP/TCP latency probes, measures latency/jitter/loss/throughput under load.",
+   "url": "https://www.bufferbloat.net/projects/bloat/wiki/RRUL_Spec/",
+   "source_type": "tech report (draft spec)",
+   "establishes": "A recognised test design to emulate; the team can implement an RRUL-like scenario with iperf3+irtt to avoid the netperf non-free dependency.",
+   "label": "verified_fact",
+   "limitations": "Flent's GUI/plots are optional; RRUL is a draft."
+  },
+  {
+   "claim": "Jain, Chiu, Hawe, DEC-TR-301 (1984), arXiv cs/9809099: fairness index bounded in [0,1], scale-independent; formula J = (sum x_i)^2 / (n * sum x_i^2).",
+   "url": "https://arxiv.org/abs/cs/9809099",
+   "source_type": "paper",
+   "establishes": "The fairness metric for the dashboard and the 'Fairness and absence of starvation' criterion.",
+   "label": "verified_fact",
+   "limitations": "Formula text taken from secondary restatements (Jain's own slides); the arXiv abstract page confirms the paper and bounds."
+  },
+  {
+   "claim": "cake-autorate (GPL-2.0, bash, OpenWrt): adjusts CAKE rates using load plus OWD/RTT to reflectors; ramps up under load with flat latency, cuts when latency rises, drifts to baseline at low load, refractory period, hard min/base/max rates.",
+   "url": "https://github.com/lynxthecat/cake-autorate",
+   "source_type": "repo",
+   "establishes": "A field-proven design for the link-capacity estimator that the team can re-implement in Python against HTB (with attribution).",
+   "label": "verified_fact",
+   "limitations": "Active probing to reflectors is needed; in the testbed the reflector is the WAN-server namespace."
+  },
+  {
+   "claim": "OpenWrt SQM guidance: set shaper to ~90% of measured rates, raise until bufferbloat appears; CAKE preferred, fq_codel faster on weak CPUs; properly tuned SQM brings added latency under load near zero.",
+   "url": "https://openwrt.org/docs/guide-user/network/traffic-shaping/sqm",
+   "source_type": "official doc (OpenWrt)",
+   "establishes": "Practical shaping headroom rule and the expected magnitude of improvement.",
+   "label": "verified_fact",
+   "limitations": "Rule of thumb, not a theorem."
+  },
+  {
+   "claim": "Mininet (BSD-3) TCIntf generates 'htb ... rate %fMbit burst 15k' and 'netem delay/loss/limit' commands over veth pairs in namespaces; Ubuntu 20.04/22.04 supported; release 2.3.1b4.",
+   "url": "https://raw.githubusercontent.com/mininet/mininet/master/mininet/link.py",
+   "source_type": "repo",
+   "establishes": "Validated precedent that HTB+netem on veth is the standard way to emulate home links; the team can use raw ip netns without Mininet's Open vSwitch dependency.",
+   "label": "verified_fact",
+   "limitations": "Mininet needs OVS kernel module; unnecessary for a 3-node topology."
+  },
+  {
+   "claim": "NeST (nitk-nest on PyPI, ANRW 2020) builds namespace topologies, runs tests and collects iproute2/netperf stats from one Python script; requires root.",
+   "url": "https://pypi.org/project/nitk-nest",
+   "source_type": "repo (PyPI)",
+   "establishes": "Alternative scaffolding for the testbed; shows academic acceptance of namespace emulation for qdisc studies.",
+   "label": "verified_fact",
+   "limitations": "Beta; adds a dependency the team may not need."
+  },
+  {
+   "claim": "pyroute2 (dual Apache-2.0/GPL-2.0-or-later, Python >=3.10) offers netlink tc and netns APIs; tcconfig (PyPI) wraps tc and needs sch_netem and NET_ADMIN in containers.",
+   "url": "https://github.com/svinota/pyroute2",
+   "source_type": "repo",
+   "establishes": "Programmatic alternatives to shelling out to tc; shelling out with 'tc -j' is simpler and verified.",
+   "label": "verified_fact",
+   "limitations": "Specific qdisc coverage (cake) not confirmed."
+  },
+  {
+   "claim": "2020 Microsoft Q&A: netem failed on WSL2 4.19 (module missing), unresolved there; kernel module support with 'hundreds of modules' arrived with the 6.6.36.3 kernel / WSL 2.3.11 (July 2024).",
+   "url": "https://learn.microsoft.com/en-us/answers/questions/48142/wsl2-qdisc-netem-support",
+   "source_type": "community",
+   "establishes": "Why older guides say 'netem does not work on WSL2' and why that is now outdated on WSL >= 2.3.11.",
+   "label": "verified_fact",
+   "limitations": "Historical."
+  },
+  {
+   "claim": "Netem in nested/virtualised testbeds can shift throughput results versus bare metal.",
+   "url": "https://arxiv.org/abs/2208.05862",
+   "source_type": "paper",
+   "establishes": "The known-limitations wording for VM/WSL emulation and why relative (baseline vs optimized) comparisons on the same host are the credible claim.",
+   "label": "verified_fact",
+   "limitations": "Study targets large-scale edge testbeds."
+  },
+  {
+   "claim": "UNSW-NB15 is an intrusion-detection dataset (9 attack categories, 49 features), free for academic use only, commercial use needs agreement.",
+   "url": "https://research.unsw.edu.au/projects/unsw-nb15-dataset",
+   "source_type": "dataset card",
+   "establishes": "NOT suitable for QoS category classification; listed to justify excluding it.",
+   "label": "verified_fact",
+   "limitations": "None."
+  }
+ ],
+ "feasibility_analysis": "DATA: No external dataset is required. The strongest evidence is self-generated: the testbed produces labelled traffic by construction (the team starts an iperf3 bulk flow, an irtt VoIP-like probe, a UDP 'game' stream, three CBR 'TV' streams), so classification ground truth, link-capacity ground truth (the netem/HTB rate the script set) and KPIs are all exact. This satisfies the PDF's 'generated data and impairment settings must be included'. ISCXVPN2016 is verified downloadable through a CIC form without login, redistribution allowed with citation; it is useful only as an optional pre-training/ablation set for the ML classifier, and its 2016 traffic does not represent QUIC/ECH. UNSW-NB15 is for intrusion detection and should be excluded.\n\nCAN THE CORE BE DEMOED BY STUDENTS: Yes, and this was empirically proven on the team's own Windows 11 laptop on 2026-10-18: WSL 2.6.1.0 with kernel 6.6.87.2 loaded sch_netem, sch_htb, sch_fq_codel, ifb, cls_flower, cls_fw, act_mirred (dry-run modprobe) and a full netns+veth+HTB+fq_codel+netem+fw-filter+IPv6 smoke test ran (0.056 ms baseline RTT; 30.96 ms with netem 30 ms; tc -j -s JSON stats returned backlog/qlen/drops). Caveats: sch_cake and sch_pie are absent in stock WSL (CONFIG_NET_SCH_CAKE 'is not set'); the fix paths are (a) build a custom WSL kernel and point .wslconfig 'kernel'/'kernelModules' at it (documented but unsupported by Docker Desktop), or (b) run the CAKE reference comparison in GitHub Actions ubuntu-latest (passwordless sudo verified; Ubuntu noble generic/azure linux-modules contain sch_cake.ko.zst) or in a Multipass/VirtualBox Ubuntu VM. Docker Desktop on Windows shares the same WSL kernel, so it does not add CAKE. nft, iptables and iperf3 are not yet installed in the team's Ubuntu WSL distro (apt-installable); tc flower filters remove the need for netfilter entirely.\n\nFREE TOOLS: iproute2 (GPL-2), iperf3 (BSD-3), irtt (GPL-2), Python 3.12 (present), NFStream/nDPI (LGPL-3), scikit-learn (BSD), FastAPI/Flask, React. Nothing paid. CPU overhead measurable with psutil/top because enforcement is in-kernel and the controller is a user-space loop at ~1 Hz.\n\nALREADY STANDARD (do not claim as novel): HTB+fq_codel trees, CAKE tins, DSCP marking, SQM 90% rule, RRUL tests, flow-feature ML classifiers, Jain's index. OpenWrt SQM and cake-autorate already exist and judges from a broadband company will know them.\n\nACHIEVABLE NOVELTY: (1) the verify-or-rollback loop (policy change as a bounded experiment with KPI prediction, automatic revert, audit log); (2) ground-truth-scored capacity estimator with published error and convergence time; (3) intent tokens with TTL and fairness guards (an intent can raise priority but never lower another class below its floor); (4) one-command, CI-reproduced evidence with repeated runs and confidence intervals; (5) deterministic-vs-ML classifier ablation reported honestly, including a confusion matrix and confidence calibration.\n\nMEASURABLE RESULT VS BASELINE: Baseline = same topology, no controller, default pfifo_fast/pfifo with a deep queue (e.g. netem limit 1000 or HTB with a 1000-packet pfifo leaf) at the bottleneck, which reproduces bufferbloat; expected: p95 RTT of the call probe rises from ~30 ms (unloaded) to hundreds of ms when the ISO download starts (queue of 1000 x 1500 B at 20 Mbps = ~600 ms). Optimized = controller with HTB+fq_codel and classification: expected p95 added latency under load in the low tens of ms or less (OpenWrt reports near zero added latency when tuned). These magnitudes are technical_inference from queueing arithmetic and SQM experience and MUST be measured; they are the kind of 10x reductions that are routine for this problem. Fairness: Jain index across the three TV streams and the bulk class floor (e.g. >= 10% of link) are directly measurable from iperf3 JSON. Adaptation: time from the 100->20 Mbps step to the shaper rate within +/-15% of true capacity, and whether the rate oscillates (std dev of rate after convergence).\n\nHIDDEN DIFFICULTIES: netem timer granularity and VM scheduling add noise (use repeated runs and medians, pin netem on its own interface, disable GRO/TSO on veths with ethtool -K as Mininet does); HTB quantum warnings at high rates (set r2q/quantum); flow steering needs filter updates per new flow (batch via tc -batch; or classify per host/port range for broad categories); ingress vs egress direction confusion (shape downloads on the LAN-side veth egress, uploads on the WAN-side veth egress); UDP 'game' and VoIP flows are unresponsive so they must be protected by class, not just fq_codel (the CAKE paper's 200 ms vs 50-500 ms result shows why); root privileges for the demo; WSL clock/time accuracy for one-way delay (use RTT only); controller oscillation if hysteresis is poor; classifier confidence calibration; IPv6 support must be tested explicitly (ULA addresses worked in the smoke test).\n\nWHAT A SKEPTICAL INDUSTRY ENGINEER WILL CHALLENGE: 'Your testbed is veth, not a DOCSIS/GPON/Wi-Fi link; latency-under-load on real last-mile links differs' (answer: labelled as emulation; relative comparison on identical topology; netem rate/overhead options; CAKE overhead keywords discussed in limitations); 'OpenWrt SQM already does this, what did you add?' (answer: verification loop, intent API with fairness guards, estimator accuracy vs ground truth, reproducible evidence); 'Encrypted QUIC with ECH defeats your classifier' (answer: broad categories from behaviour, confidence exposed, correction endpoint, intent as the user-side override; documented limits with citations); 'Classification by 5-tuple filters does not scale on a real CPE' (answer: production would use connmark/DSCP + CAKE tins or eBPF; prototype boundary stated); 'How do you know the controller did not make things worse?' (answer: that is exactly what verify-or-rollback logs); 'Is the ML worth it?' (answer: ablation table; if it does not beat the heuristic baseline it is shipped off by default, which the PDF explicitly endorses).",
+ "architecture_and_mvp": "TOPOLOGY (all Linux network namespaces on one WSL2/Ubuntu host, labelled as emulation): ns 'lan-call' (VoIP/video-call client: irtt client 20 ms interval 172 B), ns 'lan-game' (UDP 60 pps small packets), ns 'lan-tv1..3' (iperf3 UDP/TCP CBR 8-15 Mbps each, or a simple HTTP chunk puller), ns 'lan-bulk' (iperf3 TCP download/upload of the 'ISO'), all attached via veths to ns 'router' (a Linux bridge or individual veths with routing); ns 'router' connects via veth to ns 'wan' (servers: iperf3 -s, irtt server, UDP echo). The WAN leg carries netem (rate 100mbit -> 20mbit, delay 20-40 ms, loss 0-1%, seed fixed) applied on the 'wan' side so that the router cannot see the true capacity except by measurement.\n\nMODULES (each a Python package with a CLI, unit tests, and a JSON contract):\n1. classifier/: inputs = flow 5-tuple + first-N packet sizes/directions/IATs (via NFStream live or an AF_PACKET sniffer in the router ns) + optional metadata hints (port, DSCP, TLS SNI if plain); outputs = {flow_id, category in [realtime, interactive, streaming, besteffort, bulk], confidence in [0,1], source: heuristic|ml|intent|correction}; state: NEW -> OBSERVING(<N pkts) -> CLASSIFIED -> CORRECTED/EXPIRED; failure handling: unknown -> besteffort with confidence 0.3; success condition: >= X% macro-F1 on held-out labelled captures and classification within first 10 packets. Deterministic baseline = rule table; ML = sklearn RandomForest on early-flow features; a /correct endpoint pins a flow or host.\n2. estimator/: inputs = irtt RTT samples to the WAN reflector at 10-20 Hz, per-direction achieved throughput from tc -j -s on the router interfaces; outputs = {capacity_down, capacity_up, confidence, state}; algorithm = AIMD with hysteresis (if load > 70% and p95 RTT delta < 10 ms: rate += 2%; if RTT delta > 25 ms for 3 samples: rate *= 0.85; refractory 2 s; clamp [min,base,max]); state machine: IDLE -> PROBING -> STABLE -> BLOAT_DETECTED -> BACKOFF; failure: no probe replies for 5 s -> hold last safe rate and raise alarm; success: error vs ground truth <= 15% and convergence <= 10 s after a step.\n3. policy/: inputs = class map, capacity, active intents; outputs = desired HTB tree (class rates/ceils/prio, fq_codel leaves) and flower filter set; invariants (never violated): sum(rate floors) <= 0.9*capacity, every class floor >= 5% of capacity (no starvation), realtime ceil capped so intent cannot monopolise; transitions: applies diffs transactionally; rollback stack of previous trees.\n4. enforce/: wraps tc (subprocess, 'tc -batch' and 'tc -j -s'), idempotent apply, verify-by-readback, reset-to-safe (qdisc del root; add fq_codel), works per interface for IPv4 and IPv6.\n5. verify/: before/after KPI windows (p50/p95/p99 RTT, IPDV, loss, per-class throughput, backlog, Jain index); decision rule (e.g. p95 RTT must drop by >= 20% or stay <= 30 ms, bulk throughput >= floor); on failure -> policy.rollback(); writes an append-only audit log (what changed, why, predicted vs observed, reverted or kept).\n6. intent-api/: FastAPI: POST /intent {target: host|flow, class, ttl_s, reason}, GET /intents, DELETE; expiry timer; every intent validated against fairness invariants.\n7. dashboard/: React (or lightweight HTML+Chart.js) polling a /metrics endpoint: live latency/jitter/loss/throughput/queue depth/Jain, active policy tree, intents, classifier decisions with confidence and a 'correct' button, audit log.\n8. experiments/: 'make demo SCENARIO=1|2|3 RUNS=5' -> reset ns, start traffic, start baseline (no controller, deep FIFO), record, reset, start optimized, record, repeat; analysis computes medians and bootstrap 95% CIs; renders report.html/report.md plus raw JSON/CSV; GitHub Actions workflow runs the same suite (and the CAKE reference where available) and uploads artifacts.\n\nMINIMUM WORKING PROTOTYPE (first milestone): topology script + enforce (HTB+fq_codel, 4 classes) + heuristic classifier (port/protocol/size rules with confidence) + static capacity + scenario 1 experiment with report. Second milestone: estimator + scenario 2; intent API + scenario 3; dashboard. Third: verify/rollback loop, ML ablation, CI, IPv6 runs, licence/limitations docs. Production boundary to document: real CPE would use CAKE or hardware offload, connmark/DSCP instead of per-flow filters, IFB for ingress, secure API auth, scale testing, certification; no secrets committed (example tokens clearly fictitious).",
+ "demo_plan": "All numbers come from scripts, not slides; each metric names its computation.\n\nSETUP: one command 'make demo SCENARIO=k RUNS=5 SEED=42' (needs root in WSL/Ubuntu); each run: reset namespaces (delete/create), apply impairment (netem seed fixed), warm-up 5 s, baseline phase 60 s, optimized phase 60 s. Evidence: raw irtt JSON, iperf3 JSON, 'tc -j -s qdisc' samples at 1 Hz, controller audit log, psutil CPU samples; report.md with tables and CI plots.\n\nSCENARIO 1 (ISO download during a video call): metrics = call-probe RTT p50/p95/p99 (irtt, ms), IPDV jitter p95 (irtt), probe loss % (irtt), bulk throughput (iperf3 JSON sum_received bits/s), router queue backlog bytes and qlen (tc -j -s on the bottleneck interface), controller reaction time (s from bulk start to policy apply, from audit log). Baseline vs optimized reported as median over RUNS with bootstrap 95% CI and the relative reduction ((base-opt)/base). Target to claim honestly: p95 RTT reduced by >= 80% under load, loss reduced to <= baseline, bulk throughput >= 60% of link (shows no starvation).\n\nSCENARIO 2 (WAN drops 100 -> 20 Mbps at t=30 s): metrics = estimator error % = |est - true|/true sampled at 1 Hz after convergence; convergence time = seconds until |error| <= 15% for 3 consecutive samples; stability = std dev of shaper rate in the last 20 s and number of policy flips; p95 RTT during the 10 s after the drop (bloat avoided?). Baseline = static shaper at 100 Mbps (continues to build queue) vs adaptive. Target: convergence <= 10 s, steady error <= 15%, flips <= 2.\n\nSCENARIO 3 (three TVs + gamer): metrics = game-probe RTT p95 and jitter p95, per-TV throughput and Jain fairness index J = (sum x_i)^2/(n sum x_i^2) over the three TV streams (iperf3 JSON per interval), minimum per-class throughput vs configured floor (starvation check: must be >= floor 100% of the time), rebuffer proxy = fraction of 1-s intervals where a TV stream received < 90% of its target rate. Target: J >= 0.95, game p95 RTT within 10 ms of unloaded.\n\nINTENT TEST: POST /intent for the call host with ttl 120 s during Scenario 1: measure call p95 RTT before/after intent and after expiry; verify bulk floor still met (fairness retained) and that the intent appears/expires in the audit log.\n\nVERIFY/ROLLBACK TEST (fault injection): deliberately apply a bad policy (e.g. shaper at 150% of capacity); verify module must detect no KPI improvement and roll back within one evaluation window (<= 15 s); show the log and that the known safe state (fq_codel only) is restored; 'kill -9' the controller mid-run and show the watchdog resets qdiscs to safe state.\n\nCLASSIFIER TEST: held-out labelled captures from the testbed (plus optional ISCX subset): accuracy, macro-F1, confusion matrix, mean confidence of correct vs incorrect decisions (calibration), packets-to-decision; heuristic vs ML ablation; correction endpoint demonstrated by mislabelling a flow and correcting it.\n\nCPU OVERHEAD: router-namespace CPU % (psutil for controller PID and host-wide) at 20 and 100 Mbps, with and without controller; kernel enforcement cost shown as ksoftirqd/softirq share.\n\nREPRODUCIBILITY: identical suite in GitHub Actions with artifacts; README lists exact versions (kernel, iproute2 6.1.0, Python 3.12.3, iperf3, irtt) and the seed; CAKE reference comparison runs in CI only and is labelled as such.",
+ "risks_and_objections": [
+  {
+   "risk": "Kernel/tooling fragility on Windows laptops: WSL2 lacks sch_cake; some teammates may have older WSL (< 2.3.11) without any modules; netem/HTB behave differently under VM timers.",
+   "severity": "high",
+   "mitigation": "Standardise on WSL >= 2.6 (verified here) or an Ubuntu 24.04 VM; ship a 'make doctor' that checks modprobe -n for required modules and prints fixes; run CAKE comparisons only in CI; keep HTB+fq_codel as the primary enforcement path; disable GRO/TSO on veths."
+  },
+  {
+   "risk": "Controller oscillation or slow convergence after the 100->20 Mbps drop (adaptation speed and policy stability criterion).",
+   "severity": "high",
+   "mitigation": "AIMD with hysteresis, refractory period and min/base/max clamps (cake-autorate pattern); unit-test the estimator against a simulated link model before the live testbed; report flips and rate std dev honestly; tune on scenario 2 early."
+  },
+  {
+   "risk": "Weak classification accuracy on encrypted/QUIC traffic undermines the 'Accuracy of classification' criterion.",
+   "severity": "medium",
+   "mitigation": "Scope to the PDF's broad categories; deterministic heuristic baseline with confidence; early-flow ML ablation on own captures; expose confidence and a correction endpoint; intent API as the user-side override; cite QUIC/ECH limits in known limitations."
+  },
+  {
+   "risk": "Demo fragility: requires root, namespaces left dirty after a crash, timing noise, dashboard not updating.",
+   "severity": "medium",
+   "mitigation": "Idempotent reset script and watchdog that restores the safe state; pre-recorded run artifacts as backup; run the scripted demo (not a hand-driven one); repeated runs with medians; rehearse on the exact laptop."
+  },
+  {
+   "risk": "Judges dismiss veth emulation as not representative of real broadband (DOCSIS/GPON/Wi-Fi) links.",
+   "severity": "medium",
+   "mitigation": "Label emulation explicitly with model and limits (netem timer granularity, no MAC-layer effects, VM scheduling); use relative baseline-vs-optimized on identical topology; include netem rate overhead options; describe the production boundary and optionally test on one real home router/OpenWrt box if any teammate has one (not assumed)."
+  },
+  {
+   "risk": "Scope creep: dashboard polish and ML eat the time needed for verify/rollback and reproducibility, which are the real differentiators.",
+   "severity": "medium",
+   "mitigation": "Milestone order: enforcement + scenario 1 report first; estimator; intent; verify/rollback; dashboard; ML last and optional."
+  },
+  {
+   "risk": "Licence/compliance slip (nDPI dual-licensed dissectors, netperf non-free, ISCX citation requirement) or an example token looking real.",
+   "severity": "low",
+   "mitigation": "THIRD_PARTY_LICENSES.md generated from pip/apt metadata; avoid netperf; cite ISCX if used; use obviously fake example secrets (e.g. 'EXAMPLE-NOT-A-REAL-TOKEN'); pre-commit secret scan."
+  },
+  {
+   "risk": "IPv6 support claimed but untested.",
+   "severity": "low",
+   "mitigation": "Run every scenario once with ULA IPv6 addresses (verified ping works in the smoke test) and flower 'protocol ipv6' filters; report both."
+  }
+ ],
+ "competitor_hypotheses": "HYPOTHESIS (no data on actual TELIPORT competitors was found; these are inferences from how student teams typically approach QoS problems): H1: most teams will present an HTB or CAKE configuration driven by a port/DSCP table plus a Grafana-like dashboard, with a one-off before/after screenshot of ping under iperf; few will automate repeated runs, confidence intervals or CI. Outperform by the scripted, repeated, CI-reproduced evidence pipeline and ground-truth estimator scoring. H2: some teams will go ML-heavy (CNN/LSTM on ISCXVPN2016 pcaps) and spend most effort on a classifier that is never wired to live enforcement, or that does not beat a heuristic baseline, which the PDF explicitly penalises. Outperform by a deterministic baseline, a measured ablation and live classification within the first 10 packets. H3: many will skip or hand-wave the 'verify whether the policy improved user experience', rollback, starvation floors and failure-to-safe-state requirements. Outperform with the verify-or-rollback loop, fault-injection demo, audit log and watchdog. H4: some teams will attempt a real router (OpenWrt/Raspberry Pi) and suffer demo fragility or Wi-Fi noise; others will use Mininet. Outperform with a deterministic, seedable namespace testbed, explicit emulation labelling, and a production-boundary section that shows you understand the real CPE path (CAKE, connmark, IFB, offload). H5: few will test IPv6 or publish licences and limitations rigorously. Outperform by covering every bullet in 'Constraints and Design Boundaries' with a traceability table (requirement -> module -> test -> evidence file).",
+ "effort_and_unknowns": "Relative effort (deadline and team size unknown): testbed + enforcement + heuristic classifier + scenario 1 report: medium (the hard part is learning tc semantics and direction of shaping; the smoke test shows the environment works). Estimator with hysteresis and ground-truth scoring: medium-high (tuning iterations). Intent API + fairness invariants: low-medium (backend skills fit). Verify/rollback + watchdog + audit log: medium (design clarity matters more than code volume). Dashboard: low-medium (React/plain JS, polling a metrics endpoint). ML classifier + ablation: medium, optional; do last. Docs (setup guide with exact versions, architecture diagram, licences, known limitations, traceability table): low-medium but easy to under-deliver. CI workflow with sudo tc on ubuntu-latest: low-medium (one spike run resolves the unknown). Dependencies: WSL >= 2.3.11 (team machine has 2.6.1) or Ubuntu VM; root access; apt packages iperf3, iproute2, nftables (optional), Go or prebuilt irtt; Python 3.12 with nfstream/scikit-learn/fastapi/psutil. Unknowns: whether all teammates' machines have working WSL modules; nfstream wheel availability on Python 3.12; CAKE availability on the GitHub runner kernel flavour; how much time remains before submission; whether any teammate has an OpenWrt router (not assumed); whether judges will weight classification accuracy heavily; hackathon round structure (not in the PDF; not found online).",
+ "rubric_scores": [
+  {
+   "criterion": "Accuracy of classification and link estimation",
+   "weight": "unweighted (PDF gives no weights)",
+   "expected_score_0_10": 7,
+   "rationale": "Link estimation can be scored exactly against testbed ground truth (expect <= 15% steady error, <= 10 s convergence; technical_inference until measured). Classification of broad categories from early-flow behaviour is well founded (Bernaille 2006, Draper-Gil 2016) but encrypted QUIC/ECH limits fine accuracy; exposing confidence and corrections mitigates but does not remove this."
+  },
+  {
+   "criterion": "Reduction in interactive latency, jitter and packet loss",
+   "weight": "unweighted",
+   "expected_score_0_10": 9,
+   "rationale": "Removing a deep FIFO at a 20 Mbps bottleneck (~600 ms worst case) with HTB class protection + fq_codel routinely yields order-of-magnitude p95 RTT reductions; measured with irtt and repeated runs with CIs."
+  },
+  {
+   "criterion": "Fairness and absence of starvation",
+   "weight": "unweighted",
+   "expected_score_0_10": 8,
+   "rationale": "HTB rate floors plus fq_codel per-flow DRR give provable floors and near-1 Jain index across TV streams; intent invariants keep the bulk floor; all measured from iperf3 JSON."
+  },
+  {
+   "criterion": "Adaptation speed and policy stability",
+   "weight": "unweighted",
+   "expected_score_0_10": 7,
+   "rationale": "AIMD-with-hysteresis estimators work (cake-autorate precedent) but tuning takes iteration; stability (flips, rate std dev) will be reported honestly; the verify/rollback loop adds a stability guarantee most teams lack."
+  },
+  {
+   "criterion": "CPU overhead, reproducibility and clarity of results",
+   "weight": "unweighted",
+   "expected_score_0_10": 8,
+   "rationale": "In-kernel enforcement is cheap and a 1 Hz Python loop is negligible (psutil-measured); the one-command, seeded, CI-re-run experiment suite with versions, raw data and reports is a strong, verifiable story; only risk is documentation quality under time pressure."
+  }
+ ],
+ "official_score_potential_0_10": 7.8,
+ "execution_adjusted_0_10": 7,
+ "dimension_scores": {
+  "skill_fit": 6,
+  "complete_prototype": 8,
+  "measurable_results": 9,
+  "demo_reliability": 7,
+  "differentiation": 6,
+  "data_availability": 7,
+  "free_tools_feasibility": 10,
+  "engineering_depth": 8,
+  "rubric_alignment": 9,
+  "low_failure_risk": 7,
+  "explainability": 8,
+  "reproducible_evidence": 9
+ },
+ "argument_against": "The team's demonstrated strength is backend/web engineering, not Linux networking; tc/HTB/netem semantics (direction of shaping, quantum/r2q, filter ordering, GRO/TSO artefacts, VM timer noise) have a real learning curve and failures are silent (traffic just goes to the default class), so debugging time is unpredictable. Tata Elxsi is a broadband/media engineering company (the case is tagged MCV), so judges will likely be domain experts who know OpenWrt SQM, CAKE and cake-autorate already exist; a veth-emulated prototype that reinvents HTB+fq_codel can look like a configuration exercise unless the verification loop, estimator scoring and reproducibility are executed flawlessly. The classification criterion is structurally weak for everyone in 2026 (QUIC, ECH, DoH), the stock WSL kernel lacks CAKE so the most elegant enforcement path cannot be demoed on the team's laptops, the demo requires root and is sensitive to environment state, and the problem space is popular enough that several competing teams may converge on similar HTB+dashboard designs, making differentiation depend on execution details rather than on a visibly distinct idea.",
+ "critical_claims_to_verify": [
+  {
+   "claim": "Stock WSL2 on the team's machine (WSL 2.6.1.0, kernel 6.6.87.2-microsoft-standard-WSL2) loads sch_netem, sch_htb, sch_fq_codel, ifb, cls_flower, cls_fw, act_mirred and runs a netns+veth+HTB+netem testbed with IPv4 and IPv6, but has no sch_cake or sch_pie.",
+   "url": "https://raw.githubusercontent.com/microsoft/WSL2-Linux-Kernel/linux-msft-wsl-6.6.y/arch/x86/configs/config-wsl",
+   "why_critical": "The entire 'develop and demo on Windows laptops' plan depends on it; verified empirically here on one machine, but other teammates' WSL versions may differ."
+  },
+  {
+   "claim": "GitHub-hosted ubuntu-latest runners allow passwordless sudo and their kernel ships sch_cake/sch_netem/sch_htb modules so the full experiment suite (including the CAKE reference) can run in CI.",
+   "url": "https://packages.ubuntu.com/search?searchon=contents&keywords=sch_cake.ko&mode=filename&suite=noble&arch=any",
+   "why_critical": "The CI-reproducibility differentiator and the CAKE comparison rely on it; package lists and docs support it but no workflow has been executed."
+  },
+  {
+   "claim": "ISCXVPN2016 can be downloaded via the CIC request form without login, and redistribution/use is permitted provided the dataset and the ICISSP 2016 paper are cited.",
+   "url": "https://www.unb.ca/cic/datasets/vpn.html",
+   "why_critical": "Only matters if the optional ML pre-training/ablation uses it; licence documentation is a mandatory constraint."
+  },
+  {
+   "claim": "NFStream installs on Linux with Python 3.12 and provides live early-flow (splt) and 48 statistical features plus nDPI labels under LGPL-3.",
+   "url": "https://github.com/nfstream/nfstream",
+   "why_critical": "It is the fastest route to labelled training data and live features; if wheels fail on 3.12 a custom AF_PACKET sniffer is the fallback."
+  },
+  {
+   "claim": "A latency-feedback AIMD estimator (cake-autorate pattern) against HTB converges within ~10 s and <= 15% steady error after a 100->20 Mbps netem step, and HTB+fq_codel reduces p95 call RTT under bulk load by >= 80% versus a deep-FIFO baseline.",
+   "url": "https://github.com/lynxthecat/cake-autorate",
+   "why_critical": "These are the headline numbers for two of the five criteria; they are technical inferences from queueing arithmetic and prior art and must be measured, not assumed."
+  }
+ ],
+ "confidence": "medium",
+ "confidence_rationale": "High confidence in feasibility: the core testbed was executed successfully on the team's own Windows machine during this research, every tool is free and documented, and the PDF's requirements map cleanly to software modules. Medium overall because (a) the expected KPI magnitudes and estimator convergence are inferences until measured, (b) judging weights, rounds and competitor behaviour for TELIPORT Season 4 could not be found online, (c) classification accuracy on modern encrypted traffic is structurally limited, and (d) execution risk is concentrated in Linux-networking skills the team has not demonstrated. Score potential is honest rather than optimistic: 7.8 official, 7.0 execution-adjusted, with upside if the verify/rollback loop and CI evidence are delivered polished."
+}

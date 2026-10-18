@@ -1,0 +1,43 @@
+# Failure Analysis (Phase 5)
+
+What went wrong, where the system is weak, and what the evidence says about why. Companion to `docs/EXPERIMENT_RESULTS.md`.
+
+## 1. Design faults caught before the full run (fast FD001 diagnostic chain)
+| Fault | Symptom | Root cause | Fix (decision log) |
+|---|---|---|---|
+| Fixed width rule | 86% of serious decisions escalated as "insufficient evidence" | 90% intervals are 55–70 cycles wide on test last cycles (up to 100 in fast mode); a fixed 60-cycle limit is below the typical width | Width limit calibrated per model (75th percentile of serious calibration widths) — D16 |
+| Whole-population drift | 20/20 clean windows alarmed | The test fleet is younger than the run-to-failure training fleet; degradation features and `cycle` shift with age mix, not with the data-generating process | Age-matched monitoring on early-life rows; `cycle` never monitored — D17 |
+| Quality range from early-life rows | 18% of clean late-life engines flagged out of range | Range reference taken from the same early-life slice as the PSI reference | Range reference = full training distribution — D20 |
+| Regime shift invisible to quality | 24% detection on FD001 | Shifted operating settings are 3 of 73 monitored columns (4% < 5% pooled threshold) | Operating settings get their own out-of-range rule — D20 |
+| False alarms counted end-of-life anomalies | 52% "false alarms" on clean engines | Clean engines near failure legitimately raise anomalies | Change-relative detection/false-alarm definitions — D19 |
+| EMA denoising | FD004 RMSE 22.5 instead of 15.4 | The causal EMA lags the degradation signal; rolling features already smooth | EMA disabled by default; kept as ablation — D13 |
+| IsolationForest | Never flagged late life on a few-sensor degradation | Random splits over ~60 features dilute a shift confined to 2–3 features | Healthy-baseline z-score health index — D10 |
+| Stale OOF cache | E2 escalation share 86% after the width fix | Cached out-of-fold table predated the per-fold `max_width` column | Caches cleared; column now mandatory in the table |
+| Audit log reset per subset | A four-subset run kept only the last subset's log | Single `decisions.jsonl` unlinked at each run | One chained log per subset; `audit` CLI verifies all |
+
+## 2. Where the system is weak (full-run evidence)
+1. **Interval policy is conservative, not free (E1).** Acting on the lower bound at the generic 25-cycle threshold discards 11–17 more cycles of life per engine with no late-rate benefit on 3/4 subsets (nobody is late at 25). At tuned thresholds it reaches lower late rates than the point policy at 11/16 frontier points but discards 1–8 cycles more. Error mode: wide intervals early in life push the lower bound down long before failure.
+2. **Width-based abstention does not concentrate errors (E2).** Escalated-for-width engines have equal or lower error rates than acted-upon engines. The errors that remain on clean data are early orders (> 60 cycles discarded): 7–17% of eval engines. The interval width at the moment of the first serious decision is not a predictor of those.
+3. **Single-sensor bias below ≈ 3σ of healthy variation is invisible per engine on single-regime subsets (E3).** The health index needs the deviation to stand out among ~60 features; the fleet monitor compensates when the bias affects many engines.
+4. **FD004 under-coverage (0.82 vs 0.90 nominal; FD002 raw-truth coverage 0.68).** Calibration on randomly truncated calibration engines does not fully transfer to the official truncation distribution; the raw-truth miss is dominated by engines beyond the 125 cap. Asymmetric CQR is evaluated as an ablation (E7); the PICP gate threshold (0.85) would have flagged FD004.
+5. **Escalation share is model-dependent (7–20%)** because the width limit is calibrated per model; a fleet must set the acceptable share explicitly.
+6. **Thresholds are generic.** 10/25/50 cycles on the lower bound were chosen a priori; E1 shows tuned values of 5–8 give the intended 1–5% late rates for these models. Deploying the generic values would over-maintain.
+
+## 3. What would prove the approach unsuitable
+If, with tuned thresholds, the lower-bound policy were dominated by the point policy on all subsets, the interval would add cost without benefit; the frontier shows mixed results (2 better, 2 dominated, 12 trade-offs), so the interval is justified only when the operator values late-rate control above discarded life. That condition should be stated to the operator, not assumed.
+
+## 4. Gate scenarios (E4)
+7. **The "corrupted data" scenario was not adversarial.** A constant +3σ offset on two sensors of 30% of training engines, with correct labels, leaves a tree model's validation RMSE unchanged or better; the gate rightly promoted it on FD002–FD004. The scenario tested the gate against a harmless perturbation. Secondary scenario B2 (optimistic RUL labels on the new engines) targets the gate's purpose: a challenger that predicts too much life.
+8. **Coverage gates need enough validation rows.** With 50 champion engines and 100 validation rows (FD001), the PICP estimate swung from 0.97 to 0.80 and a better challenger was rejected. A false rejection is the safe failure mode, but it shows that a 0.85 PICP floor is unreliable below a few hundred validation rows. The secondary run with 20 rows per engine did not remove the problem: FD001's more-data challenger measured 0.835 and FD004's 0.849 (1,000 rows), each rejected by the absolute floor although RMSE improved by 0.2 and 1.9. The absolute floor, not the sample size, is the design weakness: a floor relative to the champion's coverage is the fix to make before deployment (KNOWN_LIMITATIONS 21). In the same run the label-corrupted challenger (B2) was rejected on all four subsets with RMSE 4–5 worse than the champion, so the reject path is demonstrated on a scenario that matters.
+9. **Ablations (E7)** confirm the data-engineering choices: rolling features and regime normalisation each buy 1.3–2.7 RMSE; EMA is subset-dependent (helps FD001, breaks FD004); asymmetric CQR improves FD004 coverage modestly (0.839 → 0.863).
+
+## 5. Decision metrics (E5)
+10. **At the generic threshold the decision metrics barely discriminate point models.** Late rates are tied at zero for every point model on FD001–FD003; the only separating metric is discarded life, which moves against RMSE by 0.3–1.8 cycles. The honest reading is that RMSE is a necessary but not sufficient ordering, and the lower-bound policy is the one case RMSE cannot see at all (same RMSE, 12–17 cycles more discarded life).
+11. **The replay's discarded-life metric rewards models that order late.** A model that predicts optimistically discards less life; in a regime where nobody is late this looks like an improvement. Any decision-metric gate must therefore pair discarded life with the late rate at a threshold where late orders actually occur (E1 frontier), never use discarded life alone.
+
+## 6. After the red-team review and the final evidence run
+12. **Stream and batch disagreed before the review.** 40–49% of stream rows carried different predictions from the batch path for the same cycle: pandas rolling statistics and the stream's numpy arithmetic differed at the 1e-12 level and the tree model flipped splits on it. Fixed by computing batch features with the stream's arithmetic (D23); an end-to-end test now checks bitwise equality on real data. Headline numbers moved by up to 0.3 RMSE.
+13. **The tuned lower-bound threshold does not survive a change of seed** (limitation 37): near end of life the interval lower bound is wide enough that a 5% late-rate target on 30 tuning engines is met by any threshold from 0 to 6, and the evaluation late rate then ranges from 1% to 54%. The generic-threshold gap (15–17 cycles on FD001) is stable across seeds.
+14. **The zero silent-wrong-order rate came from the fleet rule** more than from per-engine evidence: without the fleet rule the rate is 0–12%, and the rule escalates 25–36% of clean engines while a fleet alarm is active (E3, findings 2–3). The deck states both numbers.
+15. **The late-rate gate was inert at the HIGH threshold**; at the CRITICAL threshold (D22) it fires on the label-corrupted challenger on FD003 and FD004 (0.10 and 0.16 against a 0.02 limit) and nowhere else; it is a rarely-binding rule on these data.
+16. **FD003's clean early-life rows raise a fleet alarm** (one fixed 50-engine subset, s9 rolling mean PSI 1.5) while the pooled 100 engines do not: the severe single-feature rule is sensitive to which engines make up a small fleet.

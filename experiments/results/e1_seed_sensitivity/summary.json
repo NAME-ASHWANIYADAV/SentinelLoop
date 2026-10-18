@@ -1,0 +1,141 @@
+{
+ "hypothesis": "H1 (seed sensitivity)",
+ "table": [
+  {
+   "subset": "FD001",
+   "seed": 42,
+   "n_eval_engines": 70,
+   "oof_s": 28.5,
+   "A_point_T_late": 0.0,
+   "A_point_T_discarded": 25.242857142857144,
+   "C_lower_T_late": 0.0,
+   "C_lower_T_discarded": 40.25714285714286,
+   "C_lower_tuned_threshold": 6.0,
+   "C_lower_tuned_late": 0.014285714285714285,
+   "C_lower_tuned_discarded": 14.173913043478262,
+   "A_point_tuned_threshold": 10.0,
+   "A_point_tuned_late": 0.05714285714285714,
+   "A_point_tuned_discarded": 9.984848484848484,
+   "gap_discarded_C_minus_A_at_T": 15.014285714285716
+  },
+  {
+   "subset": "FD001",
+   "seed": 43,
+   "n_eval_engines": 70,
+   "oof_s": 28.2,
+   "A_point_T_late": 0.0,
+   "A_point_T_discarded": 24.571428571428573,
+   "C_lower_T_late": 0.0,
+   "C_lower_T_discarded": 40.885714285714286,
+   "C_lower_tuned_threshold": 2.0,
+   "C_lower_tuned_late": 0.2,
+   "C_lower_tuned_discarded": 12.642857142857142,
+   "A_point_tuned_threshold": 10.0,
+   "A_point_tuned_late": 0.014285714285714285,
+   "A_point_tuned_discarded": 10.130434782608695,
+   "gap_discarded_C_minus_A_at_T": 16.314285714285713
+  },
+  {
+   "subset": "FD001",
+   "seed": 44,
+   "n_eval_engines": 70,
+   "oof_s": 29.9,
+   "A_point_T_late": 0.0,
+   "A_point_T_discarded": 25.142857142857142,
+   "C_lower_T_late": 0.0,
+   "C_lower_T_discarded": 41.72857142857143,
+   "C_lower_tuned_threshold": 0.0,
+   "C_lower_tuned_late": 0.5428571428571428,
+   "C_lower_tuned_discarded": 17.34375,
+   "A_point_tuned_threshold": 11.0,
+   "A_point_tuned_late": 0.04285714285714286,
+   "A_point_tuned_discarded": 11.791044776119403,
+   "gap_discarded_C_minus_A_at_T": 16.585714285714285
+  }
+ ],
+ "summary": {
+  "FD001": {
+   "A_point_T_late": {
+    "mean": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "C_lower_T_late": {
+    "mean": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "A_point_T_discarded": {
+    "mean": 24.985714285714284,
+    "std": 0.3622492095173127,
+    "min": 24.571428571428573,
+    "max": 25.242857142857144
+   },
+   "C_lower_T_discarded": {
+    "mean": 40.957142857142856,
+    "std": 0.7383102605384297,
+    "min": 40.25714285714286,
+    "max": 41.72857142857143
+   },
+   "gap_discarded_C_minus_A_at_T": {
+    "mean": 15.97142857142857,
+    "std": 0.8399465483479472,
+    "min": 15.014285714285716,
+    "max": 16.585714285714285
+   },
+   "C_lower_tuned_threshold": {
+    "mean": 2.6666666666666665,
+    "std": 3.0550504633038935,
+    "min": 0.0,
+    "max": 6.0
+   },
+   "C_lower_tuned_late": {
+    "mean": 0.2523809523809524,
+    "std": 0.2681506328628778,
+    "min": 0.014285714285714285,
+    "max": 0.5428571428571428
+   },
+   "C_lower_tuned_discarded": {
+    "mean": 14.720173395445135,
+    "std": 2.3975818427495676,
+    "min": 12.642857142857142,
+    "max": 17.34375
+   },
+   "A_point_tuned_threshold": {
+    "mean": 10.333333333333334,
+    "std": 0.5773502691896257,
+    "min": 10.0,
+    "max": 11.0
+   },
+   "A_point_tuned_late": {
+    "mean": 0.03809523809523809,
+    "std": 0.02182178902359924,
+    "min": 0.014285714285714285,
+    "max": 0.05714285714285714
+   },
+   "A_point_tuned_discarded": {
+    "mean": 10.635442681192194,
+    "std": 1.0034246328818104,
+    "min": 9.984848484848484,
+    "max": 11.791044776119403
+   }
+  }
+ },
+ "conclusion": "FD001: over 3 seeds the lower-bound policy discards 15.0-16.6 more cycles than the point policy at T=25 (late rates A 0.000-0.000, C 0.000-0.000); tuned C thresholds 0-6",
+ "fast": false,
+ "seeds": [
+  42,
+  43,
+  44
+ ],
+ "generated": "2026-10-18T06:18:20",
+ "config_hashes": {
+  "FD001": "83fdcf31e3fd",
+  "FD002": "fd253a160a87",
+  "FD003": "f8eed41381fa",
+  "FD004": "e32edc97c814"
+ },
+ "seed": 42
+}

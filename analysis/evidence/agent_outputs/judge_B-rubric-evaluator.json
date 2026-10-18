@@ -1,0 +1,344 @@
+{
+ "judge_persona": "Independent Judge B: pragmatic hackathon evaluator who scores strictly against each PDF's written criteria and weights, rewards complete, reproducible, demonstrable work over ambition, and discounts anything that exists only on slides. Assumes a student team strong in Python/Node/React/backend with AI/ML integration exposure, no specialist domain engineers, no paid APIs, no guaranteed hardware.",
+ "candidates": [
+  {
+   "case_id": 1,
+   "confidence": "high",
+   "execution_adjusted_0_10": 8,
+   "main_failure_risk": "Commoditisation: C-MAPSS is a heavily tutorialised benchmark, so a bare FD001 + random forest + Streamlit build looks like every other submission. The team only wins if it covers all four subsets, reports honest per-subset RMSE/NASA-score with sensible RUL clipping, and shows a genuinely closed loop (new data -> retrain -> model registry -> agent -> work order) with no manual steps. Model-performance over-claiming (test-set leakage, unclipped RUL) is the most common way to lose the 15% model criterion and the 20% demo criterion.",
+   "official_score_potential_0_10": 7.8,
+   "rubric": [
+    {
+     "criterion": "R1 Problem understanding",
+     "hard_to_earn": false,
+     "rationale": "Problem is crisply defined in the PDF with a public dataset; a backend team can restate objectives, imbalance handling and the closed-loop intent accurately.",
+     "realistic_score_0_10": 8,
+     "weight": "15%"
+    },
+    {
+     "criterion": "R1 Architecture clarity",
+     "hard_to_earn": false,
+     "rationale": "data -> features -> model -> agent -> work order is a natural software pipeline; the team's systems background makes a clean component diagram with interfaces straightforward.",
+     "realistic_score_0_10": 8,
+     "weight": "20%"
+    },
+    {
+     "criterion": "R1 Data engineering approach",
+     "hard_to_earn": false,
+     "rationale": "Rolling-window features, normalisation per operating condition (FD002/FD004), RUL label clipping are well documented; team can propose a sound approach but will not have novel insight.",
+     "realistic_score_0_10": 7.5,
+     "weight": "15%"
+    },
+    {
+     "criterion": "R1 ML approach & reasoning",
+     "hard_to_earn": true,
+     "rationale": "Needs justified choice of anomaly detector (e.g. Isolation Forest / reconstruction error) plus RUL regressor (GBM vs LSTM/1D-CNN) with awareness of imbalance and operating regimes. AI/ML 'exposure' rather than depth caps this; judges will probe why a method was chosen.",
+     "realistic_score_0_10": 7.5,
+     "weight": "20%"
+    },
+    {
+     "criterion": "R1 MLOps & agent logic",
+     "hard_to_earn": false,
+     "rationale": "MLflow tracking + retrain trigger + rule-based severity thresholds is squarely backend engineering; a clear decision table for the Triage Agent is easy to specify.",
+     "realistic_score_0_10": 8,
+     "weight": "15%"
+    },
+    {
+     "criterion": "R1 Dataset coverage",
+     "hard_to_earn": true,
+     "rationale": "Full marks require a design that scales across FD001-FD004 (multi-regime, multiple fault modes). Feasible but must be planned from Round 1, not bolted on.",
+     "realistic_score_0_10": 7,
+     "weight": "10%"
+    },
+    {
+     "criterion": "R1 Communication quality",
+     "hard_to_earn": false,
+     "rationale": "Low weight, well within the team's reach with a structured deck.",
+     "realistic_score_0_10": 8,
+     "weight": "5%"
+    },
+    {
+     "criterion": "R2 Working pipeline",
+     "hard_to_earn": false,
+     "rationale": "Single-command, end-to-end run on a public CSV dataset with open-source tools is exactly what a backend team does well; highest-confidence criterion in the whole exercise.",
+     "realistic_score_0_10": 8.5,
+     "weight": "20%"
+    },
+    {
+     "criterion": "R2 Data engineering quality",
+     "hard_to_earn": false,
+     "rationale": "Reproducible, tested feature pipeline (pandas, fixed seeds, schema checks) is achievable; robustness across subsets takes extra care.",
+     "realistic_score_0_10": 8,
+     "weight": "15%"
+    },
+    {
+     "criterion": "R2 Model performance",
+     "hard_to_earn": true,
+     "rationale": "Credible results with correctly interpreted metrics (RMSE, NASA asymmetric score, per-subset) are attainable, but stronger ML teams will post better numbers; honesty about FD002/FD004 difficulty matters more than leaderboard chasing.",
+     "realistic_score_0_10": 7,
+     "weight": "15%"
+    },
+    {
+     "criterion": "R2 MLOps in action",
+     "hard_to_earn": false,
+     "rationale": "Live MLflow run, model version promotion and a demo retraining run on appended data are demonstrable without any special resources.",
+     "realistic_score_0_10": 8,
+     "weight": "10%"
+    },
+    {
+     "criterion": "R2 Agent behavior",
+     "hard_to_earn": false,
+     "rationale": "Deterministic rules on RUL + anomaly score -> severity -> work-order JSON/ticket with human-exception path; easy to unit-test and show reliably.",
+     "realistic_score_0_10": 8.5,
+     "weight": "10%"
+    },
+    {
+     "criterion": "R2 Dataset coverage",
+     "hard_to_earn": true,
+     "rationale": "Requires actually running and reporting on all four subsets; feasible on a laptop but doubles the validation work.",
+     "realistic_score_0_10": 7,
+     "weight": "10%"
+    },
+    {
+     "criterion": "R2 Demo & explanation",
+     "hard_to_earn": true,
+     "rationale": "20% weight on articulating trade-offs and improvements; team can demo well but must defend ML choices against reviewers who know C-MAPSS intimately.",
+     "realistic_score_0_10": 7.5,
+     "weight": "20%"
+    }
+   ],
+   "what_a_winning_submission_shows": "One command (make run / docker compose up) that ingests all four C-MAPSS subsets, builds rolling features, trains an anomaly detector and an RUL model with per-subset RMSE and NASA score reported honestly, logs everything to MLflow with versioned models, serves a Streamlit monitoring view, and has a rule-based Triage Agent that emits a work order for a unit crossing an RUL/severity threshold while routing ambiguous cases to a human queue; then a live retraining run on newly appended cycles that promotes a new model version. Plus a short, candid trade-off section (why GBM vs LSTM, clipping choice, drift handling)."
+  },
+  {
+   "case_id": 2,
+   "confidence": "medium",
+   "execution_adjusted_0_10": 5.3,
+   "main_failure_risk": "Domain credibility: the rubric puts 35% on Technical feasibility + Engineering quality and 15% on measurable, repeatable evidence. A software team without a battery/EE member will build a plausible-looking web simulator whose thermal and ageing assumptions a Tata Elxsi battery engineer can dismantle in two questions. Unlike the other cases, a polished UI does not compensate for wrong physics.",
+   "official_score_potential_0_10": 6.3,
+   "rubric": [
+    {
+     "criterion": "Problem understanding",
+     "hard_to_earn": true,
+     "rationale": "Requires defining an application, requirements and operating conditions for a cell group/module; achievable from datasheets and literature but will read as textbook rather than practitioner understanding.",
+     "realistic_score_0_10": 6.5,
+     "weight": "15%"
+    },
+    {
+     "criterion": "Desirability",
+     "hard_to_earn": false,
+     "rationale": "A student-facing design-trade-off explorer is genuinely desirable and the team can pitch it well; this is the one criterion their product sense helps.",
+     "realistic_score_0_10": 7,
+     "weight": "15%"
+    },
+    {
+     "criterion": "Technical feasibility",
+     "hard_to_earn": true,
+     "rationale": "Scoping to a small series/parallel cell group with an equivalent-circuit + lumped thermal model (or PyBaMM) is feasible and safe, but the team cannot validate against real cells and must convince judges the simplifications are appropriate.",
+     "realistic_score_0_10": 7,
+     "weight": "20%"
+    },
+    {
+     "criterion": "Engineering quality",
+     "hard_to_earn": true,
+     "rationale": "Sound calculations and system-interaction understanding (I^2R heating, cooling, derating, ageing propagation) are outside the team's demonstrated background; highest risk of visible errors.",
+     "realistic_score_0_10": 5,
+     "weight": "15%"
+    },
+    {
+     "criterion": "Prototype & evidence",
+     "hard_to_earn": true,
+     "rationale": "Simulation results are repeatable, but 'measurable' evidence without any low-voltage experiment or reference data leaves the model unvalidated; expect partial credit only.",
+     "realistic_score_0_10": 6,
+     "weight": "15%"
+    },
+    {
+     "criterion": "Innovation",
+     "hard_to_earn": false,
+     "rationale": "Comparing options with traceability from requirement -> assumption -> result and automatic interface-conflict flagging is a software-native idea the team can realise.",
+     "realistic_score_0_10": 6.5,
+     "weight": "10%"
+    },
+    {
+     "criterion": "Business viability",
+     "hard_to_earn": false,
+     "rationale": "Reusable platform story is easy to tell; moderate credit.",
+     "realistic_score_0_10": 6.5,
+     "weight": "10%"
+    }
+   ],
+   "what_a_winning_submission_shows": "A tightly scoped module (e.g. 4s2p 21700 cells) modelled with an openly documented ECM + lumped thermal model (ideally PyBaMM-backed), three configurations compared against a baseline on usable energy, peak temperature, charge time, mass and cost, with every parameter traced to a datasheet, explicit safety limits that trigger violations in the UI, and an honest limitations page. Winning teams in this case will likely also have a small bench measurement; this team almost certainly will not."
+  },
+  {
+   "case_id": 3,
+   "confidence": "medium",
+   "execution_adjusted_0_10": 7,
+   "main_failure_risk": "Depth of Linux networking: real tc/HTB/fq_codel/CAKE shaping, netem impairment, flow-feature classification without payload inspection and a reset-run-measure-report harness is a lot of unfamiliar systems work for a Python/Node team, and it must run on a Linux host with root. If the testbed is flaky or the setup guide does not reproduce on the evaluator's machine, every one of the five measurable criteria collapses at once.",
+   "official_score_potential_0_10": 7,
+   "rubric": [
+    {
+     "criterion": "Accuracy of classification and link estimation",
+     "hard_to_earn": true,
+     "rationale": "Flow-metadata classifier (packet size, inter-arrival, ports, DNS/SNI hints) with confidence and a user-correction path is buildable, but accuracy on realistic mixed traffic without a labelled dataset is hard to prove; link estimation via active probing is doable but noisy.",
+     "realistic_score_0_10": 6.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Reduction in interactive latency, jitter and packet loss",
+     "hard_to_earn": false,
+     "rationale": "In a netem/namespace testbed, moving from FIFO to fq_codel/CAKE + bulk-class shaping produces large, easily measured latency-under-load improvements; this is the most demonstrable criterion.",
+     "realistic_score_0_10": 7.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Fairness and absence of starvation",
+     "hard_to_earn": false,
+     "rationale": "HTB class guarantees with a floor for bulk traffic plus Jain's fairness index on the dashboard is standard and verifiable.",
+     "realistic_score_0_10": 7,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Adaptation speed and policy stability",
+     "hard_to_earn": true,
+     "rationale": "Reacting to a 100->20 Mbps drop without oscillation requires hysteresis and careful tuning; achievable but easy to get wrong and judges will look for stable convergence plots.",
+     "realistic_score_0_10": 6.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "CPU overhead, reproducibility and clarity of results",
+     "hard_to_earn": false,
+     "rationale": "Backend discipline (scripts, pinned versions, docker/namespaces, auto-generated reports) plays to the team's strength; CPU overhead of a Python controller is low at home-link scale.",
+     "realistic_score_0_10": 7.5,
+     "weight": "unweighted"
+    }
+   ],
+   "what_a_winning_submission_shows": "A single script that spins up network namespaces or VMs, applies netem impairments, runs the three PDF scenarios (ISO download vs video call, WAN drop, 3 TVs + gaming) under baseline and controller, and emits a report with latency/jitter/loss/throughput/queue-depth/fairness plots and a classifier confusion matrix with confidence; a REST endpoint to set a temporary 'prioritise my call' intent with automatic expiry and rollback; a deterministic-rules baseline against any ML classifier; licenses, fictitious secrets, emulation labels and a known-limitations section exactly as the PDF requests."
+  },
+  {
+   "case_id": 4,
+   "confidence": "medium",
+   "execution_adjusted_0_10": 5.6,
+   "main_failure_risk": "Regulatory credibility and no ground truth: HLS reviewers will test whether the compliance checker encodes ISO 15223-1 symbols, UDI structure and MDR/FDA label elements correctly. A team with no regulatory background and no real label corpus will either hard-code a shallow rule set or lean on a local LLM whose 'compliance' judgments are unverifiable, and 'Accuracy & validation approach' becomes a hand-wave. The breadth of the ten listed approaches also tempts slideware over a working slice.",
+   "official_score_potential_0_10": 6.3,
+   "rubric": [
+    {
+     "criterion": "Understanding of labeling problem",
+     "hard_to_earn": false,
+     "rationale": "The PDF supplies the full process map and pain points; a process map + automation opportunity matrix can be assembled from the document itself.",
+     "realistic_score_0_10": 6.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Regulatory/compliance awareness",
+     "hard_to_earn": true,
+     "rationale": "Requires working knowledge of EU MDR Annex I Ch.III, 21 CFR 801, ISO 15223-1, UDI-DI/PI format; the team can read the references but will make mistakes an RA judge spots.",
+     "realistic_score_0_10": 5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Innovation ideas considering Label Design using AI",
+     "hard_to_earn": false,
+     "rationale": "GenAI drafting + rule-based checks + CV redline diff is an obvious but credible combination the team can prototype with local models.",
+     "realistic_score_0_10": 7,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "AI/automation platform",
+     "hard_to_earn": false,
+     "rationale": "Workflow engine, approval states, document parsing, OCR/diff pipeline: core backend engineering; this is where the team outbuilds typical submissions.",
+     "realistic_score_0_10": 7,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "End-to-end process coverage",
+     "hard_to_earn": true,
+     "rationale": "Eighteen-step process; a demonstrable slice covering change impact -> content -> check -> redline -> approval -> release is feasible, but full coverage will be partly narrated.",
+     "realistic_score_0_10": 6,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Accuracy & validation approach",
+     "hard_to_earn": true,
+     "rationale": "No public labelled dataset; the team would have to synthesise labels and seeded defects, which judges may accept as methodology but not as evidence of real accuracy.",
+     "realistic_score_0_10": 5.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Traceability & auditability",
+     "hard_to_earn": false,
+     "rationale": "Immutable audit log, element-to-requirement links and change-order lineage are database/backend problems the team can nail.",
+     "realistic_score_0_10": 7,
+     "weight": "unweighted"
+    }
+   ],
+   "what_a_winning_submission_shows": "A working slice: a product-change event triggers an impact engine that lists affected labels/markets, a GenAI assistant drafts content with every element linked to a requirement ID, a deterministic checker validates UDI check digits, mandatory symbols and required elements against a machine-readable rule set, a CV diff produces a redline between artwork versions, and an approval workflow writes an audit trail; evaluated on a synthetic corpus with seeded defects and reported precision/recall. Winning teams will additionally cite regulations precisely and include a validation plan a QA engineer recognises."
+  },
+  {
+   "case_id": 5,
+   "confidence": "medium",
+   "execution_adjusted_0_10": 6.3,
+   "main_failure_risk": "The edge constraint: 2 GB RAM, 2 ARM cores, <2 s responses with no cloud. Without a Raspberry Pi or ARM board the team will measure on an x86 laptop or a cgroup-limited container, and automotive reviewers will discount those numbers. Data Integration (CAN, SOME/IP, VHAL, QNX logs) will be mostly simulated CAN plus architecture text, which is thin against a criterion that explicitly asks for multiple protocols.",
+   "official_score_potential_0_10": 6.5,
+   "rubric": [
+    {
+     "criterion": "System Architecture",
+     "hard_to_earn": false,
+     "rationale": "Simulation -> ingestion -> time-series store -> retrieval -> SLM -> UI with safety-domain isolation is a diagram a systems team draws well; completeness of the hardware side will be weaker.",
+     "realistic_score_0_10": 7,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "AI Capability",
+     "hard_to_earn": true,
+     "rationale": "A quantised 0.5-1.5B model via llama.cpp doing intent routing + text-to-SQL/templated analytics can answer the PDF's five example queries, but free-form accuracy at that size is fragile; needs a small query eval set to prove it.",
+     "realistic_score_0_10": 6.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Data Integration",
+     "hard_to_earn": true,
+     "rationale": "python-can/vcan and DBC decoding are achievable; SOME/IP, Android VHAL and QNX logs are outside reach and will be paper-only.",
+     "realistic_score_0_10": 5.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Search & Analytics",
+     "hard_to_earn": false,
+     "rationale": "Event search, trend and anomaly queries over DuckDB/SQLite with rolling statistics and a simple cause-chain ('events in the N minutes before warning X') is a backend strength.",
+     "realistic_score_0_10": 7,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Edge Performance",
+     "hard_to_earn": true,
+     "rationale": "Memory footprint and latency can be reported, but credibility depends on real ARM hardware or at least a documented qemu/Graviton run; scalability story will be qualitative.",
+     "realistic_score_0_10": 5.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Privacy & Security",
+     "hard_to_earn": false,
+     "rationale": "Local-only processing, no network egress, encrypted store and read-only bridge from the vehicle domain are easy to implement and demonstrate.",
+     "realistic_score_0_10": 7.5,
+     "weight": "unweighted"
+    },
+    {
+     "criterion": "Innovation & Practicality",
+     "hard_to_earn": false,
+     "rationale": "Hybrid 'small model for intent + deterministic analytics' is practical and defensible; value for service engineers is easy to articulate.",
+     "realistic_score_0_10": 6.5,
+     "weight": "unweighted"
+    }
+   ],
+   "what_a_winning_submission_shows": "A simulated vehicle (recorded/synthetic CAN logs with injected faults such as battery over-temperature and ADAS disengagements) streamed into a local store retaining weeks of data, a llama.cpp-served small model that routes questions to validated analytics functions or constrained SQL and explains results, measured p50/p95 latency and RSS on a Raspberry Pi 4/5 (or a clearly labelled ARM VM) under 2 GB, a query accuracy table on 30-50 test questions, and an architecture that isolates the AI domain from safety-critical ECUs. Teams that actually show the hardware numbers will beat teams with better demos on a laptop."
+  }
+ ],
+ "ranking": [
+  1,
+  3,
+  5,
+  4,
+  2
+ ],
+ "rationale": "Case 1 is the clear first choice. It is the only case with a prescribed public dataset, open-source tool suggestions, and two weighted rubrics in which roughly 70% of Round 2 marks (working pipeline, data engineering, MLOps, agent behaviour, demo) reward exactly what a backend-strong team delivers reliably: a reproducible end-to-end system. Its weakness is differentiation, not feasibility, and the fix (all four subsets, honest metrics, real retraining loop) is within reach. Case 3 is second because all five criteria are objectively measurable, every deliverable is software, and a scripted baseline-vs-optimised testbed lets a working prototype score on evidence rather than slides; it ranks below Case 1 only because Linux tc/netem/classifier work is unfamiliar territory with a long deliverable list and a single point of failure (the testbed). Case 5 is third: the team's model-integration skill fits well and privacy/search criteria are easy, but Edge Performance and Data Integration are hard to earn without ARM hardware or automotive protocol experience, and the unweighted, partly design-oriented criteria mean more depends on presentation. Case 4 is fourth: the platform/traceability parts suit the team, but two of seven criteria hinge on regulatory expertise and there is no ground-truth corpus, so accuracy claims are unverifiable; it still beats Case 2 because it is software-shaped. Case 2 is last: 50% of its weight (feasibility, engineering quality, prototype evidence) rests on battery physics the team cannot validate, and the judges will be domain engineers. Scores are deliberately spread (8.0 / 7.0 / 6.3 / 5.6 / 5.3) to reflect that the gap between Case 1 and the rest is primarily about verifiability by judges, which this persona weights heavily.",
+ "tie_breaker_information_needed": "The only near-tie is Case 3 vs Case 5 (7.0 vs 6.3). It resolves on three facts: (a) whether any teammate has a Linux machine with root (or comfort with VMs/namespaces) and prior exposure to tc/iptables, which de-risks Case 3; (b) whether the team owns or can borrow a Raspberry Pi 4/5 (8 GB is fine, cgroup-limited to 2 GB) to produce real ARM latency numbers, which lifts Case 5's Edge Performance from 5.5 toward 7; (c) the competition format (number of rounds, live demo vs recorded video, judge composition), since Case 3's objective metrics favour a live reproducible run while Case 5 favours a polished recorded demo. For Case 1 vs the field no tie-breaker is needed; the only thing that would change it is evidence that the team has a specialist (battery/EE for Case 2, regulatory affairs for Case 4, automotive embedded for Case 5)."
+}

@@ -1,0 +1,312 @@
+{
+ "case_id": 2,
+ "case_title": "Reusable Digital Platform for Designing Battery Energy System",
+ "web_research_performed": true,
+ "problem_interpretation": "WHAT THE PDF ASKS (source_derived_requirement unless noted). Build an \"innovative digital platform that helps students and engineers virtually design, test, compare, and improve battery energy system configurations\", making \"complex system interactions and design trade-offs easier to understand\". Intended users: students and engineers. Solution Goal bullets require: (1) configure/visualize/analyze/compare designs \"from cell to system level\"; (2) integrate electrical, thermal, mechanical, sensing, protection, control and energy-management considerations in \"a unified engineering workflow\"; (3) consistent parameter/result exchange between subsystem models so a design change's system-level impact can be evaluated; (4) identify \"interface conflicts, incompatible assumptions, safety-limit violations, and performance trade-offs\"; (5) maintain \"traceability between requirements, component selections, assumptions, models, results, and validation evidence\" and recommend a balanced design \"with clearly stated risks and limitations\". Key Points (effectively the deliverable checklist): select a manageable scope (\"small cell group, module, cooling arrangement or monitoring function\"); define application, basic requirements, operating conditions; consider cells, electrical connections, temperature control, sensing, protection, basic controls; use \"available datasheets, simple calculations, simulations or safe low-voltage experiments\"; \"Compare at least two design options against a basic starting design\"; \"Measure a few relevant indicators such as usable energy, temperature, charging time, mass, size or estimated cost\"; document assumptions, data sources, safety precautions, results, limitations; \"Present a simple prototype or visual demonstration and explain the recommended next step\". Mandatory constraints: scope must stay manageable (PDF explicitly says a full pack is too large); the Underlying Challenge names \"Limited availability of test data, software access and computing resources\" as a given. Prohibited approaches: none stated explicitly; the only implicit prohibition is unsafe experiments (it says \"safe low-voltage experiments\"). Deliverables per round: NOT specified in this PDF (verified_fact: the transcription says no rounds, no dataset, no tools). Evaluation criteria with EXACT weights: Problem understanding 15%; Desirability 15%; Technical feasibility 20%; Engineering quality 15%; Prototype & evidence 15%; Innovation 10%; Business viability 10% (sum 100%). Note that 50% of the score (understanding + desirability + feasibility) is about scoping and credibility, not raw technical depth; \"Prototype & evidence\" demands \"measurable and repeatable results\"; \"Innovation\" is defined as \"creative but understandable improvement over the starting design\", i.e. the baseline-vs-improved design comparison IS the innovation criterion, not platform novelty. Data/compute/hardware: none mandated; datasheets + simulation are explicitly acceptable. Safety/compliance: only \"safety precautions\" and \"safety-limit violations\" are required; no standard is named (we add AIS 156 Amd 3 as a credible Indian EV reference, technical_inference). AMBIGUITIES / INTERPRETATION RISKS: (a) \"platform\" (reusable tool) vs \"design study\" (one worked example): the criteria reward both, so the safe reading is a reusable tool DEMONSTRATED through one fully worked module design with baseline + 2 alternatives; (b) \"Prototype\" could be read as hardware; the PDF's own wording \"simple prototype or visual demonstration\" and \"working demonstration or model\" makes a software model acceptable; (c) \"cell to system level\" could tempt scope creep; the PDF's Key Points override this with \"select a manageable scope\"; (d) \"Business viability\" (10%) is unusual for an engineering case: expect a question on who pays for the tool (EV startups, academic labs, training) and what it saves; (e) Season format (1-slide then 10-slide deck with annexures in Season 3, per a third-party source) is unverified for Season 4, so the deliverable must survive as a deck + annexed prototype link, not only a live demo.",
+ "top_concepts": [
+  {
+   "name": "CellToModule Workbench: requirements-to-evidence module design platform (ECM + lumped thermal + constraint engine + traceability)",
+   "summary": "Web platform where the user defines an application (e.g., 48 V low-speed e-scooter module, 13s3p Samsung INR18650-25R, ~1.2 kWh... scaled to a module of 39 cells) with explicit requirements (usable energy, peak/continuous current, max cell temperature, charge time, mass, cost), picks cells from a datasheet-backed cell library with provenance fields, chooses series/parallel topology, cooling arrangement (natural convection, forced air, cell spacing/plate), protection settings (BMS cut-offs, fuse rating, strip current rating) and a duty profile. A Python engine (NumPy/SciPy ODE) couples a 1-RC Thevenin equivalent-circuit model with a lumped thermal model (Bernardi heat: I^2 R0 + RC losses, optional entropic term; Newton cooling h*A*(T-Tamb)) per cell group, runs discharge / CC-CV charge / drive-like profiles, and produces KPIs. A rule-based constraint engine checks every design against cell datasheet limits and AIS 156 Amd 3-derived pack rules (60 C alarm, >=4 temperature sensors, fuse/active-paralleling, cell spacing) and flags interface conflicts (charger current > cell max charge current, BMS cut-off outside datasheet window, strip rating < string current). A comparison view ranks baseline vs >=2 alternatives, and a traceability matrix links each requirement to the component/assumption/model/result/evidence that satisfies or violates it. A validation panel reproduces the Samsung 25R datasheet temperature-vs-current table and CALCE INR18650-20R OCV data.",
+   "why_feasible": "Every ingredient is free and verified in this session: PyBaMM 26.10.1.0 installs on Windows via pip and solves a Thevenin ECM with coupled lumped thermal in 0.12-0.21 s (can be used as a cross-check against the team's own simpler engine); the Samsung INR18650-25R datasheet provides capacity, impedance, Wh and surface temperature at 1C/5/10/15/20/25 A (a free validation target); CALCE provides OCV-SOC at 0/25/45 C for INR18650-20R and dynamic profiles; AIS 156 Amd 3 text provides concrete numeric safety rules. The physics is ODE-level (textbook), the rest is backend + React work, which matches the team's strengths. Runs are sub-second so the live demo is deterministic and can also be pre-computed as JSON fallback.",
+   "weakness": "Thermal parameters (specific heat, heat-transfer coefficient, contact/strip resistance) are not in the datasheet and must be calibrated or assumed; without a lab, validation is limited to reproducing published datasheet points and public OCV data, so a battery engineer can argue the thermal model is 'fitted, not validated'. Mitigation is explicit sensitivity analysis and honest limitation statements, which the rubric rewards but which cap the engineering-quality score."
+  },
+  {
+   "name": "VariancePropagator: Monte-Carlo cell-variation and ageing propagation tool for small parallel groups",
+   "summary": "Focuses on the Underlying Challenge bullet 'cell variation, ageing and operating conditions propagate unpredictably from cell to pack'. Samples per-cell capacity and R0 distributions (e.g., +/-3% capacity, +/-10% resistance, inputs user-editable), simulates current sharing in a p-group and voltage divergence in a series string with an ECM, estimates usable pack energy loss vs spread, weakest-cell temperature, and overlays an empirical capacity-fade curve fitted to public cycling data (CALCE CS2 or Oxford Dataset 1) to show end-of-life margin. Compares topologies (3p vs 4p, with/without fuses per cell) against a baseline.",
+   "why_feasible": "Same ECM engine, pure Python; CALCE and Oxford (ODC-ODbL, 253.8 MB) datasets are downloadable for fitting fade curves; Monte Carlo with 200-1000 samples of a 39-cell ECM remains seconds-level.",
+   "weakness": "Narrower than the PDF's 'integrated digital platform' wording (misses thermal/cooling, sensing, protection integration); ageing extrapolation from a different cell type (Kokam pouch or CS2 prismatic) to an 18650 is scientifically weak and easy for a judge to attack; delivers fewer of the named indicators (charging time, mass, size, cost)."
+  },
+  {
+   "name": "Twin-and-Rig: platform plus a safe low-voltage 2s2p/3s2p 18650 test rig (ESP32 + thermistors + resistive load) for measured-vs-simulated validation",
+   "summary": "Same software as Concept 1 but adds a small physical module (4-6 cells, <=12.6 V, fused, BMS-protected, resistive load at 1-3 A per cell) logging voltage, current and cell surface temperature to a CSV that the platform ingests, producing a measured-vs-simulated overlay (voltage RMSE, temperature RMSE) and a parameter-fit step (R0 from pulse, h from cooling curve).",
+   "why_feasible": "Hardware is cheap (cells ~USD 5 each US retail, ESP32, NTCs, 5 W resistors) and the PDF explicitly allows 'safe low-voltage experiments'; it would give the strongest 'Prototype & evidence' and 'Engineering quality' story.",
+   "weakness": "Li-ion handling risk for students (fire, procurement of genuine cells in India unverified), no evidence the team has electronics skills, demo fragility (rig may fail on the day), and the time cost competes with the platform build. Recommended only as a stretch goal if one teammate has verified hardware experience; otherwise replace by the datasheet-reproduction validation of Concept 1."
+  }
+ ],
+ "recommended_concept": {
+  "name": "CellToModule Workbench (Concept 1), with Concept 2's cell-variation Monte Carlo as a built-in module and Concept 3's rig as an optional stretch",
+  "description": "A reusable, open-source, locally runnable web platform (FastAPI + Python engine + React) that walks a user through: Define application and requirements -> Select cell from provenance-tagged library -> Configure topology (s/p), cooling (h, spacing), sensing/protection (BMS thresholds, sensor count, fuse) -> Simulate (coupled 1-RC ECM + lumped thermal per parallel group, CC-CV charge, discharge and pulse profiles, optional Monte-Carlo cell spread) -> Check (constraint engine: datasheet limits + AIS 156-derived pack rules + interface-conflict rules) -> Compare (baseline vs >=2 alternatives on usable energy, peak temperature, charge time, mass, volume, estimated cost, safety-margin index) -> Trace (auto-generated requirements-to-evidence matrix and assumption ledger) -> Report (one-click Markdown/PDF with limitations). A worked example ships with it: baseline 13s3p INR18650-25R natural convection vs Alt A 13s4p (lower per-cell current) vs Alt B 13s3p with forced-air cooling and 2 mm cell spacing vs (optional) Alt C LFP 26650 cell swap. Validation panel: simulated steady temperature vs the Samsung datasheet table (1C 30.9 C, 5 A 38.2 C, 10 A 53.9 C, 15 A 69.0 C, 20 A 83.7 C, 25 A 97.8 C) with h and cp calibrated on two points and tested on the remaining four; OCV curve vs CALCE INR18650-20R 25 C low-current OCV; PyBaMM Thevenin as an independent solver cross-check (voltage/temperature RMSE between the two engines reported).",
+  "differentiating_innovation": "Three things typical configurators do not do, each cheap to build but hard to fake: (1) A constraint-and-conflict engine with provenance: every limit has a source (datasheet page/field or AIS 156 Amd 3 clause), every violation names the subsystem interface that caused it (e.g., 'charger 4 A/cell exceeds datasheet max charge current 4.0 A at 0-10 C derate' or 'BMS over-temperature cut-off 65 C exceeds AIS 156 60 C alarm'), which directly answers the PDF's 'identify interface conflicts, incompatible assumptions, safety-limit violations'. (2) A machine-generated traceability matrix (requirement -> component -> assumption -> model -> result -> evidence, with PASS/FAIL/UNVERIFIED states) that updates live when a parameter changes, the PDF's explicit traceability goal that most teams will only put on a slide. (3) Evidence-first validation: the platform ships with a reproducibility test suite (pytest) that re-derives the datasheet table and the energy-balance identities (adiabatic dT = I^2 R t / (m cp); Coulomb count = capacity) on every run, plus a cell-to-cell variation Monte Carlo that quantifies how a +/-3% capacity / +/-10% resistance spread changes usable energy and hottest-cell temperature, addressing 'cell variation ... propagate unpredictably'.",
+  "why_this_one": "It maps one-to-one onto the Key Points and Solution Goal bullets (scope, requirements, cells/connections/cooling/sensing/protection, datasheets+simulation, >=2 options vs baseline, named indicators, documented assumptions, visual demonstration, next step) and onto the largest-weight criteria (Technical feasibility 20%, Problem understanding 15%, Prototype & evidence 15%). It uses only free tools verified to run on the team's likely Windows laptops, the computation is sub-second so the demo is reliable, and the work is 80% backend/frontend engineering (the team's strength) with a bounded, textbook-level physics core that can be explained line by line to a judge. It avoids the two failure modes the PDF warns about (scope too large; no test data) by choosing a 39-cell module and by validating against published datasheet and university datasets rather than a lab."
+ },
+ "resources": [
+  {
+   "claim": "PyBaMM is BSD-3-Clause open source, supports Linux/macOS/Windows, ~16k commits, and includes a Thevenin equivalent-circuit model class (pybamm.equivalent_circuit.Thevenin) with configurable number of RC elements and two lumped thermal models (cell and jig), heat generation per Nieto et al. 2012.",
+   "url": "https://github.com/pybamm-team/PyBaMM",
+   "source_type": "repo + official doc (https://docs.pybamm.org/en/latest/source/api/models/equivalent_circuit/thevenin.html)",
+   "establishes": "A free, maintained ECM+thermal simulator exists that the team can use directly or as a cross-check for its own engine.",
+   "label": "verified_fact",
+   "limitations": "Release list not visible on GitHub page; version info taken from PyPI."
+  },
+  {
+   "claim": "PyBaMM 26.10.1.0 was released 2026-10-14 on PyPI, requires Python >=3.10,<3.16, ships a pure-Python wheel; it installed in a fresh venv on this Windows 11 / Python 3.12 machine and a Thevenin ECM with coupled thermal (10 A discharge to 2.5 V, 10 min rest, 1.25 A CC charge, 4.2 V CV hold) solved in 0.21 s cold / 0.12 s warm.",
+   "url": "https://pypi.org/project/pybamm/",
+   "source_type": "official package index + local execution in this session",
+   "establishes": "Zero-cost, sub-second simulation on student hardware is realistic; demo reliability is high.",
+   "label": "verified_fact",
+   "limitations": "Timing measured on one unknown-spec laptop with the demo ECM_Example parameter set scaled to 2.5 Ah; the 'diffusion element' option documented online was not recognised in 26.10.1.0 and initial_soc kwarg must be replaced by the 'Initial SoC' parameter; the ECM_Example set is explicitly 'for demonstration purposes only' (100 Ah cell), so cell-specific parameters must be supplied by the team."
+  },
+  {
+   "claim": "ECM_Example parameter set has 19 keys: R0/R1/C1 are interpolants of (T_cell, current, SoC), OCV is a function, 'Entropic change [V/K]' is an interpolant dUdT(ocv, T), plus 'Cell thermal mass [J/K]', 'Cell-jig heat transfer coefficient [W/K]', 'Jig thermal mass [J/K]', 'Jig-air heat transfer coefficient [W/K]', voltage cut-offs 3.2/4.2 V.",
+   "url": "https://docs.pybamm.org/en/latest/source/api/models/equivalent_circuit/thevenin.html",
+   "source_type": "local inspection of installed package (pybamm.input.parameters.ecm.example_set) + official doc",
+   "establishes": "The exact parameter schema the team must populate for its own cell, and the thermal model structure (two lumped masses) it can mirror.",
+   "label": "verified_fact",
+   "limitations": "Values are illustrative; team must build its own lookup tables from datasheet + CALCE data."
+  },
+  {
+   "claim": "liionpack (pack-level PyBaMM, netlist/series-parallel, MIT) is in 'maintenance mode', latest release v0.4.0 on 2025-01-20, last develop commit 2025-07-28 (pre-commit chore); draw_circuit needs LaTeX.",
+   "url": "https://github.com/pybamm-team/liionpack",
+   "source_type": "repo + GitHub API (releases/latest, commits)",
+   "establishes": "Usable for a one-off pack cross-check but risky as a core dependency; it also requires a DFN/SPM per cell which is heavier than needed.",
+   "label": "verified_fact",
+   "limitations": "Compatibility with PyBaMM 26.10 not tested in this session."
+  },
+  {
+   "claim": "PyBOP (pybop-team) provides ECM parameter identification from HPPC pulses and Thevenin 2-RC fitting notebooks; license reported as BSD-3-Clause by an aggregator; v25.10 restructured the API.",
+   "url": "https://github.com/pybop-team/PyBOP",
+   "source_type": "repo + PyPI + JOSS paper (search-derived)",
+   "establishes": "A free route to fit R0/R1/C1 from CALCE dynamic-profile data if the team wants data-derived rather than hand-set ECM parameters.",
+   "label": "technical_inference",
+   "limitations": "Repo page not fetched directly; API churn risk."
+  },
+  {
+   "claim": "Samsung SDI 'Introduction of INR18650-25R' (Mar 2013, 25 pages): NCA chemistry, 18.33 x 64.85 mm, 43.5 g typical (45 g max), AC-IR 12.93 mOhm, DC-IR 19.23 mOhm, nominal 3.6 V, CC-CV 4.2 V, standard charge 1.25 A, max charge 4.0 A, end voltage 2.5 V, max continuous discharge 20 A, pulse 100 A <1 s, 2,500 mAh at 0.2C / 2,450 mAh at 10 A; table of capacity, surface temperature and time vs discharge current: 1C 2.439 Ah 30.9 C 58.5 min; 5 A 2.440 Ah 38.2 C; 10 A 2.517 Ah 53.9 C; 15 A 2.569 Ah 69.0 C; 20 A 2.553 Ah 83.7 C; 25 A 2.514 Ah 97.8 C; energy 8.79/8.64/8.64/8.58/8.33/7.99 Wh and average voltage 3.60/3.54/3.43/3.34/3.26/3.18 V; cycle-life plots at 20 A, 30 A with 70/75 C T-cut, 20 A at 45 C.",
+   "url": "https://www.kiwiquads.co.nz/wp-content/uploads/INR18650-25R-datasheet.pdf",
+   "source_type": "manufacturer datasheet (reseller-hosted copy), text extracted locally with pypdf",
+   "establishes": "A complete, free cell parameter set AND a published temperature-vs-current validation table for a lumped thermal model, plus Wh-vs-current data to validate the usable-energy KPI.",
+   "label": "verified_fact",
+   "limitations": "Document header reads 'PROPRIETARY AND CONFIDENTIAL' (Samsung SDI); cite values, do not redistribute the PDF. Temperature column is cell surface temperature under unspecified ambient/convection conditions, so h must be treated as a fitted parameter. Charge temperature window 0-50 C and discharge -20 to 75 C come from search-summarised datasheet text, not from the extracted pages."
+  },
+  {
+   "claim": "CALCE Battery Data (UMD) offers open-access zip downloads: INR 18650-20R (NMC, 2000 mAh) low-current and incremental OCV tests at 0/25/45 C plus DST/FUDS/US06/BJDST profiles at 0/25/45 C; A123 (LFP 1100 mAh) OCV at -10 to 50 C in 8 steps plus dynamic profiles; CS2/CX2 cycling (Excel/txt), storage data; no license stated, citation of CALCE papers requested.",
+   "url": "https://calce.umd.edu/battery-data",
+   "source_type": "official dataset page",
+   "establishes": "Free OCV-SOC curves at three temperatures for an 18650 NMC cell (OCV table for the ECM) and dynamic profiles to identify/validate R0,R1,C1.",
+   "label": "verified_fact",
+   "limitations": "Download not executed in this session; 20R is not the same cell as 25R (team must state the cross-cell assumption or make 20R the hero cell); no license text, so redistribution terms are unclear."
+  },
+  {
+   "claim": "NASA PCoE repository lists Li-ion battery aging (#5) and randomized battery usage (#11) datasets with zip downloads; no license, 'use at own risk', acknowledgement requested; #21 (26 packs of two 18650s) currently unavailable.",
+   "url": "https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/",
+   "source_type": "official dataset page",
+   "establishes": "Optional ageing/temperature data; not needed for the core concept.",
+   "label": "verified_fact",
+   "limitations": "Cell specs not on the page; .mat parsing required."
+  },
+  {
+   "claim": "Oxford Battery Degradation Dataset 1: 8 Kokam SLPB533459H4 740 mAh pouch cells, long-term cycling 2015-2016 at 40 C, MATLAB .mat (253.8 MB) + readme, license ODC-ODbL, direct download on ORA.",
+   "url": "https://ora.ox.ac.uk/objects/uuid:03ba4b01-cfed-46d3-9b1a-7d4a7bdf6fac",
+   "source_type": "official dataset record (University of Oxford ORA)",
+   "establishes": "A clearly licensed ageing dataset if the team adds an empirical capacity-fade module.",
+   "label": "verified_fact",
+   "limitations": "Pouch cell, different chemistry/format from 18650; use only for method demonstration, not for 25R ageing claims."
+  },
+  {
+   "claim": "Severson et al. 2019 dataset (124 A123 APR18650M1A LFP 1.1 Ah cells) is hosted at data.matr.io; the companion repo provides .mat/.pkl loaders; modelling code requires an academic license by email.",
+   "url": "https://github.com/rdbraatz/data-driven-prediction-of-battery-cycle-life-before-capacity-degradation",
+   "source_type": "repo (paper companion)",
+   "establishes": "Exists and is loadable, but the data page is JavaScript-rendered (could not be fetched) and the dataset license is unstated.",
+   "label": "technical_inference",
+   "limitations": "Not needed for the core concept; large; license unclear."
+  },
+  {
+   "claim": "AIS 156 Amendment 3 (ACMA-hosted copy, Sept 2022): BMS shall be microcontroller-based and verified for over-charge, over-discharge, over-temperature, overcurrent and short-circuit protection; REESS shall have IP X7 at 100% SoC; cells certified per IS 16893 Part 2/3; at least 4 temperature sensors, audio-visual alarm if temperature crosses 60 C and BMS shall gradually cut off traction power; pressure release vent; active paralleling circuits or fuses/bond wires for parallel strings; sufficient cell-to-cell spacing for heat transfer and thermal-runaway isolation; additional fuse/circuit breaker; traceability document per REESS; BMS data logging for at least one month; thermal propagation test with warning >=5 min before propagation.",
+   "url": "https://www.acma.in/uploads/ciculer-attachement/Amendment%203%20to%20AIS%20156.pdf",
+   "source_type": "regulatory document (industry-association-hosted copy), text extracted locally",
+   "establishes": "Concrete, citable numeric and structural safety rules for the constraint engine (sensor count, 60 C threshold, fuses, spacing) and a traceability requirement that mirrors the PDF's own traceability goal.",
+   "label": "verified_fact",
+   "limitations": "Applies to L-category vehicle REESS, not all 'battery energy systems'; the team must present it as a reference rule set, not a certification claim; the ACMA copy is not the ARAI original."
+  },
+  {
+   "claim": "foxBMS Battery System Designer (BaSD) is a BSD-3 Python CLI that sizes a battery system (s/p configuration, layout, simplified CAD) from electrical and mechanical requirements using a cell database; it does not simulate electrical/thermal behaviour; 6 commits, 16 stars.",
+   "url": "https://github.com/foxBMS/BaSD",
+   "source_type": "repo",
+   "establishes": "Prior art for 'requirements-driven sizing'; the team's differentiation must be simulation + constraint/conflict detection + traceability, not sizing alone.",
+   "label": "verified_fact",
+   "limitations": "Low activity; docs not fetched."
+  },
+  {
+   "claim": "Lumped thermal modelling of a cell uses Bernardi heat generation (irreversible I(V-OCV) or I^2 R, plus reversible I T dOCV/dT) and Newton cooling with a user-defined heat transfer coefficient; a lumped model is adequate when Biot number < 0.1; for an 18650 under natural convection one study reports Bi ~0.001; measured 18650 radial conductivity ~0.20 W/mK (Drake et al.) to 0.43 W/mK (Caltech); a natural-convection coefficient of ~28.4 W/m2K was fitted in one 18650 study; cell-level specific heat typically 800-1200 J/kgK (Ionworks docs).",
+   "url": "https://www.mdpi.com/2313-0105/10/4/116",
+   "source_type": "papers + vendor doc (search-derived; MDPI paper on Biot criterion; https://docs.ionworks.com/guide/calculations/thermal.md for cp range; https://curj.caltech.edu/2020/06/20/radial-thermal-conductivity-measurements-of-lithium-ion-battery-cells for k)",
+   "establishes": "The lumped model is defensible for a single 18650 at module-level air cooling, and gives bounded prior ranges for cp and h that the team should sweep in a sensitivity analysis.",
+   "label": "technical_inference",
+   "limitations": "Values were extracted from search summaries, not from fetched full texts; the Biot estimate depends on which k and length scale are used (with k=0.2 W/mK and h=5-28 W/m2K the Biot number is ~0.1-0.2, so the team should say 'lumped is approximate at high C-rate'). Must be re-checked by a fact-checker."
+  },
+  {
+   "claim": "Peukert exponent for lithium-ion is reported in the range 1.00-1.28 (a 2023 paper citing earlier work); 1.02-1.05 for NMC is a calculator-site figure, not a primary measurement.",
+   "url": "https://preprints.org/manuscript/202305.1914/v1",
+   "source_type": "paper (preprint, search-derived)",
+   "establishes": "Peukert is a weak model for Li-ion; the datasheet's own capacity-vs-current table (2.44-2.57 Ah from 1C to 25 A, i.e., almost flat) should be used instead, which also proves the point to a judge.",
+   "label": "technical_inference",
+   "limitations": "Not fetched in full."
+  },
+  {
+   "claim": "Cells account for roughly 63-67% of pack mass in production EV packs (Taycan 63%, Model 3 64%, Nevera 67%) and conventional module-based packs are capped around 77% gravimetric cell-to-pack ratio.",
+   "url": "https://volta.foundation/the-next-generation-battery-pack-design-from-the-byd-blade-cell-to-module-free-battery-pack/",
+   "source_type": "industry report / trade press (search-derived; also https://electrive.com/2022/07/29/rimac-announces-more-energy-dense-battery-development)",
+   "establishes": "A citable overhead factor (cells ~65% of pack mass) for the mass KPI when the team cannot CAD-model the enclosure; for a small module the team should instead itemise nickel strip, holders, BMS and enclosure mass explicitly.",
+   "label": "technical_inference",
+   "limitations": "EV-pack figures; a 39-cell module will have a worse ratio; label as assumption."
+  },
+  {
+   "claim": "Samsung 25R retails at USD 4.99 (sale) / 7.99 (regular) per cell at a US store; no verified Indian price found; EV West lists used cells at USD 3.",
+   "url": "https://www.18650batterystore.com/products/samsung-25r-18650",
+   "source_type": "retail listing",
+   "establishes": "An order-of-magnitude per-cell cost for the 'estimated cost' indicator; must be presented as an assumption with a user-editable price field.",
+   "label": "unverified_assumption",
+   "limitations": "Prices vary by region and the 25R is reported superseded by 25R5."
+  },
+  {
+   "claim": "TELIPORT Season 3 (third-party summary): teams of 2-3 from the same college; Round 1 one-slide PDF idea; Round 2 10-slide deck with implementation roadmap, .ppt/.pptx/.pdf <= 5 MB, Excel/prototypes allowed as annexures; finalists present to senior leadership.",
+   "url": "https://frontlinesmedia.in/?p=45831",
+   "source_type": "community / third-party media",
+   "establishes": "The prototype will most likely be judged through a deck plus annexed link/video, so the platform must produce a self-explanatory report and a short recorded demo; Season 4 format is unverified.",
+   "label": "unverified_assumption",
+   "limitations": "Page fetch returned the site homepage; details come only from search snippets; no official Tata Elxsi page found."
+  }
+ ],
+ "feasibility_analysis": "DOES THE DATA EXIST AND IS IT ACCESSIBLE? Yes, for the chosen scope (verified_fact): a full manufacturer datasheet for the Samsung INR18650-25R including a temperature/capacity/energy-vs-current table (extracted locally), CALCE's open-access OCV-SOC curves at 0/25/45 C and dynamic drive profiles for INR18650-20R and A123 LFP, Oxford Dataset 1 under ODC-ODbL for ageing, NASA PCoE sets with downloads. No paid data is needed. Caveat (technical_inference): no single public source gives OCV, R0/R1/C1 and thermal parameters for the SAME cell, so the team must either (a) make the 25R the hero cell and borrow the OCV curve shape from CALCE 20R (both NMC/NCA-class 18650, state the assumption and show the sensitivity), or (b) make the CALCE 20R the hero cell and accept it has no published temperature table. Option (a) is better for the demo; the assumption ledger must say so. CAN CORE FUNCTIONALITY BE DEMOED IN A STUDENT HACKATHON? Yes (verified_fact): a coupled ECM+thermal discharge/charge cycle solves in 0.12-0.21 s in PyBaMM on this Windows laptop; a hand-written SciPy solve_ivp 1-RC + lumped-thermal model for a 13s3p module (treating each parallel group as a lumped node, 13 nodes x 3 states) will be of similar cost, so a 4-design comparison plus a 200-sample Monte Carlo is seconds, not minutes. WHAT IS DOABLE WITH FREE TOOLS? Everything in the recommended concept: Python 3.10+, NumPy/SciPy, FastAPI, React, Plotly, pytest, Docker; PyBaMM as optional cross-check; no GPU, no paid API. WHICH FEATURES ARE ALREADY STANDARD? Series/parallel calculators (voltage, Ah, Wh, cell count) are ubiquitous web tools; requirements-driven sizing exists (foxBMS BaSD, BSD-3); pack simulation exists (liionpack, maintenance mode); commercial suites (MathWorks EnPower) exist. A judge who knows these will not be impressed by a configurator alone. ACHIEVABLE NOVELTY (technical_inference): the combination of (1) coupled electrical-thermal simulation per group, (2) a provenance-tagged constraint/interface-conflict engine citing datasheet fields and AIS 156 Amd 3 clauses, (3) live traceability matrix with PASS/FAIL/UNVERIFIED states, (4) cell-variation Monte Carlo, and (5) a shipped validation test suite that reproduces published datasheet points, is not found in the free tools surveyed, and each piece is a few hundred lines. MEASURABLE RESULT VS BASELINE: concrete and computable. Baseline 13s3p 25R natural convection (h assumed ~8 W/m2K, cp ~1000 J/kgK, 43.5 g/cell) at a 60 A pack discharge (20 A/cell): datasheet already shows ~83.7 C at 20 A for a bare cell, i.e., the baseline VIOLATES the AIS-derived 60 C alarm and the recommended datasheet 'release <60 C' guidance, which gives a real, non-contrived safety-limit violation to open the story with. Alt A 13s4p: per-cell current drops to 15 A (datasheet 69.0 C), energy rises 33%, mass +13 cells (+0.57 kg cells), cost +13 cells. Alt B 13s3p with forced air (h ~25-30 W/m2K) and spacing: temperature falls without added cells but adds fan power/mass and volume. The platform quantifies these, the judge can check them against the datasheet table by eye. HIDDEN DIFFICULTIES (technical_inference): (i) h and cp are unknown; the datasheet temperature column is surface temperature in an unknown fixture, so calibrating h on it bakes in that fixture; the team must say the calibrated h is 'equivalent h under Samsung's test conditions' and run a +/-50% sensitivity band. (ii) Module-level cooling differs from single-cell cooling (shadowing, inter-cell conduction); a lumped-per-group model cannot show hot-spot cells; mitigate by a simple 1D thermal network between groups (optional) and by stating the limitation. (iii) Entropic heat (I T dU/dT) can be 10-30% of heat at low C-rates; include it with a literature dU/dT table or state it is neglected and why. (iv) Parallel-group current sharing requires solving an algebraic constraint each step; the simplest defensible approach is equal sharing for identical cells and an explicit Monte-Carlo module for unequal cells (Kirchhoff solve of a p-group with different R0/OCV), which is a small linear system. (v) CC-CV charge time depends on the CV taper constant; with a 1-RC model this is captured but should be validated against the datasheet's 'standard charge 136 min / rapid 4 A 55 min' numbers, two more free validation points. (vi) Mass/cost/volume require itemised assumptions (strip, holders, BMS, enclosure); make them editable fields with defaults and provenance. WHAT A SKEPTICAL INDUSTRY ENGINEER WOULD CHALLENGE: 'Your thermal model is fitted to the same table you validate on' (answer: calibrate on 2 points, hold out 4, report RMSE); 'lumped at 20 A violates Biot < 0.1' (answer: show Bi estimate with k=0.2-0.43 W/mK and h range, admit 0.1-0.2 and present as approximate); 'you ignore contact resistance of spot-welded nickel strip and busbar heating' (answer: include per-connection resistance parameter with a default, show its effect); 'no ageing' (answer: out of scope, next step, Oxford dataset identified); 'no hardware validation' (answer: the PDF allows datasheets+simulation; next step is a 2s2p low-voltage rig, parts list given); 'why 25R, it is superseded' (answer: best public dataset combination; library is extensible). Overall: a simulation-backed platform CAN deliver trustworthy evidence without a lab IF validation is against published independent numbers with held-out points and honest error bars; it cannot claim absolute temperature accuracy better than roughly +/-5 C, and must not.",
+ "architecture_and_mvp": "ARCHITECTURE (monorepo, all free/open-source). 1) /engine (Python package, pure NumPy/SciPy): cell_library/ (JSON per cell: name, chemistry, capacity, nominal V, Vmin/Vmax, Imax_charge/discharge with temperature derates, mass, dimensions, R0/R1/C1 lookup vs SoC and T, OCV(SoC) table, dUdT table or null, cp, each field carrying source URL + page/field + confidence), models/ecm.py (1-RC Thevenin per parallel group, OCV table interpolation, Kirchhoff p-group current share for unequal cells), models/thermal.py (lumped node per group: m cp dT/dt = I^2 R0 + I^2 R1-branch loss + I T dUdT - h A (T - Tamb) - k_link (T_i - T_neighbors)), models/charge.py (CC-CV controller), profiles/ (constant current, pulse, simple drive-cycle csv e.g., scaled CALCE DST), mc.py (Monte Carlo over capacity/R0 spread with seeded RNG), constraints/ (YAML rules with provenance: datasheet limits, AIS 156 Amd 3 derived rules, interface rules such as charger_current <= cell_max_charge x p, fuse_rating >= 1.25 x continuous and < strip rating, bms_ot_cutoff <= 60 C, n_temp_sensors >= 4), kpis.py (usable Wh integral V I dt until cutoff/limit, peak T, time-to-60 C, charge time to 100% SoC and to 80%, mass itemised, volume by cell packing + spacing, cost itemised, safety-margin index = min over constraints of (limit - value)/limit), trace.py (builds requirement -> component -> assumption -> model -> result -> evidence rows with states PASS/FAIL/UNVERIFIED), report.py (Markdown/PDF with assumption ledger, limitations). 2) /api (FastAPI): POST /designs, POST /simulate (returns time series + KPIs + violations), POST /compare (baseline + alternatives), GET /trace/{design}, GET /validate (runs the datasheet-reproduction suite and returns RMSE table), deterministic caching keyed by design hash, structured logs and run IDs so every plot in the deck can be regenerated. 3) /web (React + Plotly): Requirements editor, Design builder (cell, s/p, cooling, protection), Run/Compare page (KPI table, parallel-coordinates or radar for trade-offs, time-series overlay, violation list with provenance links), Traceability matrix page, Validation page (simulated vs datasheet table, vs CALCE OCV, vs PyBaMM cross-check), Export. 4) /tests (pytest): energy-balance identities, Coulomb count, adiabatic temperature rise analytic check, charge-time check vs datasheet 136 min / 55 min, datasheet temperature table held-out RMSE threshold, golden-file regression for the three shipped designs, constraint-rule unit tests. 5) /docs: assumption ledger, data sources, safety precautions, limitations, next steps. Deployment: docker-compose (api + web), plus a 'static demo' build where precomputed JSON results drive the UI if the backend is unavailable (demo fallback). MINIMUM WORKING PROTOTYPE (in priority order; stop anywhere after step 5 and still have a complete story): (1) cell library with 25R fully populated and provenance; (2) ECM+thermal single-group simulation with CC discharge and CC-CV charge, validated against datasheet Wh and temperature table (calibrate h, cp on 1C and 10 A, hold out 5/15/20/25 A) and charge times; (3) module builder (s/p, equal sharing) with KPIs and itemised mass/cost; (4) constraint engine with ~12 rules and provenance; (5) compare page: baseline 13s3p vs 13s4p vs 13s3p forced-air+spacing; (6) traceability matrix auto-generated; (7) Monte Carlo cell-variation module; (8) PyBaMM cross-check button; (9) report export; (10) optional LFP 26650 cell and optional 2s2p low-voltage rig CSV import. Observability/failure handling: every run returns run_id, parameter hash, solver status, and any clipped/limit-terminated flags; invalid designs fail fast with human-readable rule messages instead of plots.",
+ "demo_plan": "LIVE DEMO SCRIPT (6-8 minutes, all runs < 2 s; precomputed JSON fallback loaded on failure). Step 0 'Validation first' (30 s): open Validation page, show the datasheet-reproduction table: for 1C/5/10/15/20/25 A the simulated steady surface temperature vs Samsung table values (30.9/38.2/53.9/69.0/83.7/97.8 C) with calibration points marked (1C, 10 A) and held-out RMSE (target <= 5 C, reported honestly whatever it is), simulated Wh vs datasheet 8.79/8.64/8.64/8.58/8.33/7.99 Wh (target <= 3% error), charge time vs datasheet 136 min standard / 55 min at 4 A (target <= 10%), OCV RMSE vs CALCE INR18650-20R 25 C low-current OCV (target <= 30 mV, with the cross-cell assumption displayed), and PyBaMM Thevenin cross-check RMSE (voltage, temperature) for the same inputs. Step 1 'Define' (45 s): application = 48 V low-speed e-scooter module (or e-bike), requirements: usable energy >= 300 Wh at 1C, continuous 60 A pack / 20 A per cell, peak 90 A for 10 s, max cell temperature <= 55 C in a 35 C Indian ambient, charge 0-80% <= 60 min, mass <= 2.5 kg, cost <= user budget. Step 2 'Baseline' (60 s): 13s3p 25R, natural convection h = calibrated value, no spacing, standard 1.25 A/cell charger. Run. Show KPIs: usable Wh, peak T (expect well above 55 C at 20 A/cell, consistent with datasheet 83.7 C), time-to-60 C, charge time, mass, volume, cost, safety-margin index (negative). Constraint engine lists violations with provenance: 'Cell surface temperature 8x C > AIS 156 Amd 3 Annex 60 C alarm threshold', 'Peak 30 A/cell > 20 A datasheet continuous but < 100 A pulse: PASS with pulse-duration note', 'n_temp_sensors = 2 < 4 required'. Step 3 'Alternatives' (90 s): Alt A 13s4p: per-cell 15 A, KPIs change (energy +33%, mass + 13 x 43.5 g cells + holders, cost + 13 cells, peak T lower), still may violate 55 C; Alt B 13s3p + forced air (h ~3x) + 2 mm spacing + 4 sensors: peak T target met at some fan power and volume penalty; (optional) Alt C LFP 26650. Compare page shows KPI table, trade-off radar, and the recommended balanced design with risks. Step 4 'Variation' (45 s): Monte Carlo 200 samples, +/-3% capacity, +/-10% R0 (seed fixed): histogram of hottest-cell temperature and usable energy; report P95 hottest-cell temperature and energy loss vs ideal (metric: delta Wh P50, delta T P95). Step 5 'Trace' (45 s): traceability matrix: each requirement row -> component -> assumption (with source) -> model -> result -> evidence state; click a FAIL to see which interface caused it. Step 6 'Report + next step' (30 s): export Markdown/PDF with assumption ledger and limitations; next step = 2s2p safe low-voltage rig to measure h and R0 (parts list). METRICS AND HOW COMPUTED: usable energy Wh = integral of V_pack I dt from full to first of (cell V <= 2.5 V, T >= T_limit, SoC <= 0); peak cell temperature = max over groups of lumped node T; time-to-60 C = first crossing; charge time = CC-CV sim time to 100 mA taper (and to 80% SoC); mass = n_cells x 43.5 g + itemised strip/holders/BMS/enclosure defaults (editable, flagged as assumptions); volume = bounding box from cell dimensions + spacing + wall thickness; cost = n_cells x unit price (default USD 5-8, editable) + BMS + enclosure assumptions; safety-margin index = min over active constraints of (limit - value)/|limit|; Monte Carlo deltas as above; validation RMSEs as above; runtime per scenario reported in the UI. Repeatability: fixed seeds, pytest golden files, run IDs; a judge can re-run 'make demo' and obtain identical numbers.",
+ "risks_and_objections": [
+  {
+   "risk": "Thermal parameters (h, cp, strip/contact resistance) are not available for the cell; model may be 'fitted to what it validates on', and lumped assumption is marginal at 15-25 A (Biot ~0.1-0.2 with k=0.2 W/mK).",
+   "severity": "high",
+   "mitigation": "Calibrate on 2 datasheet points, hold out 4, publish RMSE; show +/-50% h and +/-20% cp sensitivity bands on every temperature plot; state Biot estimate and call the model 'first-order' in the limitations; use PyBaMM as an independent solver cross-check to show the implementation (not the physics) is correct."
+  },
+  {
+   "risk": "Judges (likely Tata Elxsi EV/battery engineers) see 'yet another s/p configurator' and discount innovation; prior art (BaSD, liionpack, EnPower) exists.",
+   "severity": "high",
+   "mitigation": "Lead the pitch with the validation page and the constraint/conflict engine with provenance, not the configurator; cite BaSD and liionpack explicitly as prior art and position the platform as the traceability and trade-off layer they lack; keep the Innovation framing on 'improvement over the starting design' (the PDF's definition) with quantified deltas."
+  },
+  {
+   "risk": "Scope creep toward 'cell to system level' (full pack, BMS firmware, CFD) breaks the schedule and the demo.",
+   "severity": "high",
+   "mitigation": "Freeze scope at one 39-cell module, 1-RC ECM, lumped thermal per group, 12 constraint rules, 3 designs; everything else is 'next step' in the report; MVP priority list above with stop points."
+  },
+  {
+   "risk": "Datasheet is marked 'PROPRIETARY AND CONFIDENTIAL' (reseller-hosted copy); redistributing it or screenshotting pages could be challenged.",
+   "severity": "medium",
+   "mitigation": "Store only transcribed values with citation, never the PDF; offer CALCE INR18650-20R as a second, fully open hero cell; state data provenance in the ledger."
+  },
+  {
+   "risk": "Cross-cell assumption (OCV shape from CALCE 20R applied to 25R) is scientifically questionable.",
+   "severity": "medium",
+   "mitigation": "Show sensitivity of usable energy and charge time to the OCV curve (shift/scale), display the assumption on the Validation page, and keep both cells in the library so the judge can switch."
+  },
+  {
+   "risk": "Mass, volume and cost KPIs rest on assumptions (enclosure, BMS, strip, Indian cell price unverified).",
+   "severity": "medium",
+   "mitigation": "Itemise every component with editable defaults and provenance; mark unverified items as such in the traceability matrix; present cost as relative (+/- vs baseline) more than absolute."
+  },
+  {
+   "risk": "Format risk: if Season 4 mirrors Season 3 (1-slide then 10-slide deck, 5 MB), a live web demo may never be seen by early-round judges.",
+   "severity": "medium",
+   "mitigation": "Make the exported report and a 90-second screen recording first-class deliverables; put the public repo link and a static demo build in the annexure; design the deck around the baseline-vs-alternatives table and the validation table."
+  },
+  {
+   "risk": "Demo fragility (backend not running, dependency breakage, PyBaMM API changes such as the 'diffusion element' option and initial_soc kwarg that failed in 26.10.1.0).",
+   "severity": "low",
+   "mitigation": "Own SciPy engine is the primary path; PyBaMM only as optional cross-check pinned to 26.10.1.0; static JSON fallback; docker-compose; pytest golden files run in CI."
+  },
+  {
+   "risk": "Optional hardware rig (Li-ion cells) introduces safety and procurement risk for students.",
+   "severity": "low",
+   "mitigation": "Keep the rig as next step unless a teammate has verified electronics experience; if built, use <= 3s, fused, BMS-protected, resistive load at <= 3 A/cell, fire-safe container, and log only; never demo live hardware on stage."
+  }
+ ],
+ "competitor_hypotheses": "HYPOTHESES (no verified data on competing teams exist; nothing below is evidence). H1: The modal submission is a React/Streamlit series-parallel calculator (voltage, Ah, Wh, cell count, maybe a 3D cell grid) with static formulas and an LLM chat assistant; it has no validation, no time-domain simulation, and no traceability. Outperform by: validation page with held-out RMSE against published datasheet numbers, time-domain temperature plots, and the constraint engine with provenance. H2: A minority uses PyBaMM DFN with the Chen2020 parameter set and shows electrochemical plots; impressive but hard to explain, slow for pack-level, and the LG M50 parameters do not match the cell they 'design' with. Outperform by: explainable ECM with cell-specific datasheet parameters, sub-second runs, and a PyBaMM cross-check that shows you know the heavier tool and chose fidelity deliberately. H3: A few teams build a physical 18650 pack with an off-the-shelf BMS and Arduino logging, and present measured curves without a model; strong on evidence, weak on 'platform', 'compare two options' and 'traceability'. Outperform by: structured comparison, Monte Carlo variation, traceability matrix; and by naming a safe rig as the next step with a parts list, showing awareness without the risk. H4: Some teams emphasise AI (ML SOC/SOH estimators trained on NASA/CALCE) and call it a design platform; it misaligns with the criteria (design trade-offs, safety limits) and is unverifiable in a short demo. Outperform by: staying on the rubric vocabulary (usable energy, temperature, charging time, mass, size, estimated cost; interface conflicts; safety-limit violations; traceability). H5: Engineering-heavy teams (mechanical/EE) may do CFD/CAD thermal renders; visually strong but typically not integrated with electrical models or requirements. Outperform by integration (one change propagates to all KPIs and the trace matrix) and by a reproducible test suite. General edge: most hackathon tools are not reproducible; ours ships 'make demo' + pytest golden files + run IDs, which maps to 'measurable and repeatable results' in the Prototype & evidence criterion.",
+ "effort_and_unknowns": "RELATIVE EFFORT (person-days, team size and deadline unknown; assumes competent backend/frontend developers and one person willing to learn ECM/thermal basics): engine core (ECM, lumped thermal, CC-CV, KPIs) 2-3; cell library + provenance schema + datasheet/CALCE transcription 1-1.5; validation/calibration scripts + pytest suite 1.5-2; constraint engine + interface rules (YAML + evaluator) 1; module builder + equal-sharing + Monte Carlo p-group Kirchhoff solve 1.5; FastAPI + caching + run IDs 1; React UI (5 pages, Plotly) 3-4; traceability matrix + report export 1-1.5; docs/assumption ledger/deck/recording 1.5-2; PyBaMM cross-check integration 0.5; optional LFP cell 0.5; optional rig 3+ (not recommended). Total core: about 13-17 person-days; a 3-person team can reach the MVP stop point (steps 1-6) in roughly one focused week and polish in a second. DEPENDENCIES: Python 3.10+, NumPy/SciPy, FastAPI, pytest, Node/React, Plotly, Docker (optional), PyBaMM 26.10.1.0 (optional cross-check), CALCE zip downloads, transcription of the 25R datasheet table. UNKNOWNS: Season 4 round format and whether a live demo is ever judged (Season 3 third-party summary suggests deck-first); team size and hardware; whether a teammate can internalise ECM/thermal well enough to defend it under questioning (the biggest soft risk); exact CALCE file formats and whether the 20R OCV data parses cleanly; genuine thermal parameter values (h, cp) and the resulting held-out RMSE (if RMSE turns out > 8-10 C the validation story weakens and the team must fall back to 'qualitative trend reproduction'); Indian cell prices; whether judges accept AIS 156 as a reference rule set for a non-vehicle 'battery energy system'.",
+ "rubric_scores": [
+  {
+   "criterion": "Problem understanding",
+   "weight": "15%",
+   "expected_score_0_10": 8,
+   "rationale": "The concept restates the PDF's own scope guidance (small module), defines application, requirements and operating conditions explicitly, and frames the battery challenge as coupled trade-offs with a concrete baseline violation (20 A/cell gives ~84 C per datasheet). Risk: a software team may sound less fluent than a battery-engineering team in Q&A."
+  },
+  {
+   "criterion": "Desirability",
+   "weight": "15%",
+   "expected_score_0_10": 7,
+   "rationale": "Students and small EV/ESS teams genuinely lack a free tool that ties datasheet limits, safety rules and trade-offs together; value is plausible but must be argued with a user story (e.g., a college EV team or a small pack assembler under AIS 156). Not validated with real users within the hackathon."
+  },
+  {
+   "criterion": "Technical feasibility",
+   "weight": "20%",
+   "expected_score_0_10": 8.5,
+   "rationale": "All tools free and verified to run on Windows; sub-second simulations; datasheet + public datasets suffice; scope is explicitly bounded. Highest-weight criterion and this concept's strongest."
+  },
+  {
+   "criterion": "Engineering quality",
+   "weight": "15%",
+   "expected_score_0_10": 7.5,
+   "rationale": "Sound ECM + Bernardi lumped thermal with stated assumptions, sensitivity bands, held-out validation and energy-balance unit tests. Capped by unavoidable thermal-parameter uncertainty and lumped-model limits at high C-rate; a battery engineer can find holes but will see they are declared."
+  },
+  {
+   "criterion": "Prototype & evidence",
+   "weight": "15%",
+   "expected_score_0_10": 8,
+   "rationale": "Working software with measurable KPIs, deterministic seeds, golden-file tests and a validation table against published numbers satisfies 'measurable and repeatable results'; lack of hardware measurement keeps it below 9."
+  },
+  {
+   "criterion": "Innovation",
+   "weight": "10%",
+   "expected_score_0_10": 6.5,
+   "rationale": "Judged as 'improvement over the starting design': the quantified baseline-vs-alternatives story is clear and understandable, and the provenance-tagged conflict engine plus live traceability are distinctive among free tools, but the underlying ideas (ECM, lumped thermal, rule checks) are standard."
+  },
+  {
+   "criterion": "Business viability",
+   "weight": "10%",
+   "expected_score_0_10": 6,
+   "rationale": "Plausible paths (training tool for colleges, pre-design screening for small pack makers facing AIS 156 compliance, internal reuse as a 'reusable digital platform' for an engineering-services firm) but no pricing evidence or customer validation; score depends on the pitch more than the build."
+  }
+ ],
+ "official_score_potential_0_10": 7.5,
+ "execution_adjusted_0_10": 7,
+ "dimension_scores": {
+  "skill_fit": 8,
+  "complete_prototype": 8,
+  "measurable_results": 7,
+  "demo_reliability": 8,
+  "differentiation": 6,
+  "data_availability": 7,
+  "free_tools_feasibility": 9,
+  "engineering_depth": 6,
+  "rubric_alignment": 8,
+  "low_failure_risk": 7,
+  "explainability": 8,
+  "reproducible_evidence": 7
+ },
+ "argument_against": "This case rewards battery-domain engineering judgment under questioning by people who do this for a living. A software-heavy student team without a battery or thermal engineer can build a polished tool, but the 15% Engineering quality and much of the 15% Problem understanding will be probed with questions about heat-transfer coefficients, entropic heat, contact resistance, Biot numbers, cell derating and standards; answering from freshly learned notes is visibly different from answering from experience, and the team cannot generate any measured evidence of its own without handling Li-ion cells. The validation story is inherently second-hand (reproducing a manufacturer's table and a university OCV curve), so a skeptical judge can always say 'fitted, not validated'. Prior art (BaSD, liionpack, commercial suites) means the Innovation criterion is hard to score high on, and Business viability (10%) requires a go-to-market story the team has no evidence for. If another case study in the set is closer to pure software/data engineering with a verifiable public dataset and a quantitative benchmark (e.g., a prediction task with a baseline to beat), that case may convert this team's skills into points with less domain risk. Choose this case only if at least one teammate is willing to own the physics deeply and the team commits to the honest-limitations style the rubric rewards; otherwise the output risks being exactly the 'visually impressive but scientifically weak configurator' the judges will be primed to detect.",
+ "critical_claims_to_verify": [
+  {
+   "claim": "PyBaMM 26.10.1.0 installs from PyPI into a fresh venv on Windows 11 with Python 3.12 and solves pybamm.equivalent_circuit.Thevenin() with the ECM_Example set (scaled to 2.5 Ah, thermal mass 45 J/K) through a 10 A discharge / rest / 1.25 A CC / 4.2 V CV experiment in about 0.12-0.21 s; the 'diffusion element' option is not recognised and initial_soc kwarg fails for ECM (use 'Initial SoC' parameter).",
+   "url": "https://pypi.org/project/pybamm/",
+   "why_critical": "The whole demo-reliability and free-tools argument (and the PyBaMM cross-check feature) rests on sub-second, zero-cost simulation on student laptops; measured only on one machine in this session."
+  },
+  {
+   "claim": "The Samsung SDI 'Introduction of INR18650-25R' (Mar 2013) contains a table of discharge capacity, cell temperature and time at 1C/5/10/15/20/25 A (30.9/38.2/53.9/69.0/83.7/97.8 C; 2.439-2.569 Ah) and energy/average voltage (8.79-7.99 Wh), plus spec values (43.5 g, DC-IR 19.23 mOhm, max charge 4.0 A, max continuous discharge 20 A, standard charge 136 min, rapid 55 min).",
+   "url": "https://www.kiwiquads.co.nz/wp-content/uploads/INR18650-25R-datasheet.pdf",
+   "why_critical": "This table is the only free thermal validation target in the recommendation; if the reseller-hosted PDF is not an authentic Samsung document, or the temperature column means something else (e.g., fixture temperature), the validation page loses its basis."
+  },
+  {
+   "claim": "CALCE's battery data page provides zip downloads, without registration, of INR 18650-20R low-current OCV tests at 0/25/45 C and DST/FUDS/US06/BJDST dynamic profiles at those temperatures, and A123 LFP OCV at eight temperatures.",
+   "url": "https://calce.umd.edu/battery-data",
+   "why_critical": "The OCV(SoC, T) table for the ECM and the dynamic profiles for R0/R1/C1 identification come from here; the page text was read but no download was executed in this session."
+  },
+  {
+   "claim": "AIS 156 Amendment 3 (ACMA-hosted PDF, Sept 2022) requires: BMS over-temperature protection, at least 4 temperature sensors in the pack with an audio-visual alarm and gradual power cut-off if temperature crosses 60 C, cells certified per IS 16893 Part 2/3, active paralleling or fuses/bond wires for parallel strings, sufficient cell-to-cell spacing, an additional fuse/circuit breaker, a pack traceability document and one month of BMS data logging.",
+   "url": "https://www.acma.in/uploads/ciculer-attachement/Amendment%203%20to%20AIS%20156.pdf",
+   "why_critical": "These clauses give the constraint engine its citable numeric rules and the 'safety-limit violation' story; a fact-checker should confirm the ACMA copy matches the ARAI original and that the 60 C / 4-sensor clauses are in the current version."
+  },
+  {
+   "claim": "Oxford Battery Degradation Dataset 1 (8 Kokam SLPB533459H4 740 mAh pouch cells, 2015-2016) is downloadable from ORA as a 253.8 MB .mat file under the ODC-ODbL license.",
+   "url": "https://ora.ox.ac.uk/objects/uuid:03ba4b01-cfed-46d3-9b1a-7d4a7bdf6fac",
+   "why_critical": "Supports the optional ageing module and the claim that a clearly licensed public ageing dataset exists; less central than the four claims above."
+  }
+ ],
+ "confidence": "medium",
+ "confidence_rationale": "High confidence in tool feasibility (PyBaMM installed and timed locally; datasheet and AIS 156 text extracted locally; CALCE and Oxford pages fetched). Medium confidence in the validation story because the thermal parameters are unknown until the team calibrates them and the resulting held-out RMSE could be worse than the 5 C target; medium-low confidence in anything about judges, competing teams and the Season 4 format (only a third-party Season 3 summary exists, and its page fetch failed). Several supporting numbers (Biot threshold, k, h, cp ranges, Peukert range, pack mass fractions, cell prices) come from search summaries rather than fetched full texts and are labelled accordingly."
+}

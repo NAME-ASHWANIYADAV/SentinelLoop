@@ -1,0 +1,42 @@
+{
+ "subset": "FD002",
+ "n_test_units": 259,
+ "rul_cap": 125,
+ "fast": false,
+ "cv_rmse_all_rows": 15.276855032445123,
+ "cv_rmse_last_cycle_naive_protocol": 3.530477689418805,
+ "cv_rmse_random_truncation_protocol": 15.680221118815515,
+ "hgbr_rmse_capped": 14.879832204810484,
+ "hgbr_rmse_raw": 27.10176142617291,
+ "hgbr_mae_capped": 10.764337774369608,
+ "hgbr_phm08": 1006.6840303779863,
+ "rf_rmse_capped": 15.160222434817886,
+ "rf_rmse_raw": 26.9050264656062,
+ "rf_mae_capped": 11.216760632733775,
+ "rf_phm08": 1090.2525555321158,
+ "naive_rmse_capped": 44.92892745312801,
+ "naive_rmse_raw": 54.0829823871006,
+ "naive_mae_capped": 38.14154656047177,
+ "naive_phm08": 115589.85268979704,
+ "phm08_convention": "PHM08 score: d = pred - true; early (d < 0): exp(-d/13) - 1; late (d >= 0): exp(d/10) - 1; summed over engines (late predictions are penalised more). Saxena et al. 2008 list a1=10, a2=13.",
+ "data_hashes": {
+  "train": "dac6c4dbc4e7c1bdeb5747da3d313d05c395bb99801b44a002b26a2ba13d788f",
+  "test": "de7b5bf7e998a985c378488480528b7c02cff1406a46740def362dda8d9b4e02",
+  "rul": "c851dd96a6ea6998d3c4a8f834d3c8013aa90e93a6ed950dc826ad0655b2906b"
+ },
+ "dropped_sensors": [
+  "s1",
+  "s5",
+  "s18",
+  "s19"
+ ],
+ "n_features": 70,
+ "config_hash": "49ee491d440a",
+ "versions": {
+  "python": "3.12.1",
+  "sklearn": "1.7.2",
+  "pandas": "2.3.3",
+  "numpy": "2.2.6"
+ },
+ "elapsed_s": 236.7
+}

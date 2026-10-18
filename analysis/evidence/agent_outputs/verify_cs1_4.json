@@ -1,0 +1,24 @@
+{
+ "case_id": 1,
+ "claim": "MLflow tracking and the Model Registry run fully locally (file store `mlruns` or SQLite backend) with no server or cloud, under Apache-2.0; Evidently 0.7.x (Apache-2.0, Python >=3.10) and River (BSD-3, ADWIN) run offline on pandas data.",
+ "verdict": "partially_confirmed",
+ "evidence": "MLflow (PyPI 3.17.1, released 2026-10-13): license Apache-2.0 (LICENSE.txt \"Copyright 2018 Databricks\"), Requires-Python >=3.10. Tracking docs (the offered URL) confirm local no-server use: \"By default, MLflow records metadata and artifacts for each run to a local directory, mlruns\" and the tracking server is marked \"(Optional)\". BUT the same page states: \"To use the Model Registry functionality with MLflow tracking, you must use database backed store\", and the self-hosting backend-store doc states \"Model Registry functionality requires a database-backed store\", that the file-system backend is \"TO BE DEPRECATED SOON\" / \"in maintenance mode and will not receive further updates\", and that \"SQLite is the default backend store... automatically creates and uses sqlite:///mlflow.db\" when the server is started without a backend. So the Model Registry does NOT work on the plain `mlruns` file store; it works locally with SQLite (no cloud, but the Registry UI needs `mlflow server`/`mlflow ui` pointed at the SQLite URI; the Python registry API works with mlflow.set_tracking_uri(\"sqlite:///mlflow.db\")). Evidently: PyPI latest 0.7.23 (2026-09-11), Apache-2.0, Requires-Python >=3.10; GitHub README shows pandas input (Dataset.from_pandas, report.run on DataFrames), HTML export (save_html) and self-hosted UI at localhost:8000; cloud is optional. No primary source explicitly states \"works offline\", but no network dependency is documented for core reports. River: PyPI 0.26.1 (2026-08-21), BSD-3-Clause (LICENSE first line \"BSD 3-Clause License\"), Requires-Python >=3.11 (pyproject.toml), pandas is an OPTIONAL dependency (pandas>=2.2,<3 extra); river.drift.ADWIN exists and is documented with a pure-Python streaming example (adwin.update(x); adwin.drift_detected). River is a streaming library that consumes dicts/scalars, not pandas DataFrames natively (pandas is optional via river.stream.iter_pandas).",
+ "urls": [
+  "https://mlflow.org/docs/latest/ml/tracking/",
+  "https://mlflow.org/docs/latest/self-hosting/architecture/backend-store/",
+  "https://mlflow.org/docs/latest/ml/model-registry/",
+  "https://pypi.org/project/mlflow/",
+  "https://github.com/mlflow/mlflow/blob/master/LICENSE.txt",
+  "https://github.com/mlflow/mlflow/releases",
+  "https://pypi.org/project/evidently/",
+  "https://github.com/evidentlyai/evidently",
+  "https://docs.evidentlyai.com/docs/setup/installation",
+  "https://pypi.org/project/river/",
+  "https://github.com/online-ml/river/blob/main/pyproject.toml",
+  "https://github.com/online-ml/river/blob/main/LICENSE",
+  "https://riverml.xyz/latest/api/drift/ADWIN/",
+  "https://github.com/online-ml/river/releases"
+ ],
+ "correction": "MLflow (3.17.1, Apache-2.0, Python >=3.10) tracking runs fully locally with no server (default `mlruns` file directory), but the Model Registry requires a database-backed store: use `sqlite:///mlflow.db` (SQLite is now the documented default for `mlflow server`; the file store is flagged \"to be deprecated soon\"/maintenance mode and does not support the registry). Viewing the registry UI requires running `mlflow server`/`mlflow ui` locally against that SQLite URI, still no cloud. Evidently 0.7.23 (Apache-2.0, Python >=3.10) runs on pandas DataFrames and exports HTML/JSON locally with optional self-hosted UI; cloud is optional. River 0.26.1 (BSD-3-Clause) requires Python >=3.11 (not 3.10), includes river.drift.ADWIN, and is a streaming library whose pandas support is an optional extra (`pip install river[pandas]`, iterate rows via river.stream.iter_pandas); it does not operate on DataFrames natively. All tools are free and installable offline once pip-installed; no primary source makes an explicit \"offline\" guarantee.",
+ "impact_on_candidate": "Low-to-moderate. The MLOps layer still works on a laptop with free tools, but the plan must (a) use a SQLite backend (`mlflow.set_tracking_uri(\"sqlite:///mlflow.db\")`) rather than the `mlruns` file store if the Model Registry is demoed, and start `mlflow ui --backend-store-uri sqlite:///mlflow.db` to show it; a file-store-only setup would make registry calls fail and lose demo credibility. (b) Pin the environment to Python 3.11+ (River requirement) so MLflow, Evidently and River coexist; Python 3.10 would break River. (c) Feed River/ADWIN row-by-row (iter_pandas or scalar updates) rather than passing DataFrames. None of these threaten the 10%+10% MLOps/monitoring scoring if corrected; a demo built on the wrong assumptions could fail live."
+}

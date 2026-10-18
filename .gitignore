@@ -1,0 +1,19 @@
+# SentinelLoop: never publish the NASA archive (not redistributable), run artefacts, caches or the virtual environment
+.venv/
+__pycache__/
+*.pyc
+data/raw/
+artifacts/
+artifacts_demo/
+experiments/results/oof/
+mlruns/
+*.db
+*.pkl
+.pytest_cache/
+.claude/launch.json
+artifacts_pre_phase6/
+submission/deck_build/node_modules/
+backups/
+product/evidence/**/*.pkl
+*.egg-info/
+artifacts_demo/

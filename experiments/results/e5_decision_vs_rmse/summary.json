@@ -1,0 +1,212 @@
+{
+ "hypothesis": "H5",
+ "table": [
+  {
+   "subset": "FD001",
+   "model": "naive_mean",
+   "rmse_eval_random_truncation": 41.855231294202866,
+   "late_rate": 1.0,
+   "mean_discarded_life": NaN,
+   "early_rate": NaN
+  },
+  {
+   "subset": "FD001",
+   "model": "random_forest",
+   "rmse_eval_random_truncation": 15.2515033879109,
+   "late_rate": 0.0,
+   "mean_discarded_life": 25.2,
+   "early_rate": 0.0
+  },
+  {
+   "subset": "FD001",
+   "model": "hgbr_all_fold_engines",
+   "rmse_eval_random_truncation": 14.176806964407447,
+   "late_rate": 0.0,
+   "mean_discarded_life": 26.242857142857144,
+   "early_rate": 0.0
+  },
+  {
+   "subset": "FD001",
+   "model": "hgbr_70pct_point",
+   "rmse_eval_random_truncation": 15.040709373580272,
+   "late_rate": 0.0,
+   "mean_discarded_life": 25.242857142857144,
+   "early_rate": 0.0
+  },
+  {
+   "subset": "FD001",
+   "model": "hgbr_cqr_lower_bound",
+   "rmse_eval_random_truncation": 15.040709373580272,
+   "late_rate": 0.0,
+   "mean_discarded_life": 40.25714285714286,
+   "early_rate": 0.15714285714285714
+  },
+  {
+   "subset": "FD002",
+   "model": "naive_mean",
+   "rmse_eval_random_truncation": 42.006033082738796,
+   "late_rate": 1.0,
+   "mean_discarded_life": NaN,
+   "early_rate": NaN
+  },
+  {
+   "subset": "FD002",
+   "model": "random_forest",
+   "rmse_eval_random_truncation": 16.794708464247062,
+   "late_rate": 0.0,
+   "mean_discarded_life": 24.318681318681318,
+   "early_rate": 0.0
+  },
+  {
+   "subset": "FD002",
+   "model": "hgbr_all_fold_engines",
+   "rmse_eval_random_truncation": 15.973069423022677,
+   "late_rate": 0.0,
+   "mean_discarded_life": 26.296703296703296,
+   "early_rate": 0.005494505494505495
+  },
+  {
+   "subset": "FD002",
+   "model": "hgbr_70pct_point",
+   "rmse_eval_random_truncation": 16.209933554930036,
+   "late_rate": 0.0,
+   "mean_discarded_life": 26.543956043956044,
+   "early_rate": 0.005494505494505495
+  },
+  {
+   "subset": "FD002",
+   "model": "hgbr_cqr_lower_bound",
+   "rmse_eval_random_truncation": 16.209933554930036,
+   "late_rate": 0.0,
+   "mean_discarded_life": 39.1978021978022,
+   "early_rate": 0.09340659340659341
+  },
+  {
+   "subset": "FD003",
+   "model": "naive_mean",
+   "rmse_eval_random_truncation": 41.81474458672855,
+   "late_rate": 1.0,
+   "mean_discarded_life": NaN,
+   "early_rate": NaN
+  },
+  {
+   "subset": "FD003",
+   "model": "random_forest",
+   "rmse_eval_random_truncation": 13.667807598973306,
+   "late_rate": 0.0,
+   "mean_discarded_life": 24.8,
+   "early_rate": 0.0
+  },
+  {
+   "subset": "FD003",
+   "model": "hgbr_all_fold_engines",
+   "rmse_eval_random_truncation": 12.609898554082857,
+   "late_rate": 0.0,
+   "mean_discarded_life": 25.82857142857143,
+   "early_rate": 0.0
+  },
+  {
+   "subset": "FD003",
+   "model": "hgbr_70pct_point",
+   "rmse_eval_random_truncation": 13.725897355954904,
+   "late_rate": 0.0,
+   "mean_discarded_life": 25.742857142857144,
+   "early_rate": 0.0
+  },
+  {
+   "subset": "FD003",
+   "model": "hgbr_cqr_lower_bound",
+   "rmse_eval_random_truncation": 13.725897355954904,
+   "late_rate": 0.0,
+   "mean_discarded_life": 36.7,
+   "early_rate": 0.07142857142857142
+  },
+  {
+   "subset": "FD004",
+   "model": "naive_mean",
+   "rmse_eval_random_truncation": 42.08540582545651,
+   "late_rate": 1.0,
+   "mean_discarded_life": NaN,
+   "early_rate": NaN
+  },
+  {
+   "subset": "FD004",
+   "model": "random_forest",
+   "rmse_eval_random_truncation": 16.680507298121157,
+   "late_rate": 0.005747126436781609,
+   "mean_discarded_life": 24.832369942196532,
+   "early_rate": 0.017241379310344827
+  },
+  {
+   "subset": "FD004",
+   "model": "hgbr_all_fold_engines",
+   "rmse_eval_random_truncation": 16.051199429940706,
+   "late_rate": 0.005747126436781609,
+   "mean_discarded_life": 25.99421965317919,
+   "early_rate": 0.017341040462427744
+  },
+  {
+   "subset": "FD004",
+   "model": "hgbr_70pct_point",
+   "rmse_eval_random_truncation": 16.086020634299274,
+   "late_rate": 0.005747126436781609,
+   "mean_discarded_life": 25.653179190751445,
+   "early_rate": 0.017341040462427744
+  },
+  {
+   "subset": "FD004",
+   "model": "hgbr_cqr_lower_bound",
+   "rmse_eval_random_truncation": 16.086020634299274,
+   "late_rate": 0.0,
+   "mean_discarded_life": 38.87356321839081,
+   "early_rate": 0.10344827586206896
+  }
+ ],
+ "verdicts": {
+  "FD001": {
+   "spearman_rmse_vs_late": 0.7254762501100117,
+   "inversions": [
+    "hgbr_all_fold_engines (rmse 14.18) vs hgbr_70pct_point (rmse 15.04): late 0.000 vs 0.000, discarded 26.2 vs 25.2",
+    "hgbr_all_fold_engines (rmse 14.18) vs random_forest (rmse 15.25): late 0.000 vs 0.000, discarded 26.2 vs 25.2",
+    "hgbr_70pct_point (rmse 15.04) vs random_forest (rmse 15.25): late 0.000 vs 0.000, discarded 25.2 vs 25.2",
+    "hgbr_cqr_lower_bound (rmse 15.04) vs random_forest (rmse 15.25): late 0.000 vs 0.000, discarded 40.3 vs 25.2"
+   ]
+  },
+  "FD002": {
+   "spearman_rmse_vs_late": 0.7254762501100117,
+   "inversions": [
+    "hgbr_all_fold_engines (rmse 15.97) vs random_forest (rmse 16.79): late 0.000 vs 0.000, discarded 26.3 vs 24.3",
+    "hgbr_70pct_point (rmse 16.21) vs random_forest (rmse 16.79): late 0.000 vs 0.000, discarded 26.5 vs 24.3",
+    "hgbr_cqr_lower_bound (rmse 16.21) vs random_forest (rmse 16.79): late 0.000 vs 0.000, discarded 39.2 vs 24.3"
+   ]
+  },
+  "FD003": {
+   "spearman_rmse_vs_late": 0.7254762501100117,
+   "inversions": [
+    "hgbr_all_fold_engines (rmse 12.61) vs random_forest (rmse 13.67): late 0.000 vs 0.000, discarded 25.8 vs 24.8",
+    "hgbr_all_fold_engines (rmse 12.61) vs hgbr_70pct_point (rmse 13.73): late 0.000 vs 0.000, discarded 25.8 vs 25.7"
+   ]
+  },
+  "FD004": {
+   "spearman_rmse_vs_late": 0.5735393346764044,
+   "inversions": [
+    "hgbr_all_fold_engines (rmse 16.05) vs hgbr_70pct_point (rmse 16.09): late 0.006 vs 0.006, discarded 26.0 vs 25.7",
+    "hgbr_all_fold_engines (rmse 16.05) vs hgbr_cqr_lower_bound (rmse 16.09): late 0.006 vs 0.000, discarded 26.0 vs 38.9",
+    "hgbr_all_fold_engines (rmse 16.05) vs random_forest (rmse 16.68): late 0.006 vs 0.006, discarded 26.0 vs 24.8",
+    "hgbr_70pct_point (rmse 16.09) vs hgbr_cqr_lower_bound (rmse 16.09): late 0.006 vs 0.000, discarded 25.7 vs 38.9",
+    "hgbr_70pct_point (rmse 16.09) vs random_forest (rmse 16.68): late 0.006 vs 0.006, discarded 25.7 vs 24.8",
+    "hgbr_cqr_lower_bound (rmse 16.09) vs random_forest (rmse 16.68): late 0.000 vs 0.006, discarded 38.9 vs 24.8"
+   ]
+  }
+ },
+ "conclusion": "H5: an RMSE-vs-decision-metric inversion exists on 4/4 subsets. Pre-registered criterion (at least one): SUPPORTED.",
+ "fast": false,
+ "generated": "2026-10-18T06:07:14",
+ "config_hashes": {
+  "FD001": "83fdcf31e3fd",
+  "FD002": "fd253a160a87",
+  "FD003": "f8eed41381fa",
+  "FD004": "e32edc97c814"
+ },
+ "seed": 42
+}

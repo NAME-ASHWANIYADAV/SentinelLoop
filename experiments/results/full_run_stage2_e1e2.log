@@ -1,0 +1,41 @@
+=== E1 FD001 ===
+[FD001] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 1.47)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.53)
+  fold 3/5: 20 engines predicted out of fold (qhat 6.30)
+  fold 4/5: 20 engines predicted out of fold (qhat 12.01)
+  fold 5/5: 20 engines predicted out of fold (qhat 5.34)
+[FD001] OOF done in 35 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD001_full.csv
+=== E1 FD002 ===
+[FD002] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 52 engines predicted out of fold (qhat 1.77)
+  fold 2/5: 52 engines predicted out of fold (qhat 2.63)
+  fold 3/5: 52 engines predicted out of fold (qhat 1.64)
+  fold 4/5: 52 engines predicted out of fold (qhat 4.15)
+  fold 5/5: 52 engines predicted out of fold (qhat 2.12)
+[FD002] OOF done in 70 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD002_full.csv
+=== E1 FD003 ===
+[FD003] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 6.69)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.68)
+  fold 3/5: 20 engines predicted out of fold (qhat 4.07)
+  fold 4/5: 20 engines predicted out of fold (qhat 2.99)
+  fold 5/5: 20 engines predicted out of fold (qhat 8.13)
+[FD003] OOF done in 35 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD003_full.csv
+=== E1 FD004 ===
+[FD004] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 50 engines predicted out of fold (qhat 0.24)
+  fold 2/5: 50 engines predicted out of fold (qhat 1.12)
+  fold 3/5: 50 engines predicted out of fold (qhat 0.99)
+  fold 4/5: 50 engines predicted out of fold (qhat 2.18)
+  fold 5/5: 49 engines predicted out of fold (qhat 0.97)
+[FD004] OOF done in 62 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD004_full.csv
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e1_policy_replay
+H1 primary (pre-registered): (i) late rate C<A at equal threshold on 1/4 subsets (informative, i.e. any late orders at T=25, on 1/4); (ii) discarded life C<=B at matched late rate on 4/4 subsets; criterion (>=3/4 on both): NOT SUPPORTED. Secondary frontier (A-family vs C-family at matched late-rate targets [0.0, 0.025, 0.05, 0.1]): C better-or-equal on both metrics in 2/16 target points, C dominated in 2/16.
+=== E2 FD001 ===
+=== E2 FD002 ===
+=== E2 FD003 ===
+=== E2 FD004 ===
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e2_abstention
+H2: error rate among acted-upon engines is >=20% lower than among all engines with escalation share <=25% on 0/4 subsets. Pre-registered criterion (>=3/4): NOT SUPPORTED.
+exit=0

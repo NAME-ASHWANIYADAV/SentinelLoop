@@ -1,0 +1,260 @@
+{
+ "adjusted_dims": {
+  "1": {
+   "skill_fit": 9.0,
+   "complete_prototype": 7.5,
+   "measurable_results": 9.0,
+   "demo_reliability": 7.0,
+   "differentiation": 5.5,
+   "data_availability": 10.0,
+   "free_tools_feasibility": 10.0,
+   "engineering_depth": 7.0,
+   "rubric_alignment": 9.0,
+   "low_failure_risk": 7.5,
+   "explainability": 8.0,
+   "reproducible_evidence": 9.0
+  },
+  "2": {
+   "skill_fit": 6.0,
+   "complete_prototype": 8.0,
+   "measurable_results": 7.0,
+   "demo_reliability": 8.0,
+   "differentiation": 6.5,
+   "data_availability": 6.0,
+   "free_tools_feasibility": 9.0,
+   "engineering_depth": 5.5,
+   "rubric_alignment": 8.0,
+   "low_failure_risk": 7.0,
+   "explainability": 8.0,
+   "reproducible_evidence": 6.0
+  },
+  "3": {
+   "skill_fit": 6.0,
+   "complete_prototype": 8.0,
+   "measurable_results": 9.5,
+   "demo_reliability": 6.5,
+   "differentiation": 6.5,
+   "data_availability": 7.0,
+   "free_tools_feasibility": 10.0,
+   "engineering_depth": 8.0,
+   "rubric_alignment": 8.5,
+   "low_failure_risk": 6.5,
+   "explainability": 8.0,
+   "reproducible_evidence": 8.5
+  },
+  "4": {
+   "skill_fit": 7.5,
+   "complete_prototype": 7.0,
+   "measurable_results": 7.0,
+   "demo_reliability": 7.5,
+   "differentiation": 7.0,
+   "data_availability": 6.0,
+   "free_tools_feasibility": 9.0,
+   "engineering_depth": 7.0,
+   "rubric_alignment": 7.0,
+   "low_failure_risk": 6.5,
+   "explainability": 9.0,
+   "reproducible_evidence": 8.0
+  },
+  "5": {
+   "skill_fit": 8.0,
+   "complete_prototype": 7.0,
+   "measurable_results": 8.0,
+   "demo_reliability": 5.0,
+   "differentiation": 6.0,
+   "data_availability": 6.5,
+   "free_tools_feasibility": 9.0,
+   "engineering_depth": 8.0,
+   "rubric_alignment": 8.0,
+   "low_failure_risk": 4.0,
+   "explainability": 9.0,
+   "reproducible_evidence": 8.0
+  }
+ },
+ "schemes": {
+  "1": {
+   "base": 8.13,
+   "equal": 8.21,
+   "ambition": 7.76,
+   "safety": 8.32
+  },
+  "2": {
+   "base": 7.12,
+   "equal": 7.08,
+   "ambition": 6.88,
+   "safety": 7.41
+  },
+  "3": {
+   "base": 7.72,
+   "equal": 7.75,
+   "ambition": 7.7,
+   "safety": 7.71
+  },
+  "4": {
+   "base": 7.25,
+   "equal": 7.38,
+   "ambition": 7.14,
+   "safety": 7.19
+  },
+  "5": {
+   "base": 7.07,
+   "equal": 7.21,
+   "ambition": 7.08,
+   "safety": 6.71
+  }
+ },
+ "official": {
+  "1": {
+   "specialist": 8.3,
+   "judges": [
+    7.8,
+    7.6
+   ],
+   "mean3": 7.9,
+   "judges_mean": 7.699999999999999
+  },
+  "2": {
+   "specialist": 7.5,
+   "judges": [
+    6.3,
+    6.5
+   ],
+   "mean3": 6.766666666666667,
+   "judges_mean": 6.4
+  },
+  "3": {
+   "specialist": 7.8,
+   "judges": [
+    7,
+    6.9
+   ],
+   "mean3": 7.233333333333333,
+   "judges_mean": 6.95
+  },
+  "4": {
+   "specialist": 7.7,
+   "judges": [
+    6.3,
+    6.2
+   ],
+   "mean3": 6.733333333333333,
+   "judges_mean": 6.25
+  },
+  "5": {
+   "specialist": 7.4,
+   "judges": [
+    6.5,
+    6.4
+   ],
+   "mean3": 6.766666666666667,
+   "judges_mean": 6.45
+  }
+ },
+ "exec": {
+  "1": {
+   "specialist": 7.6,
+   "skeptic": 7.3,
+   "judges": [
+    8,
+    7.5
+   ],
+   "mean3": 7.6,
+   "judges_mean": 7.75
+  },
+  "2": {
+   "specialist": 7,
+   "skeptic": 7,
+   "judges": [
+    5.3,
+    5.3
+   ],
+   "mean3": 5.866666666666666,
+   "judges_mean": 5.3
+  },
+  "3": {
+   "specialist": 7,
+   "skeptic": 7.1,
+   "judges": [
+    7,
+    6.6
+   ],
+   "mean3": 6.8999999999999995,
+   "judges_mean": 6.8
+  },
+  "4": {
+   "specialist": 6.8,
+   "skeptic": 6.8,
+   "judges": [
+    5.6,
+    4.8
+   ],
+   "mean3": 5.733333333333333,
+   "judges_mean": 5.199999999999999
+  },
+  "5": {
+   "specialist": 6.8,
+   "skeptic": 6.8,
+   "judges": [
+    6.3,
+    6
+   ],
+   "mean3": 6.366666666666666,
+   "judges_mean": 6.15
+  }
+ },
+ "final": {
+  "1": 7.86,
+  "2": 6.56,
+  "3": 7.26,
+  "4": 6.54,
+  "5": 6.72
+ },
+ "reviewer_deltas": {
+  "1": {
+   "differentiation": -1.0,
+   "low_failure_risk": -0.5,
+   "demo_reliability": 0.0,
+   "complete_prototype": -0.5
+  },
+  "2": {
+   "reproducible_evidence": -1.0,
+   "differentiation": 0.5,
+   "data_availability": -1.0,
+   "engineering_depth": -0.5
+  },
+  "3": {
+   "differentiation": 0.5,
+   "demo_reliability": -0.5,
+   "reproducible_evidence": -0.5,
+   "measurable_results": 0.5,
+   "low_failure_risk": -0.5,
+   "rubric_alignment": -0.5
+  },
+  "4": {
+   "rubric_alignment": -1.0,
+   "differentiation": 1.0,
+   "measurable_results": -1.0,
+   "demo_reliability": -0.5,
+   "low_failure_risk": -0.5
+  },
+  "5": {
+   "differentiation": -1.0,
+   "low_failure_risk": -2.0,
+   "data_availability": -1.5,
+   "demo_reliability": -1.0
+  }
+ },
+ "synth_deltas": {
+  "1": {
+   "differentiation": 0.5
+  },
+  "2": {
+   "skill_fit": -2.0
+  },
+  "4": {
+   "skill_fit": -0.5
+  },
+  "5": {},
+  "3": {}
+ }
+}

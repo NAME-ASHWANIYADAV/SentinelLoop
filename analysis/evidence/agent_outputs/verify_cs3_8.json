@@ -1,0 +1,15 @@
+{
+ "case_id": 3,
+ "claim": "NFStream installs on Linux with Python 3.12 and provides live early-flow (splt) and 48 statistical features plus nDPI labels under LGPL-3.",
+ "verdict": "confirmed",
+ "evidence": "PyPI JSON for nfstream 6.6.0 (latest, uploaded 2026-02-16) lists 49 prebuilt wheels including nfstream-6.6.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl, plus cp312 manylinux aarch64 and musllinux x86_64/aarch64 wheels; metadata gives requires_python >=3.9, classifiers for Python 3.9-3.14, and license_expression LGPL-3.0-or-later. GitHub release notes: v6.5.4 'Bump python supported version 3.9 -> 3.13', v6.6.0 adds nDPI 5.x support. The GitHub README states statistical_analysis yields 48 post-mortem features (TCP flag counts; min/mean/max/stddev of packet size and IAT per direction), splt_analysis extracts up to 255 early packets as direction/size/IAT sequences, nDPI provides application_name, application_category_name, application_is_guessed and application_confidence (n_dissections default 20), Linux live capture uses AF_PACKET_V3/FANOUT, and the project is LGPLv3. Official docs say binary installers are on PyPI (pip install nfstream) and give Linux build-from-source prerequisites if needed. Caveat: an earlier Linux wheel breakage occurred (v6.5.1 fixed 'broken PyPI Linux wheels'), and the wheel filenames were read from PyPI metadata, not by executing a pip install in this check.",
+ "urls": [
+  "https://github.com/nfstream/nfstream",
+  "https://pypi.org/pypi/nfstream/6.6.0/json",
+  "https://pypi.org/pypi/nfstream/json",
+  "https://github.com/nfstream/nfstream/releases",
+  "https://www.nfstream.org/docs/#installation-guide"
+ ],
+ "correction": "Claim is accurate as stated. Precise form: NFStream 6.6.0 (Feb 2026) ships cp312 manylinux2014 x86_64/aarch64 and musllinux wheels on PyPI (Python 3.9-3.14 supported), uses AF_PACKET_V3 for live Linux capture, exposes splt_analysis early-flow sequences (up to 255 packets: directions, sizes, IATs), 48 statistical_analysis features, and nDPI application/category labels with a confidence flag, under LGPL-3.0-or-later.",
+ "impact_on_candidate": "No negative impact; the fastest-route assumption holds. Two residual hackathon risks remain: (1) live capture needs root/CAP_NET_RAW and a Linux host with AF_PACKET (not WSL1/containers without host networking); (2) nDPI labels are heuristic (check application_is_guessed/application_confidence) and encrypted traffic may be labelled only at the protocol level, so the 'labelled training data' is weak supervision rather than ground truth. The AF_PACKET fallback sniffer is unlikely to be needed for install reasons."
+}

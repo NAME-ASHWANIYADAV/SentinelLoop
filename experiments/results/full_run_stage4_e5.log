@@ -1,0 +1,35 @@
+=== E5 FD001 ===
+[FD001] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 1.47)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.53)
+  fold 3/5: 20 engines predicted out of fold (qhat 6.30)
+  fold 4/5: 20 engines predicted out of fold (qhat 12.01)
+  fold 5/5: 20 engines predicted out of fold (qhat 5.34)
+[FD001] OOF done in 232 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD001_full_bl.csv
+=== E5 FD002 ===
+[FD002] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 52 engines predicted out of fold (qhat 1.77)
+  fold 2/5: 52 engines predicted out of fold (qhat 2.63)
+  fold 3/5: 52 engines predicted out of fold (qhat 1.64)
+  fold 4/5: 52 engines predicted out of fold (qhat 4.15)
+  fold 5/5: 52 engines predicted out of fold (qhat 2.12)
+[FD002] OOF done in 746 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD002_full_bl.csv
+=== E5 FD003 ===
+[FD003] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 20 engines predicted out of fold (qhat 6.69)
+  fold 2/5: 20 engines predicted out of fold (qhat 0.68)
+  fold 3/5: 20 engines predicted out of fold (qhat 4.07)
+  fold 4/5: 20 engines predicted out of fold (qhat 2.99)
+  fold 5/5: 20 engines predicted out of fold (qhat 8.13)
+[FD003] OOF done in 265 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD003_full_bl.csv
+=== E5 FD004 ===
+[FD004] computing out-of-fold CQR predictions (5 folds, full)
+  fold 1/5: 50 engines predicted out of fold (qhat 0.24)
+  fold 2/5: 50 engines predicted out of fold (qhat 1.12)
+  fold 3/5: 50 engines predicted out of fold (qhat 0.99)
+  fold 4/5: 50 engines predicted out of fold (qhat 2.18)
+  fold 5/5: 49 engines predicted out of fold (qhat 0.97)
+[FD004] OOF done in 773 s -> C:\Users\HP\OneDrive\Desktop\tata\experiments\results\oof\FD004_full_bl.csv
+saved C:\Users\HP\OneDrive\Desktop\tata\experiments\results\e5_decision_vs_rmse
+H5: an RMSE-vs-decision-metric inversion exists on 4/4 subsets. Pre-registered criterion (at least one): SUPPORTED.
+exit=0

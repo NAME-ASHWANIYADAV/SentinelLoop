@@ -1,0 +1,188 @@
+{
+ "case_id": 3,
+ "existing_solutions": [
+  {
+   "claim": "cake-autorate is a bash script that adjusts CAKE's bandwidth from load plus RTT/OWD to reflectors, with min/baseline/max rates and a refractory period; GPL-2.0; stable 3.2.1; 573 stars, 1,316 commits; CAKE-specific.",
+   "url": "https://github.com/lynxthecat/cake-autorate",
+   "source_type": "repo",
+   "establishes": "The latency-feedback capacity estimator the team plans to build already exists as production-grade OpenWrt software; the team's Python/HTB version is a re-implementation with attribution, not new science. Also establishes the min/base/max and refractory-period pattern judges will expect.",
+   "label": "verified_fact",
+   "limitations": "Bash and CAKE-only; cannot run on stock WSL2 (no sch_cake); no self-verification or rollback; releases page empty so last-commit date not shown on the fetched page."
+  },
+  {
+   "claim": "sqm-autorate (MPL-2.0, Lua) raises CAKE speed when load >= ~80% and delay is low, lowers it when recent latency exceeds a slow EWMA baseline by >15 ms, runs ~2x/s, and its README warns that random latency spikes unrelated to the user's load can push speeds down to the configured minimum.",
+   "url": "https://github.com/sqm-autorate/sqm-autorate",
+   "source_type": "repo",
+   "establishes": "(1) Load-gating plus EWMA-baseline delay thresholding is the standard estimator design; (2) the maintainers themselves document the false-trigger/noise failure mode that the Technical Skeptic measured on WSL2 (40 ms idle spikes). This is the real engineering limitation the innovation targets.",
+   "label": "verified_fact",
+   "limitations": "Fetched page shows no last-commit date; status may be stale (tester notes dated Jan 2022, release 0.6.1)."
+  },
+  {
+   "claim": "PURPLE (Duncan Cameron, Victoria University of Wellington, APNIC 60, 10 Sept 2025) dynamically controls CAKE's bandwidth parameter with an AIMD loop driven by precise one-way-delay measurements, evaluated against optimistic/wrong static rates; slides state radio capacity estimates are inconsistent and that there is an inevitable latency-bandwidth tradeoff.",
+   "url": "https://conference.apnic.net/60/assets/presentation-files/f6110bfa-918f-430a-95d6-60a4524d62cf.pdf",
+   "source_type": "tech report",
+   "establishes": "AIMD latency-feedback shaping is current (2025) research, not a student novelty; it also establishes that estimator accuracy on variable links is an acknowledged open problem, which makes a ground-truth-scored estimator error metric a credible contribution rather than filler.",
+   "label": "verified_fact",
+   "limitations": "Slide deck, not a peer-reviewed paper; no numeric tables could be extracted from the slides; CAKE-specific."
+  },
+  {
+   "claim": "OpenSync (CPE middleware) integrated OpenWrt's cake-autorate and tested it in a netem-varied simulated FWA uplink, reporting 'promising behavior' with no numbers; page lists limitations: cake-specific, platform-dependent tc, Broadcom/old kernels unsupported; last updated 30 June 2025.",
+   "url": "https://opensync.atlassian.net/wiki/spaces/OCC/pages/40643690571/Latency+Optimisation+under+Variable+Load+with+active+measurements",
+   "source_type": "official doc",
+   "establishes": "Industry CPE stacks (the judges' domain) already treat autorate-style control as the state of the art and already use netem to emulate variable uplinks, so the team's netem testbed is methodologically aligned with industry practice and must be framed as the verification/intent layer above autorate, not as a replacement.",
+   "label": "verified_fact",
+   "limitations": "Vendor wiki page, content truncated in fetch, no quantitative results."
+  },
+  {
+   "claim": "qosify (OpenWrt) is a daemon that configures CAKE and classifies via eBPF into DSCP using port/address rules, DNS-name rules (via ubus add_dns_host), and heuristics on average packet size and packets-per-second for bulk detection; 91 commits, 57 stars; license not shown on page.",
+   "url": "https://github.com/openwrt/qosify",
+   "source_type": "repo",
+   "establishes": "Production deterministic classification without payload inspection uses exactly the port/packet-size/pps heuristics the specialist proposes as baseline; this confirms the deterministic baseline is legitimate and that DNS-name rules (a tempting feature) are the production alternative.",
+   "label": "verified_fact",
+   "limitations": "License and last-commit date not visible in fetched content; mirror of upstream OpenWrt git."
+  },
+  {
+   "claim": "OpenWrt SQM docs: bandwidth is set manually to ~90% of an idle speed test, cake is the recommended qdisc, fq_codel is a faster alternative (~15% more throughput when CPU-bound), SQM is CPU-bound and incompatible with hardware flow offload; no autorate/dynamic bandwidth mentioned.",
+   "url": "https://openwrt.org/docs/guide-user/network/traffic-shaping/sqm",
+   "source_type": "official doc",
+   "establishes": "The widely reproduced baseline is static-rate SQM; the PDF scenario 'WAN drops 100->20 Mbps' is precisely the case static SQM fails, which is why capacity estimation is the scoring differentiator. Also supports the CPU-overhead criterion framing.",
+   "label": "verified_fact",
+   "limitations": "Documentation page; no benchmark data."
+  },
+  {
+   "claim": "LibreQoS is a GPL-2.0 ISP/enterprise traffic-management platform (CAKE + fq_codel, ~5,159 commits, 723 stars) with commercial add-ons; it targets ISPs, not homes, and the page describes no per-flow intent features.",
+   "url": "https://github.com/LibreQoE/LibreQoS",
+   "source_type": "repo",
+   "establishes": "Highest-profile open QoS project is ISP-scale; it does not occupy the intent-aware home-gateway niche the PDF asks for, so the solution space at the system level is open.",
+   "label": "verified_fact",
+   "limitations": "Releases page empty on fetch; last-commit date not shown."
+  },
+  {
+   "claim": "FlowQoS (Seddiki, Feamster et al., ACM HotSDN 2014, pp. 207-208; longer Georgia Tech report 'FlowQoS: Per-Flow Quality of Service for Broadband Access Networks') gives home users per-application QoS via a DNS-based classifier plus lightweight inspection for non-HTTP flows and an SDN rate shaper on OpenWrt.",
+   "url": "https://repository.gatech.edu/entities/publication/5bcce650-b37b-4f2e-9113-bb2107beef13",
+   "source_type": "paper",
+   "establishes": "Academic prior art for 'classify by app, shape per app on the home gateway' is 12 years old; it does not adapt capacity, verify QoE outcomes or roll back, which leaves the verification loop as the open contribution.",
+   "label": "verified_fact",
+   "limitations": "HAL mirror blocked by bot protection; abstracts and search snippets only, full text not read."
+  },
+  {
+   "claim": "DIFFUSE (CAIA, Swinburne, 2011-2012) performed ML flow classification from packet-length and inter-arrival statistics on OpenWrt (TP-Link TL-WR1043ND, >=5,000 concurrent flows, 24.5 Mbps upstream with prioritisation); the OpenWrt port was described as prototype work, not rigorously debugged.",
+   "url": "https://forum.archive.openwrt.org/viewtopic.php?id=36276",
+   "source_type": "community",
+   "establishes": "'ML classifier on a router that prioritises games/VoIP' is a 14-year-old idea with published router CPU numbers; an ML-first submission is not novel and will be benchmarked mentally against this by domain judges.",
+   "label": "verified_fact",
+   "limitations": "Forum archive (closed 2018) plus report abstracts; no current maintained code."
+  },
+  {
+   "claim": "XPDevs/telcom: eBPF/XDP classifier using packet-length variance (GAMING/STREAMING/BULK) plus a PID loop every 5 s on a target RTT (default 20 ms) that adjusts per-class queue depth; C, Apache-2.0/GPL-2 dual; v0.9.0; 1 star, 12 commits; claims (<5 ms gaming latency) with no benchmarks shown.",
+   "url": "https://github.com/XPDevs/telcom",
+   "source_type": "repo",
+   "establishes": "The obvious 'entropy/size heuristic + control loop on target RTT' build exists but is unevaluated; it demonstrates that claims without an evidence pipeline are the norm, which is the gap the team's repeated-run/CI evidence exploits.",
+   "label": "verified_fact",
+   "limitations": "Tiny project; native XDP needs specific NIC drivers (i40e, ice, mlx5, nfp); no activity dates visible."
+  },
+  {
+   "claim": "Confucius (draft-zhang-iccrg-confucius-00, March 2025, expired individual I-D) is a home-router queue management scheme whose age-aware weight adjustment paces the router's bandwidth changes to match end-host congestion-control reactions so senders can back off without overshoot.",
+   "url": "https://datatracker.ietf.org/doc/draft-zhang-iccrg-confucius/",
+   "source_type": "paper",
+   "establishes": "'Policy stability' (how fast a home router should change rates relative to TCP reaction time) is a live research question; citing it justifies the hysteresis/refractory design and the 'rate changes per minute' stability metric.",
+   "label": "verified_fact",
+   "limitations": "Expired draft, abstract only, no numbers read."
+  },
+  {
+   "claim": "arXiv 2509.21026 (Sept 2025) integrates intent-based networking and zero-touch networking with BiLSTM + Q-learning closed loop on an OpenAirInterface testbed to meet bandwidth intents; abstract does not mention rollback or verification of user experience beyond MOS.",
+   "url": "https://arxiv.org/abs/2509.21026",
+   "source_type": "paper",
+   "establishes": "Closest academic 'closed-loop intent' work is cellular/6G and RL-based; no home-gateway work found that verifies a policy against KPIs and rolls back, supporting the novelty claim for verify-or-rollback at the home-gateway scale.",
+   "label": "verified_fact",
+   "limitations": "Abstract only; full-text details (actions, rollback) unverified."
+  },
+  {
+   "claim": "Flent (GPLv3 code, CC-BY-SA docs) runs the RRUL test using netperf >=2.6 (demo mode) plus irtt (preferred) or fping/ping, producing the standard 'all_scaled' download/upload/latency triple plot and ping_cdf.",
+   "url": "https://flent.org/intro.html",
+   "source_type": "official doc",
+   "establishes": "The Bufferbloat community's canonical evidence format (latency-under-load with CDF) that judges from the broadband vertical will recognise; the team's report should emit comparable plots even if it does not use flent itself.",
+   "label": "verified_fact",
+   "limitations": "netperf is not packaged everywhere and flent adds dependencies; using it in CI is optional."
+  },
+  {
+   "claim": "irtt (GPL-2.0, version 0.9.2, Go) measures RTT, OWD (needs synchronised clocks), IPDV/jitter, upstream/downstream loss, out-of-order/duplicates, reporting min/max/mean/median/stddev (no percentiles listed); available as an Ubuntu noble package per the Technical Skeptic.",
+   "url": "https://github.com/heistp/irtt",
+   "source_type": "repo",
+   "establishes": "Free tool for the latency/jitter/loss criterion; because all network namespaces on one host share the kernel clock, OWD in the netns testbed is exact, enabling per-direction (download vs upload) control like cake-autorate's OWD mode.",
+   "label": "verified_fact",
+   "limitations": "No p95/p99 output natively; the team must compute percentiles from the JSON per-packet output; last-commit date not shown."
+  },
+  {
+   "claim": "RFC 8290 (Experimental, Jan 2018): FQ-CoDel combines per-flow queuing with CoDel AQM; defaults target 5 ms, interval 100 ms.",
+   "url": "https://www.rfc-editor.org/rfc/rfc8290.html",
+   "source_type": "official doc",
+   "establishes": "Standards citation for the leaf qdisc and for why 'fq_codel only, no shaping' is a defensible known-safe fallback state.",
+   "label": "verified_fact",
+   "limitations": "Experimental status; fq_codel alone cannot fix a bloated upstream bottleneck without a shaper, which is why HTB is needed."
+  },
+  {
+   "claim": "tc-flower supports ip_proto (tcp/udp/sctp/icmp/icmpv6), src_ip/dst_ip for IPv4 and IPv6 (family set by the filter's protocol option), src_port/dst_port (after ip_proto), ip_tos for the DSCP/traffic-class byte, and classid to steer packets into a class.",
+   "url": "https://man7.org/linux/man-pages/man8/tc-flower.8.html",
+   "source_type": "official doc",
+   "establishes": "5-tuple steering into HTB classes for both IPv4 and IPv6 without netfilter is supported by iproute2, satisfying 'Support IPv4 and, where available, IPv6' and 'open and inspectable enforcement mechanism'.",
+   "label": "verified_fact",
+   "limitations": "Separate filters must be installed for protocol ip and protocol ipv6; DSCP must be expressed as ip_tos with mask."
+  },
+  {
+   "claim": "tc-htb: rate is the guaranteed rate, ceil the borrow limit (defaults to rate), quantum = rate/r2q (r2q default 10), unclassified traffic goes to the 'default' minor id, leaf classes use pfifo by default; the LINK SHARING ALGORITHM section is 'FIXME' and the page is dated 2002.",
+   "url": "https://man7.org/linux/man-pages/man8/tc-htb.8.html",
+   "source_type": "official doc",
+   "establishes": "The starvation floor (non-zero rate per class, ceil = link) and the 'quantum is big, consider r2q' warning the team hit are documented behaviour; the default-class rule is the silent-failure path the Red Team warned about (mis-steered flows fall into default with no error).",
+   "label": "verified_fact",
+   "limitations": "Man page is old and incomplete; current iproute2 behaviour should be checked empirically (the team's smoke test does this)."
+  },
+  {
+   "claim": "tcconfig (MIT, Python 3.9+, 854 stars) wraps tc/netem with tcset/tcdel/tcshow for rate, delay, loss, corruption, duplication, reordering, with per-IP/per-port and IPv6 filters and Docker veth support.",
+   "url": "https://github.com/thombashi/tcconfig",
+   "source_type": "repo",
+   "establishes": "The impairment tool a typical team will reach for; it is fine for impairment but it is a netem wrapper, not a QoS controller, so using it does not differentiate.",
+   "label": "verified_fact",
+   "limitations": "Release/version date not shown on page; requires sch_netem (present on WSL2 6.6.x)."
+  },
+  {
+   "claim": "GitHub topic 'traffic-shaping' lists 94 repos (top: 3proxy, tcconfig 854, LibreQoS 723, sqm-scripts 288, TrafficToll 260) and topic 'qos' lists 278 repos (top: firehol, lizardfs, LibreQoS, go-tc 532, TrafficToll); none is described as an adaptive or intent-aware home QoS controller.",
+   "url": "https://github.com/topics/qos",
+   "source_type": "repo",
+   "establishes": "Crowding is at the primitive level (tc wrappers, shapers); the intent-aware, self-verifying home controller niche is empty on GitHub topic pages.",
+   "label": "verified_fact",
+   "limitations": "Topic pages only show tagged repos; untagged student projects may exist and were not found by web search."
+  },
+  {
+   "claim": "'Piece of CAKE' (Hoiland-Jorgensen, Taht, Morton, arXiv 1804.07617, 2018) describes CAKE's shaper with overhead compensation, per-flow and per-host fairness, DiffServ handling and ACK filtering.",
+   "url": "https://arxiv.org/abs/1804.07617",
+   "source_type": "paper",
+   "establishes": "Citable reference design for the production boundary section; CAKE delivers most of the latency win 'for free', so the team must claim the verification/intent layer, not the AQM.",
+   "label": "verified_fact",
+   "limitations": "Abstract only; numeric latency results not re-read."
+  },
+  {
+   "claim": "A Mininet + Ryu repo exists that classifies encrypted traffic with an ML model in a Ryu controller app ('encrypted_network_traffic_classification_in_sdn_cbr'), and the Ryu book documents REST-configured OpenFlow QoS queues matched by IP/port.",
+   "url": "https://github.com/rafifmalikdzaki/encrypted_network_traffic_classification_in_sdn_cbr",
+   "source_type": "community",
+   "establishes": "The SDN/Mininet/Ryu + ML pattern is the common student template for 'adaptive QoS'; it uses OpenFlow queues rather than Linux tc, so it maps poorly to the PDF's 'Use Linux traffic control' constraint.",
+   "label": "unverified_assumption",
+   "limitations": "Seen only in search snippets; repo not fetched, license/activity unknown."
+  },
+  {
+   "claim": "Tata Elxsi TELIPORT Season 2 (July 2025 news): a Ramdeobaba University team won the national title with a Rs 2,00,000 prize from 6,000+ participating teams; Season 3 results were not found; no judging preferences, weights or round formats are published.",
+   "url": "https://www.thehitavada.com/Encyc/2025/7/5/Ramdeobaba-University-students-shine-at-national-level.html",
+   "source_type": "community",
+   "establishes": "Only that competition scale is large; nothing about judge preferences can be inferred, so all competitor behaviour below is hypothesis.",
+   "label": "verified_fact",
+   "limitations": "Regional newspaper item; says nothing about what the winning project was or how it was judged."
+  }
+ ],
+ "generic_student_implementation": "HYPOTHESIS (no data on actual TELIPORT Season 4 entrants exists; inferred from the tutorials, repos and student templates found): A typical competent team will build one of two things. (G1, most common) A Linux box, Raspberry Pi or Mininet/VM 'router' with an HTB tree (interactive/default/bulk) and fq_codel leaves copied from the tc tutorials, classification by a static port/DSCP/IP table (possibly nDPI or NFStream labels), capacity set as a fixed number or re-measured with iperf3/speedtest every N seconds, a Flask/Express API that sets a 'priority device' and a React/Grafana dashboard reading tc -s; evidence is one before/after ping screenshot under iperf3. (G2, the 'AI' variant) A Mininet + Ryu SDN testbed with OpenFlow queues, or a CNN/LSTM/RandomForest trained on ISCXVPN2016 CSVs to 95%+ accuracy, whose output is wired loosely (or not at all) into enforcement; the 'intent' is a chatbot/LLM that maps 'prioritise my call' to a rule. Both variants treat capacity as known or measured by an intrusive speed test, never verify that a change improved KPIs, have no rollback or safe-state logic, run each scenario once by hand, and label nothing as emulation.",
+ "generic_weaknesses_under_rubric": "Scored against the five unweighted criteria named in the PDF (no weights are given, so each is treated equally): (1) 'Accuracy of classification and link estimation': G1 has no link estimator at all (static rate), so the 100->20 Mbps scenario either bloats (rate set at 100) or wastes capacity (rate set at 20); G2's ISCX-trained model is scored on 2016 traffic without QUIC/ECH and is never scored on the live testbed, and neither exposes confidence or a correction path, which is a hard PDF constraint ('Classifiers must expose confidence and allow correction'). (2) 'Reduction in interactive latency, jitter and packet loss': a one-off ping screenshot has no repetition, no percentiles (p95/p99 are what judges in the bufferbloat tradition look for), and no jitter/loss numbers; Mininet/OpenFlow queue variants are not 'Linux traffic control' enforcement in the way the PDF wording implies. (3) 'Fairness and absence of starvation': static HTB trees commonly set the bulk class rate to near zero or omit a floor, and no Jain index or per-host throughput is reported; G2 usually ignores fairness entirely. (4) 'Adaptation speed and policy stability': nothing adapts in G1; in G2 an RL/ML policy flips rates with no hysteresis, and no team measures time-to-recover or rate changes per minute. (5) 'CPU overhead, reproducibility and clarity of results': DPI/nDPI and CNN inference inflate CPU; Raspberry Pi Wi-Fi demos are irreproducible; ISCX pcaps (~28 GB) cannot be shipped and the PDF requires 'Generated data and network impairment settings must be included'; no one scripts reset->impair->collect->report as the PDF's 'Automated or scripted demonstration' bullet demands. Cross-cutting PDF constraints most teams will miss: policy rollback, 'bounded, observable and reversible' remediation with return to a known safe state, emulation labelling, third-party licence documentation, and IPv6.",
+ "feasible_innovation": "ONE innovation: a 'hypothesis-verify-rollback' actuator wrapped around an otherwise standard load-gated AIMD latency-feedback shaper, scored against ground truth. The real engineering limitation it addresses is documented by the incumbents themselves: sqm-autorate's README warns that latency spikes unrelated to load drive the rate to the configured minimum, PURPLE's slides call radio capacity estimates inconsistent, and the Technical Skeptic measured 40 ms idle RTT spikes on WSL2 that would false-trigger the specialist's 'delta > 25 ms for 3 samples' rule. Open-loop autorate controllers (cake-autorate, sqm-autorate, PURPLE, qosify, telcom) only ever react further in the same direction; none checks whether its last action helped, and none returns to the previous known-good policy. Design: (a) every policy action (rate change, class move, intent override) is written to an action ledger as a hypothesis {trigger evidence, predicted KPI effect, verification window T, previous policy snapshot}; (b) triggers are load-gated (act only when utilisation of the shaped class tree exceeds a threshold, as sqm-autorate does) and use median-of-N delay samples against a slow EWMA baseline, so single VM-scheduling spikes do not count; (c) after T seconds the controller compares measured p95 RTT, IPDV and per-class throughput against the prediction; if the predicted improvement did not materialise (or bulk throughput fell below its starvation floor), it restores the snapshot and doubles the refractory period for that trigger (bounded exponential backoff), which directly implements the PDF's 'verifies whether the policy improved user experience', 'policy rollback' and 'bounded, observable and reversible' wording; (d) a watchdog returns the datapath to 'fq_codel only, no HTB shaping' if the controller process dies or the ledger shows more than K consecutive rollbacks (known safe state); (e) because the testbed controls the true WAN capacity via netem/HTB, the report prints estimator error (%) and convergence time (s) against ground truth, plus the ledger's prediction hit-rate, which no autorate project publishes. Everything is plain Python over iproute2 (tc -j -s for queue stats, tc flower for steering, HTB rate/ceil for floors), FastAPI for /intent (with TTL) and /correct, and the team's existing React skills for the dashboard, so it stays inside the team's verified WSL2 environment and skill set.",
+ "minimum_evidence_to_prove_it": "All runs scripted (make demo SCENARIO=n RUNS=10), each run resets the namespaces, applies the impairment from a committed YAML, collects JSON and writes the report with bootstrap 95% CIs; the whole suite re-run in GitHub Actions ubuntu-latest inside a netns (with a first step that modprobes sch_htb/sch_netem/sch_fq_codel and fails fast). Minimum tables: E1 (ablation that proves the innovation, scenario 'WAN 100->20 Mbps at t=30 s'): three arms sharing one codebase, (i) no controller (pfifo/default qdisc), (ii) open-loop AIMD only (verification disabled, the generic competitor), (iii) verify-or-rollback; report p95 RTT after the drop, time-to-recover until p95 RTT <= idle baseline + 15 ms, rate changes per minute (stability), estimator error % vs the true 20 Mbps at t+30 s, bulk throughput; N >= 10 runs each. Then repeat E1 with injected noise on the WAN leg (netem delay jitter or periodic 60 ms spikes with no capacity change): the pass criterion is that arm (ii) degrades toward its minimum rate while arm (iii) rolls back and stays within 15% of true capacity with fewer rate flips, with non-overlapping CIs on rate changes/min and estimator error. E2 (scenario 'ISO download during a video conference'): irtt p50/p95/p99 RTT, IPDV and loss for the call flow and bulk throughput as a percentage of link, baseline vs optimised, N >= 10; target in the Skeptic's own WSL2 measurement was 638 ms -> 41 ms mean RTT with bulk at 82% of link, so the report should show p95 reduction with CI plus a bulk floor never below the configured guaranteed rate. E3 (three TVs + gamer): Jain fairness index across the four hosts and gamer p95 RTT, baseline vs optimised. E4 (fault injection): kill -9 the controller and corrupt a policy mid-run; measure seconds until the watchdog restores fq_codel-only, and show the ledger entry; one rollback event replayed live in the demo. E5 (CPU): controller process CPU% and RSS from /proc at full emulated load, and tc apply latency per action. E6 (classification, honestly scoped): confusion matrix with a confidence histogram on held-out self-generated captures that include at least one unseen-port UDP flow and one QUIC-like UDP/443 flow, plus a demonstration that POST /correct re-pins a flow and the next verification window records the KPI effect. E7: one CI run link and artifact showing the same direction of results on a second machine, labelled as emulation and with the shared-VM timing caveat.",
+ "ambitious_extension": "Only after E1-E7 are green: (1) per-direction control using exact one-way delay, which is possible in the netns testbed because all namespaces share one kernel clock, so irtt OWD is precise and the controller can shape download (via IFB ingress redirect) and upload independently, mirroring cake-autorate's OWD mode but with ground-truth scoring; label the IFB path clearly and keep it behind a flag. (2) A CAKE reference arm in CI only (sch_cake is in the ubuntu-latest linux-modules package but not in stock WSL2), reported as 'HTB+fq_codel+controller vs CAKE+autorate-style control', so the judges see the team understands the production CPE path. (3) An early-flow ML classifier (NFStream splt features over the first 8-10 packets, gradient-boosted trees) trained only on self-generated labelled captures, with ISCXVPN2016 used at most for pre-training and never redistributed, reported as an ablation against the deterministic baseline per the PDF's 'compare it with a deterministic baseline' rule; keep it optional and drop it if it does not beat the baseline on held-out data. (4) A dual-stack IPv6 run of scenario 1 using the same flower filters with protocol ipv6.",
+ "features_to_avoid": "(1) LLM/chatbot intent interfaces: the PDF explicitly discounts AI that 'merely adds a conversational interface'; a typed /intent {host, class, ttl_s} endpoint scores the same bullet with zero risk. (2) ISCXVPN2016-centred deep learning (CNN/LSTM on ~28 GB pcaps): 2016 traffic without QUIC/ECH, cannot be shipped with the repo, licence basis is a site policy statement rather than a named licence, and it feeds only one of five criteria. (3) nDPI/DPI or DNS/SNI-name classification as the primary path: it reads hostnames from payload-adjacent fields, invites the 'private payloads' objection and breaks under ECH; qosify shows the production baseline is ports plus packet-size/pps heuristics. (4) Mininet/Ryu/OpenFlow queues: not Linux traffic control, extra controller stack, and judges from a CPE practice will see it as an SDN classroom template. (5) Real Wi-Fi hardware or Raspberry Pi live demos as the primary evidence: irreproducible timing, and the PDF asks for reproducible impairment settings; a Pi demo only as a labelled appendix if one is already on hand. (6) Custom eBPF/XDP datapaths, DPDK, or building a custom WSL kernel for CAKE: large risk, no criterion rewards it, and sch_cake is available in CI. (7) Reinforcement-learning rate controllers: unstable, unexplainable rate flips are penalised under 'policy stability'; AIMD with hysteresis and verification is enough. (8) Full Prometheus/Grafana/InfluxDB/Kubernetes stacks: time sink; a single FastAPI + static React dashboard reading the JSON evidence files is sufficient. (9) Ingress (download) shaping via IFB in the first iteration: direction mistakes produce convincing but wrong results (Red Team note); add it only in the extension with explicit per-direction tests. (10) Per-application 'app store' style rules (Netflix, Zoom, Steam lists): brittle, privacy-adjacent, and outside the PDF's 'broad traffic categories'.",
+ "novelty_honesty": "Already standard and widely reproduced (the team must say so in the report): HTB class tree with fq_codel leaves and tc filters (tutorials since the 2002 HTB man page; VyOS/sqm-scripts defaults), DSCP/port-table classification and packet-size/pps heuristics (qosify, 2021+), latency-feedback AIMD capacity estimation with min/base/max and a refractory period (cake-autorate GPL-2.0, sqm-autorate MPL-2.0, PURPLE APNIC 60 Sept 2025, OpenSync integration June 2025), ML flow-statistics classification on home routers (DIFFUSE 2011-2012, FlowQoS 2014), Jain index and RRUL/flent latency-under-load plots as evidence formats, and netem for impairment (OpenSync uses it too). The latency win itself (hundreds of ms -> tens of ms under load) is delivered by fq_codel/CAKE and a correctly set shaper, not by the team's code; claiming it as novel would be called out by a broadband-practice judge. Genuinely distinctive, as far as live research on 2026-10-18 could establish: (a) treating every shaping action as a logged hypothesis with a prediction, a bounded verification window, automatic restoration of the previous policy and backoff, which no autorate project, qosify, LibreQoS, FlowQoS, telcom or the closed-loop IBN paper found (arXiv 2509.21026) does, and which maps one-to-one onto four PDF constraints (verify improvement, rollback, bounded/observable/reversible remediation, known safe state); (b) publishing estimator error and convergence time against a controlled ground-truth capacity plus a prediction hit-rate, where PURPLE and cake-autorate can only compare against static settings; (c) a noise-robustness experiment that reproduces the failure mode sqm-autorate's own README describes and shows the fix; (d) a one-command, repeated-run, CI-reproduced evidence pipeline with confidence intervals and a requirement-to-evidence traceability table. None of (a)-(d) is research-grade novelty; they are engineering-rigour differentiators, and that is what the PDF's five criteria and nine expected outputs reward. Search limits: GitHub topic pages, web search and several repo/paper fetches were used; untagged student repos and non-English prior work could exist and were not found; no TELIPORT judging preferences or Season 3 results were located, so every statement about competitor behaviour above is hypothesis."
+}

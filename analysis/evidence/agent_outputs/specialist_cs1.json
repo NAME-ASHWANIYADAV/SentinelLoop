@@ -1,0 +1,395 @@
+{
+ "case_id": 1,
+ "case_title": "Self-Healing Machines: Predictive Maintenance for a Connected Fleet (Tata Elxsi TELIPORT Season 4, Case Study 1 \"ACTG\")",
+ "web_research_performed": true,
+ "problem_interpretation": "WHAT THE PDF ASKS (source_derived_requirement, from C:/Users/HP/AppData/Local/Temp/claude/C--Users-HP-OneDrive-Desktop-tata/f983720e-713e-4c7b-9ebb-a0f567283d43/scratchpad/clean/cs1.md): build a CLOSED-LOOP system for a fleet of connected machines that (1) ingests streamed/batch sensor data, (2) detects early degradation (anomaly detection), (3) predicts Remaining Useful Life (RUL) in cycles, and (4) automatically raises a maintenance work order via a rule-based Triage Agent, with humans only handling exceptions. Intended users are implied: fleet maintenance operations (planners/technicians) and the ML/MLOps team that keeps the model alive. Four mandatory layers: Data Engineering (read batch or streaming, clean missing values/basic noise, rolling-window features such as averages/trends), Machine Learning (abnormal-behaviour detection + RUL regression), MLOps (experiment + model-version tracking, a simple retraining flow when new data arrives, a basic monitoring view), Agents (NON-LLM rule-based Triage Agent that reads model output, decides severity, creates a work order). GROUND RULES / CONSTRAINTS: handle mild class imbalance (failures rarer than normal readings); pipeline must run end-to-end without manual steps once data is provided; lightweight, NO LLM, agent uses simple rules/thresholds; open-source tools only; design must be documented so it can be explained in review. DATASET IS MANDATED: NASA C-MAPSS Turbofan Engine Degradation (21 sensors + 3 operating settings, run-to-failure, true RUL for test), four subsets FD001-FD004 of increasing difficulty; teams may use one subset (FD001 suggested) or all four \"for a more challenging solution\". Official link given: data.nasa.gov/dataset/cmapss-jet-engine-simulated-data. DELIVERABLES: Round 1 (Idea Submission) = design deck with architecture diagram (data -> features -> model -> agent -> work order), cleaning/feature approach, choice of anomaly-detection and RUL models with reasoning, Triage Agent logic. Round 2 (Detailed Submission / Proof of Concept) = working pipeline on chosen subset(s), trained model with RUL predictions, simple monitoring dashboard, agent auto-generating a work order + a demo retraining run. SUGGESTED (optional) TOOLS: Python/Pandas/NumPy (optionally PySpark); scikit-learn (optionally TensorFlow/PyTorch); MLflow + Streamlit or Dash; plain Python for the agent. EVALUATION CRITERIA (exact, with weights): Round 1 - Problem understanding 15%, Architecture clarity 20%, Data engineering approach 15%, ML approach & reasoning 20%, MLOps & agent logic 15%, Dataset coverage 10%, Communication quality 5%. Round 2 - Working pipeline 20%, Data engineering quality 15%, Model performance 15%, MLOps in action 10%, Agent behavior 10%, Dataset coverage 10%, Demo & explanation 20%. NO hardware, compute, safety, regulatory or integration requirements are stated; no external system integration (CMMS, Kafka, cloud) is required. AMBIGUITIES / INTERPRETATION RISKS: (a) \"streaming\" is optional (\"batch or streaming\") but the narrative says machines \"continuously stream\", so a streaming simulation is a cheap way to look faithful; (b) \"mild imbalance\" is odd for a regression task - it must be interpreted as the anomaly/severity-classification side (healthy cycles vastly outnumber near-failure cycles) and addressed explicitly, or judges will think the ground rule was ignored; (c) \"Dataset coverage\" (10% in both rounds) is explicitly about handling \"varying complexity\" - i.e. FD002/FD004 six operating regimes and FD003/FD004 two fault modes - so single-subset FD001 solutions cap this criterion; (d) \"Model performance ... sensibly interpreted metrics\" rewards honest RMSE + NASA score with correct protocol over a headline number; (e) the dominant weights are Working pipeline (20%) and Demo & explanation (20%), i.e. 40% of Round 2 is engineering completeness and articulation, NOT model accuracy (15%); (f) \"work order\" format is unspecified - a structured JSON/SQLite record with severity, due-by cycle, evidence and human-escalation flag is a safe interpretation; (g) PDF says 21 sensors but readme column list goes to \"sensor measurement 26\" - the files actually have 26 columns = unit, cycle, 3 settings, 21 sensors (verified locally).",
+ "top_concepts": [
+  {
+   "name": "Concept A - 'Fleet Prognostics Loop': config-driven all-four-subset pipeline with uncertainty-aware RUL, drift-triggered retraining and a risk-aware rule-based triage agent",
+   "summary": "One Python package (CLI: `pdm run --subset FD00x --mode batch|stream`) that: loads any C-MAPSS subset; cleans and (for FD002/FD004) clusters the 3 operating settings into 6 regimes with KMeans and normalises sensors per regime; builds rolling mean/std/slope features; trains an Isolation-Forest-plus-health-index anomaly detector and a gradient-boosted RUL regressor (scikit-learn HistGradientBoosting, piecewise-linear RUL capped at 125) with split-conformal prediction intervals calibrated on held-out engines; logs every run, metric and model to local MLflow and registers the champion; replays the test set as a cycle-by-cycle stream into a Streamlit dashboard; runs Evidently/River drift checks on incoming windows and triggers a retraining job that promotes the new model only if unit-wise validation RMSE improves; and feeds anomaly score + RUL interval lower bound into a deterministic Triage Agent that emits severity-tiered work orders (JSON + SQLite) with a human-escalation path for conflicting evidence.",
+   "why_feasible": "Every component is verified free/open source (MLflow Apache-2.0, Streamlit Apache-2.0, Evidently Apache-2.0 v0.7.23, River BSD-3, scikit-learn). I ran the core ML on this very Windows laptop in CPU-only Python 3.12: HistGradientBoosting with rolling features reaches last-cycle test RMSE 14.22 (FD001), 16.10 (FD002), 13.72 (FD003), 17.91 (FD004) in 95-350 s per subset including 5-fold unit-wise CV. Dataset downloads today (12.4 MB zip, HTTP 200). Team skill profile (Python backend, REST, DB, React, ML integration) matches: this is mostly software engineering around modest ML.",
+   "weakness": "The C-MAPSS space is crowded (53 repos under the GitHub 'cmapss' topic alone); the ML itself is not novel and judges will have seen GBM/LSTM RUL plots many times. Differentiation must come from the closed-loop integration (intervals -> agent, drift -> retrain, honest leakage-audited evaluation), which is harder to make visually striking than a flashy model."
+  },
+  {
+   "name": "Concept B - 'Deep-sequence accuracy chase': CNN/LSTM/Transformer RUL on FD001 with heavy tuning, thin pipeline",
+   "summary": "Focus effort on a PyTorch 1D-CNN or LSTM over 30-cycle windows on FD001 (optionally FD003), targeting the literature band (DCNN ~12.6 RMSE, transformer ~11.4), with a minimal MLflow log, a Streamlit page and a threshold agent bolted on at the end.",
+   "why_feasible": "Dozens of public reference implementations exist (e.g. jiaxiang-cheng PyTorch LSTM/Transformer repos, 186-311 stars); FD001 trains on CPU in minutes; the team has AI/ML exposure.",
+   "weakness": "Model performance is only 15% of Round 2 while Working pipeline + Demo are 40%; a 2-3 RMSE-point gain over GBM buys little rubric weight. High risk of looking like a reproduction of a public notebook. Deep models are harder to explain in review, harder to retrain live in a demo, and sequence windows invite the exact window-level leakage that a 2026 preprint shows can inflate results dramatically. Single-subset focus caps Dataset coverage (10%)."
+  },
+  {
+   "name": "Concept C - 'Streaming-first digital twin': message-queue ingestion with online learning and online drift detection",
+   "summary": "Simulate each engine as a producer publishing cycles to a broker (Redpanda/Kafka or a lightweight in-process queue), consume with a River online regressor + ADWIN drift detector, incrementally update the model, and show live per-engine dashboards and auto-generated work orders.",
+   "why_feasible": "River provides documented ADWIN and incremental regressors; Docker images for Redpanda/Kafka are free; the team's backend/Node experience suits producer/consumer services.",
+   "weakness": "Highest integration complexity and demo fragility (broker, consumers, state) for a criterion set that does not require streaming at all. Online regressors on C-MAPSS are typically weaker than batch GBMs, so Model performance drops. MLflow's experiment/version tracking fits batch retraining better than continuous updates, so 'MLOps in action' becomes harder to show cleanly. A broker outage during the live demo is a classic hackathon failure."
+  }
+ ],
+ "recommended_concept": {
+  "name": "Fleet Prognostics Loop (Concept A), with a streaming REPLAY layer borrowed from Concept C but no broker",
+  "description": "A single reproducible Python repo (`make demo` / one CLI command) covering all four C-MAPSS subsets through configuration, not code forks. Pipeline stages: (1) INGEST: parse the official space-separated txt files; a `stream` mode replays test engines cycle-by-cycle through an in-process generator (no Kafka) so the dashboard and agent react live. (2) CLEAN: schema validation (26 columns, monotone cycles per unit), injected-missing-value handling (forward-fill within unit + flag), light EMA denoising, drop near-constant sensors (1,5,6,10,16,18,19) for FD001/FD003, KMeans(6) regime clustering on the three operating settings + per-regime scaling fitted on TRAIN ONLY for FD002/FD004. (3) FEATURES: rolling mean/std/slope over W=20 cycles, cycles-since-start, regime id. (4) MODELS: (a) anomaly = IsolationForest on healthy-phase windows plus a monotone health-index from the GBM (explainable), (b) RUL = scikit-learn HistGradientBoostingRegressor on capped RUL (cap 125) with split-conformal prediction intervals (90% nominal) calibrated on held-out ENGINES; optional LightGBM/1D-CNN challenger logged side-by-side in MLflow. (5) EVALUATION: unit-wise GroupKFold with random truncation of held-out engines to mimic the official test protocol; official test RMSE + PHM08 asymmetric score (convention stated explicitly); interval coverage and width; metrics per subset. (6) MLOPS: MLflow local file store; every run logs params, metrics, feature list, data hash, model artifact; Model Registry stages champion/challenger; `retrain` job is triggered by (i) new data file appearing or (ii) Evidently/River drift alarm on feature distributions or residuals; promotion gate = validation RMSE and coverage must not regress. (7) AGENT: deterministic Triage Agent (plain Python, unit-tested) that consumes {anomaly_score, rul_point, rul_lower, rul_upper, drift_flag, data_quality_flags} and emits a work order with severity (CRITICAL/HIGH/MEDIUM/WATCH/NONE), recommended action, due-by cycle, evidence trail and an `escalate_to_human` flag when evidence conflicts (e.g. anomaly high but RUL high, or interval too wide, or drift active). Work orders persisted to SQLite and shown on the dashboard. (8) DASHBOARD: Streamlit tabs - fleet overview, engine drill-down (sensor trends, RUL with interval band, anomaly score), model/MLflow metrics, drift monitor, work-order queue, retraining log.",
+  "differentiating_innovation": "Three things typical student submissions do not do, each of which is checkable by a judge: (1) UNCERTAINTY-AWARE TRIAGE - the agent acts on the conformal LOWER bound of RUL, not the point estimate, which directly operationalises the PHM08 asymmetry (late predictions penalised more) and makes the 'human for exceptions' rule concrete (escalate when the interval is too wide or evidence conflicts); published work shows conformal intervals on C-MAPSS reach ~88-92% empirical coverage at 90% nominal with a GBM base model, so this is credible, not aspirational. (2) LEAKAGE-AUDITED EVALUATION - a documented protocol (engine-level splits, train-only scaler/cluster fitting, truncated validation engines, cap stated, score convention stated) with a one-slide 'how we could have cheated' comparison; my own run shows the trap concretely: naive 'last cycle of held-out training engines' validation gives RMSE 2.5 on FD001 vs 14.2 on the real test, because training engines always end at RUL=0. (3) DRIFT-TRIGGERED, GATED RETRAINING across all four subsets - demo retraining is not a button but a response to a detected shift (e.g. feed FD002 regimes into a FD001-trained model, watch drift fire, retrain, see promotion gate accept/reject), which makes 'MLOps in action' and 'Dataset coverage' reinforce each other.",
+  "why_this_one": "It maximises weighted rubric coverage for THIS team: 40% of Round 2 is Working pipeline + Demo & explanation, which is backend/system engineering (the team's strength), while the ML stays explainable and CPU-trainable in minutes (verified locally). All four subsets are covered by configuration, taking the full 10% Dataset coverage in both rounds. Every claim can be reproduced by a judge with one command on a laptop, which is what 'credible results with sensibly interpreted metrics' rewards. The differentiators are integration-level and honesty-level, so they survive a sceptical reviewer, unlike a half-point RMSE gain from an unexplainable transformer."
+ },
+ "resources": [
+  {
+   "claim": "The NASA PCoE Prognostics Data Repository lists dataset #6 'Turbofan Engine Degradation Simulation' with a direct S3 download; publications are asked to acknowledge the repository and donors; use is 'at your own risk', no separate licence.",
+   "url": "https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/",
+   "source_type": "official doc",
+   "establishes": "Official source and terms for the mandated dataset.",
+   "label": "verified_fact",
+   "limitations": "No explicit licence text; acknowledgement is requested, not legally specified."
+  },
+  {
+   "claim": "The S3 zip https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip returns HTTP 200, Content-Length 12,429,152 bytes, ETag a83e8f128c59fc5614a4ca2e42a2e30c, Last-Modified 18 Sep 2022, and contains CMAPSSData.zip with train_/test_/RUL_FD001-FD004.txt, readme.txt and 'Damage Propagation Modeling.pdf'.",
+   "url": "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip",
+   "source_type": "dataset card",
+   "establishes": "The dataset is downloadable today (2026-10-18) with free tools; exact file layout.",
+   "label": "verified_fact",
+   "limitations": "Downloaded and unzipped on this machine; availability could change."
+  },
+  {
+   "claim": "The official link in the PDF (data.nasa.gov/dataset/cmapss-jet-engine-simulated-data) exists, states 'License not specified', asks for the Saxena et al. PHM08 citation, lists the FD001-FD004 table (100/100, 260/259, 100/100, 248/249 trajectories) and links CMAPSSData.zip at https://data.nasa.gov/docs/legacy/CMAPSSData.zip, which 302-redirects to a signed S3 URL.",
+   "url": "https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data",
+   "source_type": "official doc",
+   "establishes": "The PDF's official URL is live; terms; subset table.",
+   "label": "verified_fact",
+   "limitations": "A direct curl from this machine to data.nasa.gov timed out once (port 443 connect failure) while WebFetch succeeded; treat the PCoE S3 link as the more reliable mirror."
+  },
+  {
+   "claim": "Local verification of file contents: FD001 train 20,631 rows/100 units, test 13,096 rows/100 units; FD002 53,759/260 and 33,991/259; FD003 24,720/100 and 16,596/100; FD004 61,249 rows/249 train units and 41,214 rows/248 test units with a 248-length RUL vector (note: readme says 248 train/249 test for FD004 - the files are the other way round). 26 columns: unit, cycle, 3 settings, 21 sensors.",
+   "url": "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip",
+   "source_type": "dataset card",
+   "establishes": "Exact data sizes for scoping; a readme/file inconsistency worth a slide bullet.",
+   "label": "verified_fact",
+   "limitations": "Counted with pandas on the downloaded files."
+  },
+  {
+   "claim": "Saxena, Goebel, Simon, Eklund (PHM08) define the challenge score as an asymmetric exponential of d = estimated RUL - true RUL, with constants a1=10 and a2=13, late predictions penalised more heavily; test-set RULs ranged 10-150 cycles; data is contaminated with sensor and process noise; 21 of 58 model outputs are exposed.",
+   "url": "https://c3.ndc.nasa.gov/dashlink/static/media/publication/2008_IEEEPHM_CMAPPSDamagePropagation.pdf",
+   "source_type": "paper",
+   "establishes": "The official scoring function and noise characteristics.",
+   "label": "verified_fact",
+   "limitations": "Text extraction of eq. 11 is ambiguous about which branch gets 10 vs 13; the literature convention is exp(-d/13)-1 for d<0 (early) and exp(d/10)-1 for d>=0 (late). State the convention explicitly when reporting."
+  },
+  {
+   "claim": "The de facto C-MAPSS score convention used across papers is exp(-d/13)-1 for early and exp(d/10)-1 for late predictions, d = predicted - true; the score is unnormalised and outlier-sensitive so RMSE is always reported alongside.",
+   "url": "https://arxiv.org/pdf/2104.05049",
+   "source_type": "paper",
+   "establishes": "How to compute and interpret the NASA score honestly.",
+   "label": "verified_fact",
+   "limitations": "Some papers flip sign or constants; comparisons across papers need protocol checks."
+  },
+  {
+   "claim": "Published FD001 test RMSE reference points: MLP ~37.6 and SVR ~21.0 (Babu et al. 2016, via survey), CNN 18.45, LSTM 16.14 (Zheng et al. 2017), DCNN 12.61 (Li et al. 2018), transformer with adaptive reweighting 11.36 (EAAI v.133); a 2026 CNN-BiLSTM-attention paper reports 17.52.",
+   "url": "https://arxiv.org/pdf/2010.03207",
+   "source_type": "paper",
+   "establishes": "Honest band for FD001: classical ~14-21, deep ~11-13.",
+   "label": "verified_fact",
+   "limitations": "Figures collected from several papers with differing windows/caps; the Li 2018 attribution of 12.61 was not confirmed from the primary source."
+  },
+  {
+   "claim": "Robinson (IJPHM 2026, vol 17 no 1) pairs a gradient boosting regressor with asymmetric conformalized quantile regression on all four C-MAPSS subsets: test RMSE 13.26-16.85 and empirical coverage 88-92% at 90% nominal.",
+   "url": "https://www.papers.phmsociety.org/index.php/ijphm/article/view/4724",
+   "source_type": "paper",
+   "establishes": "A GBM + conformal intervals across all four subsets is a credible, published design; sets expectation for coverage.",
+   "label": "verified_fact",
+   "limitations": "Only ranges available from the abstract page; per-subset values not checked."
+  },
+  {
+   "claim": "Javanmardi & Hüllermeier (arXiv 2212.14612, IJPHM 2023) conformalise CNN and gradient-boosting RUL predictors on C-MAPSS and provide code (repo alireza-javanmardi/conformal-RUL-intervals, Python, FD001 example, 10% calibration hold-out).",
+   "url": "https://arxiv.org/abs/2212.14612",
+   "source_type": "paper",
+   "establishes": "Reference implementation pattern for split-conformal RUL intervals.",
+   "label": "verified_fact",
+   "limitations": "Repo shows no licence file; use as a reference, do not copy code."
+  },
+  {
+   "claim": "A 2026 preprint (arXiv 2607.16493) shows naive sliding-window splits can inflate C-MAPSS classification accuracy from a genuine 20-60% to 99.9% and proposes a chunk-based, leakage-audited split evaluated over five seeds.",
+   "url": "https://arxiv.org/abs/2607.16493",
+   "source_type": "paper",
+   "establishes": "Leakage is a real, documented failure mode; engine-level splitting and audited preprocessing-fit policy are required.",
+   "label": "verified_fact",
+   "limitations": "Single preprint; magnitudes are from that paper's setup."
+  },
+  {
+   "claim": "Standard preprocessing in the literature: drop near-constant sensors 1,5,6,10,16,18,19 in FD001/FD003 (14 informative sensors remain); for FD002/FD004 cluster the three operating settings into six regimes with KMeans and scale sensors per regime, fitting scalers on train only.",
+   "url": "https://arxiv.org/pdf/2212.14612",
+   "source_type": "paper",
+   "establishes": "The Data engineering approach for 'varying complexity' (Dataset coverage criterion).",
+   "label": "verified_fact",
+   "limitations": "Exact handling of settings differs across papers (15 vs 17 inputs)."
+  },
+  {
+   "claim": "Local baseline run (scripts/baseline.py, scikit-learn 1.4.0, Python 3.12, CPU laptop): rolling mean/std/slope over 20 cycles + all raw columns, RUL capped at 125, HistGradientBoostingRegressor, last-cycle official test evaluation -> FD001 RMSE 14.22 / score 314; FD002 16.10 / 1247; FD003 13.72 / 382; FD004 17.91 / 1825 (RMSE vs capped truth). RandomForest: 14.36 / 16.94 / 15.31 / 18.16. Naive mean-RUL predictor: RMSE 41.9-45.6. Runtime 94-352 s per subset including 5-fold GroupKFold.",
+   "url": "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip",
+   "source_type": "tech report",
+   "establishes": "What a no-tuning explainable baseline achieves on all four subsets with free tools on a laptop; the baseline-vs-improved yardstick for the demo.",
+   "label": "verified_fact",
+   "limitations": "Single seed, no tuning, cap applied to both prediction target and truth; RMSE vs raw (uncapped) truth is 15.38/27.73/15.39/28.89 - report both."
+  },
+  {
+   "claim": "MLflow is Apache-2.0 (28.4k stars), MLflow 3 is current, and tracking logs to a local `mlruns` directory by default with no server, database or cloud required; SQLite backend supported; Model Registry needs a database-backed store.",
+   "url": "https://mlflow.org/docs/latest/ml/tracking/",
+   "source_type": "official doc",
+   "establishes": "MLOps layer is free and runs offline on a laptop.",
+   "label": "verified_fact",
+   "limitations": "This machine has mlflow 2.15.1 installed; pin versions in requirements."
+  },
+  {
+   "claim": "Evidently is Apache-2.0, latest 0.7.23 released 11 Sep 2026, requires Python >=3.10, runs on pandas DataFrames offline with a DataDriftPreset (PSI and 20+ statistical tests).",
+   "url": "https://pypi.org/project/evidently/",
+   "source_type": "official doc",
+   "establishes": "Free drift detection for the monitoring view.",
+   "label": "verified_fact",
+   "limitations": "API has changed across 0.4 -> 0.7; pin the version."
+  },
+  {
+   "claim": "River is BSD-3-Clause with a documented ADWIN drift detector (delta=0.002 default, update(x), drift_detected attribute) and incremental models.",
+   "url": "https://riverml.xyz/latest/api/drift/ADWIN/",
+   "source_type": "official doc",
+   "establishes": "Lightweight per-stream drift detection for the streaming replay mode.",
+   "label": "verified_fact",
+   "limitations": "Online regressors are generally weaker than batch GBM on this data (technical_inference)."
+  },
+  {
+   "claim": "scikit-learn IsolationForest is documented (contamination='auto' default, score_samples lower = more abnormal, decision_function negative = outlier); current docs show scikit-learn 1.9.1.",
+   "url": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html",
+   "source_type": "official doc",
+   "establishes": "Explainable, free anomaly detector that fits the 'mild imbalance' ground rule.",
+   "label": "verified_fact",
+   "limitations": "Needs healthy-phase training windows; threshold must be calibrated on validation engines."
+  },
+  {
+   "claim": "Streamlit is Apache-2.0.",
+   "url": "https://cdn.jsdelivr.net/gh/streamlit/streamlit@master/README.md",
+   "source_type": "repo",
+   "establishes": "Dashboard tool is free.",
+   "label": "verified_fact",
+   "limitations": "On this machine `import streamlit` crashed due to a plotly version mismatch (AttributeError: Icicle) - a concrete demo-fragility warning; pin streamlit+plotly together."
+  },
+  {
+   "claim": "GitHub topic 'cmapss' lists 53 repositories; the most-starred are PyTorch Transformer (311) and LSTM (186) RUL repos from 2021, kpeters/exploring-nasas-turbofan-dataset (154, GPL-3.0, notebooks FD001-FD004 incl. survival analysis and condition-based standardisation), tilman151/rul-datasets (72, updated Mar 2026), and many 1-7 star student end-to-end notebooks (LSTM/GRU/Transformer, XGBoost).",
+   "url": "https://github.com/topics/cmapss",
+   "source_type": "repo",
+   "establishes": "What 'generic' looks like and what judges have seen; also that no public repo combines all four subsets + MLflow + drift-gated retraining + rule-based triage.",
+   "label": "verified_fact",
+   "limitations": "Absence from a topic page is not proof of absence; do not copy GPL code into a permissively licensed submission."
+  },
+  {
+   "claim": "A Hugging Face mirror (THULab/nasa_cmapss_rul, CC0-1.0 per card) exists with all four subsets and per-cycle test RUL expanded as final_RUL + max_cycle - cycle.",
+   "url": "https://huggingface.co/datasets/THULab/nasa_cmapss_rul",
+   "source_type": "dataset card",
+   "establishes": "Backup mirror; shows the standard way to expand test RUL labels.",
+   "label": "verified_fact",
+   "limitations": "Derived from a third-party conversion; viewer broken; use NASA originals as the source of truth."
+  },
+  {
+   "claim": "Kaggle mirror behrad3d/nasa-cmaps is used via kagglehub in public notebooks.",
+   "url": "https://www.kaggle.com/datasets/behrad3d/nasa-cmaps",
+   "source_type": "community",
+   "establishes": "A second backup mirror.",
+   "label": "unverified_assumption",
+   "limitations": "Page content did not render for me; licence and file list unverified."
+  },
+  {
+   "claim": "No official TELIPORT Season 4 web page, prior-winner list or judging commentary was found by search; a search snippet claims Season 3 had 18,800+ teams and 6,000+ submissions.",
+   "url": "https://www.tataelxsi.com/news-and-events/tata-elxsi-hosts-successful-innov-te-1st-gen-ai-hackathon-contest-in-collaboration-with-aws",
+   "source_type": "community",
+   "establishes": "No evidence about judging preferences beyond the PDF; scale suggests very high competition volume.",
+   "label": "unverified_assumption",
+   "limitations": "Season 3 numbers came from a search snippet, not a fetched official page."
+  }
+ ],
+ "feasibility_analysis": "DATA EXISTS AND IS ACCESSIBLE (verified_fact): I downloaded the official PCoE S3 archive (12,429,152 bytes, HTTP 200) and unzipped CMAPSSData.zip: train/test/RUL files for FD001-FD004, readme.txt and the Saxena 2008 PDF. The PDF's data.nasa.gov page is live and links the same zip (licence 'not specified', citation requested; PCoE says acknowledge and use at own risk). Total data is ~45 MB of text, ~160k training rows across all four subsets - trivially handled by pandas on a laptop; PySpark is unnecessary and would be scope inflation. CORE FUNCTIONALITY DEMOABLE BY STUDENTS (verified_fact): On this Windows laptop, CPU-only, scikit-learn HistGradientBoosting with simple rolling features trained and evaluated all four subsets in 94-352 s each including 5-fold unit-wise CV, producing last-cycle test RMSE 14.22/16.10/13.72/17.91 and NASA scores 314/1247/382/1825. That is already within the 'classical' literature band (SVR ~21, CNN 18.45, LSTM 16.14) and within ~2-3 RMSE of published deep models on FD001 (DCNN 12.61, transformer 11.36), and comparable to a 2026 IJPHM GBM+conformal paper (13.26-16.85 across subsets). FREE TOOLS (verified_fact): MLflow (Apache-2.0, local mlruns default), Streamlit (Apache-2.0), Evidently 0.7.23 (Apache-2.0), River (BSD-3), scikit-learn, pandas - all installed or pip-installable; no GPU, no paid API, no cloud needed. ALREADY STANDARD (what judges have seen, verified from the GitHub topic page): FD001-only notebooks; LSTM/CNN/Transformer RUL curves; dropping sensors 1,5,6,10,16,18,19; RUL cap 125; KMeans(6) regime normalisation for FD002/4; a Streamlit page with sensor line charts; an MLflow screenshot. None of these differentiate. ACHIEVABLE NOVELTY (technical_inference, grounded in published work): (1) split-conformal RUL intervals feeding the triage agent's severity rule - published coverage 88-92% at 90% nominal with a GBM base, so a student team can expect similar if calibration uses held-out engines; (2) drift-gated retraining with a promotion gate (champion/challenger in MLflow registry) demonstrated by shifting from FD001 regimes to FD002 regimes; (3) a leakage-audited evaluation protocol, with a 'how to cheat' comparison: my run shows naive last-cycle validation on held-out TRAINING engines gives RMSE 2.48 on FD001 because every training engine ends at RUL=0 - the real test is 14.22; this is a crisp, verifiable talking point for 'sensibly interpreted metrics'. MEASURABLE RESULT VS BASELINE: naive mean-RUL predictor RMSE 41.9-45.6 -> RandomForest 14.4-18.2 -> HGBR 13.7-17.9 (verified); conformal coverage target >=88% at 90% nominal; agent precision/recall on 'should have raised work order within X cycles of failure' computed against true RUL; drift detector true-positive on regime shift, false-alarm rate on same-regime replay. HIDDEN DIFFICULTIES (technical_inference): (a) FD002/FD004 RMSE against RAW (uncapped) truth is 27.7/28.9 vs 16.1/17.9 against capped truth - teams must state which they report or a judge will catch the discrepancy; (b) regime clustering must be fit on train only and applied to test, and FD003/FD004's two fault modes make a single monotone health index noisier; (c) conformal intervals on test engines are wide early in life (RUL cap makes the target flat) - the agent must treat 'wide interval' as 'insufficient evidence', not 'healthy'; (d) 'mild imbalance' needs explicit handling: severity classes derived from RUL bins are heavily skewed to 'NONE/WATCH' - use class weights or threshold tuning on validation engines and report per-class recall; (e) environment fragility: on this machine LightGBM 4.7.0 crashed with an access violation and Streamlit failed to import due to a plotly mismatch - pin every dependency and ship a lock file plus a Dockerfile; (f) Windows path/encoding issues in the readme (non-UTF-8 bytes) - read files with explicit encoding. WHAT A SCEPTICAL INDUSTRY ENGINEER WOULD CHALLENGE: 'Your RUL cap of 125 makes the problem easier - what happens uncapped?' (answer with both numbers); 'How do you know the agent's thresholds generalise?' (thresholds tuned on validation engines, reported with a confusion matrix on test engines); 'Why not an LSTM?' (15% weight, explainability, CPU retraining in seconds during the demo, and a logged challenger shows you tried); 'Is this just a notebook?' (CLI pipeline, tests, MLflow lineage, one-command reproduction); 'Does retraining actually improve anything?' (show the promotion gate rejecting a worse challenger as well as accepting a better one); 'How would this work with real fleet telemetry?' (replay mode shows the ingestion contract; honest statement that C-MAPSS is simulated with one snapshot per cycle).",
+ "architecture_and_mvp": "ARCHITECTURE (data -> features -> model -> agent -> work order, as the PDF requires): [Source files or stream generator] -> `ingest/` (schema validation: 26 cols, per-unit monotone cycles; `stream` mode yields one cycle per engine per tick) -> `clean/` (missing-value forward-fill within unit + quality flags; EMA denoise; sensor drop list per subset; KMeans(6) regime model + per-regime StandardScaler for FD002/FD004, fit on train only, persisted as artifacts) -> `features/` (rolling mean/std/slope W=20, cycle index, regime id; feature manifest logged) -> `models/` (IsolationForest anomaly on healthy windows + GBM health index; HistGradientBoostingRegressor RUL on cap-125 target; split-conformal calibration on 15% held-out ENGINES producing q_hat for 90% intervals; optional LightGBM/1D-CNN challenger) -> `eval/` (GroupKFold by engine with random truncation; official test RMSE, PHM08 score with stated convention, coverage, width; per-subset JSON report) -> `mlops/` (MLflow local file store; run per subset per model; registry stages champion/challenger; `retrain.py` triggered by new-data watcher or drift alarm; promotion gate: val RMSE <= champion and coverage >= 0.85) -> `monitor/` (Evidently DataDriftPreset on feature windows vs training reference; River ADWIN on residuals in stream mode; results persisted) -> `agent/triage.py` (pure functions, unit tested; inputs: rul_point, rul_lower, rul_upper, anomaly_score, drift_flag, data_quality_flags; rule table: CRITICAL if rul_lower <= 10 or (anomaly high and rul_point <= 25); HIGH if rul_lower <= 25; MEDIUM if rul_lower <= 50; WATCH if anomaly elevated; ESCALATE_TO_HUMAN if interval width > 60 or drift_flag or quality flags or conflicting evidence; de-duplication so one open work order per engine; thresholds tuned on validation engines) -> `workorders/` (SQLite table + JSON export: id, engine, subset, severity, due_by_cycle, evidence {rul, interval, anomaly, drift}, created_at, status, assignee=human if escalated) -> `dashboard/` (Streamlit: Fleet overview heatmap; Engine detail with sensor trends, RUL + interval band, anomaly score; Model metrics pulled from MLflow; Drift panel; Work-order queue with accept/close; Retraining log). Orchestration: a single `pipeline.py run --subset FD001 --mode batch` (and `--all`) plus `make demo`; Dockerfile; pinned requirements; pytest for cleaning, features, scoring function and agent rules; README with architecture diagram and reproduction steps. MINIMUM WORKING PROTOTYPE (what must exist for Round 2, in build order): (1) loader + cleaner + features for FD001 with tests (day 1); (2) HGBR RUL + official test evaluation + MLflow logging (day 1-2); (3) conformal intervals + IsolationForest anomaly (day 2); (4) triage agent + SQLite work orders + tests (day 2-3); (5) Streamlit dashboard reading MLflow + SQLite (day 3-4); (6) config for FD002-FD004 with regime handling, run all four, record table (day 4); (7) drift monitor + retrain job + promotion gate + scripted demo scenario (day 5); (8) stream replay mode, Dockerfile, README, deck (day 5-6). Stretch (only if everything above is green): LightGBM/1D-CNN challenger logged in MLflow, cost-aware severity (expected cost of early vs late maintenance), N-CMAPSS mention in future work.",
+ "demo_plan": "SCRIPTED 8-10 MINUTE DEMO WITH NUMBERS ON SCREEN. Metric definitions (all computed by `eval/metrics.py`, unit-tested, and logged to MLflow): RMSE = sqrt(mean((rul_pred - rul_true)^2)) over the LAST cycle of each official test engine (n = 100/259/100/248), reported BOTH against cap-125 truth and raw truth; PHM08 score = sum over engines of exp(-d/13)-1 for d<0 and exp(d/10)-1 for d>=0 with d = pred - true (convention printed on the slide); interval coverage = fraction of test engines whose true RUL lies in [lower, upper] at 90% nominal; mean interval width; anomaly lead time = cycles between first sustained anomaly flag and failure on validation engines; agent metrics = precision/recall of CRITICAL/HIGH work orders against ground truth 'true RUL <= 25', false-alarm rate on engines with true RUL > 60, escalation rate; drift metrics = detection on regime-shift replay (yes/no + cycle index) and false-alarm count on same-subset replay; retraining = validation RMSE before/after and gate decision. BASELINE vs IMPROVED TABLE (values verified locally for the baseline column; improved column is the target to fill in): FD001 naive-mean 41.94 -> RF 14.36 -> HGBR 14.22 (score 314) -> tuned HGBR + regime/feature improvements target 13-14; FD002 44.93 -> 16.94 -> 16.10 (1247) -> target <=15.5; FD003 43.70 -> 15.31 -> 13.72 (382) -> target <=13; FD004 45.57 -> 18.16 -> 17.91 (1825) -> target <=17. Any improved number must come from the same evaluation script with a logged MLflow run id shown on screen. DEMO FLOW: (1) `make demo` starts MLflow UI + Streamlit from a clean clone (shows 'minimal manual intervention'); (2) batch run on FD001 prints the metrics table and the MLflow run id; (3) dashboard: fleet heatmap, pick engine with low RUL, show interval band and anomaly score; (4) stream replay of 5 test engines: watch RUL drop, interval narrow, anomaly rise, Triage Agent create a HIGH then CRITICAL work order with evidence JSON, and one ESCALATE_TO_HUMAN case where interval is wide; (5) drift scenario: feed FD002 cycles into the FD001 champion, Evidently/ADWIN flag drift, retrain job runs (< 2 min on CPU), promotion gate compares val RMSE and either promotes or rejects, registry shows the new version; (6) run `--all` summary table for all four subsets; (7) 'honest metrics' slide: capped vs raw RMSE, the RMSE 2.48 leakage trap vs 14.22 real, and literature band 11-21 for context; (8) pytest run output. FALLBACKS: pre-recorded screen capture of steps 4-5; pre-populated MLflow store and SQLite so the dashboard works even if training is skipped; all demos offline.",
+ "risks_and_objections": [
+  {
+   "risk": "Looks like one of 53+ public C-MAPSS repos (judges have seen RUL curves and an MLflow screenshot many times).",
+   "severity": "high",
+   "mitigation": "Lead with the closed loop, not the model: interval-driven triage, drift-gated retraining, leakage-audited protocol, all four subsets via config; show the 'how we could have cheated' slide; cite the published coverage/RMSE band to show awareness."
+  },
+  {
+   "risk": "Environment fragility at demo time (verified on this machine: LightGBM access violation; Streamlit import failure from plotly version mismatch).",
+   "severity": "high",
+   "mitigation": "Use scikit-learn HGBR as the primary model; pin all versions in requirements.txt/lock; Dockerfile; rehearse from a clean clone; pre-populated MLflow/SQLite stores; pre-recorded backup video."
+  },
+  {
+   "risk": "Metric misreporting: cap-125 vs raw truth differs by ~12 RMSE on FD002/FD004; score convention flips exist in the literature.",
+   "severity": "high",
+   "mitigation": "Report both RMSEs, print the score formula and convention on the slide, unit-test the scoring function against hand-computed values."
+  },
+  {
+   "risk": "Data leakage or over-optimistic validation (window-level splits; scalers/KMeans fit on all data; using last cycles of training engines as validation).",
+   "severity": "high",
+   "mitigation": "Engine-level GroupKFold with random truncation; fit all preprocessing on train folds only; document the protocol; show the 2.48 vs 14.22 comparison as evidence the team understands it."
+  },
+  {
+   "risk": "'Mild imbalance' ground rule ignored because RUL is a regression task.",
+   "severity": "medium",
+   "mitigation": "Make severity a derived classification with reported class distribution, class-weighted thresholds tuned on validation engines, per-class recall and a confusion matrix for the agent."
+  },
+  {
+   "risk": "Conformal intervals too wide early in life, making the agent either silent or over-escalating.",
+   "severity": "medium",
+   "mitigation": "Use interval width as an explicit 'insufficient evidence' signal with WATCH status; tune width threshold on validation; show coverage and width per RUL bucket."
+  },
+  {
+   "risk": "Retraining demo is a hollow button press.",
+   "severity": "medium",
+   "mitigation": "Trigger retraining from a detected drift event and show the promotion gate both accepting a better model and rejecting a worse one; show registry versions and lineage."
+  },
+  {
+   "risk": "Scope creep into Kafka/PySpark/deep models that add fragility without rubric weight.",
+   "severity": "medium",
+   "mitigation": "In-process stream generator instead of a broker; pandas only; deep model only as a logged challenger after everything else is green."
+  },
+  {
+   "risk": "Unknown team size/time; Round 1 deck quality (Communication 5% but also Architecture 20%) under-invested.",
+   "severity": "medium",
+   "mitigation": "Build the architecture diagram and agent decision table first; keep one owner for the deck; reuse the same diagram in README and dashboard."
+  },
+  {
+   "risk": "data.nasa.gov intermittently unreachable (one curl timeout observed).",
+   "severity": "low",
+   "mitigation": "Script downloads from the PCoE S3 link with checksum (ETag a83e8f12...) and keep a local copy; Hugging Face mirror as fallback."
+  },
+  {
+   "risk": "Licence hygiene: copying from GPL-3.0 reference repos.",
+   "severity": "low",
+   "mitigation": "Write own code; cite references in README; keep submission MIT/Apache."
+  }
+ ],
+ "competitor_hypotheses": "HYPOTHESES (not verified about actual TELIPORT entrants; inferred from the public GitHub 'cmapss' topic and Kaggle-style notebooks): H1 - The modal submission is FD001-only, a Jupyter notebook converted to a script, LSTM or CNN trained for a headline RMSE of 13-17, a Streamlit page with sensor line charts, one MLflow screenshot, and an if/else 'agent' on the point RUL (e.g. RUL < 30 -> work order). H2 - A minority will attempt a transformer or copy a high-star PyTorch repo and spend most time tuning, delivering weaker pipeline/MLOps/agent layers. H3 - Some teams will over-engineer infrastructure (Kafka, Airflow, Docker Compose with five services) and have fragile demos. H4 - Many will report RMSE against capped truth without saying so, use window-level splits, or fit scalers on train+test, and will not state the score convention. H5 - Few will cover FD002/FD004 regime handling or all four subsets. HOW TO OUTPERFORM (mapped to rubric): Working pipeline 20% - one command, tests, Dockerfile, offline; Demo 20% - scripted scenario with numbers, honest-metrics slide, articulate trade-offs (GBM vs deep, cap vs uncapped, intervals vs points); Data engineering 15% - regime clustering fitted on train only, quality flags, feature manifest, reproducible seeds; Model performance 15% - credible RMSE in the published band plus intervals with measured coverage, baseline-vs-improved table; MLOps 10% - drift-triggered retraining with a promotion gate and registry lineage rather than a button; Agent 10% - deterministic rule table on interval lower bound + anomaly + drift with escalation and de-duplication, unit-tested with a confusion matrix; Dataset coverage 10% - all four subsets through config with a per-subset results table. The combination (interval-aware agent + drift-gated retraining + audited evaluation + four subsets) does not exist in any public repo I found, so it is distinctive yet entirely built from standard, explainable parts.",
+ "effort_and_unknowns": "RELATIVE EFFORT (person-days of focused work, assuming 3-4 students with Python; deadline and team size unknown): loader/cleaner/features with tests 1.0; RUL model + official evaluation + MLflow 1.0; conformal intervals + IsolationForest 0.75; triage agent + SQLite + tests 1.0; Streamlit dashboard 1.5; config for FD002-FD004 incl. regime handling 1.0; drift monitor + retrain job + gate 1.25; stream replay mode 0.5; Dockerfile/pins/README/make demo 0.75; Round 1 deck 1.0; demo rehearsal + backup video 0.5. Total ~10-11 person-days, i.e. one focused week for a 3-person team, parallelisable into three tracks (data/ML, MLOps/agent, dashboard/deck). Compute: CPU laptop; verified per-subset train+5-fold CV 1.5-6 min; retraining in demo < 2 min. DEPENDENCIES: Python 3.10+ (Evidently requires >=3.10), pandas, scikit-learn, mlflow, streamlit (+ pinned plotly), evidently, river, pytest; optional lightgbm/torch for a challenger (LightGBM crashed on this Windows box - treat as optional). UNKNOWNS: team size and time budget; whether judges run the code or watch a video (plan for both); whether Round 2 is live or recorded; exact Round 1 deck format/length; whether judges weigh FD004 results heavily (it is the hardest and our baseline is 17.9); how much credit the 'imbalance' rule carries; data.nasa.gov reachability on the day (mitigated by S3 link and local copy); whether a teammate can own the frontend polish (React experience helps but Streamlit is faster).",
+ "rubric_scores": [
+  {
+   "criterion": "Round 1 - Problem understanding",
+   "weight": "15%",
+   "expected_score_0_10": 9,
+   "rationale": "Closed-loop framing, explicit treatment of imbalance, protocol and 'human for exceptions' show accurate grasp; grounded in verified dataset facts (incl. readme/file FD004 mismatch)."
+  },
+  {
+   "criterion": "Round 1 - Architecture clarity",
+   "weight": "20%",
+   "expected_score_0_10": 8.5,
+   "rationale": "Linear data->features->model->agent->work order diagram with named components, artifacts and triggers; risk of overloading the diagram with drift/registry detail - keep a simple and a detailed version."
+  },
+  {
+   "criterion": "Round 1 - Data engineering approach",
+   "weight": "15%",
+   "expected_score_0_10": 8.5,
+   "rationale": "Train-only regime clustering, sensor drop list per subset, quality flags, rolling features and leakage-audited splits are all literature-backed and specific."
+  },
+  {
+   "criterion": "Round 1 - ML approach & reasoning",
+   "weight": "20%",
+   "expected_score_0_10": 8.5,
+   "rationale": "GBM + conformal + IsolationForest justified against published RMSE/coverage bands and the 15% weight on accuracy; awareness of cap/score conventions and leakage; a logged deep challenger shows breadth."
+  },
+  {
+   "criterion": "Round 1 - MLOps & agent logic",
+   "weight": "15%",
+   "expected_score_0_10": 8.5,
+   "rationale": "Drift-triggered retraining with a promotion gate and a deterministic severity rule table with escalation is a practical, explainable plan."
+  },
+  {
+   "criterion": "Round 1 - Dataset coverage",
+   "weight": "10%",
+   "expected_score_0_10": 9,
+   "rationale": "All four subsets via config with explicit regime and dual-fault handling directly answers 'scales its approach accordingly'."
+  },
+  {
+   "criterion": "Round 1 - Communication quality",
+   "weight": "5%",
+   "expected_score_0_10": 8,
+   "rationale": "Depends on deck discipline; consistent terminology from the PDF and one diagram reused everywhere."
+  },
+  {
+   "criterion": "Round 2 - Working pipeline",
+   "weight": "20%",
+   "expected_score_0_10": 8.5,
+   "rationale": "One-command, offline, tested pipeline is squarely in the team's backend strength; verified that the ML core runs in minutes on a laptop; main risk is dependency breakage (observed), mitigated by pinning and Docker."
+  },
+  {
+   "criterion": "Round 2 - Data engineering quality",
+   "weight": "15%",
+   "expected_score_0_10": 8,
+   "rationale": "Clean, reproducible, train-only fitted preprocessing with tests; FD003/FD004 dual fault modes add some noise to the health index."
+  },
+  {
+   "criterion": "Round 2 - Model performance",
+   "weight": "15%",
+   "expected_score_0_10": 7.5,
+   "rationale": "Verified baseline RMSE 13.7-17.9 is credible and in the published classical band but ~2-5 points above deep SOTA; honest dual reporting and intervals with measured coverage earn the 'sensibly interpreted' half of the criterion."
+  },
+  {
+   "criterion": "Round 2 - MLOps in action",
+   "weight": "10%",
+   "expected_score_0_10": 8,
+   "rationale": "MLflow runs/registry, drift alarm, retrain job and gate are demonstrable live; Evidently/River API churn is a moderate risk."
+  },
+  {
+   "criterion": "Round 2 - Agent behavior",
+   "weight": "10%",
+   "expected_score_0_10": 8.5,
+   "rationale": "Deterministic, unit-tested rules on interval lower bound + anomaly + drift with escalation and de-duplication, validated by precision/recall against true RUL."
+  },
+  {
+   "criterion": "Round 2 - Dataset coverage",
+   "weight": "10%",
+   "expected_score_0_10": 9,
+   "rationale": "All four subsets with a per-subset results table (already produced in baseline form)."
+  },
+  {
+   "criterion": "Round 2 - Demo & explanation",
+   "weight": "20%",
+   "expected_score_0_10": 8,
+   "rationale": "Scripted scenario with on-screen numbers, honest-metrics slide and trade-off articulation; execution quality of the live demo is the biggest variable."
+  }
+ ],
+ "official_score_potential_0_10": 8.3,
+ "execution_adjusted_0_10": 7.6,
+ "dimension_scores": {
+  "skill_fit": 9,
+  "complete_prototype": 8,
+  "measurable_results": 9,
+  "demo_reliability": 7,
+  "differentiation": 6,
+  "data_availability": 10,
+  "free_tools_feasibility": 10,
+  "engineering_depth": 7,
+  "rubric_alignment": 9,
+  "low_failure_risk": 8,
+  "explainability": 8,
+  "reproducible_evidence": 9
+ },
+ "argument_against": "This is the most crowded, most-templated problem a judge can be handed: C-MAPSS has underpinned hundreds of papers and at least 53 public GitHub repos, so the ceiling for 'wow' is low and the floor of competition is high - many teams will produce a working FD001 pipeline, and separating yourself requires integration-level and honesty-level craft that is harder to make visible in a 10-minute demo than a striking model result. Model performance carries only 15%, so the ML-savvy members get little rubric return for their strongest skill, and the differentiators I recommend (conformal intervals, drift-gated retraining, audited evaluation) can be dismissed by a judge as 'nice engineering hygiene' rather than innovation. The case also offers no real-world integration, hardware or domain angle to tell a memorable story - it is a benchmark exercise - and if the competition scale is anything like the claimed Season 3 figures (tens of thousands of teams, unverified), the odds of standing out with a benchmark-dataset solution are structurally worse than in a case where fewer teams can even get data working. Finally, the verified environment fragility (LightGBM crash, Streamlit import failure on this very machine) shows that a 'simple' Python stack can still break on demo day, and the rubric's 40% on pipeline + demo punishes that harshly.",
+ "critical_claims_to_verify": [
+  {
+   "claim": "The official C-MAPSS archive is downloadable today without login from https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip (HTTP 200, 12,429,152 bytes, ETag a83e8f128c59fc5614a4ca2e42a2e30c) and contains CMAPSSData.zip with train_/test_/RUL_FD001-FD004.txt, readme.txt and the Saxena PDF; FD004 files have 249 train units and 248 test units (readme says the reverse).",
+   "url": "https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/",
+   "why_critical": "The whole case depends on the mandated dataset being obtainable with free tools; the FD004 count detail is a checkable fact used in the write-up."
+  },
+  {
+   "claim": "A no-tuning scikit-learn HistGradientBoostingRegressor with rolling mean/std/slope features (W=20) and RUL capped at 125 achieves last-cycle official test RMSE of about 14.2 (FD001), 16.1 (FD002), 13.7 (FD003), 17.9 (FD004) against capped truth, with NASA scores ~314/1247/382/1825, in 1.5-6 minutes per subset on a CPU laptop (script: C:/Users/HP/AppData/Local/Temp/claude/C--Users-HP-OneDrive-Desktop-tata/f983720e-713e-4c7b-9ebb-a0f567283d43/scratchpad/scripts/baseline.py).",
+   "why_critical": "This is the baseline column of the demo plan and the basis for the feasibility and model-performance scores; if it does not reproduce, the plan's numbers are wrong."
+  },
+  {
+   "claim": "Split-conformal or CQR intervals on top of a gradient-boosting RUL model reach roughly 88-92% empirical coverage at 90% nominal on C-MAPSS (Robinson, IJPHM 2026; Javanmardi & Hüllermeier 2022/2023).",
+   "url": "https://www.papers.phmsociety.org/index.php/ijphm/article/view/4724",
+   "why_critical": "The recommended differentiator (interval-driven triage) is only credible if coverage near nominal is achievable by a student team on held-out engines."
+  },
+  {
+   "claim": "MLflow tracking and the Model Registry run fully locally (file store `mlruns` or SQLite backend) with no server or cloud, under Apache-2.0; Evidently 0.7.x (Apache-2.0, Python >=3.10) and River (BSD-3, ADWIN) run offline on pandas data.",
+   "url": "https://mlflow.org/docs/latest/ml/tracking/",
+   "why_critical": "The MLOps and monitoring layers are scored (10% each in Round 2 combined with agent) and must work offline on a laptop with free tools."
+  },
+  {
+   "claim": "The PHM08 score is an asymmetric exponential of d = predicted - true RUL; the literature convention is exp(-d/13)-1 for d<0 and exp(d/10)-1 for d>=0 (late penalised more), although the original PDF's equation text lists a1=10, a2=13 in a way that is ambiguous about branch assignment.",
+   "url": "https://c3.ndc.nasa.gov/dashlink/static/media/publication/2008_IEEEPHM_CMAPPSDamagePropagation.pdf",
+   "why_critical": "The 'honest metrics' slide and the agent's asymmetry rationale rest on reporting the score correctly; a fact-checker should confirm the branch constants from the PDF figure/equation."
+  }
+ ],
+ "confidence": "high",
+ "confidence_rationale": "Every load-bearing claim was verified live on 2026-10-18: the dataset was downloaded and inspected locally; the baseline numbers come from a script I ran on all four subsets; tool licences/availability were fetched from official pages (MLflow, Evidently/PyPI, River docs, scikit-learn docs, Streamlit README); the scoring function was extracted from the original PHM08 PDF; literature RMSE and conformal coverage bands come from fetched paper pages. Residual uncertainty: team size/deadline are unknown (execution-adjusted score reflects this); literature FD001 numbers come from secondary tables with differing protocols; the Kaggle mirror licence and any TELIPORT Season 4 judging context remain unverified; and judges' subjective weighting of 'innovation' versus engineering hygiene cannot be known from the PDF."
+}

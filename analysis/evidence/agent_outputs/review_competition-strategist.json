@@ -1,0 +1,265 @@
+{
+ "role": "Competition Strategist (adversarial review): differentiation, solution-space crowding, rubric objectivity, judge-visible evidence",
+ "findings": [
+  {
+   "case_id": 1,
+   "finding": "Crowding is real and quantified, but the crowd does not occupy the differentiator. GitHub topic 'cmapss' lists 53 repos (top: PyTorch Transformer 311 stars, rul_codes_open 221, LSTM 186, kpeters 154, N-CMAPSS_DL 123, tilman151/rul-datasets 72 updated Mar 2026) and topic 'remaining-useful-life' lists 217 repos. None of the visible repo names/descriptions mention MLflow, drift, retraining or a triage agent. The generic submission is therefore an FD001 sequence-model notebook plus a dashboard; the closed loop (drift-gated retraining + interval-driven rule agent + all four subsets) is absent from public prior art. verified_fact.",
+   "severity": "high",
+   "evidence": "Fetched https://github.com/topics/cmapss (53 repositories; no MLflow/drift/retraining/agent mentions) and https://github.com/topics/remaining-useful-life (217 repositories). Specialist omitted rul_codes_open (221) and N-CMAPSS_DL (123) from its list but the conclusion holds.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://github.com/topics/cmapss",
+    "https://github.com/topics/remaining-useful-life"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "The specialist's load-bearing local numbers reproduce. I re-ran scripts/baseline.py on FD001 with python -I: unit-wise 5-fold CV RMSE all-rows/last-cycle = 14.18 / 2.48; official test last-cycle HGBR RMSE 14.22 (capped truth), 15.38 (raw truth), NASA score 314.0, n=100; RF 14.36 / 338.4; naive mean-RUL 41.94. The 'how we could have cheated' slide (2.48 vs 14.22) is therefore verified, not asserted. Caveats: elapsed 156 s vs the claimed 94-352 s band (within band), and a joblib/_winapi.CreateProcess traceback appeared during the RandomForest n_jobs=-1 step on this Windows box, confirming the environment-fragility warning. verified_fact.",
+   "severity": "high",
+   "evidence": "Local re-run 2026-10-18 of C:/Users/HP/AppData/Local/Temp/claude/C--Users-HP-OneDrive-Desktop-tata/f983720e-713e-4c7b-9ebb-a0f567283d43/scratchpad/scripts/baseline.py against dl_cmapss/.../inner; dataset files train/test/RUL_FD001-FD004 present on disk.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "The recommended ML differentiator (GBM + conformal intervals across all four subsets) is itself already published: Robinson, IJPHM vol 17 no 1 (27 Apr 2026) uses a gradient boosting regressor + asymmetric CQR on all four C-MAPSS subsets, test RMSE 13.26-16.85, coverage 88-92% at 90% nominal. The team's novelty therefore lies only at the integration layer (interval lower bound -> triage severity, drift -> gated retraining, leakage-audited protocol); it must cite Robinson and position itself as 'operationalising' it, or a well-read judge will call the ML a reproduction. verified_fact.",
+   "severity": "medium",
+   "evidence": "Fetched https://www.papers.phmsociety.org/index.php/ijphm/article/view/4724 (title, author, abstract confirm GBM + CQR, RMSE 13.26-16.85, coverage 88-92%).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.papers.phmsociety.org/index.php/ijphm/article/view/4724"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "The leakage preprint is mischaracterised. arXiv 2607.16493 (17 Jul 2026) says naive sliding-window splits can inflate classification accuracy to 99.9% or drive it to 0%, and reports ~84% genuine C-MAPSS classification accuracy and R2 0.86 under its chunk-based protocol; it does NOT say 'genuine 20-60%'. Using the specialist's wording on the honest-metrics slide would be a citable error in front of ML judges. verified_fact.",
+   "severity": "medium",
+   "evidence": "Fetched https://arxiv.org/abs/2607.16493; abstract text checked.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://arxiv.org/abs/2607.16493"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Rubric objectivity is the highest of the five cases and this is the decisive structural advantage, not the ML. Case 1 is the only PDF that (a) gives explicit weights for every criterion, (b) mandates a Round 2 'Proof of Concept' working build ('Working pipeline 20% - runs end-to-end ... minimal manual intervention'; 'Demo & explanation 20%'), (c) mandates a dataset with ground-truth RUL, and (d) scores 'Dataset coverage 10%' in both rounds. 40% of Round 2 is engineering completeness and articulation, which a backend team controls directly; model accuracy is capped at 15%. source_derived_requirement.",
+   "severity": "high",
+   "evidence": "cs1.md lines 45-68 (Round 1 / Round 2 weighted tables); contrast cs3.md line 42, cs4.md line 70, cs5.md line 73 ('NO weights given').",
+   "changes_recommendation": false,
+   "urls": []
+  },
+  {
+   "case_id": 3,
+   "finding": "Solution-space crowding is at the primitive level, not the system level. GitHub topic 'traffic-shaping' has 94 repos (tcconfig 854 stars, LibreQoS 723, sqm-scripts 288, TrafficToll 260) and 'qos' has 278 (LibreQoS, go-tc 532); cake-autorate (GPL-2.0, 573 stars, 1,316 commits) already implements the latency-feedback rate controller the specialist proposes to re-implement. No repo found is an intent-aware, self-verifying home QoS controller with classification confidence, rollback and a dashboard. So the differentiator (verify-or-rollback + ground-truth-scored estimator + CI-reproduced experiments) is open, but a broadband-vertical judge will know that SQM/CAKE/cake-autorate deliver most of the latency win for free; the team must frame itself as the verification/intent layer above them. verified_fact.",
+   "severity": "high",
+   "evidence": "Fetched https://github.com/topics/traffic-shaping (94), https://github.com/topics/qos (278), https://github.com/lynxthecat/cake-autorate (GPL-2.0, 573 stars, pings reflectors, adjusts CAKE rates).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://github.com/topics/traffic-shaping",
+    "https://github.com/topics/qos",
+    "https://github.com/lynxthecat/cake-autorate"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "The specialist's environment claim stands on this machine: WSL 2.6.1.0, kernel 6.6.87.2-microsoft-standard-WSL2; modprobe -n: sch_htb OK, sch_fq_codel OK, sch_netem OK, cls_flower OK, ifb OK, sch_cake MISSING. The HTB+fq_codel testbed is demoable on the team's Windows laptop; the CAKE reference comparison is not without a VM/CI. Judge-visible evidence is the strongest among the unweighted cases because the PDF itself mandates 'Automated baseline-versus-optimized experiments' and a scripted demonstration that resets, impairs, collects evidence and generates a report, i.e. the evidence format is prescribed. verified_fact + source_derived_requirement.",
+   "severity": "medium",
+   "evidence": "Local wsl.exe modprobe check 2026-10-18; cs3.md lines 31-40 (Expected Output and Acceptance Evidence).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://raw.githubusercontent.com/microsoft/WSL2-Linux-Kernel/linux-msft-wsl-6.6.y/arch/x86/configs/config-wsl"
+   ]
+  },
+  {
+   "case_id": 4,
+   "finding": "The recommended rules-first LabelGuard concept deliberately avoids AI label generation, but the PDF names 'Innovation ideas considering Label Design using AI' as one of seven unweighted criteria and lists 'Design & development of labels using AI' as a Recommended Step. A submission with no AI label-design element concedes roughly one-seventh of an unweighted rubric to GenAI-heavy competitors. The concept should add an AI-assisted label assembly module (content generated only from controlled product data + registry templates, with safety text locked), which keeps the hallucination-proof stance while answering the named criterion. source_derived_requirement.",
+   "severity": "high",
+   "evidence": "cs4.md lines 70-77 (criteria) and lines 79-85 (Recommended Steps: 'Design & development of labels using AI').",
+   "changes_recommendation": true,
+   "urls": []
+  },
+  {
+   "case_id": 4,
+   "finding": "Differentiation potential is the highest of the five in absolute terms, but judge-visibility of evidence is the lowest. Search found no open-source medical-device label compliance checker (only an MIT MDR/IVDR classification MCP server, an ISO 15223-1 symbol library, and commercial tools from Mixpeek/Sigmoid/AIS), so a working registry+benchmark engine would be unique. However the PDF has no dataset, no weights, no mandated prototype and no measurable target; the only quantitative ask is 'Measure and evaluate Time reduction, Error reduction, Compliance improvement, Cost savings', all of which the team must self-manufacture on a synthetic benchmark. openFDA UDI endpoint verified live today (meta.results.total 7,385 for brand_name:stent; fields identifiers, sterilization, is_single_use, premarket_submissions present). verified_fact.",
+   "severity": "medium",
+   "evidence": "WebSearch 'github medical device label compliance checker AI UDI MDR open source' (no open-source checker); fetched https://api.fda.gov/device/udi.json?search=brand_name:stent&limit=1; cs4.md line 108 note.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://api.fda.gov/device/udi.json?search=brand_name:stent&limit=1"
+   ]
+  },
+  {
+   "case_id": 2,
+   "finding": "The PyBaMM timing evidence is real but the experiment did not run as described. My re-run of ecm_test2.py with the specialist's venv (PyBaMM 26.10.1.0): cold solve 0.24 s, warm 0.13 s, T 25.0-47.69 C, V 2.907-3.945 V, total simulated time 0.245 h. A 10 A discharge of a 2.5 Ah cell is ~0.25 h, so only the discharge step executed; the 'Rest / Charge at 1.25 A until 4.2 V / Hold at 4.2 V' steps never ran (V never reached 4.2 V and total time is not ~2 h). The specialist's demo plan validates charge time against the datasheet (136 min standard / 55 min rapid) using this path, which is therefore unproven. Sub-second cost is still credible; the charge-step termination must be debugged before it is a demo claim. verified_fact (timing) / unverified_assumption (charge validation).",
+   "severity": "medium",
+   "evidence": "Local re-run 2026-10-18 of scratchpad/ecm_test2.py via pyb_env/Scripts/python.exe; output lines 'solve s: 0.24', 'total time h: 0.245', 'warm solve s: 0.13'.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://pypi.org/project/pybamm/"
+   ]
+  },
+  {
+   "case_id": 2,
+   "finding": "Prior art is thin and the rubric is weighted with a built-in baseline-vs-improved mandate, which makes Case 2 more objectively scorable than Case 4. No open-source browser-based cell-to-module configurator with coupled thermal simulation was found; foxBMS BaSD (BSD-3, 16 stars, 6 commits) sizes/configures only and does no electrical/thermal simulation; liionpack is in maintenance mode. The PDF requires 'Compare at least two design options against a basic starting design' and 'Measure a few relevant indicators', and weights Technical feasibility 20% + Prototype & evidence 15%. The residual risk is the one the specialist already states: 15% Engineering quality probed by battery engineers on fitted thermal parameters. verified_fact + source_derived_requirement.",
+   "severity": "medium",
+   "evidence": "Fetched https://github.com/foxBMS/BaSD; WebSearch 'open source battery pack design tool web configurator cell to module thermal simulation github' (no browser-based open tool); cs2.md Key Points and weighted table.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://github.com/foxBMS/BaSD",
+    "https://github.com/pybamm-team/liionpack"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "The specialist's differentiation score (7, highest of the five) is over-rewarded. Ready-made building blocks exist that any team can pip-install: Peykan / MCP-CAN (PyPI) ships a virtual CAN bus with an ECU simulator, DBC decoding via cantools, OBD-II/UDS/J1939 and MCP tools for LLMs; Mater (GitHub, MIT, 0 stars) is already a local-Ollama vehicle assistant with OBD telemetry in Redis/TimescaleDB and Qdrant RAG. So 'real CAN ingestion' and 'local LLM over telemetry' will not separate the team, and the proposed baseline (naive RAG chatbot) is a strawman that judges may discount. Only the grounded QueryPlan compiler + cgroup-measured latency table + scenario engine with ground truth remain distinctive, and two of those depend on ARM hardware the team is not known to have. verified_fact (prior art) / technical_inference (impact).",
+   "severity": "high",
+   "evidence": "WebSearch results for 'peykan mcp-can github' (PyPI peykan and mcp-can descriptions: virtual CAN, ECU simulator, DBC, MCP over SSE); fetched https://github.com/Vasu1712/mater (Ollama gemma4:e4b, OBD, TimescaleDB, Qdrant, MIT).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://pypi.org/project/peykan/",
+    "https://pypi.org/project/mcp-can/",
+    "https://github.com/Vasu1712/mater"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "Judge-visible evidence is the most hardware-dependent and the Expected Output is architecture prose. The PDF's seven Expected Output items are all design documents; Edge Performance (memory footprint, query latency) is the only hard number and credible numbers need ARM hardware. Verified today: only the Raspberry Pi AI HAT+ 2 (Hailo-10H) supports LLMs; the AI HAT+ (Hailo-8/8L) lists LLM support as 'Not supported'. All Pi tok/s figures in the specialist output are community Ollama measurements and no measurement exists for 2 A5x-class cores. This is the highest-variance case for a team with unknown hardware. verified_fact (HAT) / unverified_assumption (tok/s).",
+   "severity": "medium",
+   "evidence": "Fetched https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html (comparison table: LLM 'Not supported' vs 'Supported'); cs5.md lines 51-60 (Expected Output).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Competition format and scale (cross-case). No official TELIPORT Season 4 page was found by two searches. Third-party Season 3 snippets describe a 1-slide Round 1 and a 10-slide Round 2 deck (.ppt/.pptx/.pdf, <= 5 MB) with Excel/prototypes as annexures and a leadership finale; the frontlinesmedia page itself did not render, so this is unverified_assumption. Season 2 scale is verified: 'over 6000 teams across India' (Hitavada, Jul 2025). Implication: every prototype must be deck-embeddable (metric tables, screenshots, repo/video links), and Case 1 is the only PDF whose own two-round structure matches a deck-then-PoC format; for Cases 3-5 the team must assume a live demo may never be seen in early rounds.",
+   "severity": "medium",
+   "evidence": "WebSearch 'Tata Elxsi TELIPORT Season 4 ...' (no S4 page); fetched https://www.thehitavada.com/Encyc/2025/7/5/Ramdeobaba-University-students-shine-at-national-level.html ('over 6000 teams'); https://frontlinesmedia.in/?p=45831 returned the site homepage.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.thehitavada.com/Encyc/2025/7/5/Ramdeobaba-University-students-shine-at-national-level.html",
+    "https://frontlinesmedia.in/?p=45831"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "Trendy-tech check across specialists: they did NOT over-reward trendy technology in Cases 1, 3 and 5 (each explicitly chose GBM / deterministic baseline / LLM-as-parser over transformers / ML-first / RAG chatbot), and each concept includes a deterministic baseline the PDF can verify. The two places where trendiness is mis-weighted are the opposite direction: Case 4 under-serves the PDF's explicit 'Label Design using AI' ask (finding above), and Case 5's differentiation is over-credited because the un-trendy parts (virtual CAN, DBC, local LLM) are commodity packages. technical_inference.",
+   "severity": "low",
+   "evidence": "Specialist JSON 'recommended_concept' blocks for cases 1, 3, 5; cs4.md criteria; Peykan/Mater prior art.",
+   "changes_recommendation": false,
+   "urls": []
+  }
+ ],
+ "leader_assessment": "Case 1 remains the leader, but for a different reason than 'best idea'. It has the lowest absolute differentiation of the five (53 cmapss repos, 217 RUL repos, and the GBM+conformal design is already published by Robinson in IJPHM, April 2026), so the generic submission is well understood: FD001 sequence model, Streamlit page, if/else agent, headline RMSE 13-17. What makes it the highest-probability win for THIS team is rubric objectivity: it is the only PDF with explicit weights, a mandated dataset with ground truth, and a mandated Round 2 Proof of Concept in which 40% of marks are 'Working pipeline' and 'Demo & explanation' and only 15% is model accuracy; the crowd competes on the 15% while the backend team competes on the 40% + 10% Dataset coverage + 10% MLOps + 10% Agent. The evidence is also the only one I could fully reproduce today (FD001 test RMSE 14.22 capped / 15.38 raw, NASA score 314, and the 2.48 last-cycle leakage trap) on the team's own laptop with free tools. The winning differentiator is the closed loop (conformal lower bound driving severity with human escalation, drift-triggered retraining with a promotion gate shown both accepting and rejecting, all four subsets through configuration, and a leakage-audited honest-metrics slide), which no public repo on the topic page combines. Two corrections are required: cite Robinson 2026 as the ML baseline rather than implying novelty, and fix the misquoted leakage-preprint numbers. Residual threat: if Season 4 keeps Season 3's deck-first format, the prototype must be sold through tables and screenshots, which Case 1's rubric is built for; if the judge pool scores relative to other Case 1 entrants rather than against the rubric, the dataset-provided case will attract the most ML-capable competitors and the margin narrows.",
+ "assumption_sensitivity": "Case 1 loses to Case 3 if (a) judging is relative within each case study and Case 1, as the only case with a provided dataset, attracts the largest and most ML-capable entrant pool, or (b) the team can confirm one member is comfortable with Linux networking (tc/HTB/netem) and has root on a WSL >= 2.3.11 or Ubuntu VM, because Case 3's PDF prescribes the evidence format (scripted baseline-vs-optimized experiments) and its primitives are uncrowded at the system level; under those two assumptions Case 3's expected margin over its generic competitor (a static HTB/CAKE config with one before/after screenshot) exceeds Case 1's margin over an FD001 notebook. Case 1 loses to Case 4 only if a teammate has genuine regulatory-affairs exposure and the judges weight GenAI label design heavily, since Case 4 offers the largest absolute differentiation but the least objectively scorable rubric. Case 1 loses to Case 2 if a battery/thermal-literate teammate exists, because Case 2's weighted rubric and mandated two-option comparison are nearly as objective as Case 1's and its space is less crowded. Case 5 overtakes none of them unless the team already owns a Raspberry Pi 5 (or ARM VM budget) and can produce cgroup-capped latency tables; without hardware its Edge Performance evidence is unverifiable. Independently of case choice, if Season 4 round 1 is a single slide (as third-party Season 3 descriptions claim), all five rankings compress toward deck quality, which still favours the two weighted-rubric cases (1 and 2).",
+ "ranking": [
+  {
+   "case_id": 1,
+   "rank": 1,
+   "rationale": "Most objectively scorable rubric (weighted, PoC mandated, dataset mandated, 40% on pipeline+demo); evidence reproduced locally today; differentiation is modest but sits exactly where the 53-repo crowd is absent (closed loop, four subsets, honest metrics). Must cite Robinson 2026 and correct the leakage-preprint quote."
+  },
+  {
+   "case_id": 3,
+   "rank": 2,
+   "rationale": "Evidence format prescribed by the PDF (scripted baseline-vs-optimized experiments, dashboard KPIs), all five criteria measurable with ground truth from the testbed, system-level space uncrowded (cake-autorate/LibreQoS/sqm-scripts are primitives, not intent-aware verifying controllers), testbed verified on the team machine (sch_cake absent). Held back by unweighted criteria, broadband-expert judges who know SQM/CAKE, root/WSL demo fragility and the team's undemonstrated Linux-networking skill."
+  },
+  {
+   "case_id": 2,
+   "rank": 3,
+   "rationale": "Weighted rubric with a mandated 'compare at least two options against a starting design' gives a built-in baseline-vs-improved table; no open-source cell-to-module web platform with coupled thermal found (BaSD sizes only); PyBaMM sub-second timing verified. Ranked above Case 4 because its evidence is more structured and its physics risk is declared and bounded, but my re-run shows the CC-CV charge steps never executed, so the charge-time validation path is unproven and 15% Engineering quality will be probed by battery engineers."
+  },
+  {
+   "case_id": 4,
+   "rank": 4,
+   "rationale": "Largest absolute differentiation (no open-source label-compliance checker exists; openFDA/MDR/CFR sources verified free) but the least judge-visible evidence: no dataset, no weights, no mandated prototype, synthetic ground truth, and 5 of 7 criteria reachable by slideware. The recommended concept also sidesteps the PDF's named 'Label Design using AI' criterion and Recommended Step, which must be fixed if chosen. Regulatory-domain probing by HLS judges is a credibility risk for a software team."
+  },
+  {
+   "case_id": 5,
+   "rank": 5,
+   "rationale": "Most trend-exposed and highest variance: Expected Output is architecture prose, the only hard metric (Edge Performance) requires ARM hardware the team is not known to have, all tok/s figures are community Ollama numbers with none for 2 A5x cores, and commodity packages (Peykan/MCP-CAN virtual CAN + DBC + MCP; Mater local-Ollama OBD assistant) erase the Data Integration and 'runs locally' differentiators. The parser-not-answerer design is sound, but it is a smaller edge than the specialist's differentiation score of 7 implies."
+  }
+ ],
+ "score_adjustments": [
+  {
+   "case_id": 1,
+   "dimension": "differentiation",
+   "delta": 0.5,
+   "reason": "Verified that none of the 53 'cmapss' topic repos mention MLflow, drift, retraining or a triage agent; the closed-loop integration is genuinely absent from public prior art, slightly more than the specialist credited (6 -> 6.5). Not higher because the GBM+conformal ML core is already published (Robinson, IJPHM 2026)."
+  },
+  {
+   "case_id": 1,
+   "dimension": "low_failure_risk",
+   "delta": -0.5,
+   "reason": "My re-run reproduced the metrics but emitted a joblib/_winapi.CreateProcess traceback during RandomForest n_jobs=-1 on Windows, on top of the specialist's own LightGBM crash and Streamlit/plotly import failure; environment fragility is confirmed, mitigated only by pinning and Docker (8 -> 7.5)."
+  },
+  {
+   "case_id": 1,
+   "dimension": "reproducible_evidence",
+   "delta": 0,
+   "reason": "Held at 9: FD001 RMSE 14.22/15.38, score 314, CV last-cycle 2.48 reproduced locally today with python -I on the downloaded NASA files."
+  },
+  {
+   "case_id": 2,
+   "dimension": "reproducible_evidence",
+   "delta": -1,
+   "reason": "Re-run of ecm_test2.py shows only the 10 A discharge step executed (total simulated time 0.245 h, Vmax 3.945 V); the rest/CC/CV steps did not run, so the planned charge-time validation against the datasheet (136 min / 55 min) is unproven (7 -> 6)."
+  },
+  {
+   "case_id": 2,
+   "dimension": "differentiation",
+   "delta": 0.5,
+   "reason": "No open-source browser-based cell-to-module configurator with coupled electrical-thermal simulation found; foxBMS BaSD (16 stars) sizes only, liionpack is in maintenance mode; the provenance-tagged constraint engine + live traceability matrix is distinctive among free tools (6 -> 6.5)."
+  },
+  {
+   "case_id": 3,
+   "dimension": "differentiation",
+   "delta": 0,
+   "reason": "Held at 6: primitives are crowded (tcconfig 854, LibreQoS 723, cake-autorate 573, sqm-scripts 288 stars) and judges will know them, but no intent-aware verify-or-rollback home controller exists at the system level; the two effects cancel."
+  },
+  {
+   "case_id": 3,
+   "dimension": "demo_reliability",
+   "delta": 0,
+   "reason": "Held at 7: modprobe check on the team machine confirms htb/fq_codel/netem/flower/ifb present and sch_cake absent, exactly as the specialist stated; root/WSL dependency remains."
+  },
+  {
+   "case_id": 4,
+   "dimension": "rubric_alignment",
+   "delta": -1,
+   "reason": "The recommended concept omits any AI label-design element although 'Innovation ideas considering Label Design using AI' is a named criterion and 'Design & development of labels using AI' is a Recommended Step in the PDF (8 -> 7). Recoverable by adding controlled-data label assembly."
+  },
+  {
+   "case_id": 4,
+   "dimension": "differentiation",
+   "delta": 1,
+   "reason": "Search found no open-source medical-device label compliance checker (only an MDR classification MCP server, a symbol library and commercial tools); a working registry+benchmark engine would be unique in the free space (6 -> 7)."
+  },
+  {
+   "case_id": 4,
+   "dimension": "measurable_results",
+   "delta": -1,
+   "reason": "No dataset, no weights, no mandated prototype; all metrics come from a self-built synthetic benchmark, so judge-visible measurability is lower than the specialist's 8 (8 -> 7)."
+  },
+  {
+   "case_id": 5,
+   "dimension": "differentiation",
+   "delta": -1,
+   "reason": "Peykan/MCP-CAN (virtual CAN + ECU simulator + DBC + MCP tools for LLMs) and Mater (local Ollama vehicle assistant over OBD) are pip/clone-ready, so real-CAN ingestion and local-LLM querying no longer separate a team; the naive-RAG baseline is a strawman (7 -> 6)."
+  },
+  {
+   "case_id": 5,
+   "dimension": "low_failure_risk",
+   "delta": -1,
+   "reason": "Edge Performance evidence depends on ARM hardware of unknown availability; only the AI HAT+ 2 supports LLMs (verified); no tok/s measurement exists for 2 A5x-class cores; synthetic ADAS/battery events invite the 'fabricated data' objection (6 -> 5)."
+  },
+  {
+   "case_id": 5,
+   "dimension": "data_availability",
+   "delta": -1,
+   "reason": "VED/ROAD/comma2k19 cover four of five example queries, but ADAS disengagement and battery-overheating sequences have no public real-data source and must be synthesised (8 -> 7)."
+  }
+ ]
+}

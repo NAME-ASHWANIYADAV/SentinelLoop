@@ -1,0 +1,29 @@
+=== FD001 ===
+subset 001 train rows 20631 units 100 test rows 13096 units 100 RUL vec 100
+unit-wise 5-fold CV RMSE all-rows / last-cycle: [14.21  2.71]
+TEST last-cycle HGBR: RMSE(capped truth)=14.18  RMSE(raw truth)=15.42  NASA score=308.0  n=100
+TEST last-cycle RF:   RMSE(capped truth)=14.36  NASA score=338.4
+NAIVE mean-RUL baseline RMSE=41.94 NASA=33354.5
+elapsed s 133.2
+=== FD002 ===
+subset 002 train rows 53759 units 260 test rows 33991 units 259 RUL vec 259
+unit-wise 5-fold CV RMSE all-rows / last-cycle: [17.29  7.5 ]
+TEST last-cycle HGBR: RMSE(capped truth)=16.22  RMSE(raw truth)=27.90  NASA score=1233.8  n=259
+TEST last-cycle RF:   RMSE(capped truth)=16.94  NASA score=1392.2
+NAIVE mean-RUL baseline RMSE=44.93 NASA=115589.9
+elapsed s 180.5
+=== FD003 ===
+subset 003 train rows 24720 units 100 test rows 16596 units 100 RUL vec 100
+unit-wise 5-fold CV RMSE all-rows / last-cycle: [12.28  2.53]
+TEST last-cycle HGBR: RMSE(capped truth)=14.08  RMSE(raw truth)=15.71  NASA score=457.8  n=100
+TEST last-cycle RF:   RMSE(capped truth)=15.31  NASA score=744.2
+NAIVE mean-RUL baseline RMSE=43.70 NASA=57686.9
+elapsed s 71.2
+=== FD004 ===
+subset 004 train rows 61249 units 249 test rows 41214 units 248 RUL vec 248
+unit-wise 5-fold CV RMSE all-rows / last-cycle: [16.92  9.29]
+TEST last-cycle HGBR: RMSE(capped truth)=17.88  RMSE(raw truth)=28.92  NASA score=1918.8  n=248
+TEST last-cycle RF:   RMSE(capped truth)=18.16  NASA score=1995.8
+NAIVE mean-RUL baseline RMSE=45.57 NASA=164680.7
+elapsed s 202.9
+DONE

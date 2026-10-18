@@ -1,0 +1,148 @@
+{
+ "case_id": 1,
+ "existing_solutions": [
+  {
+   "claim": "GitHub topic 'cmapss' lists 53 public repositories. The top-starred ones are PyTorch Transformer (311 stars, last updated Oct 2021), rul_codes_open (221, Jan 2025), PyTorch LSTM (186, Jul 2021), kpeters notebooks (154, Jan 2021), N-CMAPSS_DL (123), tilman151/rul-datasets (72, Mar 2026). None of the 20 visible repo descriptions mention MLflow, drift monitoring, retraining or a rule-based triage agent.",
+   "url": "https://github.com/topics/cmapss",
+   "source_type": "repo",
+   "establishes": "The ML side (sequence models for RUL) is heavily templated and old; the operational/closed-loop layer the case asks for is absent from visible public prior art. Star counts here reflect age and tutorial value, not quality.",
+   "label": "verified_fact",
+   "limitations": "Only the first 20 of 53 repos render on the page; descriptions, not code, were inspected."
+  },
+  {
+   "claim": "kpeters/exploring-nasas-turbofan-dataset (154 stars, GPL-3.0) is a notebook series covering FD001 (baseline/SVR/time-series/survival), FD002 (lagged MLP with condition-based standardization), FD003 (Random Forest) and FD004 (LSTM), plus a reproducibility primer.",
+   "url": "https://github.com/kpeters/exploring-nasas-turbofan-dataset",
+   "source_type": "repo",
+   "establishes": "Per-operating-condition standardization for FD002/FD004 and clipped-RUL baselines are a well-known public recipe; a student team can learn from it but must not copy code (GPL-3.0 would taint an Apache/MIT submission).",
+   "label": "verified_fact",
+   "limitations": "RMSE figures live inside the notebooks/blog posts and were not extracted."
+  },
+  {
+   "claim": "aun151214/predictive-maintenance-cmapss (MIT, 7 stars, Sep 2025) is an 'end-to-end' LSTM/GRU/Transformer pipeline over FD001-FD004 with automated PDF report; reported RMSE is 47.6-80.6 (Transformer) and 63.6-102 (LSTM/GRU) with negative R2 for LSTM/GRU. No dashboard, MLflow, drift, retraining or alerts.",
+   "url": "https://github.com/aun151214/predictive-maintenance-cmapss",
+   "source_type": "repo",
+   "establishes": "A concrete example of the generic deep-sequence route producing results far worse than a tuned GBM (RMSE ~14-18); 'end-to-end' in student repos usually means train+report, not a closed loop.",
+   "label": "verified_fact",
+   "limitations": "Single repo; not representative of all student work."
+  },
+  {
+   "claim": "AI Kavach (adityapotdar23/Predictive-Maintenance, 20 stars) won 1st prize in the ML domain at the IEEE CS SPIT Aeravat 1.0 AI Hackathon: XGBoost/RF/DT RUL regressors (best R2 0.65), React + Flask + MongoDB dashboard, browser and Telegram alerts, maintenance calendar. MLflow, retraining and subset coverage are not mentioned; license not shown.",
+   "url": "https://github.com/adityapotdar23/Predictive-Maintenance",
+   "source_type": "repo",
+   "establishes": "The verified hackathon-winning shape for this dataset is 'tree model + custom web app + alerts'. It demonstrates that judges reward a working app, but also that MLOps and subset coverage (both scored criteria here) were absent, which is the gap to exploit.",
+   "label": "verified_fact",
+   "limitations": "Different hackathon, different rubric; prize claim is self-reported in the README."
+  },
+  {
+   "claim": "TurboGuard is a dual-LSTM (autoencoder + forecasting) anomaly-detection framework over all four C-MAPSS subsets with a Streamlit dashboard; its documented F1 > 0.52 and MSE < 0.15 are stated targets, not results; no MLflow, retraining or drift; license not stated.",
+   "url": "https://turboguard.readthedocs.io/en/latest/",
+   "source_type": "repo",
+   "establishes": "Streamlit + LSTM-autoencoder anomaly detection on C-MAPSS is already public; an anomaly layer alone is not a differentiator, and unverified 'target' metrics are the kind of weak evidence judges will discount.",
+   "label": "verified_fact",
+   "limitations": "Docs page only; code not inspected."
+  },
+  {
+   "claim": "IEEE-IES-Industrial-AI-Lab/Industrial-Predictive-Maintenance (MIT, 5 stars, Mar 2026) reports FD001 (seq len 30, max RUL 125, 3-fold CV) RMSE 13.42 (attention LSTM), 12.89 (Transformer encoder), 13.15 (TCN), NASA score 199-214, plus LSTM-AE anomaly detection, ONNX export and a streaming inference pipeline.",
+   "url": "https://github.com/IEEE-IES-Industrial-AI-Lab/Industrial-Predictive-Maintenance",
+   "source_type": "repo",
+   "establishes": "Deep models buy only ~1-2 RMSE points over a tuned GBM on FD001 and still need cap=125; confirms Model performance (15%) is not where a decisive gap can be opened.",
+   "label": "verified_fact",
+   "limitations": "Low activity (7 commits); CV protocol differs from official test-set evaluation."
+  },
+  {
+   "claim": "alireza-javanmardi/conformal-RUL-intervals (21 stars, 89 commits, IJPHM 2023 code) implements CNN and GB experiments with split-conformal/CQR intervals on C-MAPSS; CLI takes dataset, calibration fraction (e.g. 0.1) and seed; no license shown on the page.",
+   "url": "https://github.com/alireza-javanmardi/conformal-RUL-intervals",
+   "source_type": "repo",
+   "establishes": "Reference code exists for conformal RUL intervals, so the team can validate its own implementation against it; absence of a license means it should be used for cross-checking, not vendored.",
+   "label": "verified_fact",
+   "limitations": "Calibration split method (random rows vs per-engine) not stated on the page; the team must do engine-level calibration regardless."
+  },
+  {
+   "claim": "Robinson, 'RUL Estimation for Aircraft Engines with Risk-Aware Prediction Intervals via Conformalized Quantile Regression', IJPHM Vol 17 No 1, 27 Apr 2026, DOI 10.36001/ijphm.2026.v17i1.4724: gradient boosting regressor + asymmetric CQR on all four C-MAPSS subsets, test RMSE 13.26-16.85, empirical coverage 88-92% at 90% nominal; the asymmetry is motivated by avoiding late maintenance, but the paper gives no concrete work-order decision procedure.",
+   "url": "https://www.papers.phmsociety.org/index.php/ijphm/article/view/4724",
+   "source_type": "paper",
+   "establishes": "The GBM+CQR interval recipe is published and reproducible with sklearn-class tools; it must be cited as the basis, and the team's contribution has to sit above it (how the interval drives the Triage Agent and how that policy is evaluated).",
+   "label": "verified_fact",
+   "limitations": "Single fixed-seed run; coverage is subset-dependent (fact-check: 0.88 on FD003)."
+  },
+  {
+   "claim": "Mitici, de Pater, Barros, Zeng, 'Dynamic predictive maintenance for multiple components using data-driven probabilistic RUL prognostics: The case of turbofan engines', Reliability Engineering & System Safety vol 234, 109199 (2023): on C-MAPSS turbofan engines the optimal replacement time is close to the lower bound of the 99% confidence interval of the RUL estimates, with 53% cost reduction vs time-based maintenance.",
+   "url": "https://research.tudelft.nl/en/publications/dynamic-predictive-maintenance-for-multiple-components-using-data/",
+   "source_type": "paper",
+   "establishes": "Peer-reviewed grounding for the Triage Agent acting on the interval lower bound rather than the point estimate: it is a known-good maintenance policy, not an ad-hoc rule.",
+   "label": "verified_fact",
+   "limitations": "Uses CNN-based probabilistic RUL and its own cost model; the 53% figure is not transferable to the team's setup and must not be quoted as expected gain."
+  },
+  {
+   "claim": "Hsu, Frusque, Fink, 'A Comparison of Residual-based Methods on Fault Detection', PHM Society Conf. 2023: autoencoder and input-output residual models trained only on healthy C-MAPSS data detect faults with an average delay of around 20 cycles at low false-positive rate; the input-output model better indicates fault type.",
+   "url": "https://papers.phmsociety.org/index.php/phmconf/article/view/3444",
+   "source_type": "paper",
+   "establishes": "Defines the right metrics for the anomaly layer (detection delay in cycles, false-positive rate on healthy phase) and a credible benchmark (~20 cycles), so the team can report anomaly detection quantitatively instead of as a line chart.",
+   "label": "verified_fact",
+   "limitations": "Numeric FPR not in abstract; uses a 3-fault subset, so comparison is approximate."
+  },
+  {
+   "claim": "Sánchez et al., 'Early Fault Detection on CMAPSS with Unsupervised LSTM Autoencoders', arXiv 2601.10269 (15 Jan 2026): regression-based operating-condition normalisation, autoencoder trained on the healthy portion of each trajectory, adaptive threshold on persistent reconstruction error; reports qualitatively 'high recall and low false-alarm rates'.",
+   "url": "https://arxiv.org/abs/2601.10269v1",
+   "source_type": "paper",
+   "establishes": "Healthy-phase-only training plus operating-condition normalisation is the current standard design for the anomaly detector; an IsolationForest on healthy-phase rolling features is a lighter, explainable instance of the same idea.",
+   "label": "verified_fact",
+   "limitations": "Abstract gives no numbers; preprint, not peer-reviewed."
+  },
+  {
+   "claim": "arXiv 2607.16493 (17 Jul 2026) proposes a chunk-based, leakage-audited split for sliding-window PdM data; it states naive splitting can inflate classification accuracy to 99.9% (or collapse it to 0%) and reports C-MAPSS leakage-free classification accuracy 84.12 +/- 0.96% and regression R2 0.86 +/- 0.01 over 5 seeds.",
+   "url": "https://arxiv.org/abs/2607.16493",
+   "source_type": "paper",
+   "establishes": "Citable support for the 'leakage-audited evaluation' slide, but ONLY as a classification-accuracy effect; the team's own 2.48-vs-14.22 RMSE demonstration (verified by fact-check) is the RUL-specific evidence.",
+   "label": "verified_fact",
+   "limitations": "No naive-split C-MAPSS figure in the abstract; do not quote 'genuine 20-60%' as a C-MAPSS result."
+  },
+  {
+   "claim": "MLflow Model Registry workflow docs: 'As of MLflow 2.9.0, Model Stages have been deprecated' and 'will be removed in a future major release'; aliases are the replacement (client.set_registered_model_alias(name, 'champion', version); models:/name@champion; get_model_version_by_alias). Separately (fact-checked) the Registry requires a database-backed store such as sqlite:///mlflow.db.",
+   "url": "https://mlflow.org/docs/latest/ml/model-registry/workflow/",
+   "source_type": "official doc",
+   "establishes": "The champion/challenger promotion gate must be built on aliases with a SQLite backend; a stage-based or file-store registry demo will either warn or fail in front of 'MLOps in action' judges.",
+   "label": "source_derived_requirement",
+   "limitations": "MLflow 3.17.1 resolves today; verify the alias API once in the pinned environment."
+  },
+  {
+   "claim": "Evidently drift explainer: for reference sets > 1,000 rows the default numerical test is Wasserstein distance with drift at score >= 0.1 (Jensen-Shannon 0.1 for categorical); for <= 1,000 rows K-S (p <= 0.05) and chi-squared; DataDriftPreset flags dataset drift when >= 50% of columns drift (default share).",
+   "url": "https://docs.evidentlyai.com/metrics/explainer_drift",
+   "source_type": "official doc",
+   "establishes": "The drift trigger's thresholds are documented defaults, so the team can state them on a slide and justify a false-alarm measurement on same-subset windows.",
+   "label": "verified_fact",
+   "limitations": "Evidently 0.7 API churn; pin 0.7.23."
+  },
+  {
+   "claim": "Generic ML-monitoring stacks that combine Evidently drift detection, MLflow tracking/registry and automated retraining exist (e.g. Isuruigi/ml-monitoring-system, observml by adamipkovich), but none found uses C-MAPSS or a maintenance triage layer.",
+   "url": "https://github.com/Isuruigi/ml-monitoring-system",
+   "source_type": "community",
+   "establishes": "The MLOps loop pattern is standard; novelty cannot be claimed for 'Evidently + MLflow + retrain' itself, only for wiring it to the RUL/agent loop and measuring its false-alarm behaviour.",
+   "label": "unverified_assumption",
+   "limitations": "Surfaced via search summary only; the repo page was not fetched, so contents, license and activity are unverified."
+  },
+  {
+   "claim": "Microsoft's aircraft-engine predictive-maintenance reference architecture (Stream Analytics, Event Hubs, ML Studio, HDInsight, SQL, Data Factory, Power BI) and its older IoT accelerator (RUL regression on the public turbofan data) are the main commercial precedents; neither lists work-order generation among its components.",
+   "url": "https://learn.microsoft.com/en-us/azure/architecture/solution-ideas/articles/aircraft-engine-monitoring-for-predictive-maintenance-in-aerospace",
+   "source_type": "official doc",
+   "establishes": "Industry reference designs stop at dashboards too; the work-order/triage layer the case mandates is the least-reproduced part of the stack, which supports putting the team's innovation there.",
+   "label": "unverified_assumption",
+   "limitations": "Taken from search summaries; page content not fetched in this session."
+  },
+  {
+   "claim": "No official Tata Elxsi TELIPORT Season 4 page, rules, judging commentary or prior-winner list was found by a targeted search on 2026-10-18; only Season 3 scale figures and unrelated Tata Technologies hackathon news surfaced.",
+   "url": "https://www.tataelxsi.com/news-and-events/tata-elxsi-hosts-successful-innov-te-1st-gen-ai-hackathon-contest-in-collaboration-with-aws",
+   "source_type": "community",
+   "establishes": "Nothing beyond the case PDF can be used as a judging criterion; competitor behaviour and format assumptions remain hypotheses.",
+   "label": "verified_fact",
+   "limitations": "Absence of evidence from one search session, not proof the material does not exist."
+  }
+ ],
+ "generic_student_implementation": "HYPOTHESIS (inferred from the public 'cmapss' topic, the verified hackathon-winner repo AI Kavach, TurboGuard and aun151214; not verified against actual TELIPORT entrants). The modal submission: FD001 only (maybe FD001+FD003); a Jupyter-notebook-turned-script that min-max scales all sensors on train+test, builds 30-cycle sliding windows, trains a Keras/PyTorch LSTM or 1D-CNN on RUL capped at 125 and reports a single test RMSE in the 13-18 band (or, if the deep route goes wrong, 45-100 as in aun151214); an LSTM-autoencoder or simple z-score 'anomaly score' shown as a line chart; a Streamlit page (or React+Flask app) with sensor plots and a RUL gauge; an mlflow.log_metric call producing one screenshot of the MLflow UI; 'retraining' as a button that re-runs fit on the same data; a Triage Agent that is an if/elif on the point RUL (RUL<20 critical, <50 high, else none) printing a JSON work order; one architecture slide copied from the case's data->features->model->agent->work order line. Teams with more time add Docker, Kafka, or a Transformer. Evaluation is typically a random window-level split or the last cycle of held-out training engines, and the PHM08 score convention is not stated.",
+ "generic_weaknesses_under_rubric": "Mapped to the PDF's named criteria (weights as printed; no weights invented). Round 2: 'Working pipeline' (20%) - notebook lineage means manual cell order, hard-coded paths and no single command; judges reviewing from a deck/repo cannot reproduce 'runs end-to-end ... with minimal manual intervention'. 'Data engineering quality' (15%) - scalers fit on train+test and window-level splits violate 'clean, robust and reproducible'; missing-value and noise handling (explicitly required in the Data Engineering layer) is usually skipped because C-MAPSS has none, so the team never shows it. 'Model performance' (15%) - headline RMSE against capped truth without saying so, no interval or calibration, no baseline table, and the 'sensibly interpreted metrics' clause is exactly what a bare RMSE fails; leakage-prone validation can be exposed by a judge who asks how engines were split. 'MLOps in action' (10%) - a screenshot and a retrain button are not 'functional and demonstrable' operational elements; no trigger, no promotion decision, no model lineage; stage-based registry calls hit a deprecated API. 'Agent behavior' (10%) - thresholds on the point RUL ignore uncertainty and the asymmetry the case's ground rules imply (failures are rarer and costlier); no test showing the agent 'acts correctly and reliably' across engines, no de-duplication of repeated orders, no human-exception path even though the brief says 'a human stepping in only for exceptions'. 'Dataset coverage' (10%) - FD001-only forfeits most of this criterion in both rounds ('scales its approach accordingly' in Round 1; 'depth and breadth ... relative to the available complexity' in Round 2). 'Demo & explanation' (20%) - without trade-off analysis (deep vs GBM, cap vs raw, point vs interval) the team cannot 'articulate its choices, trade-offs and potential improvements'. Round 1 analogues: 'ML approach & reasoning' (20%) loses on 'awareness of practical challenges' (regimes, truncation, imbalance); 'MLOps & agent logic' (15%) loses on 'clear, logical decision flow'.",
+ "feasible_innovation": "A DECISION-REPLAY HARNESS that evaluates the rule-based Triage Agent as a maintenance policy, not just the model as a regressor. Engineering limitation addressed: RMSE and the PHM08 score say nothing about whether the closed loop actually raises a work order before failure and how much useful life it throws away; every public C-MAPSS repo found stops at RMSE, and the one hackathon winner verified (AI Kavach) reports only R2. Mechanism: (1) RUL model = HistGradientBoosting point model + conformalized quantile regression bounds calibrated on held-out ENGINES (Robinson 2026 recipe, cited), giving {rul_point, rul_lower, rul_upper} per cycle. (2) Replay every official test engine cycle-by-cycle through the full pipeline (clean -> features -> anomaly -> RUL+interval -> agent). Because test trajectories are truncated with a known final RUL, the true RUL at every replayed cycle is RUL_final + (T_last - t), so the cycle at which the agent first raises CRITICAL/HIGH can be compared to the true failure cycle with zero leakage and no synthetic labels. (3) Score each policy on decision metrics: late-order rate (order issued after true failure or never), premature-order waste (true cycles remaining when the order fired), mean lead time, order churn (re-issues per engine, to show de-duplication) and escalation rate (orders routed to a human because the interval is wider than a stated bound, anomaly and RUL disagree, or drift is active). (4) Compare three policies on identical predictions, per subset FD001-FD004: A) point-RUL threshold (the generic agent), B) fixed fleet-wide safety margin on the point estimate (the industry default Robinson criticises), C) interval-lower-bound threshold (grounded in Mitici et al. RESS 2023, where the optimal replacement time sits near the lower bound of the RUL confidence interval). Thresholds for C are chosen on validation engines only. The output is one table and one plot ('cycles-before-failure at first work order' distribution per policy) that a judge can regenerate with `make replay`. This is plain-Python, unit-testable, CPU-only work on predictions the pipeline already produces, which is the team's strength, and it directly serves 'Agent behavior' (acts correctly and reliably on the model output), 'Model performance' (sensibly interpreted metrics), 'Dataset coverage' (per-subset table) and 'Demo & explanation' (trade-off: coverage vs width vs waste).",
+ "minimum_evidence_to_prove_it": "1) Reproducibility: one command (`make demo SUBSET=FD001` through FD004) from a clean clone with a pinned lock file (Python 3.11+, mlflow 3.x on sqlite:///mlflow.db, evidently 0.7.23, scikit-learn, streamlit) that runs ingest -> clean -> features -> train -> calibrate -> replay -> agent -> work orders -> MLflow run, in under ~10 minutes per subset on a laptop, plus a recorded run (judges may never execute code). 2) Model evidence per subset: official-test last-cycle RMSE against capped truth AND raw truth (fact-checked baseline ~14.2/16.2/14.1/17.9 capped; 15.4/27.9/15.7/28.9 raw), PHM08 score with the convention printed, PICP and mean interval width at 90% nominal on held-out engines, with the honest expectation of subset-dependent coverage (literature 0.84-0.95, Robinson 0.88-0.92). 3) Decision evidence per subset: the policy table (A/B/C) with late-order rate, mean/median premature cycles, mean lead time, churn, escalation share; the acceptance claim is simply that policy C has a lower late-order rate than A at comparable or modestly higher waste, and that escalations concentrate on the engines where the point model is worst. If the data do not show that, report it anyway; the harness itself is the deliverable. 4) Agent reliability: pytest suite over the rule table (severity monotonic in lower bound, no duplicate open orders per engine, escalation triggers), plus a decision confusion matrix on the replay. 5) Leakage audit: the verified 2.48 (last cycle of held-out training engines) vs 14.2 (official test) RMSE pair on FD001, train-only scaler/cluster fitting, engine-level splits, documented in README and one slide. 6) MLOps evidence: MLflow runs with params/metrics/data hash/model artifact, registered model with 'champion' alias (not stages), a retrain triggered by an Evidently DataDriftPreset alarm on feature windows (defaults stated: Wasserstein 0.1, 50% column share), a promotion gate that logs accept/reject with the reason, and a false-alarm measurement of the drift trigger on same-subset healthy windows (not only the FD001->FD002 shift, which drifts by construction). 7) Anomaly layer: detection delay in cycles and false-positive rate on healthy phase per subset, compared against the ~20-cycle delay reported by Hsu/Frusque/Fink 2023.",
+ "ambitious_extension": "Only after the replay harness, four-subset runs and the gated retraining demo are green: COST-CALIBRATED THRESHOLD SELECTION. Expose a two-parameter cost model (cost of an unplanned failure vs cost per cycle of life discarded by early replacement) and choose each severity threshold on validation engines by minimising expected cost under that model; show a sensitivity sweep (cost ratio 5x to 50x) so the demo can answer 'what if failures are 10x more expensive' live, and tie the ratio to the PHM08 asymmetry (late penalised by a2=13-scale exponent vs early by 10) so the metric, the agent and the business framing agree. Second-tier extension if time remains: make the anomaly detector's healthy-phase onset estimate feed the agent as a WATCH tier with its own detection-delay/FPR evidence, and log per-engine decision traces into the MLflow run as artifacts so each work order carries its evidence trail. Do not attempt N-CMAPSS, online learning, or deep sequence models as extensions; they add training time and explanation burden without touching an under-served criterion.",
+ "features_to_avoid": "1) Any LLM or agent framework in the Triage Agent (ground rules say 'no LLM', 'simple rules or thresholds'); it would be scored as non-compliant. 2) Message brokers (Kafka/Redpanda), Airflow, multi-service Docker Compose, PySpark on a 12 MB dataset: fragile demos, no criterion requires streaming, and 'Working pipeline' rewards minimal intervention. 3) Chasing RMSE with Transformers/LSTMs (published gain ~1-2 points on FD001 vs GBM; Model performance is 15% and sequence windows invite the window-level leakage the leakage audit exposes). 4) MLflow stage transitions (deprecated since 2.9.0) or the file-store registry (unsupported); use aliases on SQLite. 5) 'Residual drift' computed live on streaming test engines (true RUL unknown until failure; only feature drift is computable live), and FD001->FD002 as the sole drift demo (drifts by construction; a judge can call it a strawman). 6) Quoting the arXiv 2607.16493 '99.9% vs 20-60%' line as an RUL-RMSE effect, quoting Mitici's 53% cost saving as the team's expected gain, or presenting 88-92% coverage as guaranteed; each is a citable error in front of an ML judge. 7) Copying GPL-3.0 notebook code (kpeters) or the unlicensed Javanmardi repo into the submission. 8) Hand-built React dashboards with auth, Telegram bots, calendars (AI Kavach pattern): no criterion scores them and they consume the dashboard budget. 9) Reporting only capped-truth RMSE, train+test-fitted scalers, or random row splits. 10) A six-tab dashboard before the replay table exists; keep tabs to fleet overview, engine drill-down with interval band, work-order queue, MLflow/drift/retrain log. 11) Artefacts that exceed deck/annex limits (unverified Season 3 precedent of a 10-slide, <=5 MB deck): every number must fit in a table on a slide, with the repo and a recorded run as annex.",
+ "novelty_honesty": "Already standard and widely reproduced: C-MAPSS loading, dropping near-constant sensors, RUL cap at 125, rolling mean/std/slope features, per-operating-condition standardisation or KMeans regimes for FD002/FD004 (kpeters notebooks, 2020-21), GBM/RF/LSTM/CNN/Transformer RUL regressors with RMSE 12-18 on FD001 (dozens of repos; IEEE-IES lab 12.9), autoencoder or healthy-phase residual anomaly detection (TurboGuard, Hsu et al. 2023, Sanchez et al. 2026), conformal/CQR intervals over GBM on all four subsets with near-nominal coverage (Robinson IJPHM 2026; Javanmardi & Hullermeier 2023 with public code), Evidently + MLflow + retraining loops (generic monitoring repos), Streamlit dashboards, and hackathon PdM apps with alert channels (AI Kavach). Using the interval lower bound as the replacement trigger is also published (Mitici et al. RESS 2023). Genuinely distinctive, to the extent this session's search can establish (not exhaustive; 33 of 53 topic repos unseen): (a) evaluating the rule-based Triage Agent as a maintenance POLICY by leakage-free cycle-by-cycle replay of the official test engines, reporting late-order rate, discarded life, lead time, churn and escalation share, and comparing point-threshold vs fixed-margin vs interval-lower-bound policies per subset; (b) wiring that policy to an escalate-to-human rule that is itself measured; (c) a drift-triggered, alias-based promotion gate whose false-alarm rate is reported; (d) an explicit leakage audit with the verified 2.48-vs-14.2 trap. None of (a)-(d) is scientifically novel; their value is that they are checkable integration-level evidence that no public C-MAPSS repo or verified hackathon winner provides, and they align one-to-one with 'Agent behavior', 'MLOps in action', 'Model performance (sensibly interpreted metrics)', 'Dataset coverage' and 'Demo & explanation'. A judge seeking a visible 'big idea' may still score the ML as a competent reproduction; the deck must therefore cite Robinson and Mitici openly and lead with the decision-replay table, not the model."
+}

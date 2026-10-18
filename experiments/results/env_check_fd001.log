@@ -1,0 +1,7 @@
+subset 001 train rows 20631 units 100 test rows 13096 units 100 RUL vec 100
+unit-wise 5-fold CV RMSE all-rows / last-cycle: [13.86  2.61]
+TEST last-cycle HGBR: RMSE(capped truth)=14.22  RMSE(raw truth)=15.38  NASA score=314.0  n=100
+TEST last-cycle RF:   RMSE(capped truth)=14.34  NASA score=335.7
+NAIVE mean-RUL baseline RMSE=41.94 NASA=33354.5
+elapsed s 76.4
+exit=0

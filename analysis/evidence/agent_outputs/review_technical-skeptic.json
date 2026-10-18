@@ -1,0 +1,262 @@
+{
+ "role": "Technical Skeptic (adversarial review of leader Case 1 and runner-up Case 3; live web research performed 2026-10-18 with WebSearch/WebFetch plus local reproduction on the team's Windows 11 laptop and its WSL2 instance)",
+ "findings": [
+  {
+   "case_id": 1,
+   "finding": "The specialist's headline baseline REPRODUCES exactly, but on a different library version than stated. I re-ran scripts/baseline.py on FD001 from the locally downloaded NASA archive: unit-wise 5-fold CV RMSE all-rows/last-cycle = 14.18 / 2.48, official test last-cycle HGBR RMSE(capped)=14.22, RMSE(raw)=15.38, NASA score 314.0, RF 14.36, naive-mean 41.94, wall-clock 100 s. Environment was Python 3.12.1, scikit-learn 1.9.0, pandas 2.3.3 (specialist wrote 'scikit-learn 1.4.0'). File counts also verified locally: FD001 100/100 units, FD002 260/259, FD003 100/100, FD004 249 train units / 248 test units with 248-length RUL vector while readme.txt says 'Train 248, Test 249' - the swap the specialist flagged is real. [verified_fact]",
+   "severity": "low",
+   "evidence": "Local run of C:/Users/HP/AppData/Local/Temp/claude/C--Users-HP-OneDrive-Desktop-tata/f983720e-713e-4c7b-9ebb-a0f567283d43/scratchpad/scripts/baseline.py on dl/6. Turbofan Engine Degradation Simulation Data Set/inner/; pandas unit counts; readme.txt lines 19-21. data.nasa.gov page fetched live: 'License not specified', links CMAPSSData.zip, requests Saxena et al. PHM08 citation.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data",
+    "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Internal contradiction in the recommended MLOps design: the architecture says 'MLflow local file store; ... Model Registry stages champion/challenger', but the official MLflow tracking docs state 'To use the Model Registry functionality with MLflow tracking, you must use database backed store'. The file-based mlruns default cannot host the registry; the team must run with --backend-store-uri sqlite:///mlflow.db. Additionally, registry 'stages' (Staging/Production) were deprecated from MLflow 2.9 in favour of aliases (models:/name@champion); pip resolves MLflow 3.17.1 today, so a stage-based champion/challenger flow would be built on a deprecated API in front of judges scoring 'MLOps in action'. The specialist's resources table noted the DB requirement but the architecture text ignores it. [verified_fact for both docs statements; source_derived_requirement for the fix]",
+   "severity": "medium",
+   "evidence": "MLflow tracking docs quote above; MLflow GitHub issue #10336 on deprecating stages from 2.9; pip --dry-run resolved mlflow 3.17.1.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://mlflow.org/docs/latest/ml/tracking/",
+    "https://github.com/mlflow/mlflow/issues/10336",
+    "https://mlflow.org/docs/latest/ml/model-registry/"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Engineering hole in the drift design: 'River ADWIN on residuals in stream mode' is not computable live. Residuals need the true RUL, which is unknown for a streaming test engine until it fails; only FEATURE drift (Evidently DataDriftPreset on sensor/feature windows) can fire in real time, and residual drift can only be evaluated retrospectively on completed engines. The proposed drift demo (feed FD002 cycles into the FD001 champion) is also a strawman a judge can call out: FD002 has six operating regimes, so raw-sensor distributions shift by construction and any detector fires; it says nothing about the detector's false-alarm rate within a regime. The specialist's own demo plan does include a same-subset false-alarm replay, which should be made the primary evidence. [technical_inference grounded in the dataset structure]",
+   "severity": "medium",
+   "evidence": "C-MAPSS test files provide only the final RUL per engine (RUL_FD00x.txt, one value per unit, verified locally); River ADWIN API takes a scalar stream and has no notion of delayed labels (docs fetched by specialist, consistent with my reading).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://riverml.xyz/latest/api/drift/ADWIN/",
+    "https://pypi.org/project/evidently/"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Dependency and environment fragility is real but manageable: a pip --dry-run of 'mlflow>=3, evidently==0.7.23, streamlit, river, scikit-learn, pandas' resolved without conflict (142 packages: mlflow 3.17.1, evidently 0.7.23, streamlit 1.66.0, river 0.26.1, scikit-learn 1.9.1, plotly 5.24.1, pydantic 2.14.1) BUT it pulls pandas 3.0.6 and numpy 2.5.4, whereas the reproduced baseline ran on pandas 2.3.3; pandas 3 changes copy-on-write/string defaults and has not been exercised. On this very machine 'import streamlit' still fails (plotly 4.14.3: AttributeError Icicle) and mlflow is 2.15.1, confirming the specialist's warning. Evidently 0.7.23 (11 Sep 2026, Apache-2.0, Python>=3.10) verified. A lock file and a fresh-venv rehearsal are mandatory, not optional. [verified_fact]",
+   "severity": "medium",
+   "evidence": "pip dry-run report dep_report.json in scratchpad; local import tests; PyPI evidently page.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://pypi.org/project/evidently/",
+    "https://pypi.org/project/mlflow/"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "The claimed differentiator 'uncertainty-aware triage via GBM + conformal intervals across all four subsets' is already a published design: Robinson, IJPHM vol 17 no 1 (Apr 2026) uses a gradient boosting regressor with asymmetric conformalized quantile regression on all four C-MAPSS subsets, reporting test RMSE 13.26-16.85 and 88-92% coverage at 90% nominal (verified from the abstract page). Javanmardi's conformal-RUL-intervals repo (GB_experiment.py, 10% calibration, no licence) also exists. So the specialist's RMSE/coverage expectations are credible, but 'novelty' reduces to (a) the agent acting on the lower bound and (b) the promotion gate - both are engineering hygiene a judge may reasonably score as competent rather than innovative. The GitHub 'cmapss' topic lists 53 repos (top: 311-star Transformer, 221-star rul_codes_open, 186-star LSTM); none advertise MLflow/retraining/agent, which supports the 'integration is the gap' thesis but also shows how templated the ML side is. [verified_fact]",
+   "severity": "medium",
+   "evidence": "IJPHM article page; GitHub repo and topic pages fetched 2026-10-18.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.papers.phmsociety.org/index.php/ijphm/article/view/4724",
+    "https://github.com/alireza-javanmardi/conformal-RUL-intervals",
+    "https://github.com/topics/cmapss"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Scope and schedule: the recommended Concept A bundles roughly twelve components (loader/cleaner, regime clustering, HGBR, conformal, IsolationForest, MLflow+SQLite registry, Evidently, River, retrain job + gate, SQLite work orders, 6-tab Streamlit dashboard, stream replay, Docker, pytest, deck). The '10-11 person-days' estimate assigns 1.5 days to a six-tab dashboard and 1.25 days to drift+retrain+gate, which is optimistic for students learning MLflow 3 and Evidently 0.7 APIs; 14-18 person-days is a more defensible figure. Third-party Season 4 listings put Round 1 submissions closing 24 Oct 2026 (six days from today) and Round 2 at 14 Nov-13 Dec 2026, i.e. a four-week build window, which the larger estimate still fits for a 3-person team but with little slack for the 'rehearse from a clean clone' step. [technical_inference; dates unverified_assumption from non-official listings]",
+   "severity": "medium",
+   "evidence": "Component count from the specialist's architecture_and_mvp; dates from search snippets of a PTU notice and gradpartners listing (official Tata Elxsi page not found).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://gradpartners.in/e/Tata-Elxsi-TELIPORT-Season-4-347",
+    "https://hiretoday.in/competitiondetails/40000213",
+    "https://www.9curry.com/notices/eb5187"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Submission format risk shared by every case: the only format evidence is Season 3 / 2023 precedent - Round 1 = one-slide PDF, Round 2 = 10-slide PPT/PDF <= 5 MB with Excel/prototype annexures, live presentation only at the Grand Finale (top ~5 teams). The specialist's demo plan is an 8-10 minute live scripted demo; if Season 4 repeats the precedent, the PoC is judged from a deck plus annexed repo link / video, so the deliverable must be re-planned as: a 10-slide deck that carries the on-screen numbers, a <=5 MB artefact budget, and a public repo with 'make demo' plus a recorded run. Case 1 is comparatively well protected because its PDF prescribes Round 1/Round 2 content explicitly; Case 3's PDF has no rounds at all. HireToday lists Season 4 'judging criteria: Innovation, Problem understanding, Solution quality, Implementation feasibility, Impact, Presentation quality' - a generic platform listing that must NOT override the case PDF rubric but suggests a presentation-quality overlay. [unverified_assumption]",
+   "severity": "high",
+   "evidence": "Unstop 2023 TELIPORT page (1-slider PDF / 10-slider PPT / on-ground finale); frontlinesmedia Season 3 snippet (10 slides, <=5 MB, annexures); HireToday Season 4 page.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://unstop.com/hackathons/tata-elxsi-teliport-tata-elxsi-limited-768116/amp",
+    "https://frontlinesmedia.in/tata-elxsi-teliport-season-3-script-your-future/",
+    "https://hiretoday.in/competitiondetails/40000213"
+   ]
+  },
+  {
+   "case_id": 1,
+   "finding": "Scoring-function ambiguity confirmed from the primary text: the locally extracted Saxena 2008 PDF reads 'd = t^RUL - tRUL (Estimated RUL - True RUL), a1 = 10, and a2 = 13' and the branch assignment is not recoverable from the extracted equation; the specialist's advice to print the convention (exp(-d/13)-1 early, exp(d/10)-1 late) on the slide is the right mitigation. The leakage preprint arXiv 2607.16493 (17 Jul 2026) exists and does report naive sliding-window splits inflating classification accuracy to 99.9% vs 20-60% genuine; note it is a classification figure, so it should not be quoted as an RUL-RMSE effect. [verified_fact]",
+   "severity": "low",
+   "evidence": "scratchpad/pdfs/saxena.txt line 739; arXiv abstract fetched.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://c3.ndc.nasa.gov/dashlink/static/media/publication/2008_IEEEPHM_CMAPPSDamagePropagation.pdf",
+    "https://arxiv.org/abs/2607.16493"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "Independent reproduction of the headline latency claim on the team's own laptop: I built a 3-namespace testbed in this machine's WSL2 (kernel 6.6.87.2, WSL 2.6.1.0, 12 vCPU, 7.9 GB) with netem 'delay 20ms rate 20mbit limit 1000' on the WAN egress and a Python bulk TCP download. Idle RTT 40.2/44.4/82.2 ms (min/avg/max). Under load with a deep FIFO (baseline): RTT 253.9/638.0/3534.3 ms, netem backlog 674 packets, bulk 15.9 Mbps. After adding HTB (rate 18mbit) + fq_codel on the router's LAN-side egress: RTT 40.1/41.2/42.4 ms (mdev 0.49 ms), bulk 16.4 Mbps, WAN backlog 17 packets. That is a 93.5% reduction in mean RTT under load (98.8% in max) with bulk still at 82% of link - the specialist's '>=80% p95 reduction' target is conservative, and the 600 ms queueing arithmetic (1000 x 1500 B at 20 Mbps) matched the measured 638 ms mean. HTB printed 'quantum of class 10010 is big. Consider r2q change' as the specialist predicted. [verified_fact]",
+   "severity": "low",
+   "evidence": "scratchpad/wslcheck.sh run via wsl.exe -u root on 2026-10-18; tc -s qdisc output captured.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://man7.org/linux/man-pages/man8/tc-netem.8.html",
+    "https://man7.org/linux/man-pages/man8/tc-htb.8.html",
+    "https://www.rfc-editor.org/rfc/rfc8290.html"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "Kernel/tool availability on the team's machine confirmed, with gaps: modprobe -n shows sch_htb, sch_fq_codel, ifb, cls_flower, act_mirred present (netem demonstrably works), while sch_cake, sch_pie and vcan are MISSING; 'tc qdisc replace ... cake' fails with 'Specified qdisc kind is unknown'. The upstream config-wsl for linux-msft-wsl-6.6.y confirms '# CONFIG_NET_SCH_CAKE is not set' and '# CONFIG_NET_SCH_PIE is not set'. iperf3, nft, iptables, go and irtt are all absent (apt/go install needed; iproute2 6.1.0 and python3 present). For CI: the current ubuntu-24.04 runner image (20261012.334.1) runs kernel 6.17.0-1022-azure with passwordless sudo ('The Linux and macOS virtual machines both run using passwordless sudo'), iperf3 is NOT preinstalled, and packages.ubuntu.com shows sch_cake.ko only for 6.17 azure-fde and generic builds, not that exact -azure build, so the CAKE-in-CI comparison remains unconfirmed until one workflow runs. [verified_fact]",
+   "severity": "medium",
+   "evidence": "Local modprobe/command checks; raw config-wsl fetch; runner-images readme; GitHub docs; packages.ubuntu.com contents search (noble, noble-updates).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://raw.githubusercontent.com/microsoft/WSL2-Linux-Kernel/linux-msft-wsl-6.6.y/arch/x86/configs/config-wsl",
+    "https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md",
+    "https://docs.github.com/en/actions/reference/runners/github-hosted-runners",
+    "https://packages.ubuntu.com/search?searchon=contents&keywords=sch_cake.ko&mode=filename&suite=noble-updates&arch=amd64"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "WSL2 timing noise threatens the 'adaptation speed and policy stability' criterion more than the specialist allows: on an idle 40 ms emulated path I measured max RTT 82 ms with mdev 12.6 ms over 10 pings (a 40 ms spike with nothing else running). The proposed AIMD estimator rule 'RTT delta > 25 ms for 3 samples -> rate *= 0.85' would false-trigger on such VM scheduling spikes, producing exactly the rate flips the rubric penalises, and the ground-truth estimator error target (<=15%) could be missed for reasons unrelated to the algorithm. Mitigations are known (median-of-N probes, longer refractory, running the headline runs in a native Ubuntu VM or CI rather than WSL) but they cost tuning time the team has not budgeted. Netem's man page also warns 'Combining netem with other qdisc is possible but may not always work' and that rate emulation is 'impacted by ... kernel clock granularity' producing bursts. [verified_fact for measurements and man page; technical_inference for the estimator impact]",
+   "severity": "medium",
+   "evidence": "Idle ping line from my run: 'rtt min/avg/max/mdev = 40.160/44.375/82.201/12.608 ms'; tc-netem(8) LIMITATIONS text.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://man7.org/linux/man-pages/man8/tc-netem.8.html",
+    "https://arxiv.org/abs/2208.05862"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "Classification criterion is structurally thin for this design: on a self-generated testbed the 'ground truth' categories are known by construction (the team launches the iperf3/irtt/UDP flows itself on known ports), so a reported 95%+ accuracy for the heuristic classifier is nearly tautological and a Tata Elxsi MCV judge will say so. The optional ML path on ISCXVPN2016 (page fetched: ~28 GB pcap + ISCXFlowMeter CSVs, 14 categories, 'publicly available for researchers', cite Draper-Gil et al. ICISSP 2016; the page states no login but also no redistribution terms) is 2016-era traffic without QUIC/ECH. NFStream is viable (6.6.0, 16 Feb 2026, LGPL-3, wheels cp310-cp313 manylinux x86_64/aarch64, so the specialist's Python 3.12 doubt is resolved), but the deliverable the PDF asks for - 'classifiers must expose confidence and allow correction' - is a UI/API feature, not an accuracy number, and that is what the team should lead with. [verified_fact for tool/data facts; technical_inference for the judging effect]",
+   "severity": "medium",
+   "evidence": "PyPI JSON for nfstream; UNB CIC page; the PDF constraint list (cs3.md line 24).",
+   "changes_recommendation": false,
+   "urls": [
+    "https://pypi.org/pypi/nfstream/json",
+    "https://www.unb.ca/cic/datasets/vpn.html",
+    "https://github.com/nfstream/nfstream"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "Reference-design provenance holds up: cake-autorate (GPL-2.0, bash, 1,316 commits, 573 stars, stable 3.2.1) estimates capacity from load plus OWD/RTT to reflectors with a refractory period and min/base/max clamps, and is CAKE-specific, so the team's Python re-implementation against HTB is new code with attribution, not a copy. irtt is 0.9.2 (GPL-2.0), needs Go to build from source, but an 'irtt' package exists in Ubuntu noble. The CAKE paper (arXiv 1804.07617, CC BY-SA 4.0) exists; the specific 200 ms vs 50-500 ms numbers the specialist quoted are from the body, which I did not re-read. [verified_fact]",
+   "severity": "low",
+   "evidence": "GitHub pages fetched; packages.ubuntu.com search for irtt returned 'Package irtt' in noble.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://github.com/lynxthecat/cake-autorate",
+    "https://github.com/heistp/irtt",
+    "https://arxiv.org/abs/1804.07617"
+   ]
+  },
+  {
+   "case_id": 3,
+   "finding": "Round 1 exposure: Case 3's PDF defines nine 'Expected Output' artefacts and five unweighted criteria but no rounds; if Season 4 follows precedent (Round 1 = one-slide idea PDF), a one-slide summary of an estimator + enforcement + verify/rollback + dashboard + CI design is far harder to make convincing than Case 1's Round 1, whose PDF names the exact deck contents and weights (Architecture clarity 20%, ML approach 20%). The specialist did not plan the Round 1 artefact for Case 3 at all. The experiment result I measured (638 ms -> 41 ms) is, however, exactly the kind of single number that works on one slide, provided it is labelled as WSL2 emulation. [source_derived_requirement from cs3.md; format precedent unverified_assumption]",
+   "severity": "medium",
+   "evidence": "cs3.md lines 31-47; Unstop 2023 format page.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://unstop.com/hackathons/tata-elxsi-teliport-tata-elxsi-limited-768116/amp"
+   ]
+  },
+  {
+   "case_id": 5,
+   "finding": "Not in my brief to investigate deeply, but for ranking: Case 5's credibility on 'Edge Performance' depends entirely on ARM hardware the team is not known to have, and its tokens/s inputs are community Ollama blog numbers; nothing in the specialist's output was reproduced locally. Combined with being the most LLM-trendy case (largest expected entrant pool), its variance is the highest of the five. [technical_inference]",
+   "severity": "medium",
+   "evidence": "Specialist 5's own 'critical' risk entry and 'unverified_assumption' labels on all Pi throughput sources.",
+   "changes_recommendation": false,
+   "urls": [
+    "https://www.raspberrypi.com/documentation/accessories/ai-hat-plus.html"
+   ]
+  }
+ ],
+ "leader_assessment": "Case 1 survives the attack. Every load-bearing claim I could test held: the mandated dataset is on disk and the official page is live; the baseline script reproduces to the decimal (FD001 RMSE 14.22, NASA score 314, 100 s CPU) on current scikit-learn; the four-subset file layout and the FD004 readme swap are real; the Robinson IJPHM 2026 and arXiv 2607.16493 papers exist and say what the specialist says; Evidently 0.7.23 and the whole stack resolve in pip without conflict. The weaknesses are design-level, not feasibility-level: (1) the architecture text pairs a file-store MLflow with a Model Registry that officially requires a database backend and leans on deprecated 'stages'; (2) residual-drift detection in stream mode is impossible without labels, so the live drift story must be feature drift plus a same-subset false-alarm test; (3) the 'innovation' is published hygiene (GBM + conformal on all four subsets is already in IJPHM 2026), so the Round 2 'Demo & explanation' score will rest on articulation rather than surprise; (4) the component count is large for a four-week Round 2 window and the effort estimate is ~40% light; (5) the demo plan assumes a live 8-10 minute session, whereas precedent says Round 2 is a 10-slide deck with annexures. None of these move Case 1 below Case 3 for THIS team: Case 1 has explicit weights (40% of Round 2 is pipeline + explanation, which is backend work), a prescribed Round 1 deck, zero hardware or kernel dependencies, and the lowest variance. I lower its execution-adjusted score from 7.6 to about 7.3 and its differentiation from 6 to 5.",
+ "assumption_sensitivity": "Case 1 loses to Case 3 under any of three plausible changes: (a) a teammate has real Linux networking fluency (tc/namespaces), which removes Case 3's main execution risk - my own one-script testbed produced a 93% latency reduction on the first run, so the floor is higher than the specialist's skill_fit=6 implies; (b) judges reward visible, dramatic, hard-to-fake measurements over rubric completeness - 638 ms to 41 ms on a reproducible script is more memorable than a 14.2 RMSE on a dataset with 53 public repos; (c) Round 2 or the finale allows video/live demos, where Case 3's before/after experiment is far more compelling than an MLflow screen. Case 1 also loses on pure crowding if, as the mandated-dataset case with a prescribed deck, it attracts the largest share of the roughly 6,000+ teams seen in Season 2 (Hitavada, third-party), since beating the field then requires engineering polish that a four-week window may not allow. Case 1 keeps its lead if the team is 2-3 generalist backend students on Windows laptops with no ARM hardware, no networking specialist and no battery/regulatory domain member, and if Round 2 is judged from a deck plus annexed repo - which is the base case given the evidence. Case 3 would fall below Case 4 only if the team cannot obtain a reliable Linux environment (native VM or CI) for the final numbers, because WSL2 timing noise alone can sink the 'adaptation speed and policy stability' criterion.",
+ "ranking": [
+  {
+   "case_id": 1,
+   "rank": 1,
+   "rationale": "Lowest-variance path: mandated public dataset verified on disk, baseline reproduced exactly (RMSE 14.22 / score 314 / 100 s), explicit weighted rubric where 40% of Round 2 is pipeline+explanation (team's strength), prescribed Round 1 deck, no hardware or kernel dependencies. Dings: MLflow registry/file-store contradiction, label-free residual drift, hygiene-not-novelty, optimistic effort estimate, deck-not-live format. Execution-adjusted ~7.3."
+  },
+  {
+   "case_id": 3,
+   "rank": 2,
+   "rationale": "Evidence is stronger than the specialist claimed - I measured 638 ms -> 41 ms RTT under load with bulk at 82% of link on the team's own WSL2 - and all tools are free and present or apt-installable. Held back by unweighted rubric with a tautological classification criterion, WSL2 timing jitter (82 ms spikes on an idle 40 ms path) that threatens estimator stability, no CAKE on WSL, no Round 1 plan, and Linux-networking skills the team has not demonstrated. Execution-adjusted ~7.1."
+  },
+  {
+   "case_id": 4,
+   "rank": 3,
+   "rationale": "Deterministic, backend-heavy, offline-demoable, with verified free regulatory sources and openFDA data; but no dataset or weights, an enormous 'end-to-end' scope that favours consulting-style decks, paid ISO standards, and judges who can spot one wrong clause. Variance is medium; upside exists if the registry+benchmark is executed cleanly."
+  },
+  {
+   "case_id": 2,
+   "rank": 4,
+   "rationale": "Free tools verified (PyBaMM sub-second), datasheet validation target exists, but thermal parameters are fitted-not-validated, the rubric probes battery-engineering judgement under questioning, and Business viability/Innovation are weak for a software team. Lower ceiling than 4 for this team unless someone owns the physics."
+  },
+  {
+   "case_id": 5,
+   "rank": 5,
+   "rationale": "Highest variance: credible Edge Performance numbers need ARM hardware the team is not known to have, all throughput inputs are community blog figures, two of five example queries require synthetic data, and it is the most LLM-trendy case so the entrant pool is largest and judges most jaded. Good architecture idea (LLM-as-parser) but the honest answer to the <2 s constraint is 'bypass the LLM', which a flashier competitor can paper over."
+  }
+ ],
+ "score_adjustments": [
+  {
+   "case_id": 1,
+   "dimension": "differentiation",
+   "delta": -1,
+   "reason": "GBM + conformal intervals across all four C-MAPSS subsets is already published (Robinson, IJPHM 17(1), 2026, RMSE 13.26-16.85, coverage 88-92%); remaining novelty is the agent-on-lower-bound rule and the promotion gate, which judges may score as hygiene."
+  },
+  {
+   "case_id": 1,
+   "dimension": "demo_reliability",
+   "delta": -0.5,
+   "reason": "Registry requires a DB backend and stages are deprecated (MLflow docs/issue #10336); pip resolves to untested pandas 3.0.6; streamlit import still broken on the team machine; Round 2 is likely deck+annexure, so the live demo plan needs re-planning."
+  },
+  {
+   "case_id": 1,
+   "dimension": "complete_prototype",
+   "delta": -0.5,
+   "reason": "~12 components for a four-week Round 2 window; effort estimate is ~40% light (dashboard 1.5 days, drift+retrain+gate 1.25 days); residual-drift-in-stream-mode is not implementable as described."
+  },
+  {
+   "case_id": 1,
+   "dimension": "measurable_results",
+   "delta": 0,
+   "reason": "Held at 9: baseline numbers reproduced exactly on a second run with a newer scikit-learn; official test protocol and dual capped/raw reporting are sound."
+  },
+  {
+   "case_id": 3,
+   "dimension": "measurable_results",
+   "delta": 0.5,
+   "reason": "Independent reproduction on the team's laptop: mean RTT under load 638 ms -> 41.2 ms (93.5% reduction), bulk 16.4/20 Mbps, matching the queueing arithmetic; the headline claim is conservative and trivially scriptable."
+  },
+  {
+   "case_id": 3,
+   "dimension": "low_failure_risk",
+   "delta": -0.5,
+   "reason": "WSL2 timing jitter (82 ms max / 12.6 ms mdev on an idle 40 ms path) can false-trigger the AIMD backoff rule and inflate policy flips; sch_cake/sch_pie/vcan absent; iperf3/nft/irtt/go not installed; CAKE-in-CI unconfirmed for the exact 6.17.0-1022-azure runner kernel."
+  },
+  {
+   "case_id": 3,
+   "dimension": "differentiation",
+   "delta": 0.5,
+   "reason": "Verify-or-rollback with ground-truth-scored capacity estimation is genuinely uncommon and maps directly to the PDF's 'bounded, observable and reversible' constraint; the before/after number is memorable on one slide."
+  },
+  {
+   "case_id": 3,
+   "dimension": "rubric_alignment",
+   "delta": -0.5,
+   "reason": "'Accuracy of classification' on self-generated traffic is tautological and the PDF gives no rounds, so Round 1 (likely a one-slide PDF per precedent) has no planned artefact."
+  },
+  {
+   "case_id": 5,
+   "dimension": "low_failure_risk",
+   "delta": -0.5,
+   "reason": "All Edge Performance inputs are unverified community numbers and the plan has a 'critical' dependency on ARM hardware the team is not known to possess; nothing was reproduced locally."
+  }
+ ]
+}
