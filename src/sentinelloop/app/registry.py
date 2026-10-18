@@ -78,15 +78,17 @@ def create_asset(db, spec: AssetSpec, actor: str) -> Asset:
             raise RegistryError(f"unknown asset type {spec.asset_type_id}")
         if c.execute("SELECT 1 FROM sites WHERE site_id = ?", (spec.site_id,)).fetchone() is None:
             raise RegistryError(f"unknown site {spec.site_id}")
-        if c.execute("SELECT 1 FROM assets WHERE asset_id = ? OR tag = ?", (spec.asset_id, spec.tag)).fetchone() is not None:
-            raise RegistryError(f"an asset with id {spec.asset_id} or tag {spec.tag} already exists")
+        # ids and tags form ONE namespace: neither may equal any existing id or tag, so a lookup key is never ambiguous
+        if c.execute("SELECT 1 FROM assets WHERE asset_id IN (?, ?) OR tag IN (?, ?)",
+                     (spec.asset_id, spec.tag, spec.asset_id, spec.tag)).fetchone() is not None:
+            raise RegistryError(f"asset id {spec.asset_id} or tag {spec.tag} collides with an existing asset id or tag")
         c.execute("INSERT INTO assets (asset_id, tag, name, asset_type_id, site_id, location, criticality, failure_consequence_json, config_json, "
                   "operating_context_json, maintenance_windows_json, status, installed_at, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,'active',?,?,?)",
                   (spec.asset_id, spec.tag, spec.name, spec.asset_type_id, spec.site_id, spec.location, spec.criticality,
                    spec.consequence.model_dump_json(), json.dumps(spec.config), json.dumps(spec.operating_context),
                    json.dumps([w.model_dump() for w in spec.maintenance_windows]), spec.installed_at, ts, ts))
         _audit(db, c, actor, "asset.created", "asset", spec.asset_id, spec.model_dump())
-    return get_asset(db, spec.asset_id)
+    return get_asset_by_id(db, spec.asset_id)
 
 
 def _asset_from_row(r) -> Asset:
@@ -97,8 +99,17 @@ def _asset_from_row(r) -> Asset:
 
 
 def get_asset(db, asset_id_or_tag: str) -> Asset | None:
+    """Exact id first, then tag (ids and tags share one namespace, enforced at creation)."""
     with db.connect() as c:
-        r = c.execute("SELECT * FROM assets WHERE asset_id = ? OR tag = ?", (asset_id_or_tag, asset_id_or_tag)).fetchone()
+        r = c.execute("SELECT * FROM assets WHERE asset_id = ?", (asset_id_or_tag,)).fetchone()
+        if r is None:
+            r = c.execute("SELECT * FROM assets WHERE tag = ?", (asset_id_or_tag,)).fetchone()
+    return _asset_from_row(r) if r else None
+
+
+def get_asset_by_id(db, asset_id: str) -> Asset | None:
+    with db.connect() as c:
+        r = c.execute("SELECT * FROM assets WHERE asset_id = ?", (asset_id,)).fetchone()
     return _asset_from_row(r) if r else None
 
 
@@ -118,9 +129,9 @@ def update_asset(db, asset_id: str, changes: dict, actor: str, reason: str) -> A
         raise RegistryError(f"fields {sorted(bad)} cannot be changed in place (retire the asset and register a new one)")
     if not reason or not reason.strip():
         raise RegistryError("a reason is required for every asset change")
-    old = get_asset(db, asset_id)
+    old = get_asset_by_id(db, asset_id)
     if old is None:
-        raise RegistryError(f"unknown asset {asset_id}")
+        raise RegistryError(f"unknown asset id {asset_id}")
     merged = old.model_dump()
     merged.update(changes)
     new = Asset(**merged)                                  # validates criticality, windows, consequence
@@ -133,4 +144,4 @@ def update_asset(db, asset_id: str, changes: dict, actor: str, reason: str) -> A
         c.execute("UPDATE assets SET " + ", ".join(f"{k} = :{k}" for k in cols) + " WHERE asset_id = :asset_id", {**cols, "asset_id": old.asset_id})
         _audit(db, c, actor, "asset.updated", "asset", old.asset_id,
                {"reason": reason, "old": {k: old.model_dump()[k] for k in changes}, "new": {k: new.model_dump()[k] for k in changes}})
-    return get_asset(db, old.asset_id)
+    return get_asset_by_id(db, old.asset_id)

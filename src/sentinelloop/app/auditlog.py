@@ -40,9 +40,10 @@ def append(c, actor: str, action: str, entity: str, entity_id: str, payload: dic
 
 
 def verify(c, key: bytes, anchor: dict | None = None) -> dict:
-    prev, n, expected_seq = GENESIS, 0, 1
+    prev, n, expected_seq, dev = GENESIS, 0, 1, 0
     for r in c.execute("SELECT * FROM audit_events ORDER BY seq"):
         n += 1
+        dev += int(r["key_id"] == "dev-insecure")
         reason = None
         if r["seq"] != expected_seq:
             reason = f"sequence gap: expected {expected_seq}, found {r['seq']}"
@@ -55,13 +56,14 @@ def verify(c, key: bytes, anchor: dict | None = None) -> dict:
             if not hmac.compare_digest(_digest(body, key), r["hash"]):
                 reason = "keyed hash mismatch (edited event or wrong key)"
         if reason:
-            return {"n": n, "valid": False, "first_bad_seq": r["seq"], "reason": reason}
+            return {"n": n, "valid": False, "first_bad_seq": r["seq"], "reason": reason, "events_signed_with_dev_key": dev}
         prev, expected_seq = r["hash"], expected_seq + 1
     if anchor:
         row = c.execute("SELECT hash FROM audit_events WHERE seq = ?", (int(anchor["seq"]),)).fetchone()
         if row is None or row["hash"] != anchor["hash"]:
-            return {"n": n, "valid": False, "first_bad_seq": int(anchor["seq"]), "reason": "anchored event missing or changed (truncation or rewrite)"}
-    return {"n": n, "valid": True, "first_bad_seq": None, "reason": None}
+            return {"n": n, "valid": False, "first_bad_seq": int(anchor["seq"]), "reason": "anchored event missing or changed (truncation or rewrite)",
+                    "events_signed_with_dev_key": dev}
+    return {"n": n, "valid": True, "first_bad_seq": None, "reason": None, "events_signed_with_dev_key": dev}
 
 
 def anchor(c) -> dict:

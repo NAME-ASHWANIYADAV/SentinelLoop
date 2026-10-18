@@ -58,10 +58,16 @@ def _existing_batch(c, content_sha: str) -> IngestResult | None:
 
 
 def _registry_view(db):
+    by_id, by_tag = {}, {}
     with db.connect() as c:
-        assets = {}
         for r in c.execute("SELECT asset_id, tag, asset_type_id, status FROM assets"):
-            assets[r["asset_id"]] = assets[r["tag"]] = (r["asset_id"], r["asset_type_id"], r["status"])
+            v = (r["asset_id"], r["asset_type_id"], r["status"])
+            by_id[r["asset_id"]] = v
+            by_tag[r["tag"]] = v
+    assets = {}
+    for k in set(by_id) | set(by_tag):
+        a, b = by_id.get(k), by_tag.get(k)
+        assets[k] = "AMBIGUOUS" if (a is not None and b is not None and a[0] != b[0]) else (a or b)
     types = {t.asset_type_id: {s.name: s for s in t.signals} for t in list_asset_types(db)}
     return assets, types
 
@@ -159,6 +165,8 @@ def _ingest(db, records: list[dict], source: str, actor: str, content_sha: str, 
         a = assets.get(str(raw["asset"]))
         if a is None:
             bad("unknown_asset", str(raw["asset"])); continue
+        if a == "AMBIGUOUS":
+            bad("ambiguous_asset", f"{raw['asset']} is the id of one asset and the tag of another"); continue
         asset_id, type_id, status = a
         if status == "retired":
             bad("inactive_asset", asset_id); continue

@@ -33,12 +33,33 @@ class _Conn(sqlite3.Connection):
             self.close()
 
 
+MIN_AUDIT_KEY_BYTES = 32
+
+
 class Database:
-    def __init__(self, path, audit_key: bytes | None = None, audit_key_id: str | None = None):
+    """`audit_key` signs the audit chain. It is required: without one the database refuses to open, unless the caller
+    explicitly opts into the built-in development key (`allow_dev_key=True`), whose events are labelled `dev-insecure`
+    and counted by `auditlog.verify` so they can never pass as production evidence."""
+
+    def __init__(self, path, audit_key: bytes | None = None, audit_key_id: str | None = None, allow_dev_key: bool = False):
         self.path = Path(path)
-        self.audit_key = audit_key or DEV_AUDIT_KEY
-        self.audit_key_id = audit_key_id or ("dev-insecure" if audit_key is None else "configured")
+        if audit_key is None:
+            if not allow_dev_key:
+                raise ValueError("an audit key is required (set SENTINELLOOP_AUDIT_KEY); pass allow_dev_key=True only for local development")
+            self.audit_key, self.audit_key_id = DEV_AUDIT_KEY, "dev-insecure"
+        else:
+            if len(audit_key) < MIN_AUDIT_KEY_BYTES:
+                raise ValueError(f"the audit key must be at least {MIN_AUDIT_KEY_BYTES} bytes")
+            if audit_key == DEV_AUDIT_KEY:
+                raise ValueError("the built-in development key cannot be supplied as a configured key")
+            self.audit_key, self.audit_key_id = audit_key, (audit_key_id or "configured")
+            if self.audit_key_id == "dev-insecure":
+                raise ValueError("key id 'dev-insecure' is reserved for the development key")
         self.path.parent.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def insecure_dev_key(self) -> bool:
+        return self.audit_key_id == "dev-insecure"
 
     # -- connections ---------------------------------------------------------------------------
     def connect(self) -> sqlite3.Connection:

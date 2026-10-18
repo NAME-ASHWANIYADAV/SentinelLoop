@@ -6,7 +6,7 @@ import pytest
 from sentinelloop.app import auditlog, db as dbmod, registry
 from sentinelloop.app.models import AssetSpec, AssetTypeSpec, ConsequenceSpec, JobSpec, SignalSpec, WindowSpec
 
-KEY = b"test-audit-key-0123456789abcdef"
+KEY = b"test-audit-key-0123456789abcdef-0123456789"
 
 
 @pytest.fixture
@@ -131,3 +131,28 @@ def test_registry_update_records_old_and_new_values(database):
 def test_naive_timestamps_are_refused_in_specs():
     with pytest.raises(ValueError):
         WindowSpec(start="2026-10-20T06:00:00", end="2026-10-20T08:00:00Z")
+
+
+def test_database_refuses_to_run_without_a_real_audit_key(tmp_path):
+    with pytest.raises(ValueError):
+        dbmod.Database(tmp_path / "a.db")                                  # no key and no explicit dev opt-in
+    with pytest.raises(ValueError):
+        dbmod.Database(tmp_path / "a.db", audit_key=b"short")             # too short to be a secret
+    d = dbmod.Database(tmp_path / "a.db", allow_dev_key=True)
+    assert d.audit_key_id == "dev-insecure" and d.insecure_dev_key
+    d.migrate()
+    with d.tx() as c:
+        auditlog.append(c, actor="a", action="x", entity="e", entity_id="1", payload={}, key=d.audit_key, key_id=d.audit_key_id)
+    with d.connect() as c:
+        assert auditlog.verify(c, d.audit_key)["events_signed_with_dev_key"] == 1
+
+
+def test_asset_ids_and_tags_share_one_namespace(database):
+    registry.create_site(database, "site1", "Plant 1", "UTC", actor="admin")
+    registry.create_asset_type(database, pump_type(), actor="admin")
+    registry.create_asset(database, pump("P-101", tag="TAG-A"), actor="admin")
+    with pytest.raises(registry.RegistryError):
+        registry.create_asset(database, pump("P-102", tag="P-101"), actor="admin")      # tag equal to another asset's id
+    with pytest.raises(registry.RegistryError):
+        registry.create_asset(database, pump("TAG-A", tag="TAG-B"), actor="admin")      # id equal to another asset's tag
+    assert registry.get_asset(database, "TAG-A").asset_id == "P-101"
