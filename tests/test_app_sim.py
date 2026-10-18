@@ -57,3 +57,14 @@ def test_parts_are_never_consumed_beyond_physical_stock(trajs):
     r = sim.FleetSim(trajs, cfg, "RISK_GREEDY", seed=3)
     res = r.run()
     assert r.kits >= 0 and res.metrics["schedule_violations"] == 0
+
+
+def test_downtime_of_assets_still_failed_at_the_end_is_counted(trajs):
+    """Adversarial review data_scientist-1: downtime was credited only when a repair finished (right-censoring)."""
+    cfg = replace(sim.scenario_config("parts_shortage"), days=40, n_assets=12)
+    m = sim.run(trajs, cfg, "RUN_TO_FAILURE", seed=0, scenario="parts_shortage").metrics
+    assert m["assets_failed_at_end"] > 0
+    assert m["unplanned_downtime_total_h"] > m["unplanned_downtime_h"]
+    fleet_h = cfg.n_assets * cfg.days * 24
+    assert abs(m["availability"] - (1 - (m["unplanned_downtime_total_h"] + m["planned_downtime_h"]) / fleet_h)) < 1e-9
+    assert 0.0 <= m["availability"] <= 1.0

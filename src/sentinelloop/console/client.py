@@ -10,12 +10,11 @@ import uuid
 
 import httpx
 
-_MD = re.compile(r"([\\`*_{}\[\]()#+\-.!|<>~])")
-
-
 def md(s) -> str:
-    """Escape markdown in text that came from the API, so titles and reasons render as plain text (no links, no images)."""
-    return _MD.sub(r"\\\1", str(s if s is not None else ""))
+    """Wrap text that came from the API in an inline code span for st.markdown. Inside a code span markdown is not
+    interpreted and no link, image or autolink can form; backticks and line breaks are replaced so nothing can close it."""
+    text = re.sub(r"[\r\n\t]+", " ", str(s if s is not None else "")).replace("`", "'")
+    return f"`{text}`" if text else "` `"
 
 
 STATE_ORDER =["URGENT_REVIEW", "INSPECTION_RECOMMENDED", "DATA_QUALITY_FAILURE", "MODEL_UNAVAILABLE", "MODEL_OUT_OF_SCOPE", "AWAITING_ASSESSMENT",
@@ -144,7 +143,8 @@ def explanation_lines(wo: dict) -> list[str]:
     if ex.get("reasons"):
         out.append("Assessment reasons: " + "; ".join(ex["reasons"][:4]))
     if ex.get("p_fail_decision_horizon") is not None:
-        out.append(f"P(failure before {ex.get('decision_horizon_hours')} h): {ex['p_fail_decision_horizon']:.2f}")
+        out.append(f"Model-implied P(failure before {ex.get('decision_horizon_hours')} h): {ex['p_fail_decision_horizon']:.2f} "
+                   f"(not calibrated: on simulated data the observed rate was higher, see evidence C2)")
     else:
         out.append("No failure probability: the model gives none for this case (anomaly model, or no valid prediction).")
     if ex.get("due_by"):

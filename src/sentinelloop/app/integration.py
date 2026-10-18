@@ -351,6 +351,14 @@ def _log(c, target_id, wo_id, action, outcome, detail):
               (now_iso(), target_id, wo_id, action, outcome, json.dumps(detail, default=str)))
 
 
+def _delivered_before(db, target_id: str, wo_id: str) -> bool:
+    """Evidence that SentinelLoop itself created a CMMS request for this order earlier: a successful real upsert in the
+    integration log. Only then may a lost mapping be recovered by marker (shadow items never delivered anything)."""
+    with db.connect() as c:
+        return c.execute("SELECT 1 FROM integration_log WHERE target_id = ? AND wo_id = ? AND action = 'upsert' AND outcome = 'synced' LIMIT 1",
+                         (target_id, wo_id)).fetchone() is not None
+
+
 def items(db, target_id: str, status: str | None = None) -> list[dict]:
     q, a = "SELECT * FROM sync_items WHERE target_id = ?", [target_id]
     if status:
@@ -437,7 +445,7 @@ def dispatch(db, target_id: str, now_ms: int | None = None, transport=None, max_
                 if t["mode"] == "shadow":
                     outcome = "shadow"
                 else:
-                    ext = adapter.upsert(wo["wo_id"], payload, ext, recover=it is not None)
+                    ext = adapter.upsert(wo["wo_id"], payload, ext, recover=ext is None and _delivered_before(db, target_id, wo["wo_id"]))
                     outcome = "synced"
             except TransientError as e:
                 attempts += 1

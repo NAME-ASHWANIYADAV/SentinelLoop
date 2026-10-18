@@ -329,20 +329,37 @@ def load(bundle_dir) -> WindNBMBundle:
     return b
 
 
+def gate(b: WindNBMBundle, w: pd.DataFrame, tolerance: float = 0.05, max_out_frac: float = 0.2, stuck_min_run: int = 5,
+         max_conflict_frac: float = 0.2) -> str:
+    """The assessment service's gating order for one window: regime-independent data checks run even out of scope, and a
+    data failure takes precedence over scope (PD-13). Returns 'data_quality', 'out_of_scope' or 'ok'."""
+    a = b.applicability(w, tolerance, max_out_frac)
+    if a["in_scope"] or b.quality_independent_of_scope:
+        if not b.quality(w, stuck_min_run, max_conflict_frac)["ok"]:
+            return "data_quality"
+    return "ok" if a["in_scope"] else "out_of_scope"
+
+
+def _episodes(idx: list) -> int:
+    """Runs of consecutive alarm evaluations (one episode = one sustained alarm that a person would see as one event)."""
+    return sum(1 for k, i in enumerate(idx) if k == 0 or i != idx[k - 1] + 1)
+
+
 def evaluate(b: WindNBMBundle, scada: pd.DataFrame, labels: list, step_points: int = 6, only_last_frac: float | None = None,
              baseline_days: float | None = 7.0, baseline_frac: float | None = None, tolerance: float = 0.05, max_out_frac: float = 0.2,
              stuck_min_run: int = 5, max_conflict_frac: float = 0.2) -> dict:
-    """Replay assessments every `step_points` points per turbine exactly as the assessment service would (scope, data
-    quality, then score) and summarise alarms against labels: detection, lead time, alarms on healthy turbines.
+    """Replay assessments every `step_points` points per turbine in the assessment service's gating order (`gate`) and
+    summarise alarms against labels: detection, lead time, and on healthy exposure alarm episodes per turbine-year and
+    the share of assessments that could be made at all (assessability).
 
     Commissioning: each turbine's baseline is taken from its first `baseline_days` (or first `baseline_frac` of its
     record) and scoring starts after it; `baseline_days=None` and `baseline_frac=None` evaluate the fleet model alone.
-    A baseline period that overlaps a labelled fault is refused."""
+    A baseline period that overlaps a labelled fault is refused. Healthy exposure = turbines without a labelled fault."""
     hp = b.history_points
     lab = {}
     for l in labels:
         lab.setdefault(l["turbine"], []).append(l)
-    per, healthy_evals, healthy_alarms = {}, 0, 0
+    per, healthy_evals, healthy_alarms, healthy_eps, healthy_years, n_all, n_ok = {}, 0, 0, 0, 0.0, 0, 0
     for tid, g in _per_turbine(scada):
         offsets, b_end = None, 0
         if baseline_days is not None or baseline_frac is not None:
@@ -354,29 +371,38 @@ def evaluate(b: WindNBMBundle, scada: pd.DataFrame, labels: list, step_points: i
             offsets, _ = b.baseline_offsets(g.iloc[:b_end])
         start = max(hp - 1, b_end) if only_last_frac is None else max(hp - 1, b_end, int(len(g) * (1 - only_last_frac)))
         n_eval = n_scope = n_dq = 0
-        alarms = []
-        for i in range(start, len(g), step_points):
+        alarms, alarm_idx = [], []
+        for k, i in enumerate(range(start, len(g), step_points)):
             w = g.iloc[i - hp + 1: i + 1]
             n_eval += 1
-            a = b.applicability(w, tolerance, max_out_frac)
-            if not a["in_scope"]:
-                n_scope += 1
-                continue
-            q = b.quality(w, stuck_min_run, max_conflict_frac)
-            if not q["ok"]:
+            verdict = gate(b, w, tolerance, max_out_frac, stuck_min_run, max_conflict_frac)
+            if verdict == "data_quality":
                 n_dq += 1
+                continue
+            if verdict == "out_of_scope":
+                n_scope += 1
                 continue
             r = b.score(w, offsets)
             if r["anomaly_sustained"]:
                 alarms.append(int(g["ts_ms"].iloc[i]))
-        per[tid] = {"evaluations": n_eval, "out_of_scope": n_scope, "data_quality": n_dq, "alarm_points": len(alarms),
+                alarm_idx.append(k)
+        eps = _episodes(alarm_idx)
+        years = (n_eval * step_points * 10) / (60 * 24 * 365.25)
+        per[tid] = {"evaluations": n_eval, "out_of_scope": n_scope, "data_quality": n_dq, "alarm_points": len(alarms), "alarm_episodes": eps,
                     "first_alarm_ms": alarms[0] if alarms else None, "alarm_ms": alarms, "scored_from_ms": int(g["ts_ms"].iloc[min(start, len(g) - 1)]),
-                    "scored_to_ms": int(g["ts_ms"].iloc[-1]), "baseline_offsets_z": offsets}
+                    "scored_to_ms": int(g["ts_ms"].iloc[-1]), "baseline_offsets_z": offsets, "years": round(years, 4)}
+        n_all += n_eval
+        n_ok += n_eval - n_scope - n_dq
         if tid not in lab:
             healthy_evals += n_eval - n_scope - n_dq
             healthy_alarms += len(alarms)
+            healthy_eps += eps
+            healthy_years += years
     detect = detections(per, labels)
     summary = {"alarm_rate_healthy": healthy_alarms / healthy_evals if healthy_evals else None, "healthy_assessments": healthy_evals,
+               "healthy_alarm_episodes": healthy_eps, "healthy_turbine_years": round(healthy_years, 4),
+               "healthy_episodes_per_turbine_year": round(healthy_eps / healthy_years, 2) if healthy_years else None,
+               "assessable_share": round(n_ok / n_all, 4) if n_all else None,
                "faults": len(detect), "detected": sum(d["detected"] for d in detect)}
     return {"per_turbine": per, "detections": detect, "summary": summary}
 

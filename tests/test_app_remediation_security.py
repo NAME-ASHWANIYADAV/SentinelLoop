@@ -130,10 +130,12 @@ def test_csv_uploads_are_capped_by_record_count(tmp_path):
 
 
 # -- security-12: API-sourced text is not rendered as markdown --------------------------------------------------------
-def test_console_escapes_markdown_in_api_text():
+def test_console_renders_api_text_as_code_spans_with_no_links():
+    """Follow-up review: escaping markdown characters is not enough (GFM autolinks); API text goes into code spans."""
     from sentinelloop.console.client import md
-    s = md("[Approved by R.E.](http://203.0.113.9/login) ![x](http://203.0.113.9/b.png) **bold**")
-    assert "](http" not in s.replace("\\]\\(", "") and "\\[" in s and "\\*\\*" in s
+    for raw in ("[Approved by R.E.](http://203.0.113.9/login) ![x](http://203.0.113.9/b.png)", "see www.evil.example now", "a `tick` here"):
+        s = md(raw)
+        assert s.startswith("`") and s.endswith("`") and s.count("`") == 2          # one code span, nothing can break out of it
 
 
 # -- security-13: registration hashes the artefact itself -------------------------------------------------------------
@@ -147,3 +149,15 @@ def test_registration_refuses_an_artefact_that_does_not_match_its_manifest(tmp_p
     (b / "bundle.pkl").write_bytes(blob[:-1] + bytes([blob[-1] ^ 1]))
     with pytest.raises(modelreg.ModelRegistryError):
         modelreg.register(d, b, actor="rea")
+
+
+def test_recovery_needs_evidence_of_an_earlier_real_delivery(ictx):
+    """Follow-up review: shadow-mode items never delivered anything, so switching to live must not adopt planted records."""
+    d, f, tr = ictx["db"], ictx["fake"], ictx["transport"]
+    integration.set_mode(d, "odoo", "shadow", actor="ada", role="admin", reason="back to shadow for the test")
+    w = _approved_order(d)
+    integration.dispatch(d, "odoo", now_ms=NOW, transport=tr)                       # shadow: a sync item exists, nothing sent
+    f.requests[60] = {"id": 60, "name": "[SentinelLoop] planted", "description": f"<p>{integration.marker(w['wo_id'])}</p>"}
+    integration.set_mode(d, "odoo", "draft_requests", actor="ada", role="admin", reason="go live")
+    integration.dispatch(d, "odoo", now_ms=NOW + 60_000, transport=tr)
+    assert f.requests[60]["name"] == "[SentinelLoop] planted" and integration.items(d, "odoo")[0]["external_id"] != "60"

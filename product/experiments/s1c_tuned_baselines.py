@@ -6,6 +6,7 @@ setting is evaluated on the S1 seeds (0-7) and compared paired against the tuned
 MILP policies are not tuned (runtime); RUN_TO_FAILURE has no parameter.
 Output: product/evidence/scheduling/tuned_baselines.{csv,md}.
 """
+import ast
 import sys
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import replace
@@ -45,7 +46,7 @@ def main():
         t = pd.DataFrame(list(ex.map(_one, tune, chunksize=4)))
     t.to_csv(OUT / "tuned_baselines_tuning.csv", index=False)
     best = t.groupby(["scenario", "policy", "params"])["total_cost"].mean().reset_index().sort_values("total_cost").groupby(["scenario", "policy"]).head(1)
-    ev = [(r.policy, r.scenario, eval(r.params), s) for r in best.itertuples() for s in EVAL_SEEDS]
+    ev = [(r.policy, r.scenario, ast.literal_eval(r.params), s) for r in best.itertuples() for s in EVAL_SEEDS]
     ev += [("RUN_TO_FAILURE", sc, {}, s) for sc in SCENARIOS for s in EVAL_SEEDS]
     with ProcessPoolExecutor() as ex:
         e = pd.DataFrame(list(ex.map(_one, ev, chunksize=4)))

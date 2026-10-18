@@ -233,3 +233,22 @@ def test_detection_counts_alarms_inside_the_fault_window_even_after_an_earlier_f
     d = nbm.detections(per, labels)
     assert d[0]["detected"] is True and d[0]["first_alarm_in_window_ms"] == 5_000
     assert d[0]["alarms_before_onset"] == 1 and d[0]["lead_days"] == round((10_000 - 5_000) / 86_400_000, 2)
+
+
+def test_the_evaluation_harness_gates_like_the_service(bundle_dir):
+    """Review data_scientist-13: a stuck sensor on an idle turbine is a data failure in the service, so in the harness too."""
+    b = nbm.load(bundle_dir)
+    g = sw.generate(sw.FleetSpec(n_turbines=1, days=3, seed=5)).scada
+    w = g.tail(b.history_points).copy()
+    w["active_power"] = 0.0                                                   # idle: out of scope
+    w.loc[w.index[-20:], "gearbox_oil_temp"] = 50.0                           # and a stuck sensor
+    assert nbm.gate(b, w) == "data_quality"
+
+
+def test_evaluation_reports_alarm_episodes_and_assessability(bundle_dir, fleet):
+    b = nbm.load(bundle_dir)
+    ev = nbm.evaluate(b, fleet.scada, fleet.labels, step_points=6, baseline_days=7)
+    s = ev["summary"]
+    assert "healthy_alarm_episodes" in s and "healthy_turbine_years" in s and "assessable_share" in s
+    assert 0.0 <= s["assessable_share"] <= 1.0
+    assert all("alarm_episodes" in v for v in ev["per_turbine"].values())

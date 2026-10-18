@@ -413,6 +413,12 @@ class FleetSim:
         m["plan_change_rate"] = m["plan_changes"] / m["plan_comparisons"] if m["plan_comparisons"] else 0.0
         m["approvals_per_day"] = m["jobs_created"] / self.cfg.days if self.trigger in ("risk", "threshold", "threshold_scored", "interval") else 0.0
         m["inspection_no_fault_rate"] = m["inspections_no_fault"] / m["inspections"] if m["inspections"] else None
+        # terminal-state accounting: assets still failed at the end were down until the end (review finding data_scientist-1)
+        still = [a for a in self.assets.values() if a.status == "failed" and a.failed_at is not None]
+        m["assets_failed_at_end"] = len(still)
+        m["unplanned_downtime_total_h"] = m["unplanned_downtime_h"] + sum((self.now - a.failed_at) / HOUR_MS for a in still)
+        fleet_h = self.cfg.n_assets * self.cfg.days * 24.0
+        m["availability"] = 1.0 - (m["unplanned_downtime_total_h"] + m["planned_downtime_h"]) / fleet_h
         return SimResult(self.policy, self.scenario, self.seed, m, self.ev)
 
 

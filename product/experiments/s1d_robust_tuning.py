@@ -5,6 +5,7 @@ the deployment question: a site tunes once on its normal conditions (base), then
 quality change. Both "tuned in base" and "tuned in the scenario itself" settings are evaluated on seeds 0-7.
 Output: product/evidence/scheduling/robust_tuning.{csv,md}.
 """
+import ast
 import sys
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import replace
@@ -53,7 +54,7 @@ def main():
             for mode, src in (("tuned_in_base", "base"), ("tuned_in_scenario", sc)):
                 if mode == "tuned_in_scenario" and sc == "base":
                     continue
-                ev += [(pol, sc, eval(best[(src, pol)]), s, mode) for s in EVAL_SEEDS]
+                ev += [(pol, sc, ast.literal_eval(best[(src, pol)]), s, mode) for s in EVAL_SEEDS]
     with ProcessPoolExecutor() as ex:
         rows = list(ex.map(_one, [x[:4] for x in ev], chunksize=4))
     e = pd.DataFrame(rows)
