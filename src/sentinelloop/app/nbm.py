@@ -350,8 +350,8 @@ def evaluate(b: WindNBMBundle, scada: pd.DataFrame, labels: list, step_points: i
                 raise ValueError(f"baseline period of {tid} overlaps a labelled fault")
             offsets, _ = b.baseline_offsets(g.iloc[:b_end])
         start = max(hp - 1, b_end) if only_last_frac is None else max(hp - 1, b_end, int(len(g) * (1 - only_last_frac)))
-        n_eval = n_scope = n_dq = n_alarm = 0
-        first = None
+        n_eval = n_scope = n_dq = 0
+        alarms = []
         for i in range(start, len(g), step_points):
             w = g.iloc[i - hp + 1: i + 1]
             n_eval += 1
@@ -365,25 +365,31 @@ def evaluate(b: WindNBMBundle, scada: pd.DataFrame, labels: list, step_points: i
                 continue
             r = b.score(w, offsets)
             if r["anomaly_sustained"]:
-                n_alarm += 1
-                if first is None:
-                    first = int(g["ts_ms"].iloc[i])
-        per[tid] = {"evaluations": n_eval, "out_of_scope": n_scope, "data_quality": n_dq, "alarm_points": n_alarm, "first_alarm_ms": first,
-                    "baseline_offsets_z": offsets}
+                alarms.append(int(g["ts_ms"].iloc[i]))
+        per[tid] = {"evaluations": n_eval, "out_of_scope": n_scope, "data_quality": n_dq, "alarm_points": len(alarms),
+                    "first_alarm_ms": alarms[0] if alarms else None, "alarm_ms": alarms, "scored_from_ms": int(g["ts_ms"].iloc[min(start, len(g) - 1)]),
+                    "scored_to_ms": int(g["ts_ms"].iloc[-1]), "baseline_offsets_z": offsets}
         if tid not in lab:
             healthy_evals += n_eval - n_scope - n_dq
-            healthy_alarms += n_alarm
-    detect = []
-    for tid, ls in lab.items():
-        for l in ls:
-            fa = per.get(tid, {}).get("first_alarm_ms")
-            hit = fa is not None and l["fault_start_ms"] <= fa < l["failure_ms"]
-            detect.append({"turbine": tid, "component": l["component"], "detected": bool(hit),
-                           "lead_days": round((l["failure_ms"] - fa) / 86_400_000, 2) if hit else None,
-                           "alarm_before_fault": bool(fa is not None and fa < l["fault_start_ms"])})
+            healthy_alarms += len(alarms)
+    detect = detections(per, labels)
     summary = {"alarm_rate_healthy": healthy_alarms / healthy_evals if healthy_evals else None, "healthy_assessments": healthy_evals,
                "faults": len(detect), "detected": sum(d["detected"] for d in detect)}
     return {"per_turbine": per, "detections": detect, "summary": summary}
+
+
+def detections(per: dict, labels: list) -> list:
+    """Per labelled fault: detected if any alarm falls in [onset, failure); lead time from the first such alarm.
+    Alarms before onset are counted separately (they are false alarms, not detections)."""
+    out = []
+    for lb in labels:
+        al = per.get(lb["turbine"], {}).get("alarm_ms") or []
+        inside = [t for t in al if lb["fault_start_ms"] <= t < lb["failure_ms"]]
+        first = inside[0] if inside else None
+        out.append({"turbine": lb["turbine"], "component": lb["component"], "detected": first is not None, "first_alarm_in_window_ms": first,
+                    "lead_days": round((lb["failure_ms"] - first) / 86_400_000, 2) if first is not None else None,
+                    "alarms_before_onset": sum(1 for t in al if t < lb["fault_start_ms"])})
+    return out
 
 
 # -- commissioning in the platform ----------------------------------------------------------------------------------

@@ -67,10 +67,9 @@ def test_normal_behaviour_model_flags_the_fault_before_failure_and_stays_quiet_o
     b = nbm.load(bundle_dir)
     ev = nbm.evaluate(b, fleet.scada, fleet.labels, step_points=6, baseline_days=7)      # each turbine commissioned on its first 7 days
     wt3 = ev["per_turbine"]["WT03"]
-    assert wt3["first_alarm_ms"] is not None
-    lead_days = (fleet.labels[0]["failure_ms"] - wt3["first_alarm_ms"]) / DAY_MS
-    assert lead_days >= 2.0, lead_days                           # flagged at least two days before the injected failure
-    assert wt3["first_alarm_ms"] >= fleet.labels[0]["fault_start_ms"]   # and not before the fault exists
+    det = ev["detections"][0]
+    assert det["detected"] and det["lead_days"] >= 2.0, det          # flagged at least two days before the injected failure
+    assert det["alarms_before_onset"] == 0 and wt3["first_alarm_ms"] >= fleet.labels[0]["fault_start_ms"]   # and not before the fault exists
     for t in ("WT01", "WT02", "WT04"):
         assert ev["per_turbine"][t]["alarm_points"] == 0, (t, ev["per_turbine"][t])
     m = nbm.read_manifest(bundle_dir)
@@ -226,3 +225,11 @@ def test_generator_and_rotor_speed_disagreement_is_a_data_quality_failure(plant,
     _ingest_window(plant, fleet, "WT02", t, mutate=bad_speed)
     a = health.assess(plant, "WT02", pol, as_of_ms=t, actor="svc")
     assert a["health_state"] == "DATA_QUALITY_FAILURE" and any("conflicting_readings" in r for r in a["reasons"])
+
+
+def test_detection_counts_alarms_inside_the_fault_window_even_after_an_earlier_false_alarm():
+    per = {"WT01": {"alarm_ms": [100, 5_000, 6_000]}}
+    labels = [{"turbine": "WT01", "component": "hss_bearing", "fault_start_ms": 1_000, "failure_ms": 10_000}]
+    d = nbm.detections(per, labels)
+    assert d[0]["detected"] is True and d[0]["first_alarm_in_window_ms"] == 5_000
+    assert d[0]["alarms_before_onset"] == 1 and d[0]["lead_days"] == round((10_000 - 5_000) / 86_400_000, 2)

@@ -1,0 +1,485 @@
+{
+ "data_class": "SYNTHETIC",
+ "train": {
+  "seed": 3,
+  "turbines": 6,
+  "days": 60,
+  "n_train_points": 26039,
+  "n_validation_points": 12960,
+  "healthy_validation_max_score": {
+   "gearbox_bearing_temp": 0.767228322967113,
+   "gearbox_oil_temp": 0.79987179256688,
+   "generator_bearing_temp": 0.7404404158430887
+  },
+  "residual_sd_degC": {
+   "gearbox_bearing_temp": 0.6192739176408438,
+   "gearbox_oil_temp": 0.5021763322182092,
+   "generator_bearing_temp": 0.5981650750817427
+  }
+ },
+ "faults": [
+  {
+   "seed": 20,
+   "component": "hss_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 8.33,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 20,
+   "component": "hss_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 11.4,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 20,
+   "component": "generator_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 6.06,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 20,
+   "component": "generator_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 14.23,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 20,
+   "component": "oil_cooler",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 6.72,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 20,
+   "component": "oil_cooler",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 8.52,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 21,
+   "component": "hss_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 9.99,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 21,
+   "component": "hss_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 7.99,
+   "alarms_before_onset": 1
+  },
+  {
+   "seed": 21,
+   "component": "generator_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 11.95,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 21,
+   "component": "generator_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 8.4,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 21,
+   "component": "oil_cooler",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 6.34,
+   "alarms_before_onset": 5
+  },
+  {
+   "seed": 21,
+   "component": "oil_cooler",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 12.48,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 22,
+   "component": "hss_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 7.99,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 22,
+   "component": "hss_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 13.54,
+   "alarms_before_onset": 1
+  },
+  {
+   "seed": 22,
+   "component": "generator_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 12.51,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 22,
+   "component": "generator_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 13.18,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 22,
+   "component": "oil_cooler",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 12.03,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 22,
+   "component": "oil_cooler",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 8.58,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 23,
+   "component": "hss_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 11.23,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 23,
+   "component": "hss_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 7.88,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 23,
+   "component": "generator_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 12.9,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 23,
+   "component": "generator_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 8.41,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 23,
+   "component": "oil_cooler",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 9.54,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 23,
+   "component": "oil_cooler",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 9.6,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 24,
+   "component": "hss_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 7.56,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 24,
+   "component": "hss_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 9.89,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 24,
+   "component": "generator_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 11.42,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 24,
+   "component": "generator_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 6.19,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 24,
+   "component": "oil_cooler",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 11.13,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 24,
+   "component": "oil_cooler",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 10.26,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 25,
+   "component": "hss_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 4.03,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 25,
+   "component": "hss_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 8.35,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 25,
+   "component": "generator_bearing",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 7.91,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 25,
+   "component": "generator_bearing",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 12.94,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 25,
+   "component": "oil_cooler",
+   "peak_heat_c": 6.0,
+   "detected": true,
+   "lead_days": 5.8,
+   "alarms_before_onset": 0
+  },
+  {
+   "seed": 25,
+   "component": "oil_cooler",
+   "peak_heat_c": 18.0,
+   "detected": true,
+   "lead_days": 13.75,
+   "alarms_before_onset": 0
+  }
+ ],
+ "sensor_faults": [
+  {
+   "seed": 20,
+   "turbine": "WT07",
+   "fault": "stuck oil temp 1 day",
+   "data_quality_points": 23,
+   "alarm_points": 0
+  },
+  {
+   "seed": 20,
+   "turbine": "WT08",
+   "fault": "bearing temp drift +8 degC over 15 days",
+   "data_quality_points": 0,
+   "alarm_points": 209
+  },
+  {
+   "seed": 21,
+   "turbine": "WT07",
+   "fault": "stuck oil temp 1 day",
+   "data_quality_points": 22,
+   "alarm_points": 6
+  },
+  {
+   "seed": 21,
+   "turbine": "WT08",
+   "fault": "bearing temp drift +8 degC over 15 days",
+   "data_quality_points": 0,
+   "alarm_points": 238
+  },
+  {
+   "seed": 22,
+   "turbine": "WT07",
+   "fault": "stuck oil temp 1 day",
+   "data_quality_points": 23,
+   "alarm_points": 2
+  },
+  {
+   "seed": 22,
+   "turbine": "WT08",
+   "fault": "bearing temp drift +8 degC over 15 days",
+   "data_quality_points": 0,
+   "alarm_points": 234
+  },
+  {
+   "seed": 23,
+   "turbine": "WT07",
+   "fault": "stuck oil temp 1 day",
+   "data_quality_points": 23,
+   "alarm_points": 2
+  },
+  {
+   "seed": 23,
+   "turbine": "WT08",
+   "fault": "bearing temp drift +8 degC over 15 days",
+   "data_quality_points": 0,
+   "alarm_points": 293
+  },
+  {
+   "seed": 24,
+   "turbine": "WT07",
+   "fault": "stuck oil temp 1 day",
+   "data_quality_points": 5,
+   "alarm_points": 0
+  },
+  {
+   "seed": 24,
+   "turbine": "WT08",
+   "fault": "bearing temp drift +8 degC over 15 days",
+   "data_quality_points": 0,
+   "alarm_points": 193
+  },
+  {
+   "seed": 25,
+   "turbine": "WT07",
+   "fault": "stuck oil temp 1 day",
+   "data_quality_points": 16,
+   "alarm_points": 0
+  },
+  {
+   "seed": 25,
+   "turbine": "WT08",
+   "fault": "bearing temp drift +8 degC over 15 days",
+   "data_quality_points": 0,
+   "alarm_points": 233
+  }
+ ],
+ "summary": {
+  "hss_bearing@6C": {
+   "n": 6,
+   "detected": 6,
+   "wilson95": [
+    0.61,
+    1.0
+   ],
+   "lead_days_median": 8.16,
+   "lead_days_range": [
+    4.03,
+    11.23
+   ],
+   "alarms_before_onset": 0
+  },
+  "hss_bearing@18C": {
+   "n": 6,
+   "detected": 6,
+   "wilson95": [
+    0.61,
+    1.0
+   ],
+   "lead_days_median": 9.12,
+   "lead_days_range": [
+    7.88,
+    13.54
+   ],
+   "alarms_before_onset": 2
+  },
+  "generator_bearing@6C": {
+   "n": 6,
+   "detected": 6,
+   "wilson95": [
+    0.61,
+    1.0
+   ],
+   "lead_days_median": 11.68,
+   "lead_days_range": [
+    6.06,
+    12.9
+   ],
+   "alarms_before_onset": 0
+  },
+  "generator_bearing@18C": {
+   "n": 6,
+   "detected": 6,
+   "wilson95": [
+    0.61,
+    1.0
+   ],
+   "lead_days_median": 10.68,
+   "lead_days_range": [
+    6.19,
+    14.23
+   ],
+   "alarms_before_onset": 0
+  },
+  "oil_cooler@6C": {
+   "n": 6,
+   "detected": 6,
+   "wilson95": [
+    0.61,
+    1.0
+   ],
+   "lead_days_median": 8.13,
+   "lead_days_range": [
+    5.8,
+    12.03
+   ],
+   "alarms_before_onset": 5
+  },
+  "oil_cooler@18C": {
+   "n": 6,
+   "detected": 6,
+   "wilson95": [
+    0.61,
+    1.0
+   ],
+   "lead_days_median": 9.93,
+   "lead_days_range": [
+    8.52,
+    13.75
+   ],
+   "alarms_before_onset": 0
+  }
+ },
+ "healthy_alarm_points": 17,
+ "healthy_turbine_days": 820.4,
+ "healthy_alarm_hours_per_turbine_year": 7.57
+}
