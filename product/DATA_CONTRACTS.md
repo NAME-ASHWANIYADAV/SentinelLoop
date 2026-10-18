@@ -49,15 +49,16 @@ What SentinelLoop accepts, what it refuses, and what it promises about stored da
   - Transitions are role-checked.
   - Rejecting, deferring, cancelling and dismissing require a reason.
   - Every change carries an idempotency key (with a payload hash) and is checked against `expected_version`.
-- **Outcome on completion:**
-  - what was found (fault confirmed, no fault found, other fault);
-  - the component;
-  - the action taken;
-  - hours spent;
-  - parts used;
-  - whether the asset returned to service;
-  - free text.
-  - Contradictions are flagged rather than rejected. Example: "no fault found" together with a part replaced.
+- **Outcome on completion** (`workorders.Outcome`):
+  - `findings_code`: `no_fault_found`, `degradation_found`, `failure_found`, `not_inspected` or `other`;
+  - `failure_confirmed`: `yes`, `no` or `unknown`;
+  - `root_cause` (text);
+  - `actions_taken` (required);
+  - `parts_used` (part → quantity);
+  - `downtime_hours`;
+  - `returned_to_service_at` (optional, UTC-aware);
+  - `notes`.
+  - Contradictions are flagged rather than rejected. Example: `no_fault_found` together with parts used.
 - **Export.** `GET /api/v1/export/work-orders.csv`. Formula-leading cells are neutralised (PD-14).
 
 ## 4. Model artefact contract

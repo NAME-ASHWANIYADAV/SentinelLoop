@@ -132,3 +132,10 @@ def test_point_outside_the_interval_is_clipped_for_the_cdf_and_flagged():
     assert r["point_outside_interval"] is True
     with pytest.raises(ValueError):
         risk.p_fail_before(5, lower=30, point=20, upper=10, level=0.9)       # an inverted interval is still an error
+
+
+def test_a_never_assessed_asset_is_never_labelled_normal():
+    s = states.set_approval_pending(states.AssetState(), True)       # an order waits, but no assessment has run
+    assert s.labels() == ["NOT_ASSESSED", "HUMAN_APPROVAL_REQUIRED"]
+    assessed = states.advance(states.AssetState(), states.classify(True, True, True, 0.01, False, states.Thresholds()), states.Thresholds())
+    assert assessed.labels() == ["NORMAL_MONITORING"]

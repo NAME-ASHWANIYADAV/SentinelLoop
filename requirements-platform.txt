@@ -1,0 +1,13 @@
+# Platform-only runtime requirements (SentinelLoop product platform: API, admin CLI, models, integration, console).
+# Excludes the competition pipeline's experiment tracking (mlflow), which the platform never imports (SECURITY_REVIEW.md).
+# Install: pip install -r requirements-platform.txt -c requirements.lock.txt
+fastapi==0.143.3
+uvicorn==0.54.0
+httpx==0.28.1
+pydantic==2.14.1
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.18.1
+scikit-learn==1.7.2
+pyyaml==6.0.3
+streamlit==1.66.0

@@ -78,7 +78,7 @@ These workflows are built for the personas in `CUSTOMER_DISCOVERY.md` §3. **Tho
 
 **Actor:** technician.
 1. Start the order: `transitions` with `start`.
-2. Complete it: `POST /work-orders/{id}/complete` with the outcome — fault confirmed, no fault found or other fault; component; action; hours; parts; returned to service; notes.
+2. Complete it: `POST /work-orders/{id}/complete` with the outcome — what was found (`findings_code`), whether a failure is confirmed, root cause, actions taken, parts used, downtime, return to service, notes (`DATA_CONTRACTS.md` §3).
 3. Contradictions are flagged for review rather than refused, for example "no fault found" together with a replaced part.
 4. Completing maintenance clears a latched risk (`maintenance_completed`).
 5. `GET /work-orders/missing-outcomes` lists completed orders without an outcome, for the planner to chase.

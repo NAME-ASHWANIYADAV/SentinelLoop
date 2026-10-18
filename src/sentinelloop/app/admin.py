@@ -141,7 +141,8 @@ def cmd_serve(args) -> int:
     if d.schema_version() != len(d.migration_files()):
         print("database schema is not current; run `init` first", file=sys.stderr)
         return 1
-    app = api.create_app(d, policymod.load(args.policy))
+    cap, refill = (float(x) for x in args.rate_limit.split(","))
+    app = api.create_app(d, policymod.load(args.policy), rate_limit=(int(cap), refill))
     uvicorn.run(app, host=args.host, port=args.port, log_level="info", proxy_headers=args.behind_proxy, forwarded_allow_ips=args.trusted_proxy)
     return 0
 
@@ -173,6 +174,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--policy", default="configs/platform.yaml")
     p.add_argument("--behind-proxy", action="store_true", help="trust X-Forwarded-For from --trusted-proxy (for rate limiting by client address)")
     p.add_argument("--trusted-proxy", default="127.0.0.1")
+    p.add_argument("--rate-limit", default="120,2.0", help="token bucket per user or client: CAPACITY,REFILL_PER_SECOND")
     p.set_defaults(func=cmd_serve)
     return ap
 

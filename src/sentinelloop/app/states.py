@@ -41,6 +41,7 @@ class HealthState(str, Enum):
 
 
 APPROVAL_LABEL = "HUMAN_APPROVAL_REQUIRED"
+NOT_ASSESSED_LABEL = "NOT_ASSESSED"
 CLEAR_EVENTS = {
     "dismissed": {"reliability_engineer", "planner", "admin"},
     "maintenance_completed": {"technician", "planner", "reliability_engineer", "admin", "integration"},
@@ -119,7 +120,9 @@ class AssetState:
     notes: tuple = ()
 
     def labels(self) -> list[str]:
-        return [self.effective.value] + ([APPROVAL_LABEL] if self.approval_pending else [])
+        # a state record can exist before any assessment (e.g. an order created by hand awaits approval); that is not health
+        never = self.last_health is None and self.latched_risk == "NONE" and not self.dq_failure_active
+        return [NOT_ASSESSED_LABEL if never else self.effective.value] + ([APPROVAL_LABEL] if self.approval_pending else [])
 
 
 def _effective(latched: str, dq_active: bool, last: HealthState | None) -> tuple[HealthState, list[str]]:
