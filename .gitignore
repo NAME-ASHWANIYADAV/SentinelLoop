@@ -20,3 +20,6 @@ artifacts_demo/
 product/evidence/**/tmp_*/
 # public third-party datasets (licence terms; never committed)
 data/external/
+
+# local sandbox credentials
+sandbox/odoo/.env.local

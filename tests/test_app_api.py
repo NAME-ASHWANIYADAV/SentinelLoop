@@ -184,7 +184,7 @@ def test_every_route_except_health_and_docs_requires_credentials(ctx):
             continue
         url = path.replace("{entity}", "asset").replace("{entity_id}", "P-101").replace("{asset_id}", "P-101").replace("{wo_id}", "WO-x") \
                   .replace("{run_id}", "SR-x").replace("{model_id}", "m").replace("{batch_id}", "b").replace("{site_id}", "site1") \
-                  .replace("{tech_id}", "T1").replace("{part_id}", "K1").replace("{user_id}", "vic")
+                  .replace("{tech_id}", "T1").replace("{part_id}", "K1").replace("{user_id}", "vic").replace("{target_id}", "odoo")
         for m in r.methods - {"HEAD", "OPTIONS"}:
             resp = c.request(m, url, json={})
             assert resp.status_code == 401, (m, path, resp.status_code)
@@ -226,3 +226,19 @@ def test_commissioning_endpoint_is_restricted_to_reliability_roles(ctx):
     assert c.post("/api/v1/assets/P-101/baseline", json=body, headers=H(ctx, "technician")).status_code == 403
     r = c.post("/api/v1/assets/P-101/baseline", json=body, headers=H(ctx, "reliability_engineer"))
     assert r.status_code == 404 and "unknown model" in r.json()["error"]
+
+
+def test_integration_targets_through_the_api_start_in_shadow_and_only_admins_manage_them(ctx, monkeypatch):
+    monkeypatch.setenv("SENTINELLOOP_INTEGRATION_HOSTS", "localhost")
+    c = ctx["client"]
+    body = {"target_id": "odoo", "kind": "odoo_json2", "base_url": "http://localhost:8069", "config": {"api_key_env": "ODOO_KEY", "database": "x"}}
+    assert c.post("/api/v1/integrations", json=body, headers=H(ctx, "planner")).status_code == 403
+    r = c.post("/api/v1/integrations", json=body, headers=H(ctx, "admin"))
+    assert r.status_code == 201 and r.json()["mode"] == "shadow"
+    assert c.post("/api/v1/integrations", json={**body, "target_id": "bad", "config": {"api_key": "inline-secret"}},
+                  headers=H(ctx, "admin")).status_code == 422
+    assert c.post("/api/v1/integrations/odoo/dispatch", headers=H(ctx, "viewer")).status_code == 403
+    d = c.post("/api/v1/integrations/odoo/dispatch", headers=H(ctx, "integration")).json()
+    assert d["mode"] == "shadow" and d["sent"] == 0
+    assert c.get("/api/v1/integrations/odoo/items", headers=H(ctx, "planner")).status_code == 200
+    assert c.post("/api/v1/integrations/odoo/mode", json={"mode": "draft_requests", "reason": "go"}, headers=H(ctx, "integration")).status_code == 403

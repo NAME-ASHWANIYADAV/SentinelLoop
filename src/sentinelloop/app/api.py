@@ -20,7 +20,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 
-from . import auditlog, decision, health, ingest, modelreg, nbm, planning, registry, resources, security, workorders
+from . import auditlog, decision, health, ingest, integration, modelreg, nbm, planning, registry, resources, security, workorders
 from .errors import PermissionDenied
 from .models import AssetSpec
 from .timeutil import iso, parse_ts
@@ -191,6 +191,20 @@ class UserBody(BaseModel):
 
 
 class ReasonBody(BaseModel):
+    reason: str = Field(min_length=1)
+
+
+class TargetBody(BaseModel):
+    target_id: str = Field(min_length=1, max_length=64, pattern=r"^[a-z0-9_.-]+$")
+    kind: str
+    base_url: str
+    config: dict = Field(default_factory=dict)
+    mode: str = "shadow"
+    reason: str | None = None
+
+
+class ModeBody(BaseModel):
+    mode: str
     reason: str = Field(min_length=1)
 
 
@@ -393,6 +407,33 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
             raise HTTPException(409, "an admin cannot deactivate their own account")
         security.deactivate(db, user_id, actor=u["user_id"], reason=body.reason)
         return {"user_id": user_id, "active": False}
+
+    # -- integrations (CMMS, webhooks): shadow mode by default --------------------------------------------------------
+    @app.get(f"{API}/integrations")
+    def targets(u: dict = Depends(need("integrations.read"))):
+        return integration.list_targets(db)
+
+    @app.post(f"{API}/integrations", status_code=201)
+    def register_target(body: TargetBody, u: dict = Depends(need("integrations.manage"))):
+        return integration.register_target(db, body.target_id, body.kind, body.base_url, body.config, actor=u["user_id"], role=u["role"],
+                                           mode=body.mode, reason=body.reason)
+
+    @app.post(f"{API}/integrations/{{target_id}}/mode")
+    def target_mode(target_id: str, body: ModeBody, u: dict = Depends(need("integrations.manage"))):
+        return integration.set_mode(db, target_id, body.mode, actor=u["user_id"], role=u["role"], reason=body.reason)
+
+    @app.post(f"{API}/integrations/{{target_id}}/dispatch")
+    def dispatch(target_id: str, u: dict = Depends(need("integrations.dispatch"))):
+        return integration.dispatch(db, target_id, actor=u["user_id"], role=u["role"])
+
+    @app.get(f"{API}/integrations/{{target_id}}/items")
+    def target_items(target_id: str, status: str | None = None, u: dict = Depends(need("integrations.read"))):
+        return integration.items(db, target_id, status)
+
+    @app.post(f"{API}/integrations/{{target_id}}/items/{{wo_id}}/requeue")
+    def requeue(target_id: str, wo_id: str, body: ReasonBody, u: dict = Depends(need("integrations.manage"))):
+        integration.requeue(db, target_id, wo_id, actor=u["user_id"], role=u["role"], reason=body.reason)
+        return {"target_id": target_id, "wo_id": wo_id, "status": "retry"}
 
     # -- ingestion ------------------------------------------------------------------------------------------------------
     @app.post(f"{API}/ingest/readings")

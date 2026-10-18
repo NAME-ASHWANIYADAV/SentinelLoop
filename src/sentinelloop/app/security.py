@@ -32,6 +32,9 @@ PERMISSIONS = {
     "assets.commission": {"reliability_engineer", "admin"},
     "audit.read": {"admin", "reliability_engineer"},
     "users.admin": {"admin"},
+    "integrations.manage": {"admin"},
+    "integrations.dispatch": {"admin", "integration"},
+    "integrations.read": {"admin", "integration", "planner", "reliability_engineer"},
 }
 MIN_PASSWORD = 12
 SCRYPT = (2 ** 14, 8, 1)

@@ -1,0 +1,30 @@
+# Odoo Community sandbox CMMS for SentinelLoop integration tests (LOCAL ONLY; not a production deployment).
+# Odoo Community is LGPL-3 (research R5). Bound to 127.0.0.1 so nothing is reachable from the network.
+# Usage: see sandbox/odoo/README.md. Credentials are generated locally into .env.local (git-ignored).
+name: sentinelloop-odoo-sandbox
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${ODOO_DB_PASSWORD:?set ODOO_DB_PASSWORD in .env.local}
+      POSTGRES_DB: postgres
+    volumes:
+      - odoo-db:/var/lib/postgresql/data
+    restart: "no"
+  odoo:
+    image: odoo:19.0-20261015
+    depends_on:
+      - db
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: ${ODOO_DB_PASSWORD:?set ODOO_DB_PASSWORD in .env.local}
+    ports:
+      - "127.0.0.1:8069:8069"
+    volumes:
+      - odoo-data:/var/lib/odoo
+    restart: "no"
+volumes:
+  odoo-db:
+  odoo-data:
