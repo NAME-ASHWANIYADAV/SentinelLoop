@@ -128,30 +128,58 @@ def recommend(asset, asset_type, assessment: dict | None, state, cfg: DecisionCo
 def generate(db, cfg: DecisionConfig, actor: str = "system", now_ms: int | None = None, site_id: str | None = None) -> list[dict]:
     """Turn every active asset's latest state into at most one open system work order (PENDING_APPROVAL).
 
-    An open order for the asset is never duplicated: a higher-priority recommendation escalates it instead (and brings a
-    deferred order back for approval); the planner sees the newly recommended job in the explanation."""
+    - An open order is never duplicated: a higher-priority recommendation escalates it (a deferred order escalated to P1
+      comes back for approval); an order already in progress is left alone (`unchanged`, the work is under way).
+    - A recommendation from an assessment that already produced an order (even one a person rejected) is not re-raised
+      (`already_decided`): a new order needs a new assessment.
+    - Each asset is handled independently: an error on one asset is recorded (`error`) and audited, and the run continues,
+      so one bad record can never suppress recommendations for the rest of the fleet."""
+    from . import auditlog
+
     now = int(now_ms if now_ms is not None else _now_ms())
     out = []
     types = {t.asset_type_id: t for t in registry.list_asset_types(db)}
     for a in registry.list_assets(db, site_id=site_id, status="active"):
-        st = health.asset_state(db, a.asset_id)
-        rec = recommend(a, types[a.asset_type_id], health.latest_assessment(db, a.asset_id), st, cfg, now_ms=now)
-        if rec is None:
-            continue
-        open_ = [o for o in workorders.list_orders(db, asset_id=a.asset_id) if o["state"] not in ("COMPLETED", "CLOSED", "REJECTED", "CANCELLED")]
-        if open_:
-            o = sorted(open_, key=lambda x: CLASS_RANK[x["priority_class"]])[0]
-            if CLASS_RANK[rec.priority_class] < CLASS_RANK[o["priority_class"]] or (o["due_by_ms"] is not None and rec.due_by_ms < o["due_by_ms"]
-                                                                                     and rec.priority_class == o["priority_class"]):
-                workorders.reprioritise(db, o["wo_id"], rec.priority_class, rec.priority_score, rec.due_by_ms, rec.explanation, actor=actor, role="system",
-                                        reason=f"new assessment {rec.assessment_id}: {rec.explanation['why']}; recommended job {rec.job_type}")
-                out.append({"asset_id": a.asset_id, "action": "escalated", "wo_id": o["wo_id"], "priority_class": rec.priority_class})
-            else:
-                out.append({"asset_id": a.asset_id, "action": "unchanged", "wo_id": o["wo_id"], "priority_class": o["priority_class"]})
-            continue
-        w = workorders.create(db, asset_id=a.asset_id, job_type=rec.job_type, priority_class=rec.priority_class,
-                              title=f"{rec.job_type.replace('_', ' ').capitalize()} {a.tag} ({rec.explanation['state']})", origin="system", actor=actor, role="system",
-                              idempotency_key=f"rec:{rec.assessment_id}:{rec.job_type}", due_by=iso(rec.due_by_ms), initial_state="PENDING_APPROVAL",
-                              priority_score=rec.priority_score, explanation=rec.explanation, assessment_id=rec.assessment_id)
-        out.append({"asset_id": a.asset_id, "action": "created", "wo_id": w["wo_id"], "priority_class": rec.priority_class})
+        try:
+            out.extend(_generate_one(db, a, types, cfg, actor, now))
+        except Exception as e:                                 # isolate the failure; never fail open for the other assets
+            out.append({"asset_id": a.asset_id, "action": "error", "note": f"{type(e).__name__}: {e}"})
+            try:
+                with db.tx() as c:
+                    auditlog.append(c, actor=actor, action="decision.error", entity="asset", entity_id=a.asset_id,
+                                    payload={"error": f"{type(e).__name__}: {e}"}, key=db.audit_key, key_id=db.audit_key_id)
+            except Exception:
+                pass
     return out
+
+
+def _generate_one(db, a, types, cfg, actor, now) -> list[dict]:
+    st = health.asset_state(db, a.asset_id)
+    rec = recommend(a, types[a.asset_type_id], health.latest_assessment(db, a.asset_id), st, cfg, now_ms=now)
+    if rec is None:
+        return []
+    key = f"rec:{rec.assessment_id}:{rec.job_type}"
+    with db.connect() as c:
+        prior = c.execute("SELECT wo_id, state FROM work_orders WHERE idempotency_key = ? OR (assessment_id = ? AND origin = 'system')",
+                          (key, rec.assessment_id)).fetchone()
+    open_ = [o for o in workorders.list_orders(db, asset_id=a.asset_id) if o["state"] not in ("COMPLETED", "CLOSED", "REJECTED", "CANCELLED")]
+    if open_:
+        o = sorted(open_, key=lambda x: (x["state"] not in workorders.REPRIORITISABLE, CLASS_RANK[x["priority_class"]]))[0]
+        higher = CLASS_RANK[rec.priority_class] < CLASS_RANK[o["priority_class"]] or (
+            o["due_by_ms"] is not None and rec.due_by_ms < o["due_by_ms"] and rec.priority_class == o["priority_class"])
+        if o["state"] not in workorders.REPRIORITISABLE:
+            return [{"asset_id": a.asset_id, "action": "unchanged", "wo_id": o["wo_id"], "priority_class": o["priority_class"],
+                     "note": f"order {o['state'].lower().replace('_', ' ')}; the work is under way" if o["state"] == "IN_PROGRESS" else o["state"]}]
+        if higher:
+            workorders.reprioritise(db, o["wo_id"], rec.priority_class, rec.priority_score, rec.due_by_ms, rec.explanation, actor=actor, role="system",
+                                    reason=f"new assessment {rec.assessment_id}: {rec.explanation['why']}; recommended job {rec.job_type}")
+            return [{"asset_id": a.asset_id, "action": "escalated", "wo_id": o["wo_id"], "priority_class": rec.priority_class}]
+        return [{"asset_id": a.asset_id, "action": "unchanged", "wo_id": o["wo_id"], "priority_class": o["priority_class"], "note": "open order covers it"}]
+    if prior is not None:
+        return [{"asset_id": a.asset_id, "action": "already_decided", "wo_id": prior["wo_id"],
+                 "note": f"assessment {rec.assessment_id} already produced {prior['wo_id']} ({prior['state']}); a new order needs a new assessment"}]
+    w = workorders.create(db, asset_id=a.asset_id, job_type=rec.job_type, priority_class=rec.priority_class,
+                          title=f"{rec.job_type.replace('_', ' ').capitalize()} {a.tag} ({rec.explanation['state']})", origin="system", actor=actor, role="system",
+                          idempotency_key=key, due_by=iso(rec.due_by_ms), initial_state="PENDING_APPROVAL",
+                          priority_score=rec.priority_score, explanation=rec.explanation, assessment_id=rec.assessment_id)
+    return [{"asset_id": a.asset_id, "action": "created", "wo_id": w["wo_id"], "priority_class": rec.priority_class}]

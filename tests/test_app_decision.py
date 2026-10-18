@@ -108,3 +108,21 @@ def test_generate_creates_pending_orders_once_and_escalates_priority(plant):
     _seed_assessed(plant, "P-101", "URGENT_REVIEW", p=0.40, lower=10, point=60, upper=200, aid="A-P-101-2", as_of=NOW + 1)
     out = decision.generate(plant, CFG, actor="system", now_ms=NOW + 1)
     assert out[0]["action"] == "escalated" and wo.get(plant, out[0]["wo_id"])["priority_class"] == "P1"
+
+
+def test_one_bad_asset_never_stops_generation_for_the_others(plant):
+    registry.create_asset(plant, pump("P-103", criticality="B"), actor="admin")
+    _seed_assessed(plant, "P-101", "INSPECTION_RECOMMENDED", p=0.15, lower=50, point=120, upper=300)
+    _seed_assessed(plant, "P-103", "INSPECTION_RECOMMENDED", p=0.15, lower=50, point=120, upper=300)
+    first = {o["asset_id"]: o for o in decision.generate(plant, CFG, actor="system", now_ms=NOW)}
+    # P-101's order is already being worked on; a new urgent assessment must not crash the run
+    w = first["P-101"]["wo_id"]
+    for act, kw in (("approve", {"reason": "ok"}), ("schedule", {"data": {"start": "2026-10-19T06:00:00Z", "end": "2026-10-19T08:00:00Z", "technicians": ["t1"]}}),
+                    ("start", {})):
+        wo.transition(plant, w, act, actor="planner1", role="planner", **kw)
+    _seed_assessed(plant, "P-101", "URGENT_REVIEW", p=0.40, lower=10, point=60, upper=200, aid="A-P-101-u", as_of=NOW + 1)
+    # P-103's order was rejected by a person: the same assessment must not resurrect it
+    wo.transition(plant, first["P-103"]["wo_id"], "reject", actor="re1", role="reliability_engineer", reason="known transient after start-up")
+    out = {o["asset_id"]: o for o in decision.generate(plant, CFG, actor="system", now_ms=NOW + 3_600_000)}
+    assert out["P-101"]["action"] == "unchanged" and "in progress" in out["P-101"]["note"]
+    assert out["P-103"]["action"] == "already_decided"
