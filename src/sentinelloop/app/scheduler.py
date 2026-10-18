@@ -45,9 +45,13 @@ class Tech:
 
 @dataclass(frozen=True)
 class PartStock:
+    """Stock on hand at t0, known future deliveries, and whether the planner may order more (then any quantity is
+    assumed to arrive lead_time_h after t0 - a declared simplification). With orderable=False only known deliveries count."""
     part_id: str
     on_hand: int
     lead_time_h: float
+    arrivals: tuple = ()            # ((time_ms, qty), ...)
+    orderable: bool = True
 
 
 @dataclass
@@ -86,6 +90,8 @@ class Problem:
     techs: list
     parts: dict = field(default_factory=dict)       # part_id -> PartStock
     frozen: list = field(default_factory=list)      # Assignments already committed (they keep their technicians)
+    previous: dict = field(default_factory=dict)    # job_id -> start_ms in the previous plan (stability preference)
+    stability_weight: float = 0.0                   # 0 = no preference for keeping previous starts
 
     @property
     def n_slots(self) -> int:
@@ -137,16 +143,30 @@ def _k(p: Problem, j: Job) -> int:
     return max(1, int(math.ceil(j.duration_h / p.slot_h - 1e-9)))
 
 
-def _parts_ready_slot(p: Problem, j: Job, used: dict) -> tuple[int, str | None]:
-    """First slot at which the job's parts can be available given stock already used by other jobs."""
-    ready = 0
+def part_available(p: Problem, stock: PartStock, t_ms: int) -> float:
+    """Units that can have been delivered by t_ms (on hand + known arrivals; unlimited after the lead time if orderable)."""
+    if stock.orderable and t_ms >= p.t0_ms + int(round(stock.lead_time_h * HOUR_MS)):
+        return math.inf
+    return stock.on_hand + sum(q for ta, q in stock.arrivals if ta <= t_ms)
+
+
+def _parts_fit(p: Problem, j: Job, start_ms: int, placed: dict) -> bool:
+    """Would starting j at start_ms keep cumulative consumption within availability at every later consumption instant?"""
     for part, q in j.parts.items():
-        stock = p.parts.get(part)
-        if stock is None:
-            return p.n_slots + 1, f"part {part} is not stocked and has no known lead time"
-        if stock.on_hand - used.get(part, 0) < q:
-            ready = max(ready, int(math.ceil(stock.lead_time_h / p.slot_h - 1e-9)))
-    return ready, None
+        stock = p.parts[part]
+        uses = placed.get(part, [])
+        for tau in sorted({start_ms} | {s for s, _ in uses if s >= start_ms}):
+            used = sum(qq for s, qq in uses if s <= tau) + q
+            if used > part_available(p, stock, tau):
+                return False
+    return True
+
+
+def _missing_part(p: Problem, j: Job) -> str | None:
+    for part in j.parts:
+        if part not in p.parts:
+            return f"part {part} is not stocked and has no known lead time"
+    return None
 
 
 def _window_starts(p: Problem, j: Job) -> tuple[list[int], str | None]:
@@ -197,11 +217,17 @@ ORDER = {
 }
 
 
-def _place(p: Problem, j: Job, starts: list[int], ready: int, on_shift: dict, busy: dict, asset_busy: dict, load: dict):
+def _place(p: Problem, j: Job, starts: list[int], placed_parts: dict, on_shift: dict, busy: dict, asset_busy: dict, load: dict):
     k = _k(p, j)
     qualified = [t for t in p.techs if j.skill in t.skills]
-    for s in starts:
-        if s < ready:
+    order = list(starts)
+    prev = p.previous.get(j.job_id) if p.stability_weight > 0 else None
+    if prev is not None:
+        ps = int(round((prev - p.t0_ms) / (p.slot_h * HOUR_MS)))
+        if ps in starts:
+            order = [ps] + [s for s in starts if s != ps]      # keep yesterday's start if it is still feasible
+    for s in order:
+        if not _parts_fit(p, j, p.t(s), placed_parts):
             continue
         ab = asset_busy.get(j.asset_id)
         if ab is not None and ab[s:s + k].any():
@@ -213,7 +239,7 @@ def _place(p: Problem, j: Job, starts: list[int], ready: int, on_shift: dict, bu
     return None, None
 
 
-def _why_not(p: Problem, j: Job, starts, ready, on_shift) -> str:
+def _why_not(p: Problem, j: Job, starts, placed_parts, on_shift) -> str:
     qualified = [t for t in p.techs if j.skill in t.skills]
     if not qualified:
         return f"no technician with skill {j.skill}"
@@ -221,8 +247,11 @@ def _why_not(p: Problem, j: Job, starts, ready, on_shift) -> str:
     staffed = [s for s in starts if sum(on_shift[t.tech_id][s:s + k].all() for t in qualified) >= j.crew]
     if not staffed:
         return f"no {j.crew} technician(s) with skill {j.skill} on shift during the asset's windows"
-    if all(s < ready for s in staffed):
-        return f"parts not available before the horizon ends (lead time {max((p.parts[x].lead_time_h for x in j.parts if x in p.parts), default=0):.0f} h)"
+    if not any(_parts_fit(p, j, p.t(s), placed_parts) for s in staffed):
+        info = "; ".join(f"{x}: on hand {p.parts[x].on_hand}, known deliveries {len(p.parts[x].arrivals)}, "
+                         + (f"lead time {p.parts[x].lead_time_h:.0f} h" if p.parts[x].orderable else "no further orders possible")
+                         for x in j.parts if x in p.parts)
+        return f"parts not available in time within the horizon ({info})"
     return "capacity in the asset's windows is taken by work placed earlier by this policy"
 
 
@@ -237,20 +266,20 @@ def plan_greedy(p: Problem, policy: str) -> Schedule:
         for i in range(p.n_slots):
             if p.t(i) < a.end_ms and p.t(i + 1) > a.start_ms:
                 ab[i] = True
-    used: dict = {}
+    placed_parts: dict = {}
     assignments, unscheduled = [], {}
     for j in sorted(p.jobs, key=ORDER[policy]):
         starts, reason = _window_starts(p, j)
         if reason:
             unscheduled[j.job_id] = reason
             continue
-        ready, preason = _parts_ready_slot(p, j, used)
+        preason = _missing_part(p, j)
         if preason:
             unscheduled[j.job_id] = preason
             continue
-        s, crew = _place(p, j, starts, ready, on_shift, busy, asset_busy, load)
+        s, crew = _place(p, j, starts, placed_parts, on_shift, busy, asset_busy, load)
         if s is None:
-            unscheduled[j.job_id] = _why_not(p, j, starts, ready, on_shift)
+            unscheduled[j.job_id] = _why_not(p, j, starts, placed_parts, on_shift)
             continue
         k = _k(p, j)
         for tid in crew:
@@ -258,10 +287,7 @@ def plan_greedy(p: Problem, policy: str) -> Schedule:
             load[tid] += k
         asset_busy.setdefault(j.asset_id, np.zeros(p.n_slots, dtype=bool))[s:s + k] = True
         for part, q in j.parts.items():
-            if p.parts[part].on_hand - used.get(part, 0) >= q and s < int(math.ceil(p.parts[part].lead_time_h / p.slot_h - 1e-9)):
-                used[part] = used.get(part, 0) + q
-            elif p.parts[part].on_hand - used.get(part, 0) >= q:
-                used[part] = used.get(part, 0) + q
+            placed_parts.setdefault(part, []).append((p.t(s), q))
         assignments.append(Assignment(j.job_id, j.asset_id, p.t(s), p.t(s) + int(round(j.duration_h * HOUR_MS)), crew))
     return _finish(p, policy, assignments, unscheduled, {"method": f"greedy list scheduling ({policy})", "time_s": round(time.time() - t_start, 4)})
 
@@ -307,14 +333,22 @@ def plan_milp(p: Problem, time_limit_s: float = 30.0, mip_rel_gap: float = 1e-4)
             unscheduled[j.job_id] = f"part {missing[0]} is not stocked and has no known lead time"
             continue
         starts_of[j.job_id] = starts
+        prev = p.previous.get(j.job_id) if p.stability_weight > 0 else None
+        ps = None if prev is None else int(round((prev - p.t0_ms) / (p.slot_h * HOUR_MS)))
         for s in starts:
-            var_job.append(j.job_id); var_slot.append(s); costs.append(start_cost(p, j, p.t(s)))
+            pen = 0.0 if ps is None or s == ps else p.stability_weight * FLOOR[j.priority_class] * j.failure_cost
+            var_job.append(j.job_id); var_slot.append(s); costs.append(start_cost(p, j, p.t(s)) + pen)
     jobs_in = [j for j in p.jobs if j.job_id in starts_of]
     n_x = len(costs)
     n = n_x + len(jobs_in)
+    if n == 0:                                  # nothing the optimiser could place: a valid, empty plan
+        return _finish(p, "milp", [], unscheduled, {"method": "time-indexed MILP, HiGHS via scipy.optimize.milp", "status": 0,
+                                                     "status_text": "no schedulable jobs", "mip_gap": 0.0, "n_variables": 0, "n_constraints": 0,
+                                                     "time_s": round(time.time() - t_start, 3), "caveat": "optimal (trivially) for the aggregated model"})
     c = np.array(costs + [unscheduled_cost(p, j) for j in jobs_in])
     rows, lb, ub = [], [], []
-    A = lil_matrix((len(jobs_in) + (len(skills) + 1) * p.n_slots + len(p.parts) + len({j.asset_id for j in jobs_in}) * p.n_slots, n))
+    n_part_rows = sum(len(s.arrivals) + 2 for s in p.parts.values())
+    A = lil_matrix((len(jobs_in) + (len(skills) + 1) * p.n_slots + n_part_rows + len({j.asset_id for j in jobs_in}) * p.n_slots, n))
     r = 0
     idx_by_job: dict = {}
     for i, (jid, s) in enumerate(zip(var_job, var_slot)):
@@ -332,13 +366,19 @@ def plan_milp(p: Problem, time_limit_s: float = 30.0, mip_rel_gap: float = 1e-4)
                 if (s_name == "__all__" or j.skill == s_name) and s <= tslot < s + _k(p, j):
                     A[r, i] = j.crew
             lb.append(-np.inf); ub.append(float(total[tslot] if s_name == "__all__" else cap[s_name][tslot])); r += 1
-    for part, stock in p.parts.items():                               # stock on hand covers starts before the delivery
-        arrival = int(math.ceil(stock.lead_time_h / p.slot_h - 1e-9))
-        for i, (jid, s) in enumerate(zip(var_job, var_slot)):
-            q = jmap[jid].parts.get(part, 0)
-            if q and s < arrival:
-                A[r, i] = q
-        lb.append(-np.inf); ub.append(float(stock.on_hand)); r += 1
+    for part, stock in p.parts.items():                               # cumulative use <= deliveries, checked before each increase
+        checks = {int(math.ceil((ta - p.t0_ms) / (p.slot_h * HOUR_MS) - 1e-9)) - 1 for ta, _ in stock.arrivals}
+        if stock.orderable:
+            lead_slot = int(math.ceil(stock.lead_time_h / p.slot_h - 1e-9))
+            checks = {c for c in checks if c < lead_slot - 1} | {min(lead_slot, p.n_slots) - 1}
+        else:
+            checks |= {p.n_slots - 1}
+        for cslot in sorted(c for c in checks if 0 <= c < p.n_slots):
+            for i, (jid, s) in enumerate(zip(var_job, var_slot)):
+                q = jmap[jid].parts.get(part, 0)
+                if q and s <= cslot:
+                    A[r, i] = q
+            lb.append(-np.inf); ub.append(float(part_available(p, stock, p.t(cslot)))); r += 1
     for asset in sorted({j.asset_id for j in jobs_in}):              # one job at a time per asset
         for tslot in range(p.n_slots):
             for i, (jid, s) in enumerate(zip(var_job, var_slot)):
@@ -428,10 +468,13 @@ def validate(p: Problem, s: Schedule) -> list[str]:
                 if a.asset_id == b.asset_id:
                     out.append(f"asset {a.asset_id} has overlapping jobs {a.job_id} and {b.job_id}")
     for part, stock in p.parts.items():
-        arrival = p.t0_ms + int(round(stock.lead_time_h * HOUR_MS))
-        need = sum(jobs[a.job_id].parts.get(part, 0) for a in s.assignments if a.job_id in jobs and a.start_ms < arrival)
-        if need > stock.on_hand:
-            out.append(f"part {part}: {need} needed before the delivery at {iso(arrival)} but only {stock.on_hand} on hand")
+        uses = sorted((a.start_ms, jobs[a.job_id].parts.get(part, 0)) for a in s.assignments if a.job_id in jobs and jobs[a.job_id].parts.get(part))
+        used = 0
+        for tau, q in uses:
+            used += q
+            if used > part_available(p, stock, tau):
+                out.append(f"part {part}: {used} used by {iso(tau)} but only {part_available(p, stock, tau)} can have been delivered")
+                break
     for a in s.assignments:
         for part in jobs[a.job_id].parts if a.job_id in jobs else {}:
             if part not in p.parts:

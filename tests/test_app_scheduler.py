@@ -124,3 +124,48 @@ def test_random_instances_always_validate():
         p = problem(jobs, techs, parts={"kit": S.PartStock("kit", 2, 12)}, horizon=48)
         for pol in ("edd", "criticality_first", "risk_greedy", "milp"):
             assert S.validate(p, S.plan(p, pol, time_limit_s=10)) == [], (trial, pol)
+
+
+@pytest.mark.parametrize("policy", ["edd", "criticality_first", "risk_greedy", "milp"])
+def test_a_day_with_no_schedulable_work_is_a_valid_empty_plan(policy):
+    p = problem([], [tech("T1")])
+    s = S.plan(p, policy)
+    assert s.assignments == [] and s.unscheduled == {} and S.validate(p, s) == []
+    p = problem([job("NOWIN", windows=())], [tech("T1")])
+    s = S.plan(p, policy)
+    assert s.assignments == [] and "NOWIN" in s.unscheduled
+
+
+@pytest.mark.parametrize("policy", ["edd", "risk_greedy", "milp"])
+def test_known_part_arrivals_are_respected_when_more_cannot_be_ordered(policy):
+    # one kit on hand, one arriving at 30 h, nothing else can be ordered: the third job cannot be scheduled
+    stock = S.PartStock("kit", on_hand=1, lead_time_h=999, arrivals=((h(30), 1),), orderable=False)
+    jobs = [job(f"J{i}", asset=f"A{i}", parts={"kit": 1}, risk=(10, 30, 60, 0.9, T0), score=1.0) for i in range(3)]
+    p = problem(jobs, [tech("T1"), tech("T2"), tech("T3")], parts={"kit": stock}, horizon=72)
+    s = S.plan(p, policy)
+    assert S.validate(p, s) == []
+    starts = sorted(a.start_ms for a in s.assignments)
+    assert len(starts) == 2 and starts[1] >= h(30)
+    assert len(s.unscheduled) == 1 and "part" in list(s.unscheduled.values())[0]
+
+
+def test_validator_catches_parts_used_before_they_arrive():
+    stock = S.PartStock("kit", on_hand=0, lead_time_h=999, arrivals=((h(30), 1),), orderable=False)
+    p = problem([job("J1", parts={"kit": 1})], [tech("T1")], parts={"kit": stock}, horizon=72)
+    bad = S.Schedule("handmade", [S.Assignment("J1", "A1", h(2), h(6), ["T1"])], {}, 0.0, {}, {})
+    assert any("kit" in v for v in S.validate(p, bad))
+
+
+@pytest.mark.parametrize("policy", ["risk_greedy", "milp"])
+def test_stability_preference_keeps_feasible_previous_starts(policy):
+    jobs = [job(f"J{i}", asset=f"A{i}", risk=(20, 40, 80, 0.9, T0), score=float(i)) for i in range(3)]
+    p = problem(jobs, [tech("T1")], horizon=48)
+    first = S.plan(p, policy)
+    prev = {a.job_id: a.start_ms for a in first.assignments}
+    # tomorrow the scores change order; with the stability preference the plan keeps yesterday's starts where they are still feasible
+    jobs2 = [job(f"J{i}", asset=f"A{i}", risk=(20, 40, 80, 0.9, T0), score=float(3 - i)) for i in range(3)]
+    p2 = problem(jobs2, [tech("T1")], horizon=48)
+    p2.previous = prev
+    p2.stability_weight = 1.0
+    s2 = S.plan(p2, policy)
+    assert {a.job_id: a.start_ms for a in s2.assignments} == prev and S.validate(p2, s2) == []
