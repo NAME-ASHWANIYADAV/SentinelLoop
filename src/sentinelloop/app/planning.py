@@ -9,12 +9,17 @@ import json
 import uuid
 
 from . import auditlog, registry, resources, scheduler as S, workorders
+from .errors import PermissionDenied
 from .timeutil import HOUR_MS, iso, now_iso, now_ms
 
 PLANNERS = {"planner", "admin"}
 
 
 class PlanningError(ValueError):
+    pass
+
+
+class PlanningPermissionError(PlanningError, PermissionDenied):
     pass
 
 
@@ -51,7 +56,7 @@ def build_problem(db, site_id: str, t0: int, horizon_h: float, slot_h: float) ->
 def plan(db, site_id: str, policy: str, actor: str, role: str, t0: int | None = None, horizon_h: float = 72.0, slot_h: float = 1.0,
          time_limit_s: float = 30.0) -> dict:
     if role not in PLANNERS:
-        raise PlanningError(f"role {role!r} may not create schedule proposals")
+        raise PlanningPermissionError(f"role {role!r} may not create schedule proposals")
     t0 = int(t0 if t0 is not None else now_ms())
     p, versions = build_problem(db, site_id, t0, horizon_h, slot_h)
     sch = S.plan(p, policy, time_limit_s=time_limit_s)
@@ -86,7 +91,7 @@ def get(db, run_id: str) -> dict | None:
 
 def apply(db, run_id: str, actor: str, role: str) -> dict:
     if role not in PLANNERS:
-        raise PlanningError(f"role {role!r} may not apply schedule proposals")
+        raise PlanningPermissionError(f"role {role!r} may not apply schedule proposals")
     run = get(db, run_id)
     if run is None:
         raise PlanningError(f"unknown schedule run {run_id}")

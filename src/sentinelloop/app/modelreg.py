@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 
 from . import auditlog
+from .errors import PermissionDenied
 from .modelpack import read_manifest
 from .timeutil import now_iso
 
@@ -16,6 +17,10 @@ DECIDERS = {"reliability_engineer", "admin"}
 
 
 class ModelRegistryError(ValueError):
+    pass
+
+
+class ModelRolePermissionError(ModelRegistryError, PermissionDenied):
     pass
 
 
@@ -69,7 +74,7 @@ def approved_models(db, asset_type_id: str) -> list[dict]:
 
 def _check(role: str, reason: str):
     if role not in DECIDERS:
-        raise ModelRegistryError(f"role {role!r} may not approve, reject or roll back models")
+        raise ModelRolePermissionError(f"role {role!r} may not approve, reject or roll back models")
     if not reason or not reason.strip():
         raise ModelRegistryError("a written reason is required")
 

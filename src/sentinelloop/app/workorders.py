@@ -16,6 +16,7 @@ from typing import Literal
 from pydantic import Field
 
 from . import auditlog, health, registry, states
+from .errors import PermissionDenied
 from .models import Strict
 from .timeutil import iso, now_iso, parse_ts
 
@@ -50,6 +51,10 @@ class IdempotencyConflict(WorkflowError):
 
 
 class ConcurrencyConflict(WorkflowError):
+    pass
+
+
+class RolePermissionError(WorkflowError, PermissionDenied):
     pass
 
 
@@ -121,7 +126,7 @@ def create(db, asset_id: str, job_type: str, priority_class: str, title: str, or
            due_by: str | None = None, description: str = "", initial_state: str = "DRAFT", priority_score: float | None = None,
            explanation: dict | None = None, assessment_id: str | None = None) -> dict:
     if role not in CREATORS:
-        raise WorkflowError(f"role {role!r} may not create work orders")
+        raise RolePermissionError(f"role {role!r} may not create work orders")
     if initial_state not in ("DRAFT", "PENDING_APPROVAL"):
         raise WorkflowError("new work orders start as DRAFT or PENDING_APPROVAL")
     if priority_class not in ("P1", "P2", "P3"):
@@ -165,7 +170,7 @@ def _apply(db, c, o, action: str, actor: str, role: str, reason: str, data: dict
     if o["state"] not in frm:
         raise WorkflowError(f"cannot {action} a work order in state {o['state']}")
     if role not in roles:
-        raise WorkflowError(f"role {role!r} may not {action} work orders")
+        raise RolePermissionError(f"role {role!r} may not {action} work orders")
     if need_reason and not (reason or "").strip():
         raise WorkflowError(f"a reason is required to {action}")
     sets = dict(extra_sets or {})
@@ -279,7 +284,7 @@ def reprioritise(db, wo_id: str, priority_class: str, priority_score: float | No
     """Change an open order's priority and due date (no state change), with an event and an audit record. A deferred order
     escalated to P1 comes back for approval: a deferral must not hide a newly urgent condition."""
     if role not in REPRIORITISERS:
-        raise WorkflowError(f"role {role!r} may not re-prioritise work orders")
+        raise RolePermissionError(f"role {role!r} may not re-prioritise work orders")
     if priority_class not in CLASS_ORDER:
         raise WorkflowError("priority_class must be P1, P2 or P3")
     if not (reason or "").strip():

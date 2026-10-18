@@ -51,6 +51,13 @@ class TransitionError(ValueError):
     pass
 
 
+from .errors import PermissionDenied  # noqa: E402
+
+
+class StateRolePermissionError(TransitionError, PermissionDenied):
+    pass
+
+
 @dataclass(frozen=True)
 class Thresholds:
     p_inspect: float = 0.10
@@ -148,7 +155,7 @@ def clear_risk(s: AssetState, event: str, actor: str, role: str, reason: str) ->
     if event not in CLEAR_EVENTS:
         raise TransitionError(f"unknown clearing event {event!r}; allowed: {sorted(CLEAR_EVENTS)}")
     if role not in CLEAR_EVENTS[event]:
-        raise TransitionError(f"role {role!r} may not record {event!r}")
+        raise StateRolePermissionError(f"role {role!r} may not record {event!r}")
     if not reason or not reason.strip():
         raise TransitionError("a written reason is required to clear a latched risk")
     if s.latched_risk == "NONE":
