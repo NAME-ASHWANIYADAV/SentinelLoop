@@ -125,3 +125,49 @@ def test_password_hashing_uses_scrypt_and_rejects_short_passwords(ctx):
     assert security.verify_password(ctx["db"], "tom", "wrong-passphrase-xx") is None
     with ctx["db"].connect() as c:
         assert c.execute("SELECT password_hash FROM users WHERE user_id = 'tom'").fetchone()[0].startswith("scrypt$")
+
+
+def test_audit_history_of_sensitive_entities_needs_audit_permission(ctx):
+    c = ctx["client"]
+    assert c.get("/api/v1/audit/user/tom", headers=H(ctx, "viewer")).status_code == 403
+    assert c.get("/api/v1/audit/asset/P-101", headers=H(ctx, "viewer")).status_code == 200
+    assert c.get("/api/v1/audit/user/tom", headers=H(ctx, "admin")).status_code == 200
+
+
+def test_chunked_bodies_without_content_length_are_capped(ctx, tmp_path):
+    from sentinelloop.app import api as apimod
+    small = TestClient(apimod.create_app(ctx["db"], policymod.load(ROOT / "configs" / "platform.yaml"), rate_limit=(1000, 1000.0), max_body_bytes=1000))
+    def gen():
+        for _ in range(50):
+            yield b"x" * 100
+    r = small.post("/api/v1/ingest/csv?source=x", content=gen(), headers=H(ctx, "integration", **{"Content-Type": "text/csv"}))
+    assert r.status_code == 413
+    rows = [{"asset": "P-101", "timestamp": "2026-10-17T10:00:00Z", "signal": "bearing_temp", "value": 61.0, "unit": "degC"}] * 40
+    payload = __import__("json").dumps({"records": rows, "source": "historian"}).encode()
+    def gen_json():
+        for i in range(0, len(payload), 100):
+            yield payload[i:i + 100]
+    r = small.post("/api/v1/ingest/readings", content=gen_json(), headers=H(ctx, "integration", **{"Content-Type": "application/json"}))
+    assert r.status_code == 413                 # JSON endpoints are capped while streaming too, not only the CSV upload
+
+
+def test_rate_limit_is_per_user_not_per_credential_string_and_buckets_are_bounded(tmp_path):
+    lim = security.RateLimiter(capacity=2, refill_per_s=0.0001, max_buckets=3)
+    for k in ("a", "b", "c", "d", "e"):
+        lim.allow(k)
+    assert len(lim._b) <= 3
+    d = dbmod.Database(tmp_path / "rl2.db", audit_key=KEY, audit_key_id="test")
+    d.migrate()
+    security.create_user(d, "vic", "Vic", "viewer", actor="bootstrap")
+    key = security.issue_api_key(d, "vic", actor="bootstrap")
+    c = TestClient(api.create_app(d, policymod.load(ROOT / "configs" / "platform.yaml"), rate_limit=(2, 0.0001)))
+    codes = [c.get("/api/v1/assets", headers=hdr).status_code for hdr in ({"Authorization": f"Bearer {key}"}, {"X-API-Key": key}, {"Authorization": f"bearer  {key}"})]
+    assert codes[2] == 429                      # the same user cannot dodge the limit by changing how the key is presented
+
+
+def test_csv_export_neutralises_spreadsheet_formulas(ctx):
+    c = ctx["client"]
+    c.post("/api/v1/work-orders", json={"asset_id": "P-101", "job_type": "inspect", "priority_class": "P2", "title": "=HYPERLINK(\"http://x\")"},
+           headers=H(ctx, "planner", **{"Idempotency-Key": "csv-1"}))
+    text = c.get("/api/v1/export/work-orders.csv", headers=H(ctx, "viewer")).text
+    assert "'=HYPERLINK" in text and ",=HYPERLINK" not in text

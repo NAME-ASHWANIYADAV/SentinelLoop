@@ -27,6 +27,73 @@ from .timeutil import iso, parse_ts
 
 log = logging.getLogger("sentinelloop.api")
 API = "/api/v1"
+# audit histories any authenticated role may read; every other entity (users, credentials, ...) needs audit.read
+OPEN_AUDIT_ENTITIES = {"asset", "assessment", "work_order", "schedule_run", "model", "ingestion_batch"}
+FORMULA_LEAD = ("=", "+", "-", "@", "\t", "\r")
+
+
+class BodyTooLarge(Exception):
+    pass
+
+
+class BodyLimit:
+    """ASGI middleware: refuse bodies over `limit` bytes, counted while they stream in (chunked bodies have no
+    Content-Length to check up front)."""
+
+    def __init__(self, app, limit: int):
+        self.app, self.limit = app, int(limit)
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        seen, exceeded, replied = 0, False, False
+
+        async def limited():
+            nonlocal seen, exceeded
+            msg = await receive()
+            if msg["type"] == "http.request":
+                seen += len(msg.get("body", b""))
+                if seen > self.limit:
+                    exceeded = True
+                    raise BodyTooLarge()
+            return msg
+
+        async def reply_413():
+            nonlocal replied
+            if replied:
+                return
+            replied = True
+            rid = scope.get("state", {}).get("request_id")
+            body = json.dumps({"error": f"request body larger than {self.limit} bytes", "request_id": rid}).encode()
+            await send({"type": "http.response.start", "status": 413, "headers": [(b"content-type", b"application/json"), (b"content-length", str(len(body)).encode())]})
+            await send({"type": "http.response.body", "body": body})
+
+        async def guarded_send(msg):
+            # once the cap is crossed the app's own reply (FastAPI turns a failed body read into 400) is replaced by 413
+            if exceeded:
+                if msg["type"] == "http.response.start":
+                    await reply_413()
+                return
+            await send(msg)
+
+        try:
+            await self.app(scope, limited, guarded_send)
+        except BodyTooLarge:
+            await reply_413()
+
+
+def _csv_safe(v):
+    """Neutralise spreadsheet formulas in exported text (CSV injection): prefix risky leading characters with '."""
+    if isinstance(v, str) and v.startswith(FORMULA_LEAD):
+        return "'" + v
+    return v
+
+
+def _presented_key(headers) -> str | None:
+    auth = headers.get("authorization")
+    if auth and auth.lower().startswith("bearer "):
+        return auth[7:].strip()
+    return headers.get("x-api-key")
 
 
 # -- request bodies -------------------------------------------------------------------------------------------------
@@ -95,6 +162,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     app = FastAPI(title="SentinelLoop platform API", version="1", docs_url=f"{API}/docs", openapi_url=f"{API}/openapi.json", redoc_url=None)
     limiter = security.RateLimiter(*rate_limit)
     dcfg = decision_cfg or decision.DecisionConfig()
+    app.add_middleware(BodyLimit, limit=max_body_bytes)
 
     # -- middleware ---------------------------------------------------------------------------------------------------
     @app.middleware("http")
@@ -106,8 +174,12 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
         if cl and cl.isdigit() and int(cl) > max_body_bytes:
             resp = JSONResponse({"error": f"request body larger than {max_body_bytes} bytes", "request_id": rid}, status_code=413)
         else:
-            client_key = (request.headers.get("authorization") or request.headers.get("x-api-key") or (request.client.host if request.client else "anon"))
-            ok, retry = limiter.allow(security.hash_key(client_key)) if not request.url.path.endswith(("/health", "/ready")) else (True, 0)
+            if request.url.path.endswith(("/health", "/ready")):
+                ok, retry = True, 0
+            else:
+                u = security.authenticate_key(db, _presented_key(request.headers))
+                bucket = f"user:{u['user_id']}" if u else f"addr:{request.client.host if request.client else 'unknown'}"
+                ok, retry = limiter.allow(bucket)
             if not ok:
                 resp = JSONResponse({"error": "rate limit exceeded", "request_id": rid}, status_code=429, headers={"Retry-After": f"{max(1, int(retry + 0.999))}"})
             else:
@@ -140,17 +212,18 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
             return _err(request, 409, msg)
         return _err(request, 422, msg)
 
+    @app.exception_handler(BodyTooLarge)
+    async def _too_large(request, exc):
+        return _err(request, 413, f"request body larger than {max_body_bytes} bytes")
+
     @app.exception_handler(Exception)
     async def _any(request, exc):
         log.exception("unhandled error %s", getattr(request.state, "request_id", None))
         return _err(request, 500, "internal error; quote the request id when reporting it")
 
     # -- auth ---------------------------------------------------------------------------------------------------------
-    def current_user(request: Request, authorization: str | None = Header(default=None), x_api_key: str | None = Header(default=None)) -> dict:
-        key = x_api_key
-        if authorization and authorization.lower().startswith("bearer "):
-            key = authorization[7:].strip()
-        u = security.authenticate_key(db, key)
+    def current_user(request: Request) -> dict:
+        u = security.authenticate_key(db, _presented_key(request.headers))
         if u is None:
             raise HTTPException(status_code=401, detail="missing or invalid API key")
         request.state.user_id = u["user_id"]
@@ -225,9 +298,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     @app.post(f"{API}/ingest/csv")
     async def ingest_csv(request: Request, source: str = Query(min_length=1), default_tz: str | None = None, wide_units: str | None = None,
                          u: dict = Depends(need("ingest"))):
-        raw = await request.body()
-        if len(raw) > max_body_bytes:
-            raise HTTPException(413, "request body too large")
+        raw = await request.body()                     # BodyLimit caps it while it streams
         units = json.loads(wide_units) if wide_units else None
         return ingest.ingest_csv(db, raw, source=source, actor=u["user_id"], wide_units=units, default_tz=default_tz).to_dict()
 
@@ -346,6 +417,8 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
 
     @app.get(f"{API}/audit/{{entity}}/{{entity_id}}")
     def audit_entity(entity: str, entity_id: str, u: dict = Depends(need("read"))):
+        if entity not in OPEN_AUDIT_ENTITIES and not security.allowed(u["role"], "audit.read"):
+            raise PermissionDenied(f"role {u['role']!r} may not read the audit history of {entity!r} records")
         with db.connect() as c:
             return auditlog.history(c, entity, entity_id)
 
@@ -359,7 +432,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
         w = csv.DictWriter(buf, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
         for r in rows:
-            w.writerow({k: r.get(k) for k in cols})
+            w.writerow({k: _csv_safe(r.get(k)) for k in cols})
         return PlainTextResponse(buf.getvalue(), media_type="text/csv")
 
     return app

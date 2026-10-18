@@ -12,6 +12,7 @@ import hmac
 import secrets
 import threading
 import time
+from collections import OrderedDict
 
 from . import auditlog
 from .timeutil import now_iso
@@ -121,20 +122,28 @@ def verify_password(db, user_id: str, password: str) -> dict | None:
 
 
 class RateLimiter:
-    """Token bucket per client key (in-process; one bucket set per API process - documented limitation)."""
+    """Token bucket per client (in-process; one bucket set per API process - documented limitation).
 
-    def __init__(self, capacity: int = 60, refill_per_s: float = 1.0):
-        self.capacity, self.rate = float(capacity), float(refill_per_s)
-        self._b: dict[str, tuple[float, float]] = {}
+    The API keys buckets by authenticated user id, or by client address for requests without a valid credential, so
+    a client cannot get a fresh bucket by changing how it presents its key. At most `max_buckets` buckets are kept;
+    the least recently used one is dropped first (a dropped bucket starts full again, which only matters for a
+    client that has been idle longest).
+    """
+
+    def __init__(self, capacity: int = 60, refill_per_s: float = 1.0, max_buckets: int = 10_000):
+        self.capacity, self.rate, self.max_buckets = float(capacity), float(refill_per_s), int(max_buckets)
+        self._b: OrderedDict[str, tuple[float, float]] = OrderedDict()
         self._lock = threading.Lock()
 
     def allow(self, key: str) -> tuple[bool, float]:
         now = time.monotonic()
         with self._lock:
-            tokens, last = self._b.get(key, (self.capacity, now))
+            tokens, last = self._b.pop(key, (self.capacity, now))
             tokens = min(self.capacity, tokens + (now - last) * self.rate)
-            if tokens >= 1.0:
-                self._b[key] = (tokens - 1.0, now)
+            ok = tokens >= 1.0
+            self._b[key] = (tokens - 1.0 if ok else tokens, now)
+            while len(self._b) > self.max_buckets:
+                self._b.popitem(last=False)
+            if ok:
                 return True, 0.0
-            self._b[key] = (tokens, now)
             return False, (1.0 - tokens) / self.rate if self.rate > 0 else 60.0
