@@ -57,8 +57,9 @@ def call(fn, *a, ok: str | None = None, **kw):
 def login():
     st.title("SentinelLoop console")
     st.caption("Advisory maintenance decisions. Sign in with your personal API key.")
+    url = os.environ.get("SENTINELLOOP_API_URL", "http://127.0.0.1:8080/api/v1")    # server configuration only, never user input
+    st.caption(f"API: {url}")
     with st.form("login"):
-        url = st.text_input("API URL", value=os.environ.get("SENTINELLOOP_API_URL", "http://127.0.0.1:8080/api/v1"), key="login_url")
         key = st.text_input("API key", type="password", key="login_key")
         if st.form_submit_button("Sign in"):
             try:

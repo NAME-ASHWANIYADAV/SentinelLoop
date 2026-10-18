@@ -110,3 +110,20 @@ def test_technician_records_an_outcome(env):
     at.button(key=f"complete-{wo}").click().run()
     o = workorders.get(d, wo)
     assert o["state"] == "COMPLETED" and o["outcome"]["findings_code"] == "degradation_found"
+
+
+def test_the_api_url_is_server_configuration_not_a_login_field(env):
+    at = AppTest.from_file(APP, default_timeout=60)
+    at.run()
+    assert [t.key for t in at.text_input] == ["login_key"]          # no URL field: the console cannot be pointed elsewhere
+
+
+def test_non_json_upstream_errors_are_not_echoed():
+    import httpx
+
+    def handler(request):
+        return httpx.Response(502, text="<html>internal proxy page with secrets</html>")
+    c = ConsoleClient(httpx.Client(base_url="http://api.local", transport=httpx.MockTransport(handler)), "slk_x", prefix="/api/v1")
+    with pytest.raises(ApiError) as e:
+        c.me()
+    assert e.value.status == 502 and "secrets" not in e.value.message

@@ -37,7 +37,9 @@ class ConsoleClient:
                 body = r.json()
             except Exception:
                 body = {}
-            raise ApiError(r.status_code, body.get("error", r.text[:200]), body.get("request_id"))
+            msg = body.get("error") if isinstance(body, dict) else None
+            raise ApiError(r.status_code, str(msg) if msg else f"the API returned HTTP {r.status_code}",   # never echo raw upstream bodies
+                           body.get("request_id") if isinstance(body, dict) else None)
         return r.json() if r.headers.get("content-type", "").startswith("application/json") else r.text
 
     # identity
