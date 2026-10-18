@@ -6,7 +6,7 @@
 | Written by | Technical writer, SentinelLoop product team |
 | Status | **PROVISIONAL and GATED.** Not confirmed until gates G0 and G1 (section 7) pass. If G1 fails, the runner-up becomes the initial choice. |
 | Inputs | Three proposals (DATA-FIRST, ACCESS-FIRST, DECISION-VALUE-FIRST), the judge's decision, and the adversarial review. The review's verdict was "reject as specified", with nine required changes. |
-| Proposed log entry | PD-06 in `product/DECISION_LOG.md`. This record does not edit that file; the team adds the entry once the team lead confirms section 1. |
+| Log entry | PD-10 in `product/DECISION_LOG.md`, recorded as PROVISIONAL and GATED. The team lead's decisions in section 12 are still open. |
 
 **Labels used in this record**
 - **[Sn]**: a source opened in this session (2026-10-18). The full list is in "Sources".
@@ -15,7 +15,7 @@
 - **Vendor claim**: a statement taken from a vendor's own page.
 - **Judgement**: reasoning, not a sourced fact.
 - **Computed**: arithmetic run locally on figures from a cited source (Python, 2026-10-18).
-- **PLANNED**: not done. Nothing in this record that describes work on wind data, outreach or system changes has been done.
+- **PLANNED**: not done. Nothing in this record that describes work on real wind data or outreach has been done. Some of the system changes in section 9 have since been built; the implementation status note there says which.
 
 **Data types.** **REAL FIELD** means measured on operating assets. **REAL LAB** means measured on a test rig. **SIMULATED** means produced by a physics or system model. **SYNTHETIC** means artificially generated or corrupted. **REAL FIELD ADMINISTRATIVE STATISTICS** means aggregate figures reported or estimated by an operator or a government body.
 
@@ -45,8 +45,8 @@
 | **Vertical** | Onshore wind power generation in India. The target is the party that runs recurring maintenance on mid-life turbines and controls their SCADA history. Candidate types are an independent power producer's (IPP) asset-management team and an independent O&M provider. Which type, and whether either will share data, is **UNVERIFIED**; gate G1 decides. |
 | **Asset class** | Geared onshore turbines of about **2.0-2.3 MW**, past commissioning but not repowering candidates under MNRE's 2023 policy. That policy makes turbines "below 2 MW" eligible [S16 p.2]. They are monitored only through existing 10-minute SCADA, alarm and event logs, and a failure or work-order log. No new hardware. Targets are faults visible in SCADA: the drivetrain (gearbox and its bearings, generator) and transformer over-temperature. The CARE record's version notes name events described as "gearbox bearing damage" (event 51, Farm A) and "high temperature in transformer cell" (events 34, 7 and 19) [S1]. |
 | **Geography** | Customers in India, where installed wind capacity is 59,201.07 MW as on 30.09.2026 [S15]. **No first state is fixed.** No source opened gives the 2.0-2.3 MW fleet by state; MNRE's state table covers only turbines below 2 MW [S16 pp.1-2]. Tamil Nadu is not chosen on fleet grounds (objection 3, section 6). The validation data are European (Portugal, German offshore, UK) [S1][S3][S4][S5]. No Indian turbine SCADA is public [S18]. |
-| **Decision the product would support** | Hypothesis, **UNVERIFIED**: a weekly ranked list of turbines for drivetrain and transformer inspection under an explicit technician and crane budget, with a controlled false-alarm rate, plus a deferral list with stated risk. G1 must find a party that confirms it makes this decision. |
-| **Product message in this vertical** | "Calibrated early warning with auditable triage". It is not "RUL with a 90% interval". RUL has not been validated on any wind data and remains a SIMULATED C-MAPSS result [L1][L3]. |
+| **Decision the product would support** | **What the product computes today** (SYNTHETIC data only):<br>• advisory anomaly flags per turbine (INSPECTION_RECOMMENDED, URGENT_REVIEW) on drivetrain temperatures, with policy-default due dates;<br>• within a priority class, an anomaly-ranked order (deviation ratio × consequence / (duration × crew)), labelled "not a probability" (`src/sentinelloop/app/decision.py`).<br>The wind model gives no remaining life and no failure probability (PD-11). Transformer temperature is not modelled.<br>**Hypotheses, UNVERIFIED and not computed by the product:**<br>• a weekly inspection list under an explicit technician and **crane** budget. The scheduler has technicians, skills, shifts, parts and maintenance windows, but no cranes, weather or climbing-wind limits (`KNOWN_LIMITATIONS.md` P8);<br>• a controlled false-alarm rate. The thresholds are policy choices with no nominal rate (M4). Held-out synthetic fleets gave 2.65 healthy alarm episodes per turbine-year, above the target of 1.0 and the proposed pilot ceiling of 2 (`KNOWN_LIMITATIONS.md` E7);<br>• a deferral list with stated risk. Deferral exists, but no risk can be stated without a failure probability.<br>G1 must find a party that confirms it makes this decision. |
+| **Product message in this vertical** | "Advisory anomaly flags for inspection, with auditable triage". It is not "calibrated early warning": the alarm thresholds are tuned on synthetic data and are not calibrated (`KNOWN_LIMITATIONS.md` M4). It is not "RUL with a 90% interval" either. RUL has not been validated on any wind data and remains a SIMULATED C-MAPSS result [L1][L3]. |
 | **Primary validation data** | CARE to Compare v6 (Fraunhofer IEE): REAL FIELD, CC BY-SA 4.0, https://zenodo.org/records/15846963 [S1]. The in-class labelled part is **Farm A only**: 5 onshore turbines in Portugal, 11 anomaly events and 11 normal datasets per the paper [S2]. |
 | **Runner-up** | Indian State Transport Undertaking (STU) depots, diesel-bus powertrain aggregates (section 10). |
 
@@ -57,7 +57,7 @@
 | Turbine band | 1.5-2.3 MW | 2.0-2.3 MW geared, mid-life | Review change 2, option (b) (see below) |
 | Target owners | Ageing owners eligible for repowering or life extension | The party running maintenance on mid-life turbines and holding their SCADA | Review §3.1 (end-of-life objection) |
 | Geography | Tamil Nadu first | India; first state open until G1 | Review change 3 |
-| Decision supported | Policy-backed repowering and life-extension assessment | Inspection ranking under a technician and crane budget (UNVERIFIED) | Review change 4 |
+| Decision supported | Policy-backed repowering and life-extension assessment | Inspection ranking under a technician and crane budget (UNVERIFIED hypothesis; the scheduler has no crane resource) | Review change 4 |
 | NIWE | "Institutional door" | Optional internship with publication and data restrictions | Review change 5 |
 | Access test | Later switch condition; 12-month export gate | First gate; at least 3 years of SCADA plus a failure or work-order log | Review change 6 |
 | Data score | 4 | 3 | Review change 1 |
@@ -82,8 +82,8 @@ The cost of (b): no verified figure describes the size, state distribution, mode
   - Two Indian figures are quoted: the national installed wind capacity [S15], and MNRE's state table for turbines below 2 MW [S16].
   - The table is used only to show why the sub-2 MW framing and the Tamil Nadu start were dropped.
 - **No customer has been contacted.** No owner, IPP, O&M provider, OEM, certification body, NIWE, CIRT, STU or campus estate office has been contacted by the team for this work. Every outreach step in this record is PLANNED.
-- **No SentinelLoop result on wind data exists.** CARE and the other wind datasets have not been downloaded, and no model has been run on them. Every wind capability is PLANNED in the product's status vocabulary (PD-03) [L5].
-- **All existing SentinelLoop results are on SIMULATED NASA C-MAPSS data.** The stress tests inject SYNTHETIC faults into simulated engines. "No real sensor, real asset, real maintenance record or real user has ever touched the system" [L3].
+- **No SentinelLoop result on real wind data exists.** CARE and the other wind datasets have not been downloaded, and no model has been run on them. The wind anomaly model is IMPLEMENTED_AND_TESTED on SYNTHETIC SCADA from our own generator only (`product/evidence/wind_synthetic/w1.md`, `w2.md`). Those runs are behaviour checks, not performance evidence (`KNOWN_LIMITATIONS.md` E3). No wind capability is validated on real data.
+- **All existing SentinelLoop results are on SIMULATED NASA C-MAPSS data or SYNTHETIC wind data.** The stress tests inject SYNTHETIC faults into simulated engines. "No real sensor, real asset, real maintenance record or real user has ever touched the system" [L3].
 - No competitor capability is asserted beyond what the competitor's own page says. Those statements are labelled vendor claims.
 
 ---
@@ -163,6 +163,7 @@ Each reason is restated after the review; the reasons the review struck out are 
    - the healthy-baseline health index (D10) and regime normalisation (D14);
    - age-matched drift monitoring (D17) and the promotion gate (D22, D24) [L2];
    - the conformal machinery, which shifts from RUL intervals to calibrating alarm thresholds on normal data.
+   - *Status after the platform build:* the wind model reuses the healthy-baseline idea in a new normal-behaviour model with per-turbine commissioning (`app/nbm.py`, PD-12), not in the competition code. Drift monitoring and the promotion gate exist only in the competition pipeline, and drift monitoring and gated retraining for wind are PLANNED (FR-H3). The shipped wind thresholds use a max-healthy-score rule, not conformal calibration.
 6. **No hardware is needed.** EDP's 10-minute signals include generator and rotor RPM, drivetrain temperatures, active power and pitch angles [S7].
 
 **Reasons removed after the review** (no longer used):
@@ -189,34 +190,56 @@ Outcome codes:
 | 4 | The "policy-backed decision" does not use what the product outputs; repowering candidates are end-of-life assets. | Confirmed. The indicative valuation model uses PLF, generation, O&M expense, tariff, discount rate, decommissioning cost and scrap income [S16 p.10]. Life extension is "assessed and certified by the certification agency" under UL 4143 [S16 p.3]. UL 4143's public scope is "rules and procedures" for lifetime extension of onshore turbines, using a risk approach [S20]. | The decision is replaced by a hypothesis: inspection ranking under a technician and crane budget. Decision value is re-scored 3 until G1 finds a party that confirms the decision. | **Accepted, changed**. **Risk accepted**: the decision itself is UNVERIFIED. |
 | 5 | NIWE is a door into NIWE's own projects, not to owners or their SCADA. | Confirmed from the notice [S17]. Interns "work with scientists/engineers on NIWE's projects", from NIWE's office with daily attendance, unpaid. Publication needs the Director General's approval with a NIWE guide as second co-author. Interns sign a data-protection declaration. At most 25 interns at a time. Policy §11 has SNAs/CNA "along with SLDCs" supply data to NIWE [S16 p.7]. WT-MARUT is a supply-chain traceability portal, not an operational-data store [S19]. NIWE's open data are 10 wind-monitoring-station sets and a 150 m atlas, "© All Rights Reserved" [S18]. | NIWE is reclassified as an optional internship with publication and data restrictions. Before any work on NIWE data, the team gets written clarification on publication and reuse. NIWE is not on the critical path. | **Accepted, changed** |
 | 6 | The user and buyer are unidentified; the 12-month gate is weaker than a competitor's own 3-year minimum. | Confirmed: Turbit's paid backtest needs at least 3 years of SCADA per turbine and calls 5+ years ideal [S23] (vendor claim). INOX Green claims "11 GW of Wind O&M assets" [S26] (vendor claim), about 18.6% of national capacity (computed with [S15]). Who controls SCADA exports remains UNVERIFIED. | Access becomes the **first gate (G1)**, with a 3-year minimum and a legal-sharing condition. If G1 fails, the team switches to the runner-up. | **Accepted, changed** |
-| 7 | In wind the product loses its RUL headline and becomes a commoditised normal-behaviour model; competition in India is denser than stated. | Confirmed (vendor claims). ONYX: "32,000+ turbines monitored", faults "up to 24 months ahead", CMS hardware, a Bengaluru office [S24][S25]. Turbit: 3,500+ turbines, 40+ customers, paid backtest on exports from Vestas, Siemens Gamesa, Nordex, Enercon and GE, naming gearbox damage and generator failures [S22][S23]. Clir: "reconciles OEM calculations" and "dispute-ready reports" [S28]. IBM Maximo Renewables at KP Group (HQ Gujarat): the case study's O&M scope is "solar and hybrid power plants"; wind appears only in the company background, not in the deployment described [S27]. | Competition stays at 2. The differentiation hypotheses are reported achieved-vs-nominal false-alarm control, re-derivable audited triage, and offline-first vendor-neutral operation. All are **unvalidated**. W5 is the same shape of offer as Turbit's backtest, so it is not a differentiator in itself. | **Accepted as risk** |
+| 7 | In wind the product loses its RUL headline and becomes a commoditised normal-behaviour model; competition in India is denser than stated. | Confirmed (vendor claims). ONYX: "32,000+ turbines monitored", faults "up to 24 months ahead", CMS hardware, a Bengaluru office [S24][S25]. Turbit: 3,500+ turbines, 40+ customers, paid backtest on exports from Vestas, Siemens Gamesa, Nordex, Enercon and GE, naming gearbox damage and generator failures [S22][S23]. Clir: "reconciles OEM calculations" and "dispute-ready reports" [S28]. IBM Maximo Renewables at KP Group (HQ Gujarat): the case study's O&M scope is "solar and hybrid power plants"; wind appears only in the company background, not in the deployment described [S27]. | Competition stays at 2. The differentiation hypotheses are reported achieved-vs-nominal false-alarm control, re-derivable audited triage, and offline-first vendor-neutral operation. All are **unvalidated**. The first one does not apply to the shipped threshold rule, which has no nominal rate (G0 Amendment 1, `PREREGISTRATION.md` §10.2); only a reported false-alarm rate remains. W5 is the same shape of offer as Turbit's backtest, so it is not a differentiator in itself. | **Accepted as risk** |
 | 8 | Under the judge's own weights, one-point corrections erase wind's lead. | Confirmed (computed, section 4): buses 25 against wind 24 weighted, and buses lead under every weighting tested. | Stated at the top of this record. Wind is held only for the gate period, and the team lead is asked to confirm or switch (section 12). | **Accepted, changed** (status made provisional) |
 
 **Required changes 7-9** [L7 §7]:
 
 | Change | Response | Outcome |
 |---|---|---|
-| 7. Pre-register the falsification test and run it whatever the vertical. | This is gate G0 (section 7). | **Accepted, changed** (PLANNED) |
+| 7. Pre-register the falsification test and run it whatever the vertical. | This is gate G0 (section 7). The pre-registration was written before any download, and so was Amendment 1 (`product/evidence/g0/PREREGISTRATION.md`). Their date stamps are local git commits; the file's SHA-256 is still to be published externally (section 7). | **Accepted, changed**: pre-registered. The run is BLOCKED on download approval |
 | 8. Licence hygiene. | The CC BY-SA 4.0 legal code applies share-alike when "You Share Adapted Material You produce" (§3(b)). §2(a)(2) and §8(a) leave uses that need no permission unregulated [S10]. Published CARE- or EDP-derived files stay CC BY-SA [S9]. Whether trained models or alerts count as shared Adapted Material is a legal question; this is not legal advice and the question is **UNVERIFIED**. EDP's primary page returned HTTP 403 [S8]; its CC-BY-SA label comes only from the IEA summary [S7]. | **Accepted**. Legal review is PLANNED before any commercial use. |
 | 9. Precision of the Hill of Towie downtime data. | Confirmed: the record page says the per-10-minute downtime was calculated from a combination of SCADA data and RES operator logs, and that it ends August 2024 [S3]. | **Answered** |
 
 ---
 
-## 7. Gates for the provisional period (all PLANNED)
+## 7. Gates for the provisional period
+
+Status: G0 is pre-registered, and its run is BLOCKED on download approval. G1 is PLANNED.
 
 The timing runs from the team's start date, which is not yet set. The gates run in parallel.
 
 ### G0: falsification on public data (weeks 0-4; no access needed)
 
+The protocol is `product/evidence/g0/PREREGISTRATION.md`. Its Amendment 1 (§10) was also written before any download, and governs where it conflicts with §§2-5. This section summarises the protocol; the pre-registration is authoritative.
+
 1. **Get the data.** Download CARE v6 (one 5.5 GB zip) and check MD5 `2547b58c21ac8c242d13232860cf500c` [S1]. Recount anomaly and normal datasets per farm, because the Zenodo page and the paper disagree [S1][S2].
-2. **Pre-register in a dated file before any results are seen.** Fix:
-   - the splits (by turbine and by farm, never random time windows);
-   - the metrics: the CARE score and its four parts; detection rate with a Wilson interval; lead time; false alarms per turbine-year on normal datasets; achieved against nominal false-alarm rate;
-   - the conformal calibration set and the alarm rule.
+   - The download script `product/scripts/fetch_care.py` checks the MD5, records a SHA-256 and extracts only text members.
+   - It is **NOT RUN**: the download awaits the user's approval (PD-26). No CARE file is on this machine.
+2. **Pre-registration: done** (dated file, before any data). It fixes:
+   - **Splits** (§10.4): each CARE dataset is trained on its own turbine's training part and scored on its prediction part. This is CARE's design and matches per-turbine commissioning (PD-12). There is no random time split.
+     - This supersedes this record's earlier wording, "splits by turbine and by farm".
+   - **No conformal calibration set** (§10.4). Thresholds come from a healthy validation slice: 1.25 × the maximum healthy rolling score (§2.4, §10.1).
+   - **Metrics** (§4, §10.2):
+     - the CARE score and its four parts;
+     - event detection rate per farm with a Wilson 95% interval (§4); Farm A's must be quoted in any external use (§10.3);
+     - lead time;
+     - product alarm episodes per turbine-year on normal datasets;
+     - assessability per farm.
+   - "Achieved against nominal false-alarm rate" is withdrawn: the threshold rule has no nominal rate.
+   - **Adapter, gate order, multiplicity and timing definitions** (§10.1-10.2).
+
+   **Caveat on the date.** The date stamp is a local git commit only: the repository has no remote, so an outsider cannot yet check that the file predates the data. The team is asked to publish the file's SHA-256 externally before the download (`PREREGISTRATION.md` §10; `FINAL_PRODUCT_HANDOFF.md`).
 3. **Rungs.** Report Farm A (in class) and Farms B/C (cross-asset, onshore to offshore) separately.
-4. **Fail rule** (from the judge's own switch condition [L6 §6]): the CARE score does not beat the 0.66 autoencoder bar, or mean Accuracy falls below 0.5. On a fail, the wind choice is re-tabled whatever G1's outcome.
-   - The 0.66 figure is pooled: the paper's Figure 3 caption describes the benchmark as "over all 95 sub-datasets", and the paper gives no per-farm score table [S2] (fact-check, 2026-10-18). A Farm A-only score is therefore not directly comparable with 0.66 (judgement). The pre-registration must say which comparison decides the fail rule: the pooled CARE score on all 95 sub-datasets against 0.66, with Farm A reported separately and without a published bar.
+4. **Decision rule** (Amendment 1, §10.3). It replaces the earlier pooled rule taken from the judge's switch condition [L6 §6]. **Farm A is the primary decision.** G0 passes only if all three hold:
+   1. Farm A's CARE score is above the Farm A score of an internal baseline, a power-binned z-threshold computed by the same metric code with the same gates;
+   2. Farm A mean Accuracy is ≥ 0.5;
+   3. the pooled CARE score over all 95 datasets is > 0.66, the published autoencoder result. This is kept as a secondary bar.
+
+   A pooled pass with Farm A at or below the baseline is a **fail**. On a fail, the wind choice is re-tabled whatever G1's outcome.
+   - The 0.66 figure is pooled: the paper's Figure 3 caption describes the benchmark as "over all 95 sub-datasets", and the paper gives no per-farm score table [S2] (fact-check, 2026-10-18). A Farm A-only score is therefore not directly comparable with 0.66 (judgement). That is why Amendment 1 decides Farm A against an internal baseline: the pooled score is decided mostly by offshore, cross-asset data.
    - With 11 in-class events, a pass or fail on detection is itself uncertain (±23-25 points). The pre-registration forbids re-tuning on the same events to turn a fail into a pass.
+   - Any external use of G0 must quote the Farm A result with its interval, and must label the pooled result "mostly cross-asset (offshore)" (§10.3).
 
 ### G1: access and decision (weeks 1-4)
 
@@ -253,7 +276,7 @@ The timing runs from the team's start date, which is not yet set. The gates run 
 |---|---|---|---|
 | W1 single site, in class, labelled | CARE Farm A [S1][S2] | CARE score, detection rate (±23-25 points at n=11, computed), lead time, false-alarm rate on 11 normal datasets | Precise detection rate; any RUL |
 | W2a cross-asset, labelled | CARE Farm A → Farms B and C [S2] | Transfer of the threshold calibration onshore → offshore | In-class transfer |
-| W2b cross-site, in class, unlabelled | Farm A → Kelmarsh, Penmanshiel, Hill of Towie [S3][S4][S5] | Achieved against nominal false-alarm rate on unseen farms; alarm and downtime agreement | Labelled detection rate |
+| W2b cross-site, in class, unlabelled | Farm A → Kelmarsh, Penmanshiel, Hill of Towie [S3][S4][S5] | False-alarm rate on unseen farms (against a nominal rate only if conformal thresholds are built; the shipped rule has none); alarm and downtime agreement | Labelled detection rate |
 | W3 long-horizon drift | Hill of Towie 2016-2026 with AeroUp dates; Kelmarsh and Penmanshiel 2016-2024 [S3][S4][S5] | Drift alarms on documented change points; gate behaviour across years | Fault causation |
 | W4 decision back-test | Hill of Towie downtime (to Aug 2024) and alarm logs [S3] | Escalation load per shift; share of downtime episodes preceded by an escalation | Rupee value (no cost data; UNVERIFIED) |
 | W5 customer back-test | A G1 party's export of 3+ years | Whether W1-W4 hold on Indian turbines | Depends on G1 |
@@ -263,13 +286,13 @@ The timing runs from the team's start date, which is not yet set. The gates run 
 
 ## 9. What the current system must change to serve this asset class
 
-The IDs come from `product/TECHNICAL_DEBT.md` [L4] and the decision IDs D10-D24 [L2]. **Every row is PLANNED.** None is implemented.
+The IDs come from `product/TECHNICAL_DEBT.md` [L4] and the decision IDs D10-D24 [L2]. The rows were written as PLANNED, from the competition baseline. The implementation status note after the table gives the current status of each row.
 
 | Area | Today (C-MAPSS) [L1][L3] | Change for wind SCADA | IDs |
 |---|---|---|---|
 | Time and schema | Cycle index; fixed 26-column C-MAPSS layout | 10-minute UTC timestamps and turbine IDs. Long-format readings contract (asset, timestamp, signal, value, unit, quality). One signal-mapping file per farm, since CARE farms have 86, 257 and 957 features [S1]. Offline CSV or Parquet import of exports; no OT connection for back-tests. | A1, A3, A7 |
 | Asset registry | An asset is an integer `unit` | Farm, turbine, model, rating, drivetrain type, commissioning date, component taxonomy (gearbox, gearbox bearings, generator, transformer) | A2 |
-| Labels and leakage | Run-to-failure labels; engine-level CV with a leakage audit | Status IDs are used only as an **evaluation mask**, never as model inputs near events. Normal operation is status 0 or 2; 1, 3, 4 and 5 are not [S2]. Farm A's status marks only faults, so power and wind speed must be checked too [S2]. Split by turbine and farm. | (extends E0/H7 discipline) |
+| Labels and leakage | Run-to-failure labels; engine-level CV with a leakage audit | Status IDs are used only as an **evaluation mask**, never as model inputs near events. Normal operation is status 0 or 2; 1, 3, 4 and 5 are not [S2]. Farm A's status marks only faults, so power and wind speed must be checked too [S2]. Split by turbine and farm (superseded by G0 Amendment 1, `PREREGISTRATION.md` §10.4: each CARE dataset is trained on its own turbine's training part, with no random split). | (extends E0/H7 discipline) |
 | Model target | HGBR RUL regression, capped at 125 cycles; thresholds at 10/25/50 cycles | A normal-behaviour residual model on the healthy-baseline index (D10). Regime normalisation (D14) keyed on wind speed, power and pitch. The RUL cap and cycle thresholds are not used for wind. | A4, A5 |
 | Conformal role | CQR 90% RUL interval, marginal coverage, below nominal on FD004 | Conformal calibration of alarm thresholds on held-out normal windows, per farm and turbine model (group-conditional). Report achieved against nominal false-alarm rate on unseen farms. | C4 |
 | Metrics | Last-cycle RMSE, PHM08, PICP and MPIW | CARE score (Coverage, Accuracy ×2, Reliability with alarm criticality ≥72, Earliness) [S2]. Detection with Wilson intervals; lead time; false alarms per turbine-year. RMSE stays a C-MAPSS-only metric. | E1 |
@@ -282,16 +305,51 @@ The IDs come from `product/TECHNICAL_DEBT.md` [L4] and the decision IDs D10-D24 
 
 ---
 
-> **Implementation status note (added 2026-10-18 by the engineering lead, after this record was written).** This section was written from the competition baseline; the product platform on branch `product/platform` has since implemented part of it. Status per row, with evidence:
-> - Time and schema: **implemented** — long-format readings contract with units, reason codes and suspect flags (`app/ingest.py`, `tests/test_app_ingest.py`); wind signal set and adapter (`app/adapters/wind.py`). Per-farm signal-mapping files for CARE: PLANNED (G0, `product/evidence/g0/PREREGISTRATION.md`).
-> - Asset registry: **implemented** (sites, asset types, assets with criticality, consequences, windows, config; `app/registry.py`). Component taxonomy: partial (wind job types per component).
-> - Model target: **implemented on SYNTHETIC data** — normal-behaviour ridge model of drivetrain temperatures with per-turbine commissioning (`app/nbm.py`, `tests/test_app_wind.py`). Not yet run on any real wind data.
-> - Conformal role: thresholds are set from held-out healthy data (max rule); conformal false-alarm control per farm: PLANNED.
-> - Metrics: CARE score implementation: PLANNED (G0, pre-registered).
-> - Triage: persistence across consecutive windows (`sustain`), mapping from the deviating temperature to the component (`top_deviations`), anomaly-only states (PD-11): **implemented**; weekly ranked list under a crew budget: the scheduler exists (`app/scheduler.py`), wind-specific list PLANNED.
-> - Persistence and audit: **implemented** — append-only HMAC-chained audit with anchor, fail-closed key (PD-07).
-> - Work orders and outcomes: **implemented** — lifecycle, idempotency, outcomes (`app/workorders.py`); external ID for CMMS upsert: PLANNED (Phase 6).
-> - Provenance and licence, Claims: unchanged; CARE data stay out of git (`.gitignore` `data/external/`).
+> **Implementation status note (updated 2026-10-18, after Phase 9 and the adversarial-review fixes).** This section was written from the competition baseline. The product platform on branch `product/platform` (`src/sentinelloop/app/`, `src/sentinelloop/console/`) has since implemented part of it. Nothing below has been run on real wind data. Status per row, with evidence:
+> - **Time and schema: implemented.**
+>   - Long-format readings contract with units, reason codes and suspect flags (`app/ingest.py`, `tests/test_app_ingest.py`). Batches are capped at 200,000 readings.
+>   - Wind signal set and adapter (`app/adapters/wind.py`). `pitch_angle` is optional.
+>   - Assessment instants and staleness (PD-17): future instants refused; back-dated assessments stored as replays; whole-feed delay reported as `data_delivery_delay`.
+>   - PLANNED: per-site tag mapping (`KNOWN_LIMITATIONS.md` P12). The CARE adapter is specified in `PREREGISTRATION.md` §10.1, and its per-farm mapping files are written before scoring. That code is not written.
+> - **Asset registry: implemented** (sites, asset types, assets with criticality, consequences, windows and config; `app/registry.py`).
+>   - Component taxonomy: partial. The wind job types are inspect, desk review, instrument check, HSS-bearing exchange, generator-bearing exchange and gearbox-oil service.
+> - **Labels and leakage: fixed for G0 in the pre-registration; no code yet** (the CARE adapter is not written, and no CARE file is on this machine).
+>   - Splits (`PREREGISTRATION.md` §10.4): each CARE dataset is trained on its own turbine's training part and scored on its prediction part, which matches per-turbine commissioning (PD-12). There is no random time split. This supersedes the table's "split by turbine and farm".
+>   - Status IDs are not model inputs (the inputs are listed in `PREREGISTRATION.md` §2.1). Only normal-status rows (status 0 or 2) are used for training (§2.3) and scored (§4).
+>   - No information from the prediction part is used for fitting, thresholds, features or hyper-parameters (§2.5).
+> - **Model target: implemented on SYNTHETIC data only.**
+>   - Normal-behaviour ridge model of gearbox HSS-bearing, gearbox-oil and generator-bearing temperatures, with per-turbine commissioning (`app/nbm.py`, `tests/test_app_wind.py`, PD-11, PD-12).
+>   - Transformer temperature is not modelled.
+>   - Anomaly-only: no RUL and no failure probability.
+>   - Alarm persistence is sustain 12 (2 h) with margin 1.25 (PD-15). The W2 SYNTHETIC result (`product/evidence/wind_synthetic/w2.md`) is a behaviour check, not performance:
+>     - tuning fleets: 0.88 healthy alarm episodes per turbine-year, 36/36 injected faults detected;
+>     - **held-out W1 fleets: 2.65 per turbine-year, above the 1.0 target and above the proposed pilot ceiling of 2**;
+>     - assessable share 0.54-0.59.
+> - **Conformal role: not implemented.** Thresholds come from held-out healthy data: inspect = 1.25 × the largest healthy rolling score, urgent = 3 × inspect. These are policy choices, not calibrated probabilities (`KNOWN_LIMITATIONS.md` M4). Conformal false-alarm control per farm: PLANNED. G0 uses no conformal set (§10.4).
+> - **Metrics.**
+>   - `nbm.evaluate` reports detection, lead time, alarm episodes per healthy turbine-year and assessability, in the service's gate order (SYNTHETIC only).
+>   - CARE score implementation: PLANNED. Its definitions are fixed in `PREREGISTRATION.md` §4 and §10.2-10.3; the G0 run is BLOCKED on download approval.
+> - **Triage: implemented.**
+>   - Persistence across consecutive windows (`sustain`); mapping from the deviating temperature to the component (`top_deviations`); anomaly-only states (PD-11).
+>   - Within a priority class, wind orders carry an anomaly-ranked score labelled "not a probability" (`app/decision.py`, `tests/test_app_remediation.py`). The `risk_greedy` scheduler orders by it.
+>   - Out-of-scope or unavailable criticality-A turbines get a desk review instead of a climb (PD-18). A whole-feed delay raises no work order.
+>   - The scheduler (`app/scheduler.py`; default horizon 72 h) handles technicians, skills, shifts, parts and maintenance windows. It has **no cranes**, weather or climbing-wind limits, travel or multi-day jobs (`KNOWN_LIMITATIONS.md` P8).
+>   - Not computed: a weekly list under a crane budget, a deferral list with stated risk, and an escalation budget per shift. These remain hypotheses (section 1).
+> - **Drift and retraining: not in the platform.** Drift monitoring and gated retraining exist only in the competition pipeline; for wind they are PLANNED (FR-H3).
+>   - Inference loads only approved model versions, and the registry verifies the bundle checksum (`app/modelreg.py`).
+>   - Re-baselining after a logged replacement: PLANNED (`KNOWN_LIMITATIONS.md` M6).
+> - **Persistence and audit: implemented.** Append-only HMAC-chained audit with a fail-closed key (PD-07). `admin verify-audit` needs an anchor unless `--allow-no-anchor` is given (PD-22). The chain covers audit events, not state tables. Technician names are not pseudonymised (`KNOWN_LIMITATIONS.md` S5).
+> - **Work orders and outcomes: implemented.** Lifecycle, idempotency and outcomes (`app/workorders.py`).
+>   - A latched URGENT_REVIEW or INSPECTION_RECOMMENDED clears in one of two ways (PD-16; `app/states.py` `CLEAR_EVENTS`, `clear_risk`; `app/workorders.py`):
+>     - a person completes a qualifying work order: raised after the latch began, for a job that addresses the equipment (not `instrument_check` or `desk_review`), with findings `degradation_found`, `failure_found` or `no_fault_found`. A latch with an unknown start fails closed;
+>     - a planner, reliability engineer or admin records a reasoned dismissal (`POST /assets/{id}/clear-risk`, event `dismissed`; no work order is involved).
+>   - Either way the asset shows AWAITING_ASSESSMENT until its next assessment.
+>   - Deferral reactivation, rejection suppression, hand-back and reprioritise (PD-18).
+>   - External ID and idempotent upsert are implemented in the Odoo JSON-2 connector (`app/integration.py`, PD-20). It is shadow by default and tested only against a contract test double (`tests/test_app_integration.py`); a real Odoo instance has NOT been run (`KNOWN_LIMITATIONS.md` S1).
+>   - The operator console exists (`src/sentinelloop/console/`, PD-21).
+>   - A component mapping trained on EDP's Component and Remarks fields: PLANNED.
+> - **Provenance and licence: unchanged.** CARE data stay out of git (`.gitignore` `data/external/`). `product/scripts/fetch_care.py` records the MD5 and SHA-256 (not run).
+> - **Claims:** wind capabilities are claimed only as SYNTHETIC in `CLAIM_EVIDENCE_MATRIX.md`.
 
 ## 10. Runner-up, and conditions that would change the choice
 
@@ -330,7 +388,7 @@ Why it is second:
 | # | Condition | Effect |
 |---|---|---|
 | 1 | G1 fails: no party can legally share 3+ years of SCADA plus a failure or work-order log, or none confirms the inspection-ranking decision | Re-score both options with equal severity, then switch to buses |
-| 2 | G0 fails: no gain over the 0.66 autoencoder bar, or mean Accuracy below 0.5 on CARE | Re-table the choice; there is no credible real-data story in wind |
+| 2 | G0 fails under Amendment 1 (`PREREGISTRATION.md` §10.3). Any one of these is a fail: Farm A's CARE score is at or below the internal power-binned z-threshold baseline; Farm A mean Accuracy is below 0.5; the pooled CARE score is not above 0.66 | Re-table the choice; there is no credible real-data story in wind |
 | 3 | The team lead decides to act on the corrected table now | Switch to buses without waiting for G1 |
 | 4 | Equal-severity re-scoring of buses (data, access, decision value) changes the ordering | Re-table; the change could favour either option |
 | 5 | India's 2.0-2.3 MW fleet proves small, mostly gearless, or lacking exportable 10-minute SCADA history | Change the asset class or band, or switch |
@@ -477,7 +535,7 @@ A fact-check pass re-opened 37 of the 39 web sources on 2026-10-18 with WebFetch
 10. **Penmanshiel [S6].** The audit record [S6] also runs on Penmanshiel v3 and includes a Penmanshiel replication. This was added to the Penmanshiel limits; its findings are UNVERIFIED.
 11. **Section 11.** "RUL is validated only on SIMULATED data" was changed to "evaluated only", to avoid implying a validation claim.
 
-**Checked for claims of work that does not exist.** No statement in this record claims an interview, customer, pilot, outreach contact or result on wind data. Sections 2 and 7 state that none has happened, and the outreach steps are labelled PLANNED.
+**Checked for claims of work that does not exist.** No statement in this record claims an interview, customer, pilot, outreach contact or result on wind data. Sections 2 and 7 state that none has happened, and the outreach steps are labelled PLANNED. (Later update: sections 1, 2 and 9 now cite results on SYNTHETIC wind data from the product's own generator: section 1's decision row quotes the held-out 2.65 healthy alarm episodes per turbine-year and its message row says the thresholds were tuned on synthetic data. They are labelled SYNTHETIC. Section 5's status note on reason 5 describes the shipped threshold rule but quotes no result. There is still no result on real wind data.)
 
 **Still not checked by this pass:** the claims marked "per R2/R5, not re-opened" (CEA cyber rules, DPDP) and the summaries of [L8]-[L10].
 

@@ -11,7 +11,7 @@
 
 This is also the first real test of the persona and workflow hypotheses in `CUSTOMER_DISCOVERY.md` and `USER_WORKFLOWS.md`.
 
-## 2. Per-recommendation feedback (every INSPECTION, URGENT and DATA_QUALITY state)
+## 2. Per-recommendation feedback (every INSPECTION, URGENT and DATA_QUALITY state, and every desk-review order)
 
 Recorded by the reliability engineer in a structured form.
 
@@ -35,14 +35,18 @@ Recorded by the reliability engineer in a structured form.
 - wrong component;
 - other (free text).
 
-**Follow-up for DATA_QUALITY_FAILURE:** was there an instrumentation or data problem? (confirmed / not found / not checked).
+**Follow-up for DATA_QUALITY_FAILURE** (instrument-check orders): was there an instrumentation or data problem? (confirmed / not found / not checked). A whole-feed delay (`data_delivery_delay`) raises no order while it lasts. It is a data-path problem and is followed up in the ingestion log (criterion S2). The first good assessment after the delay can still raise an instrument-check order (a known gap, `DATA_CONTRACTS.md` §1). Such an order is recorded as a feed-delay recovery, not as a confirmed or unconfirmed instrument problem, and is kept out of S6 (`PILOT_ACCEPTANCE_CRITERIA.md`).
 
-**Storage.** Until a form exists in the console (PLANNED), records go in a pilot spreadsheet keyed by assessment id and work-order id. They are joined to the audit trail.
+**Storage.** The operator console exists (Streamlit, PD-21), but it has no feedback form (`KNOWN_LIMITATIONS.md` P7); a form is PLANNED. Until then, records go in a pilot spreadsheet keyed by work-order id and assessment id.
+- The work-order id is shown on the console's work cards.
+- The assessment id is stored on each system work order (`assessment_id` in `GET /api/v1/work-orders/{id}`).
+
+The spreadsheet is joined to the audit trail.
 
 ## 3. Weekly review meeting (30–60 minutes)
 
 - Attendees: the reliability engineer, a planner, a technicians' representative, and the SentinelLoop engineer as observer and notetaker.
-- Walk through the week's states and feedback, and the reconciliation table (`PILOT_PROTOCOL.md` §4).
+- Walk through the week's states and feedback, the system work orders by type (criterion S3), assessability over operating hours (S1), and the reconciliation table (`PILOT_PROTOCOL.md` §4).
 - Note the time spent (criterion S9).
 - Three standing questions:
   - What would you have done differently because of SentinelLoop this week?

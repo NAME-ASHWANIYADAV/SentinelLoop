@@ -16,6 +16,11 @@ SentinelLoop product team. Written 2026-10-18 by the technical writer from `prod
 - Every opened page supported the claim it backs, apart from the wording corrections below. Corrections made: the Avathon former name now has a source; UL 4143 now has a source; quotation marks removed where the words were not verbatim (Falkonry "at 100Hz", OpenOA "not yet validated"); SKF's "Remote Analysis" described as a service category, not a product name; Siemens Gamesa's single-component wording quoted exactly; INOX Green's >13 GW qualified as the page qualifies it; NIST cost figure given as "relative to shipments"; the CARE paper's 44 described as datasets with a labelled event; "no independent benchmark exists" changed to "none found, UNVERIFIED"; internal study names S1/S1c tied to their files so they are not confused with source [S1].
 - Checked locally: the document claims no interviews, customers, pilots, LOIs or field results. Every SentinelLoop result cited matches `product/CLAIM_EVIDENCE_MATRIX.md` or `product/evidence/scheduling/tuned_baselines.md` and is labelled simulated or synthetic.
 
+**Phase 9 update (2026-10-18, after the adversarial review).**
+- Stale descriptions of SentinelLoop itself were corrected against the code, tests and `product/evidence/`: the CMMS connector, the wind model, the audit chain and the platform's lack of a re-derivation command, competition-only retraining and the promotion gate's pre-registered result, and the scheduling results, which now quote the corrected S2 evaluation and keep S1c as history.
+- No competitor fact was added or changed, and no web page was opened in this update.
+- Indian OEM and SCADA-analytics alternatives remain unverified (OPEN, section 10).
+
 **Labels.**
 - **Vendor claim.** A statement on the vendor's own page that nobody has checked independently. All fleet sizes, accuracy figures, lead times, ROI and savings numbers below are vendor claims.
 - **UNVERIFIED.** Not confirmed from a primary page opened in this session.
@@ -30,7 +35,8 @@ SentinelLoop product team. Written 2026-10-18 by the technical writer from `prod
 
 **State of the vertical decision (do not read it as settled).**
 - The judge chose Indian onshore wind owner-operators. The target assets are geared turbines of about 1.5-2.3 MW, monitored only through 10-minute SCADA and alarm logs (`product/research/V_judge_decision.md`).
-- The adversarial review **rejected** that choice and listed required changes (`product/research/V_adversarial_review_wind_choice.md`). The decision is open.
+- The adversarial review **rejected** that choice and listed required changes (`product/research/V_adversarial_review_wind_choice.md`).
+- The decision record then kept wind as **PROVISIONAL and GATED** on G0 (public-data test) and G1 (access conversations), with the band narrowed to 2.0-2.3 MW geared (`product/INITIAL_MARKET_AND_ASSET_CHOICE.md`; `DECISION_LOG.md` PD-10). G0 is pre-registered but not run, and no G1 conversation has been held. The team lead's keep-or-switch decision is open.
 - This document therefore covers general industrial predictive maintenance and also the wind and renewables players that matter if wind is confirmed.
 - The bus runner-up is touched on only where a product overlaps (Uptake Fleet).
 
@@ -40,7 +46,7 @@ SentinelLoop product team. Written 2026-10-18 by the technical writer from `prod
 
 ## 1. Summary
 
-1. **The analytics SentinelLoop offers are standard features of commercial products.** Vendors document all of them: anomaly detection against learned normal behaviour, time-to-failure or time-to-action, sensor-health checks, automatic work orders and scheduled retraining with gated promotion. Examples are GE Vernova SmartSignal, AVEVA, Honeywell, IBM Maximo, C3 AI, Aspen Mtell, Siemens Senseye and AWS IoT SiteWise ([S13], [S14], [S15], [S16], [S18], [S11], [S9], [S35]).
+1. **The analytics SentinelLoop offers or has prototyped are standard features of commercial products.** Vendors document all of them: anomaly detection against learned normal behaviour, time-to-failure or time-to-action, sensor-health checks, work orders raised from analytics (SentinelLoop only drafts them, and each waits for a person's approval, `app/workorders.py`), and scheduled retraining with gated promotion (in SentinelLoop only in the frozen competition pipeline; the product platform has none, `PRODUCT_REQUIREMENTS.md` FR-H3). Examples are GE Vernova SmartSignal, AVEVA, Honeywell, IBM Maximo, C3 AI, Aspen Mtell, Siemens Senseye and AWS IoT SiteWise ([S13], [S14], [S15], [S16], [S18], [S11], [S9], [S35]).
 2. **The wind market has specialised incumbents with large fleets (vendor claims).**
    - ONYX Insight says it is "Monitoring 32,000+ turbines globally" and has an office in Bengaluru, India [S24][S25].
    - Turbit says it monitors 3,500+ turbines and sells a paid backtest on OEM SCADA exports. It asks for at least 3 years of history per turbine [S26][S27].
@@ -53,9 +59,16 @@ SentinelLoop product team. Written 2026-10-18 by the technical writer from `prod
    - Commercial CMMS APIs sit on upper paid tiers: UpKeep Enterprise, MaintainX Premium and Enterprise, Limble Premium+ and Enterprise, eMaint Enterprise, and Fiix Enterprise "for an additional cost" [S42][S46][S49][S52][S40].
    - Self-hosted Odoo Community ships the maintenance app under LGPL-3 and a current JSON-2 API [S57][S58][S60].
 6. **Our own evidence cuts both ways.**
-   - Where it may differentiate us: decisions re-derived from the audit log (3,409 re-derived, 0 mismatches), measured escalation on bad inputs, and interval coverage reported including where it misses (local evidence, all on **simulated** data).
-   - Where it argues against us: in our own simulated scheduling study, once the simple threshold baseline was tuned, no risk-based scheduling policy beat it on mean cost in any of five scenarios (`product/evidence/scheduling/tuned_baselines.md`). We cannot claim that our ranking layer beats simple rules.
+   - Where it may differentiate us (local evidence, all on **simulated** data):
+     - decisions re-derived from the audit log: 3,409 re-derived, 0 mismatches. This is a competition-pipeline result, valid within one run; the product platform has no re-derivation command (`TECHNICAL_DEBT.md` F11);
+     - measured escalation on bad inputs;
+     - interval coverage reported, including where it misses.
+   - Where it argues against us:
+     - In our own simulated scheduling study, no rule wins everywhere (S2, `SCHEDULING_EVALUATION.md` conclusion 3; tuned on FD001 engines, evaluated on FD003 engines). The risk-ranked greedy policy is cheaper under tight labour (9.4-17.2 units, on 4-7 of 8 seeds). The tuned threshold rule is cheaper under degraded predictions (8.9-22.1 units). In the other sustainable scenarios the two are within 4.1 units, with per-seed differences spanning zero, and under approval delay a third policy (RISK_EDD) is cheapest. We cannot claim that our ranking layer beats simple rules.
+     - History: the earlier S1c study had found that no risk-based policy beat the tuned threshold rule in any of five scenarios (`product/evidence/scheduling/tuned_baselines.md`). S2 overturns that in part (`SCHEDULING_EVALUATION.md` §6.0, claim 3). S1c tuned and evaluated on the same 200 engines, left downtime out of the cost, and ranked two fleet-collapse scenarios, parts shortage and adverse, in which a broken asset costs nothing (section 8.1).
+   - On synthetic wind data, healthy held-out turbines still gave 2.65 alarm episodes per turbine-year, above our own target of 1.0 and the proposed pilot ceiling of 2 (`product/evidence/wind_synthetic/w2.md`; `KNOWN_LIMITATIONS.md` E7).
 7. **Where we cannot compete:** sensors and CMS hardware, field-data scale, human analysts, OEM risk-transfer and full-scope service contracts, enterprise breadth, and point-accuracy claims (section 8.3).
+8. **We have no validated reason to buy over incumbents.** The alternatives most likely to matter to an Indian owner have **not** been verified: OEM full-service contracts that may hold the SCADA and the work orders, and Indian SCADA-analytics vendors. This item is **OPEN** and needs sourced web research (section 10; `KNOWN_LIMITATIONS.md` C2).
 
 ---
 
@@ -137,7 +150,10 @@ The "integration point" column says where an external predictor such as Sentinel
 **Analysis.**
 - Every CMMS above documents at least one way in for an external predictor: requests or work orders, meters, or numeric asset fields.
 - On the commercial SaaS products, that way in sits behind an upper paid tier.
-- SentinelLoop has no CMMS connector today. A search of `src/` for "odoo", "maintainx" and "cmms" returned no files.
+- SentinelLoop now has one CMMS connector, for Odoo through JSON-2 (`src/sentinelloop/app/integration.py`; `DECISION_LOG.md` PD-20).
+  - It is shadow by default and synchronises only approved work. It never changes CMMS stages or deletes records.
+  - It is tested only against a contract test double of Odoo's documented API (`tests/test_app_integration.py`). The real Odoo sandbox (`sandbox/odoo/`, `tests/test_app_odoo_sandbox.py`) has **not** been run, so compatibility with real Odoo is unproven (`KNOWN_LIMITATIONS.md` S1).
+  - There is no MaintainX, Limble, Maximo or SAP adapter, and no contract test against their specs.
 - For a team limited to free tools, the credible first integration is self-hosted Odoo Community, then contract tests against the MaintainX and Limble public specs. A contract test proves that our request shapes are valid. It is not proof of integration, and we must not call it that (R5 §2.2).
 
 ---
@@ -190,7 +206,7 @@ Competitors train on fleets far larger than these. Section 5 compares them.
 | Clir | "350+ GW of assets across solar, BESS and wind" [S28] | Vendor claim; field data per the vendor |
 | Infinite Uptime | ~1,000 plants (946 in a status widget) [S7] | Vendor claim; internally inconsistent |
 | AWS IoT SiteWise | The customer's own data; precision, recall and AUC shown for review [S35] | Customer field data |
-| **SentinelLoop today** | NASA C-MAPSS only for every model result. Stress tests inject **synthetic** faults. The product branch's wind adapter uses **illustrative** parameters for "a generic ~2 MW geared turbine; none comes from a turbine maker or an operator" (`src/sentinelloop/app/adapters/wind.py`) | **Simulated** and **synthetic** only. No real field or real laboratory data has been run (`product/CLAIM_EVIDENCE_MATRIX.md`, P15 BLOCKED) |
+| **SentinelLoop today** | NASA C-MAPSS (simulated) for every RUL result. Stress tests inject **synthetic** faults. The wind anomaly model has been run only on **synthetic** SCADA from our own generator (`product/evidence/wind_synthetic/w1.md`, `w2.md`). The product branch's wind adapter uses **illustrative** parameters for "a generic ~2 MW geared turbine; none comes from a turbine maker or an operator" (`src/sentinelloop/app/adapters/wind.py`) | **Simulated** and **synthetic** only. No real field or real laboratory data has been run (`product/CLAIM_EVIDENCE_MATRIX.md`, P15 BLOCKED) |
 
 **Analysis.**
 - Every commercial competitor says it learns from real field data, either its own or the customer's.
@@ -215,7 +231,8 @@ These are what most buyers do today instead of buying software.
 - **Definitions.** US DOE FEMP gives reactive ("Fix/replace when broken"), preventive ("Time-based actions"), predictive ("Fix it before it breaks") and RCM, which it describes as a combination of the three plus root-cause analysis. The page gives no savings figures for these strategies [S79].
 - **Evidence on the trade-off.** NIST (Thomas and Weiss, IJPHM 2021) had 71 usable responses from US manufacturers. Compared with preventive-heavy plants, predictive-heavy plants had about 18.5% less unplanned downtime and 87.3% fewer defects, but about 212.3% higher direct maintenance costs relative to shipments. The authors call the group comparisons "anecdotal evidence" because the groups are small [S78].
 - **False alarms.** May and McMillan (2013) argue that investigating false alarms offshore "will incur costs" and that false alarms "may alter the cost benefit of condition monitoring systems" [S86]. This is why false-alarm rate on CARE's normal datasets is a first-class metric for us.
-- **Our own simulated comparison (local evidence, SIMULATED, our cost model).** In the tuned-baseline study, FIXED_INTERVAL and RUN_TO_FAILURE each cost more than the tuned threshold policy on 8 of 8 seeds in all five scenarios (`product/evidence/scheduling/tuned_baselines.md`). These are our assumptions about costs and lead times on C-MAPSS-derived trajectories. They say nothing about any real fleet.
+- **Our own simulated comparison (local evidence, SIMULATED, our cost model).** In the corrected S2 evaluation, fixed-interval maintenance is the most expensive policy other than run-to-failure in every sustainable scenario: 69-173 units above the tuned threshold rule, worse on 8 of 8 seeds (`SCHEDULING_EVALUATION.md` conclusion 5). It is not a safe fallback. These are our assumptions about costs and lead times on C-MAPSS-derived trajectories. They say nothing about any real fleet.
+  - History: in the earlier S1c study, fixed-interval and run-to-failure each cost more than the tuned threshold rule on 8 of 8 seeds in its five scenarios (`product/evidence/scheduling/tuned_baselines.md`). Run-to-failure wins when failures are cheap: with the S1 runs re-priced in base, it was the cheapest policy in 6 of 9 settings at a quarter of the failure cost and 3 of 9 at half (`SCHEDULING_EVALUATION.md` §6.5). The S1c cost excluded downtime, and two of its scenarios, parts shortage and adverse, are fleet collapse, in which a broken asset costs nothing, so their rankings do not follow (`KNOWN_LIMITATIONS.md` E4; `ADVERSARIAL_REVIEW.md` data_scientist-2).
 
 ### 6.3 Vibration and condition-monitoring service contracts
 - **SKF Services, "Remote Analysis" category** [S80] (vendor claims; the page lists Remote Analysis as a service category, not a named product):
@@ -238,6 +255,7 @@ These are what most buyers do today instead of buying software.
   - Vestas lists maintenance, parts and repair, fleet optimisation, and digital services with "industry-leading analytics tools" [S84].
 - **India O&M** (vendor claims). INOX Green says it "controls and operates" more than 13 GW of renewable O&M assets across 12 Indian states, "including 11 GW of Wind O&M assets". The page says the 13 GW figure combines subsidiaries, M&A investments and partnerships. It lists WTG operation, DISCOM coordination, reactive maintenance and "Predictive Maintenance". The page describes no method [S85].
 - **Not reached.** Suzlon service pages returned 404 or 500 to the adversarial reviewer (`V_adversarial_review_wind_choice.md`, S27). Suzlon's O&M scope in India is **UNVERIFIED**.
+- **Not verified (OPEN).** No source opened describes the service scope or SCADA-access terms of any other wind OEM servicing Indian turbines. The adversarial review names Suzlon, Envision and Inox as ones to check (`product/evidence/adversarial/review_full.md` buyer-10; summary row in `ADVERSARIAL_REVIEW.md`). INOX Green's service list is known only from its own page [S85]. Its SCADA-access terms, INOX Wind's OEM contract scope, and anything about Envision are unverified. This needs sourced web research before any pilot conversation (section 10).
 - **Analysis.** In wind, the open question for us is whether owners or their OEM and O&M contractors control the SCADA exports and the work orders. That question is still **UNVERIFIED**. If contractors control them, our buyer is the crowded O&M market above, not the owner.
 
 ---
@@ -260,13 +278,13 @@ These are what most buyers do today instead of buying software.
 
 | Property | What was measured | Status (PD-03) and data | Evidence file |
 |---|---|---|---|
-| Decisions can be re-derived | 3,409 stored decisions re-derived with 0 mismatches; in-place tampering detected. In the competition baseline, re-running a subset deletes its history (TECHNICAL_DEBT B2). The product branch commit history lists a "keyed audit chain"; its behaviour is not verified in this document | IMPLEMENTED_AND_TESTED; C-MAPSS (simulated) | `product/CLAIM_EVIDENCE_MATRIX.md` P6; `git log` on `product/platform` |
-| Abstention on bad input | Detection of 98-100% on three injected fault types, with zero per-engine false alarms. Single-sensor bias is a detection floor on two subsets. Escalation share 0.13 in an FD001 run | SIMULATED; injected (synthetic) faults | `CLAIM_EVIDENCE_MATRIX.md` P4; `PRODUCT_STATUS.md` |
-| Interval coverage reported, including misses | Coverage 0.85-0.94 across FD001-FD004, with FD004 at 0.85 against 0.90 nominal. Raw-truth coverage 0.58-0.87. "Calibrated" may not be said without the qualifier | SIMULATED; general coverage claim NOT_SUPPORTED | `CLAIM_EVIDENCE_MATRIX.md` P1, P2 |
-| Promotion gate | Label-corrupted challengers rejected on 4 of 4 subsets | IMPLEMENTED_AND_TESTED on simulated "new data" | `CLAIM_EVIDENCE_MATRIX.md` P7 |
-| Decision metrics, measured | 384 runs (8 seeds, 120 days, 8 policies, 6 scenarios), reporting cost, failures, unplanned downtime, late jobs, plan-change rate and approvals per day | SIMULATED | `product/evidence/scheduling/summary.md` |
-| Same metrics against **tuned** baselines | No risk-based policy beat the tuned threshold policy on mean cost in any of 5 scenarios. RISK_GREEDY tied in "base" (+0.0; better on 3 of 8 seeds) and "tight labour" (+1.9; 4 of 8). It lost on 8 of 8 seeds in "parts shortage", "degraded predictions" and "adverse". The MILP policies were not part of the tuned comparison. Caveat: in "degraded predictions" the tuned threshold moved from 100 h to 130 h, which absorbs that scenario's constant +30 h bias (`sim.py`, lines 67 and 413). That scenario therefore tests a known constant bias, not unknown degradation | SIMULATED | `product/evidence/scheduling/tuned_baselines.md`; `src/sentinelloop/app/sim.py` |
-| Wind | An adapter exists with illustrative parameters. No real wind data has been run. The CARE Farm A test against the 0.66 autoencoder bar is required by the adversarial review and is **not done** | PLANNED | `src/sentinelloop/app/adapters/wind.py`; `V_adversarial_review_wind_choice.md` §7 |
+| Decisions can be re-derived | **Competition pipeline:** 3,409 stored decisions re-derived with 0 mismatches; in-place tampering detected. Re-running a subset deletes its history (TECHNICAL_DEBT B2).<br>**Product platform:** an HMAC-chained audit log with an anchor. Tests show it detects edits, reordering and truncation (`tests/test_app_foundation.py`). `admin verify-audit` fails without an anchor (PD-22). Each assessment stores its inputs, policy and model ID (`app/health.py`). The chain covers audit events, not state tables, and the platform has no re-derivation command | Competition: IMPLEMENTED_AND_TESTED on C-MAPSS (simulated). Platform audit chain: IMPLEMENTED_AND_TESTED; not field validated | `product/CLAIM_EVIDENCE_MATRIX.md` P6, P20; `app/auditlog.py` |
+| Abstention on bad input | **Competition pipeline:** detection of 98-100% on three injected fault types, with zero per-engine false alarms. Single-sensor bias is a detection floor on two subsets. Escalation share 0.13 in an FD001 run. The full agent issued no silent wrong order in 20 corruption scenarios, but most of that zero comes from a fleet-level rule that also escalates 25-36% of healthy engines while a fleet alarm is active; per-engine evidence alone leaves 0-12% silent wrong orders (E3, `docs/EXPERIMENT_RESULTS.md`).<br>**Product platform:** its own data-quality and scope gates, tested on synthetic data (`tests/test_app_ingest.py`, `tests/test_app_health.py`, `tests/test_app_wind.py`) | SIMULATED; injected (synthetic) faults | `CLAIM_EVIDENCE_MATRIX.md` P4; `PRODUCT_STATUS.md`; `VALIDATION_LADDER.md` |
+| Interval coverage reported, including misses | Coverage 0.85-0.94 across FD001-FD004, with FD004 at 0.85 against 0.90 nominal. Raw-truth coverage 0.58-0.87. Near failure (true RUL 25-50 cycles) coverage is 0.81-0.87 (C1). The RUL model's P(failure) is not calibrated: shown about 0.55 where about 0.92 was observed (C2). "Calibrated" may not be said without the qualifier | SIMULATED; general coverage claim NOT_SUPPORTED | `CLAIM_EVIDENCE_MATRIX.md` P1, P2; `product/evidence/calibration/c1.md`, `c2.md` |
+| Promotion gate | **Pre-registered test (E4 primary run): 4 of 8 outcomes as expected, so H4 is NOT SUPPORTED.** The challenger trained on sensor-offset data, expected to be rejected, was promoted on FD002-FD004, and the more-data challenger was rejected on FD001.<br>Post-hoc secondary run (D21): label-corrupted challengers rejected on 4 of 4 subsets; 9 of 12 outcomes as expected; the sensor-offset challenger still promoted on FD003 and FD004 | IMPLEMENTED_AND_TESTED on simulated "new data", **in the competition pipeline only**; the gate's selectivity is NOT_SUPPORTED by its own pre-registered test. The product platform has no retraining or promotion gate; for wind it is PLANNED (FR-H3) | `CLAIM_EVIDENCE_MATRIX.md` P7; `submission/CLAIM_EVIDENCE_MATRIX.md` C13, C14; `PRODUCT_REQUIREMENTS.md` FR-H3 |
+| Decision metrics, measured | S1: 384 runs (8 seeds, 120 days, 8 policies, 6 scenarios), reporting cost, failures, unplanned downtime, late jobs, plan-change rate and approvals per day. S2 part A reproduces all 384 runs and adds RISK_EDD and a sustainable parts scenario (504 runs), with terminal downtime (assets still broken at day 120) now counted | SIMULATED | `product/evidence/scheduling/summary.md` (S1, history); `SCHEDULING_EVALUATION.md` §4.1; `product/evidence/scheduling_v2/summary.md` |
+| Same metrics against **tuned** baselines | **Current (S2):** tuned on FD001 engines, evaluated on disjoint FD003 engines, with terminal downtime counted. **No rule wins everywhere:**<br>• tight labour: RISK_GREEDY is cheaper than the tuned threshold rule by 9.4-17.2 units, on 4-7 of 8 seeds;<br>• degraded predictions: the tuned threshold rule is cheaper by 8.9-22.1 units; the risk rule is cheaper on 0-1 of 8 seeds;<br>• base, parts_tight and approval delay: the two are within 4.1 units and the per-seed differences span zero; under approval delay RISK_EDD is the cheapest policy.<br>The MILP is never the cheapest policy; under tight labour it cuts unplanned downtime by about 38% at a higher unpriced cost.<br>Caveats:<br>• In "degraded predictions" re-tuning moves the threshold from 100 h to 130 h, exactly the scenario's constant +30 h bias, so that robustness holds by construction (data_scientist-12). Noise, per-asset bias and drift were not simulated.<br>• "Parts shortage" and "adverse" are fleet collapse, in which a broken asset costs nothing. They are reported, not ranked (data_scientist-2).<br>**History (S1c), overturned in part by S2:** no risk-based policy beat the tuned threshold rule on mean cost in any of 5 scenarios. S1c tuned and evaluated on the same engines and left downtime out of the cost | SIMULATED | `SCHEDULING_EVALUATION.md` conclusions 3, 5 and 6, §6.0; `product/evidence/scheduling_v2/summary.md`; history: `product/evidence/scheduling/tuned_baselines.md` |
+| Wind | An anomaly-only normal-behaviour model with per-turbine commissioning; adapter parameters are illustrative. It gives no RUL and no failure probability.<br>On **synthetic** data (our own generator; a behaviour check, not performance):<br>• tuning fleets: 36/36 injected faults flagged and 0.88 healthy alarm episodes per turbine-year;<br>• **held-out fleets: 2.65 healthy alarm episodes per turbine-year, above our 1.0 target and the proposed pilot ceiling of 2**;<br>• assessments possible 54-59% of the time.<br>No real wind data has been run. The G0 test on CARE is pre-registered (Amendment 1: Farm A against an internal baseline, with the pooled 0.66 autoencoder bar as a secondary bar). It is **BLOCKED** on download approval | IMPLEMENTED_AND_TESTED on SYNTHETIC data only; real data BLOCKED | `src/sentinelloop/app/nbm.py`; `product/evidence/wind_synthetic/w2.md`; `product/evidence/g0/PREREGISTRATION.md` §10 |
 
 ### 8.2 Where differentiation is plausible (hypotheses; none validated with a customer)
 
@@ -274,10 +292,11 @@ These are what most buyers do today instead of buying software.
    - Competitor pages opened in this session publish outcome or lead-time claims without a stated method. Examples: "up to 24 months ahead" (ONYX [S24]), "99.97% Accuracy" (Infinite Uptime [S7]), "50%" downtime reduction (C3 AI [S18]), "$1.6B+" of losses avoided (GE [S13]) and "98%" availability (Siemens Gamesa [S83]).
    - None of those pages publishes a false-alarm rate, interval coverage or a confidence interval on detection. That absence is on marketing pages only and does **not** show the products lack the measurement.
    - Turbit already lets a customer judge detection on their own history. It is a paid backtest that walks through each event [S27]. So "evaluate on your own data" is not new. What we could add is a pre-registered protocol that reports the false-alarm rate on normal periods and gives Wilson intervals with every rate.
-   - Evidence today: the internal S1 scheduling study (`product/evidence/scheduling/summary.md`) and S1c tuned-baseline study (`product/evidence/scheduling/tuned_baselines.md`), including the negative S1c result. (S1 and S1c are internal study names, not source tag [S1].)
+   - Evidence today: the corrected S2 scheduling evaluation (`SCHEDULING_EVALUATION.md`; `product/evidence/scheduling_v2/`), in which no rule wins everywhere and the tuned threshold rule is cheapest under degraded predictions. It replaces the internal S1 study (`product/evidence/scheduling/summary.md`) and the S1c tuned-baseline study (`product/evidence/scheduling/tuned_baselines.md`), which are kept as history. (S1, S1c and S2 are internal study names, not source tag [S1].) The adversarial review found defects in S1 and S1c: uncounted terminal downtime, fleet-collapse scenarios ranked, and tuning and evaluation on the same engines. Some earlier claims were withdrawn as a result, among them the MILP downtime savings under parts shortage and adverse conditions. Publishing that correction is itself part of this hypothesis.
 2. **Decisions that can be re-derived, for owner-side evidence.**
    - Audit trails as such are common. eMaint documents "a comprehensive audit trail and password-protected e-signatures" [S51], and Fiix lists the audit trail among the features its Free plan excludes [S40]. Clir already sells "dispute-ready reports" from OEM availability reconciliation [S28].
-   - The narrower property, re-deriving an analytic decision from the stored inputs, rules and model version, is not documented on any page opened. Our evidence is 3,409 decisions with 0 mismatches.
+   - The narrower property, re-deriving an analytic decision from the stored inputs, rules and model version, is not documented on any page opened.
+   - Our evidence is a competition-pipeline result: 3,409 decisions re-derived with 0 mismatches, valid within one run, because a re-run deletes the subset's history (`TECHNICAL_DEBT.md` B2). The product platform stores each assessment's inputs reference, feature hash, model checksum and policy hash, and records each assessment in its HMAC-chained audit log (`app/health.py`), but has no re-derivation command (`TECHNICAL_DEBT.md` F11; `CLAIM_EVIDENCE_MATRIX.md` P6). It cannot demonstrate this property today.
    - Whether an owner, an O&M contractor or a UL 4143 life-extension assessor would pay for this is **UNVERIFIED**. (UL 4143 is "Wind Turbine Generator - Life Time Extension (LTE)"; its published scope covers LTE "rules and procedures" for onshore turbines and does not mention SCADA [S88].)
 3. **Explicit abstention instead of silent repair.**
    - SmartSignal monitors sensor health and repairs signals ("Virtual Signal Repair") [S13], and Honeywell "automatically cleanses data" [S15]. Data-quality handling is therefore standard.
@@ -287,7 +306,11 @@ These are what most buyers do today instead of buying software.
    - Commercial CMMS APIs sit on paid tiers; MaintainX's API tier, for example, is Premium at $65 per user per month billed annually [S46]. Self-hosted Odoo Community exposes the JSON-2 API without a pricing plan [S57][S60].
    - Turbit is also SCADA-only [S27], so "no hardware" alone is not a difference.
    - Demand from small Indian owners for a free self-hosted tool is **UNVERIFIED**.
-5. **Capacity-constrained ranking (crane or technician budgets).** This is a hypothesis only. Our own S1c tuned-baseline study (`product/evidence/scheduling/tuned_baselines.md`) says a tuned threshold policy matched or beat our risk-based policies in simulation, so this cannot be a selling point until real-data evidence reverses that.
+5. **Capacity-constrained ranking (crane or technician budgets).** This is a hypothesis only.
+   - The scheduler handles technicians, skills, shifts, parts and windows, but it has **no crane resource**, no weather limits and no multi-day jobs (`KNOWN_LIMITATIONS.md` P8).
+   - For wind, orders are ranked within a priority class by an anomaly score labelled "not a probability". No risk is stated (`app/decision.py`).
+   - In our own simulation (S2, `SCHEDULING_EVALUATION.md` conclusion 3), no rule wins everywhere. The risk-ranked greedy policy beats the tuned threshold rule only under tight labour (9.4-17.2 units). The tuned threshold rule is cheaper under degraded predictions, and elsewhere the two are within 4.1 units (under approval delay the probabilistic trigger with an earliest-due-date queue is cheapest). The earlier S1c finding that a tuned threshold rule matched or beat every risk-based policy is overturned in part (`SCHEDULING_EVALUATION.md` §6.0, claim 3).
+   - This cannot be a selling point until real-data evidence says otherwise.
 
 ### 8.3 Where we cannot compete
 
@@ -345,7 +368,23 @@ Avoid: "predictive maintenance platform", "first", "only", "AI that prevents fai
 - **eMaint API mechanism** and the **ERPNext and NASA ProgPy licences** were not re-opened, or are unverified.
 - **Suzlon O&M scope**, the **Indian fleet model mix and gearless share**, and **who controls SCADA exports and work orders** for Indian turbines are all unverified.
 - **No Indian or wind-sector survey** of maintenance tooling (spreadsheets, CMMS, PM intervals) was found.
-- **Product-branch capabilities** (work-order workflow, scheduler, REST API, keyed audit chain) are listed by `git log`. Their behaviour is not verified in this document.
+- **OPEN: Indian OEM and SCADA-analytics alternatives have NOT been verified** (`ADVERSARIAL_REVIEW.md` buyer-10; `KNOWN_LIMITATIONS.md` C2).
+  - Not verified: the service scope and SCADA-access terms of Suzlon, Envision, INOX Wind or any other OEM servicing Indian turbines; INOX Green's SCADA-access terms (only its own service list was read [S85]); and whether the OEM full-service contract holds the SCADA exports and the work orders.
+  - Not verified: Indian SCADA-analytics vendors for mid-life turbines.
+  - Not done: a buyer-side comparison (cost, data access, contractual fit) against the OEM contract and Turbit's backtest.
+  - These need sourced web research, which was not possible in the Phase 9 update either (no WebSearch). **No competitor fact was added in that update.**
+- **Product-branch capabilities: updated in Phase 9 against the code** (2026-10-18). Statements about SentinelLoop in sections 1, 3, 5, 6.2, 8.1 and 8.2 now cite the code, tests and evidence:
+  - work-order workflow: `app/workorders.py`;
+  - scheduler: `app/scheduler.py`;
+  - REST API: `app/api.py`;
+  - audit chain: `app/auditlog.py`, `tests/test_app_foundation.py`;
+  - Odoo connector: `app/integration.py`, `tests/test_app_integration.py`;
+  - wind model: `app/nbm.py`, `product/evidence/wind_synthetic/w2.md`;
+  - assessment provenance and re-derivation: `app/health.py`, `TECHNICAL_DEBT.md` F11;
+  - scheduling results: `SCHEDULING_EVALUATION.md` (S2), `product/evidence/scheduling_v2/summary.md`;
+  - promotion gate and abstention (competition pipeline): `CLAIM_EVIDENCE_MATRIX.md` P4, P7; `docs/EXPERIMENT_RESULTS.md` E3, E4.
+
+  None of these has been field validated.
 - **R3 vendors not re-checked and therefore omitted:** Nanoprecise, Presage Insights, SKF Axios, Tata Elxsi, Azure IoT Operations, Maximo Monitor. See R3 for what was found earlier.
 
 ---
@@ -469,4 +508,9 @@ All web sources were accessed on **2026-10-18** and opened in this session. Acce
 - `product/evidence/scheduling/summary.md`; `product/evidence/scheduling/tuned_baselines.md`; `product/evidence/scheduling/downtime_sensitivity.md`
 - `product/experiments/s1c_tuned_baselines.py`; `src/sentinelloop/app/sim.py` (lines 64-67, 214, 413); `src/sentinelloop/app/adapters/wind.py` (module docstring)
 - `git log` on branch `product/platform` (12 commits, read 2026-10-18)
+- Phase 9 update:
+  - code: `src/sentinelloop/app/integration.py`, `auditlog.py`, `health.py`, `decision.py`, `nbm.py`;
+  - tests: `tests/test_app_integration.py`, `tests/test_app_foundation.py`;
+  - evidence: `product/evidence/wind_synthetic/w2.md`, `product/evidence/g0/PREREGISTRATION.md` §10, `product/evidence/scheduling_v2/summary.md` (S2), `docs/EXPERIMENT_RESULTS.md` (E3, E4), `submission/CLAIM_EVIDENCE_MATRIX.md` C13, C14;
+  - documents: `product/KNOWN_LIMITATIONS.md`, `product/DECISION_LOG.md` PD-10, PD-20, PD-22, PD-27, `product/ADVERSARIAL_REVIEW.md`, `product/evidence/adversarial/review_full.md` (buyer-7, buyer-10), `product/SCHEDULING_EVALUATION.md` (S2), `product/TECHNICAL_DEBT.md` B2, F11, `product/PRODUCT_REQUIREMENTS.md` FR-H3.
 - Wilson intervals computed locally with Python on 2026-10-18 (n = 11: half-width 0.234-0.254; n = 44: 0.133-0.142)

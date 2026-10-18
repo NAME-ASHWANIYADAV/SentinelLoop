@@ -1,10 +1,65 @@
-# SentinelLoop — Self-Healing Machines: Predictive Maintenance for a Connected Fleet
+# SentinelLoop
 
-Entry for Tata Elxsi TELIPORT Season 4, Case Study 1. A closed-loop prognostics pipeline on NASA C-MAPSS (simulated engine data) that predicts Remaining Useful Life with a calibrated 90% interval, lets a deterministic Triage Agent raise work orders from the interval **lower bound** (a conservative operating point the operator chooses), escalates untrustworthy inputs to a human instead of acting on them, retrains only through a promotion gate, and makes every decision re-derivable from its audit record. No LLM anywhere (case-study ground rule).
+> **Product status (2026-10-18). Read this before anything else in the repository.**
+>
+> **What it is.** An advisory maintenance-decision prototype. It assesses asset data and flags assets for inspection. It drafts work orders, and a named person must approve each one. It runs as a REST API (`src/sentinelloop/app/`) with a Streamlit operator console (`src/sentinelloop/console/`).
+>
+> **What it is not.**
+> - It is not production-ready. It is not a safety function and claims no SIL.
+> - It never writes to a control system. It never triggers maintenance by itself.
+> - It is not field-validated: no customer has been contacted, no real turbine or customer data have been run, and no pilot has taken place.
+>
+> **Evidence class.** All results are SIMULATED (NASA C-MAPSS turbofans) or SYNTHETIC (our own wind-SCADA generator). Public real wind data (CARE to Compare) have not been downloaded. The G0 test on them is pre-registered (`product/evidence/g0/PREREGISTRATION.md`) but not run.
+>
+> **Validation ladder** (`product/VALIDATION_LADDER.md`).
+> - Highest rung reached: **2** (synthetic behaviour) for wind anomaly detection and the platform workflow; **1** (simulated benchmark) for RUL on C-MAPSS.
+> - Rung 3 (public real field data, G0) is the next step. It is waiting for download approval.
+> - No capability has reached rung 4, 5 or 6.
+>
+> **Unfavourable evidence, stated up front.**
+> - The wind model is anomaly-only: it gives no remaining-life estimate and no failure probability.
+> - Held-out synthetic fleets still gave 2.65 healthy alarm episodes per turbine-year, above the 1.0 target (`product/evidence/wind_synthetic/w2.md`).
+> - RUL intervals under-cover near failure: 0.81–0.87 at true RUL 25–50 cycles against 0.90 nominal (`product/evidence/calibration/c1.md`).
+> - The RUL model's P(failure) is not calibrated (`product/evidence/calibration/c2.md`).
+> - The Odoo CMMS connector is shadow by default and tested only against a contract test double. A real Odoo instance has not been run.
+>
+> **Read next:**
+> - `product/PRODUCT_STATUS.md`: what exists;
+> - `product/KNOWN_LIMITATIONS.md`: what does not work, with severities;
+> - `product/CLAIM_EVIDENCE_MATRIX.md`: every claim with its status and evidence.
 
-Project root: this folder. Status and evidence: `PROJECT_STATUS.md`, `docs/`, `experiments/results/`, `submission/CLAIM_EVIDENCE_MATRIX.md` (every claim with the artefact that proves it).
+## Product platform: where things are
 
-## Results at a glance (full run, 2026-10-18, official last-cycle protocol; simulated C-MAPSS data)
+| Path | Content |
+|---|---|
+| `product/` | Product documents (requirements, architecture, decision log, pilot protocol, limitations); evidence under `product/evidence/` |
+| `src/sentinelloop/app/` | The product platform: ingestion, model registry, assessments, decision engine, work-order lifecycle, scheduler, CMMS integration, audit chain, REST API (`python -m sentinelloop.app.admin serve`) |
+| `src/sentinelloop/console/` | Operator console, a thin Streamlit client of the API (`streamlit run src/sentinelloop/console/app.py`, run from the repository root, where `.streamlit/config.toml` binds it to 127.0.0.1; from any other directory Streamlit listens on every interface unless `--server.address 127.0.0.1` is passed; see `product/DEPLOYMENT_GUIDE.md` §1) |
+| `tests/test_app_*.py`, `tests/test_console.py` | Platform and console tests |
+| `sandbox/odoo/` | Local Odoo sandbox for the CMMS connector (not yet run) |
+
+Install and run the platform with `product/DEPLOYMENT_GUIDE.md`. It uses `requirements-platform.txt`, not the competition setup below.
+
+**Competition-pipeline-only capabilities.** Gated retraining, drift monitoring, the batch pipeline, stream replay and the competition dashboard exist only in the frozen competition code: `src/sentinelloop/*.py` outside `app/` and `console/`. The product platform does not include them. Drift monitoring and gated retraining for wind are PLANNED.
+
+---
+
+## Competition history (frozen; not product material)
+
+Everything below describes the competition entry as submitted. It is kept as history: `main`, tag `competition-baseline`. Its documents under `docs/` and `submission/` are frozen (`product/DECISION_LOG.md` PD-02) and are not updated. Its numbers are benchmark results on simulated data, not product claims. Wording that the product rules forbid is qualified in brackets.
+
+Entry for Tata Elxsi TELIPORT Season 4, Case Study 1, "Self-Healing Machines: Predictive Maintenance for a Connected Fleet" (the case study's title) [nothing in SentinelLoop heals itself; every output is advisory]. It is a closed-loop prognostics pipeline on NASA C-MAPSS (simulated engine data). The pipeline:
+- predicts Remaining Useful Life with a conformal 90% interval [coverage is marginal over engines. It is below nominal on FD004 and near failure, so it is not "calibrated" without that qualifier];
+- lets a deterministic Triage Agent raise work orders [draft records; nothing is sent to or executed in any maintenance system] from the interval **lower bound** (a conservative operating point the operator chooses);
+- escalates untrustworthy inputs to a human instead of acting on them;
+- retrains only through a promotion gate;
+- makes every decision re-derivable from its audit record [within one run: a re-run deletes the subset's stored decisions and audit log, `product/TECHNICAL_DEBT.md` B2].
+
+No LLM anywhere (case-study ground rule).
+
+Competition status and evidence: `PROJECT_STATUS.md`, `docs/`, `experiments/results/`, `submission/CLAIM_EVIDENCE_MATRIX.md` (every competition claim with its supporting artefact). The product's claim matrix is `product/CLAIM_EVIDENCE_MATRIX.md`.
+
+### Results at a glance (full run, 2026-10-18, official last-cycle protocol; simulated C-MAPSS data)
 
 | Subset | RMSE capped / raw (all-engine model) | RMSE capped (agent's model) | PHM08 | 90% interval coverage, capped / raw truth | mean width | work orders | escalated to a human |
 |---|---|---|---|---|---|---|---|
@@ -15,9 +70,9 @@ Project root: this folder. Status and evidence: `PROJECT_STATUS.md`, `docs/`, `e
 
 Naive-mean baseline 41.9–45.6, RandomForest 14.6–16.2; the leakage-prone validation protocol would have reported 2.5–6.9 instead of the honest 12.4–16.6. Every number is regenerated by `experiments/numbers_digest.py` into `docs/NUMBERS.md`.
 
-What the experiments showed (details and the negative results in `docs/EXPERIMENT_RESULTS.md`): the agent's quality and drift monitors catch missing values, noise and regime shifts on 98–100% of corrupted engines with zero additional per-engine false alarms, and the full agent issues no silent wrong order in any of 20 corruption scenarios (the point-threshold agent: 0–20%); most of that zero comes from the fleet-level rule, which also escalates 25–36% of healthy engines while a fleet alarm is active, and per-engine evidence alone leaves 0–12% (E3). Every one of 3,409 decisions re-derives from its audit record and in-place tampering is detected (E6). A challenger trained on wrongly labelled new data is rejected by the promotion gate on all four subsets with the reasons logged (E4, secondary run added post hoc); a harmless sensor offset is promoted on two of four. Acting on the interval lower bound is a conservative operating point that discards 11–15 more cycles of life per engine, not a free improvement, and its tuned thresholds are unstable across seeds (E1); width-based abstention alone did not reduce decision errors (E2); FD004 coverage is below nominal: all reported, none hidden.
+What the experiments showed (details and the negative results in `docs/EXPERIMENT_RESULTS.md`): the agent's quality and drift monitors catch missing values, noise and regime shifts on 98–100% of corrupted engines with zero additional per-engine false alarms, and the full agent issues no silent wrong order in any of 20 corruption scenarios (the point-threshold agent: 0–20%); most of that zero comes from the fleet-level rule, which also escalates 25–36% of healthy engines while a fleet alarm is active, and per-engine evidence alone leaves 0–12% (E3). Every one of 3,409 decisions re-derives from its audit record and in-place tampering is detected (E6). A challenger trained on wrongly labelled new data is rejected by the promotion gate on all four subsets with the reasons logged (E4, secondary run added post hoc); a harmless sensor offset is promoted on two of four [the pre-registered gate test met 4 of 8 expected outcomes, so H4 is NOT SUPPORTED; in it the sensor-offset challenger, expected to be rejected, was promoted on three of four subsets]. Acting on the interval lower bound is a conservative operating point that discards 11–15 more cycles of life per engine, not a free improvement, and its tuned thresholds are unstable across seeds (E1); width-based abstention alone did not reduce decision errors (E2); FD004 coverage is below nominal: all reported, none hidden.
 
-## Setup (Windows, macOS or Linux; Python 3.11+, tested on 3.12.1)
+### Setup (Windows, macOS or Linux; Python 3.11+, tested on 3.12.1)
 
 ```bash
 python -m venv .venv
@@ -29,7 +84,7 @@ python -m venv .venv
 
 `doctor` checks the interpreter, package versions, the twelve C-MAPSS files and the archive checksums (md5 `a83e8f12…` = the NASA S3 ETag).
 
-## Run
+### Run
 
 | Command | What it does |
 |---|---|
@@ -43,7 +98,7 @@ python -m venv .venv
 
 Artefacts land in `artifacts/<subset>/` (metrics, predictions, models, decisions, work orders), `artifacts/audit/decisions_<subset>.jsonl`, `artifacts/sentinelloop.db`, `artifacts/mlflow.db` + `artifacts/mlruns/`. Inspect MLflow with `python -m mlflow ui --backend-store-uri sqlite:///artifacts/mlflow.db`.
 
-## Layout
+### Layout (competition pipeline)
 
 ```
 configs/        default.yaml + per-subset overrides (every threshold lives here)
@@ -61,13 +116,15 @@ submission/     Round 1 slide, Round 2 deck, claim–evidence matrix
 analysis/       the prior case-selection study (read-only)
 ```
 
-## Metrics and conventions
+The product platform (`src/sentinelloop/app/`, `src/sentinelloop/console/`, `product/`) is described in the status banner at the top.
+
+### Metrics and conventions
 - Official protocol: prediction at the last observed cycle of each test engine vs `RUL_FD00x.txt`. The headline RMSE is the all-engine HistGradientBoosting model; the agent acts on the 70%-engine model whose other 30% calibrate the interval (`cqr_point_rmse_*` in `metrics.json`, reported alongside).
 - RMSE is always reported against RUL **capped at 125** and against **raw** truth.
 - PHM08 score: d = pred − true; early d<0: exp(−d/13) − 1; late d≥0: exp(d/10) − 1; summed over engines.
 - Interval coverage (PICP) and width (MPIW) at 90% nominal, calibrated on held-out engines with random truncations; coverage is marginal over engines under an exchangeability assumption (stated, not guaranteed).
 
-## Troubleshooting
+### Troubleshooting
 - `import streamlit` fails on a system Python: use the venv (a plotly 4.x install breaks Streamlit).
 - MLflow `ImportError … FallbackAsyncAdaptedQueuePool`: SQLAlchemy 2.1 is incompatible with MLflow 3.0; the lock file pins SQLAlchemy 2.0.
 - data.nasa.gov unreachable: the download uses the NASA PCoE S3 mirror with a checksum; keep `data/raw/` once fetched.

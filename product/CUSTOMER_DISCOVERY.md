@@ -12,7 +12,7 @@ Written 2026-10-18 by the product team's technical writer. Every source below wa
 >
 > - Every pain is either tagged with a published source or marked **ASSUMPTION TO TEST**.
 > - Every recruiting channel is a channel the team *could* use. None has been used yet.
-> - SentinelLoop has only ever been run on **simulated** NASA C-MAPSS data. It has not been run on any wind data, public or private.
+> - SentinelLoop has been run only on **simulated** NASA C-MAPSS data and on **synthetic** wind SCADA from the team's own generator (`product/evidence/wind_synthetic/`). It has not been run on any real wind data, public or private. The synthetic runs are behaviour checks, not performance evidence (`product/KNOWN_LIMITATIONS.md` E3).
 
 ---
 
@@ -144,6 +144,8 @@ All seven personas are **hypotheses**. Job titles in Indian wind O&M are **UNVER
 | P-P4 | Major-component jobs (gearbox, generator, main bearing, transformer) depend on scarce cranes and specialist crews, so they compete for a limited budget. | **ASSUMPTION TO TEST (A6)**. No wind-specific source opened. |
 | P-P5 | Wind and weather restrict when climbing and lifting can be done, so high-wind months compress maintenance windows. | **ASSUMPTION TO TEST (A17)**. No source opened. |
 | P-P6 | Shutdowns may need coordination with the distribution utility. | INOX Green lists coordination with DISCOMs as part of its O&M service ([INOX Green](https://www.inoxgreen.com/), vendor page). Whether this constrains maintenance timing: **ASSUMPTION TO TEST (A17)** |
+| P-P7 | Major work is planned by season. It is pushed into the low-wind months and kept out of the high-generation months (assumed to be the south-west monsoon months in India), so the cost of downtime changes through the year. | **ASSUMPTION TO TEST (A24)**. No source opened. The adversarial review's O&M persona raised it as outside knowledge, not as a source (`product/ADVERSARIAL_REVIEW.md`, om_manager-13). |
+| P-P8 | Turbines are curtailed or derated on instruction from the grid operator or DISCOM. Curtailed periods change what downtime costs, and they can look like turbine behaviour in the data. | **ASSUMPTION TO TEST (A23)**. No source opened. Same origin as P-P7. |
 
 ### 3.3 Reliability / performance engineer (central team at an IPP or O&M provider)
 
@@ -256,17 +258,31 @@ There is no factory-style plant manager at a wind farm. The closest role is the 
 | **0. Detection** | A fault stops a turbine and raises a controller alarm, or scheduled maintenance, an inspection, a CMS alert, an analytics vendor's alert or an owner's own SCADA review finds a problem. | Turbine controller; OEM or O&M remote monitoring; CMS vendor; reliability engineer | Alarm log; operation log; vendor alert | Alarm volume; false alerts | Nacelle monitoring raises alerts and can be reached off site ([BLS](https://www.bls.gov/ooh/installation-maintenance-and-repair/wind-turbine-technicians.htm)). Alarm logs exist as a record type ([Hill of Towie dataset](https://zenodo.org/records/22662930), real field data, Scotland), as do turbine operation logs ([IEA EDP summary](https://iea-wind.org/wp-content/uploads/2024/07/EDP-OpenData-Details.pdf), real field data; Portugal per the [CARE Zenodo page](https://zenodo.org/records/15846963)). CMS vendor alerting: [ONYX Insight](https://www.onyxinsight.com/) (vendor claim). Who watches alarms in India: **ASSUMPTION TO TEST (A3)** |
 | **1. Remote triage / reset** | Someone decides whether to reset remotely, dispatch a technician, or log for later. | OEM or O&M control room, or site in-charge | Possibly none, or a log entry | Unknown | **ASSUMPTION TO TEST (A3, A16)**. No source opened. |
 | **2. Work request** | A job is raised in a CMMS, spreadsheet, register or message. | Site in-charge, technician, remote operator | Work request | Request may never be formalised | Generic: SMRP says no maintenance work without a work order ([SMRP 2018](https://pemac.org/sites/default/files/2018_SMRP_BPMW_Full_Day.pdf), via R1). Indian renewable-company example of spreadsheet work orders before Maximo: [IBM KP Group](https://www.ibm.com/case-studies/kp-group) (vendor claim, solar/hybrid). Indian wind tooling: **ASSUMPTION TO TEST (A12)** |
-| **3. Approval and priority** | Request screened; priority set. | Site in-charge, O&M manager; owner for large jobs | Priority, approval | Approval wait (no quantitative source anywhere, per R1) | Generic priority methods and the "loudest voice" problem: [Reliabilityweb RIME](https://reliabilityweb.com/en/articles/ranking-index-for-maintenance-expenditures); [Reliabilityweb](https://reliabilityweb.com/articles/entry/work_prioritization_emotion_vs._logic) (via R1). Wind priority drivers (lost generation, season): **ASSUMPTION TO TEST (A5)** |
+| **3. Approval and priority** | Request screened; priority set. | Site in-charge, O&M manager; owner for large jobs | Priority, approval | Approval wait (no quantitative source anywhere, per R1) | Generic priority methods and the "loudest voice" problem: [Reliabilityweb RIME](https://reliabilityweb.com/en/articles/ranking-index-for-maintenance-expenditures); [Reliabilityweb](https://reliabilityweb.com/articles/entry/work_prioritization_emotion_vs._logic) (via R1). Wind priority drivers (lost generation, season, curtailment): **ASSUMPTION TO TEST (A5, A23, A24)** |
 | **4. Planning** | Parts, tools, crew, permits; for major components, crane and heavy-lift logistics. | Planner or site in-charge; storeroom; OEM for parts | Job plan, parts reservation | Parts waits; crane availability; OEM parts lead time | Parts waits (generic): [Assetivity](https://www.assetivity.com.au/articles/asset-management/coordinating-activity-between-maintenance-and-supply-a-case-study/) (via R1). Crane and OEM parts: **ASSUMPTION TO TEST (A6)** |
-| **5. Scheduling** | Job slotted against crews, wind and weather windows, and grid or DISCOM coordination. | Scheduler or site in-charge; operations | Schedule | Weather; plant/grid condition; reactive work breaking the plan | Generic "waiting on plant condition" status: [IBM Maximo](https://www.ibm.com/support/pages/node/1112013) (via R1). DISCOM coordination listed as an O&M service: [INOX Green](https://www.inoxgreen.com/) (vendor). Weather windows: **ASSUMPTION TO TEST (A17)** |
+| **5. Scheduling** | Job slotted against crews, wind and weather windows, the season, and grid or DISCOM coordination. | Scheduler or site in-charge; operations | Schedule | Weather; season; curtailment; plant/grid condition; reactive work breaking the plan | Generic "waiting on plant condition" status: [IBM Maximo](https://www.ibm.com/support/pages/node/1112013) (via R1). DISCOM coordination listed as an O&M service: [INOX Green](https://www.inoxgreen.com/) (vendor). Weather windows: **ASSUMPTION TO TEST (A17)**. Seasonal planning and curtailment: **ASSUMPTION TO TEST (A23, A24)** |
 | **6. Execution** | Isolation and permits, climb, repair or replace, test, restart. | Technicians; supervisor; EHS | Permit; job card | Travel to remote sites; climbing limits | Climbing, fall protection, travel to site: [BLS](https://www.bls.gov/ooh/installation-maintenance-and-repair/wind-turbine-technicians.htm). Energy isolation and permit-to-work (generic): [OSHA 1910.147](https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.147); [HSE HSG250](https://www.hse.gov.uk/pubns/books/hsg250.htm) (via R1). India: OSH Code 2020 ([PIB factsheet](https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251122702801.pdf), via R1) |
 | **7. Close-out** | Record what was done, the component, the cause and the downtime. | Technician; supervisor | Service record; failure-log entry; downtime classification | Missing or vague codes; data entered late | Technicians must keep service records ([BLS](https://www.bls.gov/ooh/installation-maintenance-and-repair/wind-turbine-technicians.htm)). A public wind failure log carries Turbine_ID, Component, Timestamp and short Remarks ([IEA EDP summary](https://iea-wind.org/wp-content/uploads/2024/07/EDP-OpenData-Details.pdf)). Hill of Towie derives downtime from SCADA combined with operator logs ([Zenodo 22662930](https://zenodo.org/records/22662930)). Indian close-out detail: **ASSUMPTION TO TEST (A15)** |
-| **8. Review and reporting** | Availability and generation reports; reconciliation with OEM or contractor figures; possibly insurance claims. | O&M manager; asset manager; OEM | Monthly report; availability statement | Disputes over figures | Vendor sells OEM-availability reconciliation ([Clir](https://www.clir.eco/), vendor claim). A vendor markets integration into insurance ([Turbit](https://www.turbit.com/), vendor claim). India: **ASSUMPTION TO TEST (A9)** |
+| **8. Review and reporting** | Availability and generation reports; reconciliation with OEM or contractor figures; possibly insurance claims. | O&M manager; asset manager; OEM | Monthly report; availability statement | Disputes over figures | Vendor sells OEM-availability reconciliation ([Clir](https://www.clir.eco/), vendor claim). A vendor markets integration into insurance ([Turbit](https://www.turbit.com/), vendor claim). India: **ASSUMPTION TO TEST (A9, A25)** |
 | **9. Major asset decision** (occasional) | For old turbines: repair, repower or life-extend. | Owner; SNA/CNA; certification agency; DISCOM | DPR; certification | DISCOM consent; transmission; PPA moratorium | Routes, actors and consent steps: [MNRE policy 2023](https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2023/12/202312131874296229.pdf). Role of condition evidence: **ASSUMPTION TO TEST (A10, A11)** |
 
 ### 4.2 Where a product could intervene (hypotheses, none validated)
 
-SentinelLoop's evidence today is on **simulated** C-MAPSS data only. These are candidate entry points that the interviews must confirm or kill. They are not capabilities shown on wind data.
+SentinelLoop's evidence today is on **simulated** C-MAPSS data and **synthetic** wind data only. These are candidate entry points that the interviews must confirm or kill. They are not capabilities shown on real wind data.
+
+**What the product computes for wind today** (synthetic data only; `product/INITIAL_MARKET_AND_ASSET_CHOICE.md` section 1):
+- It gives advisory anomaly flags on drivetrain temperatures, with policy-default due dates.
+- Within a priority class, orders are ranked by deviation and consequence, a score labelled "not a probability".
+- It gives no failure probability and no stated risk (`DECISION_LOG.md` PD-11). IP2's "interval" and IP3's "risk" are therefore not available for wind.
+- The scheduler has no crane resource (`KNOWN_LIMITATIONS.md` P8). IP3's crane budget is a hypothesis to test, not a feature.
+
+**Why season and curtailment matter to the product** (from the code, not from customers):
+- The wind model makes no statement about a turbine unless power is above 5% of rated on at least half of the scoring window, the last 48 ten-minute points or 8 h (`src/sentinelloop/app/nbm.py`, `OP_FRAC`, `min_operating_frac`).
+- Even on synthetic data, assessments were possible only 54-59% of the time (`product/evidence/wind_synthetic/w2.md`).
+- Curtailment and derating setpoints are not in the data contract (`KNOWN_LIMITATIONS.md` M3).
+- Downtime cost is a single figure per server deployment: one decision file per `serve --decision-config`, shared by every site that server holds (PD-24; `src/sentinelloop/app/admin.py`, `api.py`), with no seasonal variation.
+
+Low-wind months and curtailed periods therefore reduce how often the product can say anything. If downtime costs vary with the season, they also change what a flag is worth (judgement; A17, A23, A24).
 
 | ID | Intervention point | Stage | What it would change for whom | Depends on assumptions |
 |---|---|---|---|---|
@@ -275,7 +291,7 @@ SentinelLoop's evidence today is on **simulated** C-MAPSS data only. These are c
 | IP3 | **Capacity-constrained inspection ranking** under an explicit technician and crane budget, with a deferral list and its risk | 4-5 | Planner decides what fits next week | A6, A17 |
 | IP4 | **Structured close-out capture** (component, finding, "nothing found"), so future alerts can be scored | 7 | Technician records less, in a consistent shape; reliability engineer gets labels | A15 |
 | IP5 | An **alert budget**: false alerts per turbine per month, measured and capped | 0-1 | Technicians and managers can see whether alerts deserve trust | A7, A8 |
-| IP6 | A **re-derivable decision record** (what was flagged, when, on what data) for contract or insurance discussions | 8 | O&M manager and asset manager can show evidence to an OEM, contractor or insurer | A9 |
+| IP6 | A **re-derivable decision record** (what was flagged, when, on what data) for contract or insurance discussions. The platform stores each assessment's inputs reference, feature hash, model checksum and policy hash, but has no re-derivation command, so it cannot demonstrate this today (`TECHNICAL_DEBT.md` F11; the 3,409-decision re-derivation is a competition-pipeline result) | 8 | O&M manager and asset manager can show evidence to an OEM, contractor or insurer | A9, A25 |
 | IP7 | An **evidence summary for a life-extension assessor** | 9 | Asset manager supplies history to the certification agency | A10 (doubtful; UL 4143 scope does not mention SCADA) |
 
 ---
@@ -300,7 +316,7 @@ SentinelLoop's evidence today is on **simulated** C-MAPSS data only. These are c
 | **Spreadsheets, paper and in-house scripts** | Owner's or provider's own trending | Generic: spreadsheets 47%, paper 46% ([Plant Engineering 2020](https://www.advancedtech.com/wp-content/uploads/2020/03/2020-ATS_Plant-Engineering-Maintenance-Study-Results.pdf), via R3). An Indian renewable company used spreadsheets before Maximo ([IBM KP Group](https://www.ibm.com/case-studies/kp-group), vendor; solar/hybrid) | Depends on individuals. Hard to audit (analysis). Indian wind prevalence: **ASSUMPTION A12** |
 | **Human analyst services** | Certified analysts review data and alarms | SKF Remote Analysis ([SKF](https://us.promo.skf.com/acton/media/22336/connected-technologies-services), via R3) | Recurring cost. Not documented for Indian wind (via R3; **UNVERIFIED**). |
 
-**Analysis, not validated.** R3's plausible differentiators are audit-grade re-derivable decisions, published calibration and explicit abstention, a vendor-neutral layer between monitoring and the CMMS, and backtesting maintenance policies (`research/R3_competitive_landscape.md` 8.2). The Turbit backtest offer above already covers part of the backtesting idea in wind. Discovery must find out whether any respondent values the rest. The interview guide never asks about these features directly.
+**Analysis, not validated.** R3's plausible differentiators are audit-grade re-derivable decisions (the platform has no re-derivation command yet, `TECHNICAL_DEBT.md` F11), published calibration (what we would publish includes misses: the RUL model's P(failure) is not calibrated, `product/evidence/calibration/c2.md`, and the wind thresholds have no nominal false-alarm rate, `KNOWN_LIMITATIONS.md` M4) and explicit abstention, a vendor-neutral layer between monitoring and the CMMS, and backtesting maintenance policies (`research/R3_competitive_landscape.md` 8.2). The Turbit backtest offer above already covers part of the backtesting idea in wind. Discovery must find out whether any respondent values the rest. The interview guide never asks about these features directly.
 
 ---
 
@@ -422,6 +438,8 @@ Each R2 barrier is mapped to its likely wind form (hypothesis) and to the interv
 - **P4.** When two jobs last competed for the same people or equipment, how was the order decided, and who decided?
 - **P5.** Before you last scheduled an inspection instead of waiting, what information did you look at?
 - **P6.** Over the last year, how, if at all, did wind or weather change when you could schedule work?
+- **P7.** Over the last 12 months, in which months did your team do its major planned work? How were those months chosen, and who chose them?
+- **P8.** In the last month, were any turbines stopped or limited for a reason other than a fault or maintenance? How did you find out, and where is that recorded?
 
 **Reliability / performance engineer (R)**
 - **R1.** When did you last analyse turbine data to look for a developing problem? Which data and tools did you use, and what did you find?
@@ -430,6 +448,7 @@ Each R2 barrier is mapped to its likely wind form (hypothesis) and to the interv
 - **R4.** How far back does the 10-minute SCADA history go for the turbines you look after? Where is it stored, and who can export it?
 - **R5.** Tell me about the last change you made to an alarm limit or monitoring rule. What prompted it, and how did you check it?
 - **R6.** The last time a monitoring system or an analyst flagged a problem that turned out not to be real, what happened next?
+- **R7.** Think of the last period when turbines were stopped or limited on an outside instruction. How did you tell that period apart from a turbine problem in the SCADA data?
 
 **Maintenance manager / head of O&M (M)**
 - **M1.** Which numbers did you report upward last month, and to whom?
@@ -438,6 +457,8 @@ Each R2 barrier is mapped to its likely wind form (hypothesis) and to the interv
 - **M4.** What happened the last time availability or performance figures from the OEM or contractor differed from your own?
 - **M5.** Last week, how many alerts or reports arrived from monitoring sources, and what happened to each kind?
 - **M6.** When did you last decide to defer a repair? What did you weigh up?
+- **M7.** How was the lost generation from the last two unplanned outages valued? What went into each figure?
+- **M8.** What does your current O&M or OEM contract say about turbine availability, and what happened the last time that clause was applied?
 
 **Asset manager / owner's representative (O)**
 - **O1.** Walk me through how the last decision on a major repair to an older turbine was made.
@@ -467,7 +488,7 @@ Each R2 barrier is mapped to its likely wind form (hypothesis) and to the interv
 - **Z1.** Is there anything about how maintenance decisions get made here that I should have asked and did not?
 - **Z2.** Who else should we speak to, and would you be willing to introduce us? (Record only what the respondent actually agrees to. Never record a referral as agreed unless it was.)
 
-That makes 46 questions in total: 4 core, 38 persona-specific, 2 optional expert and 2 closing. Each interview uses the 4 core questions, 4-6 questions for the respondent's persona, and the closing.
+That makes 51 questions in total: 4 core, 43 persona-specific, 2 optional expert and 2 closing. P7, P8, R7, M7 and M8 were added after the adversarial review (om_manager-13), to cover season, curtailment and contract availability terms. They test assumptions A23, A24 and A25. Each interview uses the 4 core questions, 4-6 questions for the respondent's persona, and the closing.
 
 ### 8.5 Note template (one per interview)
 
@@ -572,12 +593,15 @@ Every assumption is **untested**. Priority: H means the segment or product fails
 | A14 | Respondents do not already use a SCADA-AI or CMS service that covers the same need. | H | R1, M5 | Most respondents already use ONYX, Turbit, OEM analytics or similar and report the need as met |
 | A15 | Close-out records name the component and date well enough to reconstruct events. | M | T4, R2, R3 | Records lack the component or date in most cases |
 | A16 | Technicians arrive with little diagnostic information, and diagnosis is a large share of job time. | M | T1, T2 | Technicians report good pre-arrival diagnosis from OEM tools |
-| A17 | Weather windows or grid/DISCOM coordination constrain when work can be done. | L | P6, P2 | Respondents report no such constraint |
+| A17 | Weather windows or grid/DISCOM coordination constrain when work can be done. | H (raised from L at the request of review finding om_manager-13: these constraints decide when work can be done and what downtime costs, so G1 must collect them) | P6, P2, P7 | Respondents report no such constraint |
 | A18 | Multi-owner (aggregation) sites complicate maintenance decisions. | L | O1, M3 | Single-owner sites dominate, or there is no coordination issue |
 | A19 | IT/OT security would accept an offline, read-only copy of exported files for analysis. | H | S1-S3 | Any data leaving the site is refused, or only OEM channels are allowed |
 | A20 | The seven generic personas map onto real, distinct wind O&M roles in India. | M | C1 in all interviews | Roles are merged (one site in-charge does everything) or absent (no reliability engineer) |
 | A21 | Respondents can attach a cost to a prevented major-component failure. | M | M2, F2 | No respondent tracks or can estimate failure cost |
 | A22 | Tamil Nadu is a workable place to start recruiting, even though it is third in the 1.5-2 MW band. | L | Response rates by channel (section 9) | Fewer than 3 Tamil Nadu respondents after 4 weeks while other states respond |
+| A23 | Where turbines are curtailed or derated on grid or DISCOM instruction, the site keeps a record that can be exported with the SCADA history: setpoints, instruction logs or status codes. Without one, the product sees curtailed periods only as idle, out-of-scope time or as changed load-temperature behaviour (`KNOWN_LIMITATIONS.md` M3; section 4.2). | H | P8, R7, S2 | Curtailment is frequent, and no record of it exists outside the turbine controller or the grid operator |
+| A24 | Major maintenance is planned by season (into low-wind months, away from high-generation months), so what a flag is worth depends on the time of year. The product's own assessability also falls in low-wind periods (section 4.2). If this holds, downtime cost needs seasonal values (one figure per server deployment today, from one decision file per `serve`, with no seasonal variation; PD-24), and the pilot's months must be agreed with the partner (`PILOT_PROTOCOL.md`). | M | P7, M7, P6 | Respondents plan major work without regard to season, and value downtime the same all year |
+| A25 | O&M or OEM contracts carry turbine availability guarantees, penalties or bonuses that shape when maintenance is done and who decides it, so evidence about turbine condition matters in contract discussions. | M | M8, M4, O3 | Respondents' contracts carry no availability terms, or the terms have never been applied and do not affect maintenance planning |
 
 **Decision rule after synthesis (pre-registered):**
 - **Proceed** with the wind segment only if A1, A13 and A19 are supported by at least one organisation each, and A5 or A6 is supported by at least 3 respondents.
@@ -605,6 +629,12 @@ Every assumption is **untested**. Priority: H means the segment or product fails
 15. **IWPA membership composition:** not stated on the home page ([windpro.org](https://www.windpro.org/)).
 16. **DPDP applicability details** to research interviews: legal review not done. The MeitY page returned 403 in this session.
 17. **WebSearch was unavailable** for the whole session, so no broad search for Indian wind O&M studies, surveys or theses was possible. A follow-up search pass is needed before this plan is finalised.
+18. **Curtailment, seasonal planning and contract availability terms in India:**
+    - how often turbines are curtailed or derated, and whether a record of it can be exported;
+    - how the season shapes maintenance planning and the value of downtime;
+    - what availability guarantees or penalties O&M and OEM contracts carry, and whether they shape maintenance.
+
+    No source opened (A17, A23, A24, A25). Added after the adversarial review (om_manager-13). The monsoon framing in P-P7 is the reviewer's outside knowledge, not a source.
 
 ---
 
@@ -726,7 +756,7 @@ All accessed **2026-10-18**.
 
 ### 12.3 Fact-check log (2026-10-18)
 
-**Method.** An independent fact-checker re-opened cited URLs with WebFetch on 2026-10-18 and compared each page with the claims it supports. Scanned or binary PDFs were read from WebFetch's saved copies. WebSearch was unavailable: the shared per-turn search budget was already used up. No interviews, customers, pilots or results are claimed anywhere in this document, and the status banner (section 1) is accurate.
+**Method.** An independent fact-checker re-opened cited URLs with WebFetch on 2026-10-18 and compared each page with the claims it supports. Scanned or binary PDFs were read from WebFetch's saved copies. WebSearch was unavailable: the shared per-turn search budget was already used up. No interviews, customers, pilots or results are claimed anywhere in this document, and the status banner (section 1) is accurate. (Later update: section 4.2 now cites results on SYNTHETIC wind data from the product's own generator. They are labelled SYNTHETIC; no interview, customer, pilot or real-data result is claimed.)
 
 **Re-opened and consistent with the claims (after the corrections below).** All accessed 2026-10-18.
 - IWTMA, 59.20 GW as of Sept 2026; "Members" logos; New Delhi address: https://www.indianwindpower.com/

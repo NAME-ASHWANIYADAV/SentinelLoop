@@ -18,6 +18,31 @@
     "title": "AssessBody",
     "type": "object"
    },
+   "AssessRangeBody": {
+    "properties": {
+     "end": {
+      "title": "End",
+      "type": "string"
+     },
+     "start": {
+      "title": "Start",
+      "type": "string"
+     },
+     "step_minutes": {
+      "default": 60,
+      "maximum": 1440.0,
+      "minimum": 1.0,
+      "title": "Step Minutes",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "start",
+     "end"
+    ],
+    "title": "AssessRangeBody",
+    "type": "object"
+   },
    "AssetPatchBody": {
     "properties": {
      "changes": {
@@ -349,6 +374,25 @@
     "title": "IngestBody",
     "type": "object"
    },
+   "ModeBody": {
+    "properties": {
+     "mode": {
+      "title": "Mode",
+      "type": "string"
+     },
+     "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+     }
+    },
+    "required": [
+     "mode",
+     "reason"
+    ],
+    "title": "ModeBody",
+    "type": "object"
+   },
    "ModelDecisionBody": {
     "properties": {
      "decision": {
@@ -474,6 +518,36 @@
     "title": "ReasonBody",
     "type": "object"
    },
+   "ReprioritiseBody": {
+    "properties": {
+     "due_by": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Due By"
+     },
+     "priority_class": {
+      "title": "Priority Class",
+      "type": "string"
+     },
+     "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+     }
+    },
+    "required": [
+     "priority_class",
+     "reason"
+    ],
+    "title": "ReprioritiseBody",
+    "type": "object"
+   },
    "RollbackBody": {
     "properties": {
      "asset_type_id": {
@@ -532,6 +606,53 @@
      "shifts"
     ],
     "title": "ShiftsBody",
+    "type": "object"
+   },
+   "TargetBody": {
+    "properties": {
+     "base_url": {
+      "title": "Base Url",
+      "type": "string"
+     },
+     "config": {
+      "additionalProperties": true,
+      "title": "Config",
+      "type": "object"
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "mode": {
+      "default": "shadow",
+      "title": "Mode",
+      "type": "string"
+     },
+     "reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason"
+     },
+     "target_id": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[a-z0-9_.-]+$",
+      "title": "Target Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "target_id",
+     "kind",
+     "base_url"
+    ],
+    "title": "TargetBody",
     "type": "object"
    },
    "TechnicianBody": {
@@ -942,6 +1063,53 @@
      }
     },
     "summary": "Assess"
+   }
+  },
+  "/api/v1/assets/{asset_id}/assess-range": {
+   "post": {
+    "operationId": "assess_range_api_v1_assets__asset_id__assess_range_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "title": "Asset Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssessRangeBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Assess Range"
    }
   },
   "/api/v1/assets/{asset_id}/assessment": {
@@ -1503,6 +1671,249 @@
     "summary": "Staleness"
    }
   },
+  "/api/v1/integrations": {
+   "get": {
+    "operationId": "targets_api_v1_integrations_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Targets"
+   },
+   "post": {
+    "operationId": "register_target_api_v1_integrations_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TargetBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Register Target"
+   }
+  },
+  "/api/v1/integrations/{target_id}/dispatch": {
+   "post": {
+    "operationId": "dispatch_api_v1_integrations__target_id__dispatch_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "target_id",
+      "required": true,
+      "schema": {
+       "title": "Target Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Dispatch"
+   }
+  },
+  "/api/v1/integrations/{target_id}/items": {
+   "get": {
+    "operationId": "target_items_api_v1_integrations__target_id__items_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "target_id",
+      "required": true,
+      "schema": {
+       "title": "Target Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "status",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Target Items"
+   }
+  },
+  "/api/v1/integrations/{target_id}/items/{wo_id}/requeue": {
+   "post": {
+    "operationId": "requeue_api_v1_integrations__target_id__items__wo_id__requeue_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "target_id",
+      "required": true,
+      "schema": {
+       "title": "Target Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "wo_id",
+      "required": true,
+      "schema": {
+       "title": "Wo Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReasonBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Requeue"
+   }
+  },
+  "/api/v1/integrations/{target_id}/mode": {
+   "post": {
+    "operationId": "target_mode_api_v1_integrations__target_id__mode_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "target_id",
+      "required": true,
+      "schema": {
+       "title": "Target Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ModeBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Target Mode"
+   }
+  },
   "/api/v1/me": {
    "get": {
     "operationId": "me_api_v1_me_get",
@@ -1786,6 +2197,22 @@
      }
     },
     "summary": "Apply"
+   }
+  },
+  "/api/v1/sites": {
+   "get": {
+    "operationId": "sites_api_v1_sites_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Sites"
    }
   },
   "/api/v1/sites/{site_id}/parts": {
@@ -2455,6 +2882,53 @@
      }
     },
     "summary": "Order History"
+   }
+  },
+  "/api/v1/work-orders/{wo_id}/reprioritise": {
+   "post": {
+    "operationId": "reprioritise_api_v1_work_orders__wo_id__reprioritise_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "wo_id",
+      "required": true,
+      "schema": {
+       "title": "Wo Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReprioritiseBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Reprioritise"
    }
   },
   "/api/v1/work-orders/{wo_id}/transitions": {
