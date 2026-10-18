@@ -481,8 +481,8 @@
      },
      "slot_h": {
       "default": 1.0,
-      "exclusiveMinimum": 0.0,
       "maximum": 24.0,
+      "minimum": 0.25,
       "title": "Slot H",
       "type": "number"
      },
@@ -530,6 +530,17 @@
        }
       ],
       "title": "Due By"
+     },
+     "expected_version": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expected Version"
      },
      "priority_class": {
       "title": "Priority Class",
@@ -1067,6 +1078,7 @@
   },
   "/api/v1/assets/{asset_id}/assess-range": {
    "post": {
+    "description": "Assess every step from start to end, oldest first (e.g. after a periodic export arrives).\n\nCost: every step is a full assessment, so the request costs one rate-limit token per RANGE_STEPS_PER_TOKEN (10)\nsteps, at least one (the request's own token counts). A bucket that cannot pay now is refused with 429 and\nRetry-After before any work; a range that costs more than the bucket can ever hold is refused with 422 (split it).\nThe whole range is checked first: the asset (id or tag), end >= start, end no later than now plus the allowed\nclock skew, and at most health.MAX_RANGE_STEPS steps. A refused range stores nothing. The work runs in a worker\nthread, never on the event loop.\n\nConcurrency: one range per user at a time, and at most RANGE_WORKERS (2) on the server, so ranges can never hold\nthe worker threads the other routes need. A range over either limit is refused at once (429, Retry-After), not\nqueued, and is not charged beyond its request's own token.",
     "operationId": "assess_range_api_v1_assets__asset_id__assess_range_post",
     "parameters": [
      {
@@ -1261,6 +1273,7 @@
   },
   "/api/v1/audit/verify": {
    "get": {
+    "description": "Without an anchor only the chain's internal consistency is checked (deleting the newest events cannot be\ndetected): the result then says anchor_checked: false. An anchor needs both anchor_seq and anchor_hash.",
     "operationId": "audit_verify_api_v1_audit_verify_get",
     "parameters": [
      {
@@ -1270,6 +1283,8 @@
       "schema": {
        "anyOf": [
         {
+         "maximum": 9223372036854775807,
+         "minimum": 1,
          "type": "integer"
         },
         {
@@ -1286,6 +1301,7 @@
       "schema": {
        "anyOf": [
         {
+         "pattern": "^[0-9a-f]{64}$",
          "type": "string"
         },
         {
@@ -1627,6 +1643,8 @@
       "required": false,
       "schema": {
        "default": 6.0,
+       "exclusiveMinimum": 0,
+       "maximum": 8760,
        "title": "Max Age H",
        "type": "number"
       }

@@ -11,7 +11,8 @@ Commands:
   backup         consistent online copy (SQLite backup API) plus an audit-anchor file next to it
   restore        copy a backup to a new database path (never overwrites without --force), then check integrity
   verify-audit   verify the HMAC chain against an anchor (--anchor FILE, or <db>.anchor.json next to the database);
-                 without an anchor truncation cannot be detected, so it fails unless --allow-no-anchor is given
+                 without an anchor truncation cannot be detected, so it fails unless --allow-no-anchor is given.
+                 An anchor file without an integer seq (1 to 2**63-1) and a 64-hex hash is a configuration error
   serve          run the REST API with uvicorn (bind to 127.0.0.1 by default; put TLS in front, see DEPLOYMENT_GUIDE)
 
 Exit codes: 0 success, 1 the operation failed or found a problem, 2 configuration error.
@@ -23,12 +24,16 @@ import base64
 import binascii
 import json
 import os
+import re
 import shutil
 import sqlite3
 import sys
 from pathlib import Path
 
 from . import auditlog, db as dbmod, security
+
+
+SQLITE_MAX_INT = 2 ** 63 - 1           # an anchor seq above SQLite's INTEGER range cannot name an event
 
 
 class ConfigError(RuntimeError):
@@ -120,13 +125,26 @@ def cmd_restore(args) -> int:
     return 0 if ok == "ok" else 1
 
 
+def _read_anchor(af: Path) -> dict:
+    """An anchor must hold the seq and hash of a real event ({} or null would check nothing and still pass)."""
+    try:
+        a = json.loads(af.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:                 # JSONDecodeError and UnicodeDecodeError are ValueErrors
+        raise ConfigError(f"anchor file {af} is not readable JSON ({type(e).__name__})") from None
+    seq, h = (a.get("seq"), a.get("hash")) if isinstance(a, dict) else (None, None)
+    if not (isinstance(seq, int) and not isinstance(seq, bool) and 1 <= seq <= SQLITE_MAX_INT
+            and isinstance(h, str) and re.fullmatch(r"[0-9a-f]{64}", h)):
+        raise ConfigError(f'anchor file {af} must hold {{"seq": <event number, 1 to 2**63-1>, "hash": <64 hex characters>}}, as `backup` writes it')
+    return {"seq": seq, "hash": h}
+
+
 def cmd_verify_audit(args) -> int:
     path = _db_path(args)
     key, _ = audit_key_from_env()
     anchor = None
     af = Path(args.anchor) if args.anchor else Path(str(path) + ".anchor.json")
     if af.exists():
-        anchor = json.loads(af.read_text(encoding="utf-8"))
+        anchor = _read_anchor(af)
     elif args.anchor:
         print(f"anchor file {af} not found", file=sys.stderr)
         return 1
@@ -152,6 +170,13 @@ def cmd_serve(args) -> int:
     cap, refill = (float(x) for x in args.rate_limit.split(","))
     from . import decision
     dcfg = decision.load_config(args.decision_config) if args.decision_config else None
+    if dcfg is not None:                               # a configured job every asset type lacks would fail every recommendation
+        from . import registry
+        missing = [f"{t.asset_type_id} has no {k} {getattr(dcfg, k)!r}" for t in registry.list_asset_types(d)
+                   for k in ("inspection_job",) if getattr(dcfg, k) not in t.jobs]
+        if missing:
+            print("decision config names jobs the site's asset types do not define: " + "; ".join(missing), file=sys.stderr)
+            return 2
     if dcfg is None:
         print("warning: no --decision-config: downtime cost 0 and illustrative due dates (placeholder defaults; /ready reports this)",
               file=sys.stderr)

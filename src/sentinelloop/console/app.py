@@ -7,8 +7,9 @@ Text that comes from the API (titles, reasons, notes) is escaped before display,
 from __future__ import annotations
 
 import os
+import re
 import sys
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time as dtime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -33,10 +34,12 @@ PLAIN = {"URGENT_REVIEW": "Urgent review", "INSPECTION_RECOMMENDED": "Inspection
 FINDINGS = {"degradation_found": "Degradation found", "failure_found": "Failure found", "no_fault_found": "Inspected: no fault found",
             "not_inspected": "Could not inspect", "other": "Other"}
 PAGES = ["Fleet", "Asset", "Work queue", "Schedule", "Do the work", "Audit"]
+EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+DEFER_BACK_AT = dtime(6, 0)            # a deferred order comes back for approval at 06:00 local time at its site
 
 
-def _today() -> date:
-    return date.today()
+def _today(z: ZoneInfo | None = None) -> date:
+    return datetime.now(z).date() if z else date.today()
 
 
 def _tz(site_id: str | None) -> ZoneInfo:
@@ -46,21 +49,42 @@ def _tz(site_id: str | None) -> ZoneInfo:
         return ZoneInfo("UTC")
 
 
+def _site_of(c, asset_id) -> str | None:
+    """The site of an order's asset (work orders carry no site), cached for the session; an unseen asset reloads the list.
+    A failed reload is not cached: that run shows UTC (labelled) and asks no more, and the next run asks again."""
+    sites = st.session_state.setdefault("asset_site", {})
+    if asset_id not in sites:
+        if st.session_state.get("asset_site_failed"):
+            return None
+        rows = call(c.assets)
+        if rows is None:                                # API error (e.g. 429): not remembered past this run
+            st.session_state["asset_site_failed"] = True
+            return None
+        sites.update({a["asset_id"]: a["site_id"] for a in rows})
+        sites.setdefault(asset_id, None)                # not in the list: shown and entered in UTC, and labelled so
+    return sites[asset_id]
+
+
 def when(value, site_id: str | None = None) -> str:
-    """ISO text or epoch milliseconds -> local time at the asset's site, with the zone shown."""
+    """ISO text or epoch milliseconds -> local time at the asset's site, with the zone shown. Never raises: a value that
+    cannot be shown as a time (unparseable, or outside the calendar in that zone) is shown as escaped text."""
     if value in (None, ""):
         return "n/a"
     try:
-        dt = (datetime.fromtimestamp(int(value) / 1000, tz=timezone.utc) if isinstance(value, (int, float))
+        dt = (EPOCH + timedelta(milliseconds=int(value)) if isinstance(value, (int, float))
               else datetime.fromisoformat(str(value).replace("Z", "+00:00")))
-    except ValueError:
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)        # the API sends UTC; never read a bare time as this server's zone
+        z = _tz(site_id)
+        local = dt.astimezone(z)
+        return local.strftime("%d %b %Y %H:%M ") + (local.tzname() or str(z))
+    except (ValueError, OverflowError, OSError, TypeError):
         return md(value)
-    z = _tz(site_id)
-    return dt.astimezone(z).strftime("%d %b %Y %H:%M ") + (dt.astimezone(z).tzname() or str(z))
 
 
 def labels(states_) -> str:
-    return " · ".join(f"{BADGE.get(s, '')} {PLAIN.get(s, s.replace('_', ' ').title())}" for s in states_)
+    # a state the console does not know is shown as letters and digits only, so it cannot carry markdown
+    return " · ".join(f"{BADGE.get(s, '')} {PLAIN.get(s) or re.sub(r'[^A-Za-z0-9 ]', '', str(s).replace('_', ' ')).title()}" for s in states_)
 
 
 def flash(kind: str, msg: str):
@@ -118,7 +142,7 @@ def page_fleet(c, me):
         counts[a["state"][0]] = counts.get(a["state"][0], 0) + 1
     cols = st.columns(max(1, len(counts)))
     for col, (s, n) in zip(cols, sorted(counts.items(), key=lambda kv: list(BADGE).index(kv[0]) if kv[0] in BADGE else 99)):
-        col.metric(f"{BADGE.get(s, '')} {PLAIN.get(s, s)}", n)
+        col.metric(labels([s]), n)
     st.dataframe([{"state": labels(a["state"]), "asset": a["asset_id"], "name": a["name"], "criticality": a["criticality"], "site": a["site_id"],
                    "last assessed": when(a.get("last_assessed_at"), a["site_id"])} for a in rows], width="stretch", hide_index=True)
     st.caption("Anything other than Normal monitoring is either a recommendation or a reason SentinelLoop cannot assess the asset. "
@@ -126,9 +150,9 @@ def page_fleet(c, me):
     if me["role"] in ASSESSORS and st.button("Generate recommendations from the latest assessments", key="generate"):
         r = call(c.generate)
         if r is not None:
-            n = {k: sum(1 for x in r if x.get("action") == k) for k in ("created", "escalated", "reactivated", "suppressed")}
-            flash("success", f"{n['created']} created, {n['escalated']} escalated, {n['reactivated']} back from deferral, "
-                             f"{n['suppressed']} held back by an earlier rejection")
+            n = {k: sum(1 for x in r if x.get("action") == k) for k in ("created", "escalated", "linked", "reactivated", "suppressed")}
+            flash("success", f"{n['created']} created, {n['escalated']} escalated, {n['linked']} earlier orders linked to a latched warning, "
+                             f"{n['reactivated']} back from deferral, {n['suppressed']} held back by an earlier rejection")
             st.rerun()
 
 
@@ -164,7 +188,8 @@ def page_asset(c, me):
             st.caption("No remaining-life or failure-probability estimate for this assessment.")
         if asm.get("top_deviations"):
             st.write("Largest deviations from normal behaviour, in multiples of the inspection threshold (1.0 = threshold):")
-            st.table([{"signal": st.session_state.get("signal_text", {}).get(s, s), "times the threshold": round(v, 2)} for s, v in asm["top_deviations"]])
+            st.dataframe([{"signal": st.session_state.get("signal_text", {}).get(s, s), "times the threshold": round(v, 2)} for s, v in asm["top_deviations"]],
+                         hide_index=True)                       # st.dataframe cells are plain text (st.table renders markdown)
     else:
         st.caption("Not assessed yet.")
     if me["role"] in ASSESSORS and st.button("Assess now", key="assess_now"):
@@ -198,14 +223,17 @@ def page_queue(c, me):
     if not pend:
         st.info("Nothing waits for approval.")
     for o in sorted(pend, key=lambda x: (x["priority_class"], x["created_at"])):
+        site = _site_of(c, o["asset_id"])
+        z = _tz(site)
         with st.container(border=True):
-            st.markdown(f"**{o['priority_class']} · {md(o['title'])}** — {md(o['asset_id'])} · {md(o['job_type'])} · {o['duration_h']} h × {o['crew_size']} · "
-                        f"due {when(o.get('due_by'), None)} · {_waiting(o)} · `{md(o['wo_id'])}`")
-            for line in explanation_lines(o):
+            st.markdown(f"**{md(o['priority_class'])} · {md(o['title'])}** — {md(o['asset_id'])} · {md(o['job_type'])} · {o['duration_h']} h × {o['crew_size']} · "
+                        f"due {when(o.get('due_by'), site)} · {_waiting(o)} · `{md(o['wo_id'])}`")
+            for line in explanation_lines(o, lambda v: when(v, site)):
                 st.text(line)
             if me["role"] in APPROVERS:
                 reason = st.text_input("Reason (required to defer or reject)", key=f"reason-{o['wo_id']}")
-                until = st.date_input("If deferred, back for approval on", value=_today() + timedelta(days=7), key=f"until-{o['wo_id']}")
+                until = st.date_input(f"If deferred, back for approval on (at {DEFER_BACK_AT:%H:%M} {md(z.key)} time)", value=_today(z) + timedelta(days=7),
+                                      key=f"until-{o['wo_id']}")
                 b1, b2, b3 = st.columns(3)
                 if b1.button("Approve", key=f"approve-{o['wo_id']}"):
                     if call(c.transition, o["wo_id"], "approve", o["version"], reason or None, ok=f"{o['wo_id']} approved") is not None:
@@ -216,7 +244,8 @@ def page_queue(c, me):
                             flash("error", f"A written reason is required to {act}.")
                             st.rerun()
                         elif call(c.transition, o["wo_id"], act, o["version"], reason,
-                                  data={"until": f"{until.isoformat()}T06:00:00Z"} if act == "defer" else None,
+                                  data={"until": datetime.combine(until, DEFER_BACK_AT, tzinfo=z).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+                                  if act == "defer" else None,
                                   ok=f"{o['wo_id']} {'deferred' if act == 'defer' else 'rejected'}") is not None:
                             st.rerun()
             else:
@@ -224,13 +253,14 @@ def page_queue(c, me):
     deferred = call(c.orders, ["DEFERRED"]) or []
     with st.expander(f"Deferred ({len(deferred)}): they come back for approval on their date"):
         for o in sorted(deferred, key=lambda x: x.get("deferred_until") or ""):
-            st.markdown(f"**{o['priority_class']} · {md(o['title'])}** — back on {when(o.get('deferred_until'), None)} · `{md(o['wo_id'])}`")
+            st.markdown(f"**{md(o['priority_class'])} · {md(o['title'])}** — back on {when(o.get('deferred_until'), _site_of(c, o['asset_id']))} · "
+                        f"`{md(o['wo_id'])}`")
             if me["role"] in APPROVERS and st.button("Bring back now", key=f"reactivate-{o['wo_id']}"):
                 if call(c.transition, o["wo_id"], "reactivate", o["version"], "brought back early by a planner", ok="back for approval") is not None:
                     st.rerun()
     with st.expander("Approved, scheduled and in progress"):
         st.dataframe([{"wo": o["wo_id"], "state": o["state"], "priority": o["priority_class"], "asset": o["asset_id"], "title": o["title"],
-                       "start": when(o.get("scheduled_start"), None), "crew": ", ".join(o.get("assigned") or [])}
+                       "start": when(o.get("scheduled_start"), _site_of(c, o["asset_id"])), "crew": ", ".join(o.get("assigned") or [])}
                       for o in (call(c.orders, ["APPROVED", "SCHEDULED", "IN_PROGRESS"]) or [])], width="stretch", hide_index=True)
     review = [o for o in (call(c.orders, ["COMPLETED"]) or []) if (o.get("outcome") or {}).get("flags")]
     if review and me["role"] in APPROVERS:
@@ -260,7 +290,7 @@ def page_schedule(c, me):
                        "technicians": ", ".join(a["technicians"])} for a in p["assignments"]], width="stretch", hide_index=True)
         if p["unscheduled"]:
             st.write("Could not be scheduled:")
-            st.table([{"wo": k, "reason": v} for k, v in p["unscheduled"].items()])
+            st.dataframe([{"wo": k, "reason": v} for k, v in p["unscheduled"].items()], width="stretch", hide_index=True)   # plain-text cells
         if p["violations"]:
             st.error("This proposal violates constraints and cannot be applied: " + md("; ".join(p["violations"][:5])))
         elif st.button("Apply this schedule", key="sched_apply"):
@@ -275,13 +305,15 @@ def page_work(c, me):
     if not orders:
         st.info("No scheduled or in-progress work.")
     for o in orders:
+        site = _site_of(c, o["asset_id"])
+        z = _tz(site)
         with st.container(border=True):
             st.markdown(f"**{md(o['state'].title().replace('_', ' '))} · {md(o['title'])}** — {md(o['asset_id'])} · `{md(o['wo_id'])}` · "
-                        f"start {when(o.get('scheduled_start'), None)} · due {when(o.get('due_by'), None)}")
+                        f"start {when(o.get('scheduled_start'), site)} · due {when(o.get('due_by'), site)}")
             st.caption(f"Job: {md(o['job_type'])} · {o['duration_h']} h · crew {o['crew_size']} ({md(o['required_skill'])}) · parts: "
                        + (md(", ".join(f"{k} × {v}" for k, v in (o.get("parts") or {}).items())) or "none planned")
                        + f" · assigned: {md(', '.join(o.get('assigned') or []) or 'nobody')}")
-            for line in explanation_lines(o):
+            for line in explanation_lines(o, lambda v: when(v, site)):
                 st.text(line)
             if me["role"] not in DOERS:
                 continue
@@ -302,7 +334,8 @@ def page_work(c, me):
                 cause = st.text_input("Root cause (if known)", key=f"cause-{o['wo_id']}")
                 action = st.text_input("Actions taken (required)", key=f"act-{o['wo_id']}")
                 down = st.number_input("Downtime caused by this job (hours, required)", min_value=0.0, value=None, key=f"down-{o['wo_id']}")
-                back = st.text_input("Returned to service at (local time, YYYY-MM-DD HH:MM; leave empty if still down)", key=f"rts-{o['wo_id']}")
+                back = st.text_input(f"Returned to service at ({md(z.key)} time at the site, YYYY-MM-DD HH:MM; leave empty if still down)",
+                                     key=f"rts-{o['wo_id']}")
                 parts = st.text_input("Parts used (part=qty, comma-separated)", key=f"parts-{o['wo_id']}")
                 notes = st.text_area("Notes", key=f"notes-{o['wo_id']}")
                 if found == "not_inspected":
@@ -316,8 +349,8 @@ def page_work(c, me):
                     rts = None
                     if back.strip():
                         try:
-                            rts = datetime.strptime(back.strip(), "%Y-%m-%d %H:%M").replace(tzinfo=_tz(None)).astimezone(timezone.utc).isoformat()
-                        except ValueError:
+                            rts = datetime.strptime(back.strip(), "%Y-%m-%d %H:%M").replace(tzinfo=z).astimezone(timezone.utc).isoformat()
+                        except (ValueError, OverflowError):
                             rts = "bad"
                     if not action.strip():
                         flash("error", "Describe the actions taken.")
@@ -356,7 +389,14 @@ def page_audit(c, me):
     if me["role"] in AUDITORS and st.button("Verify the audit chain", key="aud_verify"):
         v = call(c.verify_audit)
         if v:
-            (st.success if v["valid"] else st.error)(f"valid: {v['valid']} · events: {v['n']} · first bad seq: {v.get('first_bad_seq')}")
+            text = f"valid: {md(v['valid'])} · events: {md(v['n'])} · first bad seq: {md(v.get('first_bad_seq'))}"
+            if v["valid"] is not True:
+                st.error(text)
+            elif v.get("anchor_checked") is not True:          # fail closed: only an anchored check is shown as a pass
+                st.warning(f"{text} · not verified against an anchor: the chain is internally consistent, but deleting the newest events "
+                           "cannot be detected this way. Verify with `admin verify-audit --anchor <file>` using an anchor kept off this host.")
+            else:
+                st.success(f"{text} · verified against the anchor")
 
 
 def main():
@@ -365,12 +405,13 @@ def main():
     if c is None or me is None:
         login()
         return
+    st.session_state["asset_site_failed"] = False         # each run may ask for the asset list again (see _site_of)
     _context(c)
     with st.sidebar:
         st.markdown(f"**{md(me['display_name'])}** · {md(me['role'])}")
         page = st.radio("Page", PAGES, key="page")
         if st.button("Sign out", key="logout"):
-            for k in ("client", "me", "proposal", "site_tz", "signal_text"):
+            for k in ("client", "me", "proposal", "site_tz", "signal_text", "asset_site"):
                 st.session_state.pop(k, None)
             st.rerun()
         st.caption("Advisory only: recommendations become work only after a named person approves them. Not part of any safety function.")

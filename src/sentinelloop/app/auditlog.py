@@ -40,6 +40,11 @@ def append(c, actor: str, action: str, entity: str, entity_id: str, payload: dic
 
 
 def verify(c, key: bytes, anchor: dict | None = None) -> dict:
+    """Check the whole chain, and with an anchor also that the anchored event is still there unchanged (truncation).
+    `anchor=None` means no anchor; anything else must be a mapping with `seq` and `hash` (a malformed anchor is an error,
+    never silently 'no anchor')."""
+    if anchor is not None and not (isinstance(anchor, dict) and "seq" in anchor and "hash" in anchor):
+        raise ValueError("an audit anchor must be a mapping with 'seq' and 'hash'")
     prev, n, expected_seq, dev = GENESIS, 0, 1, 0
     for r in c.execute("SELECT * FROM audit_events ORDER BY seq"):
         n += 1
@@ -58,7 +63,7 @@ def verify(c, key: bytes, anchor: dict | None = None) -> dict:
         if reason:
             return {"n": n, "valid": False, "first_bad_seq": r["seq"], "reason": reason, "events_signed_with_dev_key": dev}
         prev, expected_seq = r["hash"], expected_seq + 1
-    if anchor:
+    if anchor is not None:
         row = c.execute("SELECT hash FROM audit_events WHERE seq = ?", (int(anchor["seq"]),)).fetchone()
         if row is None or row["hash"] != anchor["hash"]:
             return {"n": n, "valid": False, "first_bad_seq": int(anchor["seq"]), "reason": "anchored event missing or changed (truncation or rewrite)",

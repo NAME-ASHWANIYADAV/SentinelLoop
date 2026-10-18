@@ -18,6 +18,7 @@ import io
 import math
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from . import auditlog
 from .auditlog import canonical
@@ -30,8 +31,24 @@ MAX_RECORDS_PER_BATCH = 200_000          # same cap as the JSON route; a wide CS
 
 class IngestLimitError(ValueError):
     pass
+
+
+class IngestInputError(ValueError):
+    """A batch-level parameter (time zone, unit map) is invalid: the request is refused and nothing is recorded."""
+
+
 LONG_COLUMNS = ("asset", "timestamp", "signal", "value", "unit")
 MAX_STORED_ERRORS = 1000
+
+
+def _check_params(default_tz, wide_units=None):
+    if default_tz:
+        try:
+            ZoneInfo(default_tz)
+        except (KeyError, ValueError, TypeError, OSError):      # ZoneInfoNotFoundError is a KeyError
+            raise IngestInputError(f"default_tz {str(default_tz)[:64]!r} is not a known IANA time zone (e.g. 'Asia/Kolkata')") from None
+    if wide_units is not None and not (isinstance(wide_units, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in wide_units.items())):
+        raise IngestInputError('wide_units must map each signal column to its unit, e.g. {"bearing_temp": "degC"}')
 
 
 @dataclass
@@ -217,12 +234,14 @@ def _ingest(db, records: list[dict], source: str, actor: str, content_sha: str, 
 
 def ingest_records(db, records: list[dict], source: str, actor: str, *, default_tz: str | None = None, now_ms: int | None = None,
                    max_future_skew_ms: int = 5 * 60 * 1000, lateness_ms: int = 60 * 60 * 1000) -> IngestResult:
+    _check_params(default_tz)
     sha = hashlib.sha256(canonical({"records": records, "default_tz": default_tz, "contract": CONTRACT_VERSION}).encode("utf-8")).hexdigest()
     return _ingest(db, records, source, actor, sha, default_tz=default_tz, now_ms=now_ms, max_future_skew_ms=max_future_skew_ms, lateness_ms=lateness_ms)
 
 
 def ingest_csv(db, path, source: str, actor: str, *, wide_units: dict | None = None, default_tz: str | None = None, now_ms: int | None = None,
                max_future_skew_ms: int = 5 * 60 * 1000, lateness_ms: int = 60 * 60 * 1000) -> IngestResult:
+    _check_params(default_tz, wide_units)
     data = Path(path).read_bytes() if not isinstance(path, (bytes, bytearray)) else bytes(path)
     sha = hashlib.sha256(data + canonical({"wide_units": wide_units, "default_tz": default_tz, "contract": CONTRACT_VERSION}).encode("utf-8")).hexdigest()
     reader = csv.DictReader(io.StringIO(data.decode("utf-8-sig")))

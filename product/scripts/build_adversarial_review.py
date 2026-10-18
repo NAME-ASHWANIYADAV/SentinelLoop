@@ -64,7 +64,7 @@ RES = {
     "technician-6": ("FIXED", "same as om_manager-7", T_LATCH),
     "technician-7": ("PARTIAL", "hand-back, bring-back from deferral and a reprioritise route. Raising a follow-up job and a shift editor in the console: OPEN", T_LATCH),
     "technician-8": ("PARTIAL", "plain-language states and signal descriptions. Deviations in degC against expected: OPEN", "-"),
-    "technician-9": ("FIXED", "times in the site's time zone", "tests/test_console.py"),
+    "technician-9": ("FIXED", "times in the site's time zone on every page, including work-order times and return-to-service entry (completed in the re-review fixes, api-security-console-3)", "tests/test_console.py"),
     "technician-10": ("PARTIAL", "downtime required, return to service, flags shown for review. Instrument-specific finding codes and re-commissioning prompts: OPEN", "tests/test_console.py"),
     "technician-11": ("OPEN", "no offline or mobile mode, English only (KNOWN_LIMITATIONS P7)", "-"),
     "technician-12": ("OPEN", "no 'my jobs' view; technician resources not linked to users (KNOWN_LIMITATIONS P10)", "-"),
@@ -76,7 +76,7 @@ RES = {
     "buyer-3": ("DOCS", "matrix marks competition-pipeline-only capabilities", "-"),
     "buyer-4": ("DOCS", "wind message changed to advisory anomaly flags; ranked-list and crane-budget language marked as hypotheses", "-"),
     "buyer-5": ("DOCS", "commercial limitations listed; pilot commercial terms to agree", "product/KNOWN_LIMITATIONS.md"),
-    "buyer-6": ("FIXED", "serve --decision-config; /ready says whether parameters are site-configured", T_LATCH),
+    "buyer-6": ("PARTIAL", "serve --decision-config; /ready says whether parameters are site-configured; the downtime cost enters each recommendation's priority score (decision.py), which orders the risk-ranked queue. The MILP objective does not price downtime: OPEN", T_LATCH),
     "buyer-7": ("DOCS", "summaries carry the unfavourable part of their evidence", "-"),
     "buyer-8": ("FIXED", "same as data_scientist-11", "product/evidence/g0/PREREGISTRATION.md"),
     "buyer-9": ("PARTIAL", "assessability measured in W2 and reported by G0. Expected range on real data: unknown until G0", "-"),
@@ -102,6 +102,91 @@ FOLLOW_UPS = [
     ("MEDIUM", "lost-mapping recovery could adopt planted records after a shadow-to-live switch", "FIXED c0f172a: recovery needs a logged earlier delivery"),
     ("MEDIUM", "markdown escaping left GFM autolinks", "FIXED c0f172a: API text rendered in code spans"),
 ]
+
+
+# -- re-review of the Phase 9 fixes (product/evidence/adversarial/rereview.json) ------------------------------------------
+REREVIEW = ROOT / "product" / "evidence" / "adversarial" / "rereview.json"
+T_RD, T_RH, T_RI, T_RA, T_RW = ("tests/test_app_rereview_decision.py", "tests/test_app_rereview_health.py", "tests/test_app_rereview_integration.py",
+                                "tests/test_app_rereview_api.py", "tests/test_app_rereview_wiring.py")
+RES2 = {
+    "decision-lifecycle-01": ("FIXED", "a data or review job never stands in for an inspection or urgent job; the needed order is raised as well", T_RD),
+    "decision-lifecycle-02": ("FIXED", "non-clearing jobs follow the configured data and review jobs, also on the API completion route", f"{T_RD}, {T_RW}"),
+    "decision-lifecycle-03": ("FIXED", "a rejection does not suppress a new latch episode; hours bounded at one year", T_RD),
+    "decision-lifecycle-04": ("FIXED", "decision config needs P1, P2 and P3 keys", T_RD),
+    "decision-lifecycle-05": ("FIXED", "numbers type-, range- and finiteness-checked; probabilities in [0, 1]", T_RD),
+    "decision-lifecycle-06": ("FIXED", "a latched inspection hidden by a data failure or feed delay gets its inspection order", T_RD),
+    "decision-lifecycle-07": ("FIXED", "no raise when a higher recommendation is not a new class", T_RD),
+    "decision-lifecycle-08": ("FIXED", "suppression on every creation path, including the separate P1", T_RD),
+    "decision-lifecycle-09": ("FIXED", "suppression keyed on the latched condition and the stand-in jobs, not on the displayed state", T_RD),
+    "decision-lifecycle-10": ("PARTIAL", "an escalated deferred order comes back for approval. A cap on P1 deferral length: OPEN (KNOWN_LIMITATIONS M9)", T_RD),
+    "decision-lifecycle-11": ("FIXED", "one failing reactivation no longer aborts the fleet run", T_RD),
+    "decision-lifecycle-12": ("FIXED", "escalations keep the earlier due date; manual reprioritisation keeps the score; route checks expected_version", f"{T_RD}, {T_RW}"),
+    "latching-states-01": ("FIXED", "a replay that finds a new urgent or inspection condition raises the latch (never lowers it); assess-range reports replays_escalated", T_RH),
+    "latching-states-02": ("FIXED", "migration 0008 backfills last_applied_* on upgraded databases (capped at storage time + 5 min)", T_RH),
+    "latching-states-03": ("FIXED", "same as decision-lifecycle-06", T_RD),
+    "latching-states-04": ("FIXED", "an older open order is linked to the latch only for the recommended, inspection or urgent job and only from approval or deferral (back to approval); otherwise superseded", T_RD),
+    "latching-states-05": ("REFUTED", "no change", "-"),
+    "latching-states-06": ("FIXED", "a model outage counts toward clearing a data failure only when the data checks passed", T_RH),
+    "latching-states-07": ("REFUTED", "no change", "-"),
+    "latching-states-08": ("FIXED", "assess-range validates every instant before applying any", T_RH),
+    "wind-eval-migrations-01": ("FIXED", "a stuck run anywhere in the scored window stays a data failure; the model never scores rejected readings", T_RH),
+    "wind-eval-migrations-02": ("FIXED", "W2 re-run (run 2) with the corrected gating; see PD-15", "product/evidence/wind_synthetic/w2.md"),
+    "wind-eval-migrations-03": ("FIXED", "same as latching-states-02", T_RH),
+    "wind-eval-migrations-04": ("FIXED", "same as latching-states-02", T_RH),
+    "wind-eval-migrations-05": ("FIXED", "sustain counts operating points; idle rows are skipped", T_RH),
+    "wind-eval-migrations-06": ("FIXED", "nbm.evaluate(policy=...) gates like the service, platform data checks first; W2 run 2 uses it", T_RH),
+    "wind-eval-migrations-07": ("PARTIAL", "episodes per assessable turbine-year reported next to the calendar figure. Exposure assumes gap-free 10-minute data: OPEN", T_RH),
+    "wind-eval-migrations-08": ("FIXED", "model data checks run before the no-baseline scope decision", T_RH),
+    "wind-eval-migrations-09": ("FIXED", "the kept-latch reason names the recorded (possibly backfilled) start", T_RW),
+    "wind-eval-migrations-10": ("DOCS", "PD-27 numbers and wording corrected; collapse scenarios not ranked in the write-up (summary.md still prints a cheapest column)", "product/DECISION_LOG.md"),
+    "api-security-console-1": ("FIXED", "assess-range charged 1 token per 10 steps, one running range per user and two per server", T_RA),
+    "api-security-console-2": ("FIXED", "verification without an anchor says so (anchor_checked); malformed anchors refused in the CLI, API and library", f"{T_RA}, {T_RW}"),
+    "api-security-console-3": ("FIXED", "work-order times shown and entered in each order's site time zone", "tests/test_console.py"),
+    "api-security-console-4": ("FIXED", "same as decision-lifecycle-12", T_RD),
+    "api-security-console-5": ("FIXED", "latch changes on completion audited on the asset entity", T_RD),
+    "api-security-console-6": ("REFUTED", "no change", "-"),
+    "api-security-console-7": ("PARTIAL", "slot_h >= 0.25 h and a MILP bound of 5,000 order-slots at the API. The MILP build still ignores its time limit: OPEN", T_RA),
+    "api-security-console-8": ("FIXED", "model paths, CMMS hosts, credential names and integration errors withheld from non-admins", T_RA),
+    "api-security-console-9": ("FIXED", "console tables render API text as plain text", "tests/test_console.py"),
+    "api-security-console-10": ("FIXED", "implausibly early instants refused; console never crashes on odd timestamps; browser error details off", f"{T_RH}, tests/test_console.py, {T_RW}"),
+    "api-security-console-11": ("FIXED", "client input errors are 4xx; assess-range all-or-nothing", f"{T_RA}, {T_RH}"),
+    "api-security-console-12": ("REFUTED", "no change", "-"),
+    "cmms-integration-1": ("FIXED", "create attempts logged before the call; marker search after an unresolved attempt; refused attempts are no evidence; duplicates dead-lettered", T_RI),
+    "cmms-integration-2": ("FIXED", "one dispatch per target under an expiring lease; a lapsed run never overwrites a newer record", T_RI),
+    "cmms-integration-3": ("REFUTED", "no change", "-"),
+    "cmms-integration-4": ("REFUTED", "no change", "-"),
+    "cmms-integration-5": ("FIXED", "mode re-read before writes; a switch to shadow stops the run", T_RI),
+    "cmms-integration-6": ("FIXED", "recovery matches the delimited marker, not the mirrored name", T_RI),
+    "cmms-integration-7": ("FIXED", "an unexpected response is isolated to its item and recorded", T_RI),
+    "cmms-integration-8": ("FIXED", "config values validated at registration; dispatch checks only what the adapter needs", T_RI),
+    "cmms-integration-9": ("PARTIAL", "malformed webhook headers rejected. No version or delivery id in the signed body: OPEN (KNOWN_LIMITATIONS S9)", T_RI),
+    "cmms-integration-10": ("REFUTED", "no change", "-"),
+    "cmms-integration-11": ("REFUTED", "no change", "-"),
+    "cmms-integration-12": ("REFUTED", "no change", "-"),
+}
+
+
+def rereview_section() -> list:
+    if not REREVIEW.exists():
+        return []
+    d = json.loads(REREVIEW.read_text(encoding="utf-8"))
+    f, v = d["findings"], d["verdicts"]
+    missing = sorted(set(f) - set(RES2))
+    assert not missing, missing
+    from collections import Counter
+    vc, sc, rc = Counter(x["verdict"] for x in v.values()), Counter(x["severity_after"] for x in v.values()), Counter(RES2[k][0] for k in f)
+    L = ["", "## Re-review of the fixes", "",
+         f"{d['method']} Each fix was then made test-first by one of four implementers owning disjoint files, checked by an adversarial verifier "
+         "that re-ran the original reproductions, and repaired where the verifier found the fix incomplete or a regression (workflow wf_bbb578cf-f89).", "",
+         f"**Findings:** {len(f)}. **Verifier:** {', '.join(f'{n} {k}' for k, n in sorted(vc.items()))}. "
+         f"**Severity after verification:** {', '.join(f'{n} {k}' for k, n in sorted(sc.items()))}. "
+         f"**Resolution:** {', '.join(f'{n} {k}' for k, n in sorted(rc.items()))}.", "",
+         "| id | severity → verified | title | resolution | evidence |", "|---|---|---|---|---|"]
+    order = {"high": 0, "medium": 1, "low": 2, "none": 3}
+    for k in sorted(f, key=lambda k: (order.get(v.get(k, {}).get("severity_after", "none"), 3), k)):
+        x, r = f[k], RES2[k]
+        L.append(f"| {k} | {x['severity']} → {v.get(k, {}).get('verdict', '-')}/{v.get(k, {}).get('severity_after', '-')} | {x['title']} | **{r[0]}**: {r[1]} | {r[2]} |")
+    return L
 
 
 def main():
@@ -152,12 +237,14 @@ def main():
             L.append(f"| {f['id']} | {f['severity']} | {f['title']} | **{r[0]}**: {r[1]} | {r[2]} |")
     L += ["", "## Follow-up automated security reviews of the fixes", "", "| severity | finding | resolution |", "|---|---|---|"]
     L += [f"| {a} | {b} | {c} |" for a, b, c in FOLLOW_UPS]
+    L += rereview_section()
     L += ["", "## What the review changed in the product's position", "",
           "- The latching guarantee (PD-08) was not true as built: four separate paths cleared or hid an urgent warning without an inspection. All four are fixed and covered by regression tests.",
           "- The simulated scheduling advantages under parts shortage were an artefact of right-censored downtime and fleet collapse. They are withdrawn; see `SCHEDULING_EVALUATION.md` (S2).",
           "- The model-implied failure probability is not calibrated on the team's own simulated data (C2). It is labelled as such wherever it is shown.",
           "- On synthetic data the original wind thresholds gave more false-alarm episodes than the proposed pilot ceiling. Thresholds were revisited on separate synthetic fleets before any real data (W2), and the G0 pre-registration was amended before download. The revisited setting still gives 2.65 healthy alarm episodes per turbine-year on the held-out synthetic fleets, above the proposed pilot ceiling of 2; this stays open until real data (G0) measure the rate.",
-          "- Several status documents had drifted from the code. They were synchronised in this phase, and the claim matrix marks what exists only in the frozen competition pipeline.", ""]
+          "- Several status documents had drifted from the code. They were synchronised in this phase, and the claim matrix marks what exists only in the frozen competition pipeline.",
+          "- The re-review showed that the first round of fixes was itself incomplete in places: a recovering stuck sensor could raise an urgent warning from rejected readings, an open sensor check or desk review could absorb an urgent recommendation, replayed exports could hide an urgent episode, upgraded databases lost the replay protection, and lost or overlapping CMMS dispatches could duplicate requests. These were fixed test-first and checked again against the original reproductions.", ""]
     (ROOT / "product" / "ADVERSARIAL_REVIEW.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     print(f"written: {sum(counts.values())} findings; resolution {st}")
 

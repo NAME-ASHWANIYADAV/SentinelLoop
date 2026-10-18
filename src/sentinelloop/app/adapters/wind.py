@@ -2,8 +2,9 @@
 
 The signal set is the subset of standard 10-minute SCADA averages that a normal-behaviour temperature model for the
 drivetrain needs (wind speed, active power, rotor and generator speed, pitch, ambient and nacelle temperature, and
-three drivetrain temperatures). Names are this platform's canonical names; a site mapping translates an operator's
-own SCADA tags to them (see product/DATA_CONTRACTS.md). Rated power, gear ratio, plausible ranges, job durations,
+three drivetrain temperatures). Names are this platform's canonical names. Per-site tag mapping is PLANNED
+(product/KNOWN_LIMITATIONS.md P12): an operator's SCADA export must be renamed to these names and converted to these
+units before ingestion (product/DATA_CONTRACTS.md). Rated power, gear ratio, plausible ranges, job durations,
 crews, parts and failure consequences are ILLUSTRATIVE assumptions for a generic ~2 MW geared turbine; none comes
 from a turbine maker or an operator.
 

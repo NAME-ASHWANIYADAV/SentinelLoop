@@ -147,15 +147,17 @@ class RateLimiter:
         self._b: OrderedDict[str, tuple[float, float]] = OrderedDict()
         self._lock = threading.Lock()
 
-    def allow(self, key: str) -> tuple[bool, float]:
+    def allow(self, key: str, cost: float = 1.0) -> tuple[bool, float]:
+        """Take `cost` tokens if the bucket holds that many (nothing is taken otherwise); returns (allowed, seconds to wait).
+        Requests that do more work (assess-range) pay more than one token."""
         now = time.monotonic()
         with self._lock:
             tokens, last = self._b.pop(key, (self.capacity, now))
             tokens = min(self.capacity, tokens + (now - last) * self.rate)
-            ok = tokens >= 1.0
-            self._b[key] = (tokens - 1.0 if ok else tokens, now)
+            ok = tokens >= cost
+            self._b[key] = (tokens - cost if ok else tokens, now)
             while len(self._b) > self.max_buckets:
                 self._b.popitem(last=False)
             if ok:
                 return True, 0.0
-            return False, (1.0 - tokens) / self.rate if self.rate > 0 else 60.0
+            return False, (cost - tokens) / self.rate if self.rate > 0 else 60.0

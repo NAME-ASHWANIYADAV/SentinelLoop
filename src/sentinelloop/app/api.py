@@ -12,6 +12,8 @@ import csv
 import io
 import json
 import logging
+import math
+import threading
 import time
 import uuid
 
@@ -24,13 +26,21 @@ from pydantic import BaseModel, Field
 from . import auditlog, decision, health, ingest, integration, modelreg, nbm, planning, registry, resources, security, workorders
 from .errors import PermissionDenied
 from .models import AssetSpec
-from .timeutil import iso, parse_ts
+from .timeutil import iso, now_ms, parse_ts
 
 log = logging.getLogger("sentinelloop.api")
 API = "/api/v1"
 # audit histories any authenticated role may read; every other entity (users, credentials, ...) needs audit.read
 OPEN_AUDIT_ENTITIES = {"asset", "assessment", "work_order", "schedule_run", "model", "ingestion_batch"}
 FORMULA_LEAD = ("=", "+", "-", "@", "\t", "\r")
+RANGE_STEPS_PER_TOKEN = 10          # assess-range pays one rate-limit token per this many steps (each step is a full assessment)
+RANGE_WORKERS = 2                   # assess-range calls running at once on the server (of the 40 worker threads), at most one per user
+RANGE_BUSY_RETRY_S = 5              # Retry-After for a range refused because another is running
+MILP_MAX_ORDER_SLOTS = 5_000        # milp refused above approved orders x slots: building it grows with (orders x slots) squared
+SQLITE_MAX_INT = 2 ** 63 - 1
+# CMMS error text can name credential variables, and base_url names the host: shown to admins only, in every route
+WITHHELD = "withheld: ask an administrator for the details"
+INTEGRATION_DETAIL = ("base_url", "error")      # payload fields of integration.* audit events withheld from non-admins
 
 
 class BodyTooLarge(Exception):
@@ -90,6 +100,18 @@ def _csv_safe(v):
     return v
 
 
+def _model_view(u: dict, m):
+    """artifact_path is a server filesystem path: admins only."""
+    return m if u["role"] == "admin" or not isinstance(m, dict) else {k: v for k, v in m.items() if k != "artifact_path"}
+
+
+def _withhold_integration_detail(r: dict) -> dict:
+    p = r["payload"]
+    if not (r["action"].startswith("integration.") and isinstance(p, dict) and any(p.get(k) for k in INTEGRATION_DETAIL)):
+        return r
+    return {**r, "payload": {**p, **{k: WITHHELD for k in INTEGRATION_DETAIL if p.get(k)}}}
+
+
 def _presented_key(headers) -> str | None:
     auth = headers.get("authorization")
     if auth and auth.lower().startswith("bearer "):
@@ -118,6 +140,7 @@ class ReprioritiseBody(BaseModel):
     priority_class: str
     reason: str = Field(min_length=1)
     due_by: str | None = None
+    expected_version: int | None = None
 
 
 class ClearRiskBody(BaseModel):
@@ -150,7 +173,7 @@ class PlanBody(BaseModel):
     site_id: str
     policy: str = "risk_greedy"
     horizon_h: float = Field(default=72.0, gt=0, le=24 * 14)
-    slot_h: float = Field(default=1.0, gt=0, le=24)
+    slot_h: float = Field(default=1.0, ge=0.25, le=24)       # at most 336 / 0.25 = 1344 slots: planning cost grows with the slot count
     t0: str | None = None
 
 
@@ -228,12 +251,30 @@ class BaselineBody(BaseModel):
     reason: str = Field(min_length=1)
 
 
+# Idempotency keys the platform itself uses (recommendations, deferral reactivation, schedule application). A client that
+# pre-claimed one could turn the engine's later action into a silent replay, so clients may not use these prefixes.
+RESERVED_KEY_PREFIXES = ("rec:", "reactivate:", "apply:")
+
+
+def _client_key(key: str | None) -> str | None:
+    if key is not None and key.startswith(RESERVED_KEY_PREFIXES):
+        raise HTTPException(400, f"Idempotency-Key prefixes {', '.join(RESERVED_KEY_PREFIXES)} are reserved for the platform")
+    return key
+
+
 def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = None, rate_limit: tuple = (120, 2.0),
                max_body_bytes: int = 10 * 1024 * 1024) -> FastAPI:
     app = FastAPI(title="SentinelLoop platform API", version="1", docs_url=f"{API}/docs", openapi_url=f"{API}/openapi.json", redoc_url=None)
     limiter = security.RateLimiter(*rate_limit)
     dcfg = decision_cfg or decision.DecisionConfig()
+    range_slots, range_users, range_lock = threading.BoundedSemaphore(RANGE_WORKERS), set(), threading.Lock()
     app.add_middleware(BodyLimit, limit=max_body_bytes)
+
+    def _bucket(u: dict) -> str:
+        return f"user:{u['user_id']}"
+
+    def _retry_after(retry: float) -> dict:
+        return {"Retry-After": f"{max(1, int(retry + 0.999))}"}
 
     # -- middleware ---------------------------------------------------------------------------------------------------
     @app.middleware("http")
@@ -249,10 +290,10 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
                 ok, retry = True, 0
             else:
                 u = security.authenticate_key(db, _presented_key(request.headers))
-                bucket = f"user:{u['user_id']}" if u else f"addr:{request.client.host if request.client else 'unknown'}"
+                bucket = _bucket(u) if u else f"addr:{request.client.host if request.client else 'unknown'}"
                 ok, retry = limiter.allow(bucket)
             if not ok:
-                resp = JSONResponse({"error": "rate limit exceeded", "request_id": rid}, status_code=429, headers={"Retry-After": f"{max(1, int(retry + 0.999))}"})
+                resp = JSONResponse({"error": "rate limit exceeded", "request_id": rid}, status_code=429, headers=_retry_after(retry))
             else:
                 resp = await call_next(request)
         resp.headers["X-Request-ID"] = rid
@@ -309,11 +350,15 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
 
     @app.exception_handler(HTTPException)
     async def _http(request, exc):
-        return _err(request, exc.status_code, str(exc.detail))
+        resp = _err(request, exc.status_code, str(exc.detail))
+        for k, v in (exc.headers or {}).items():       # e.g. Retry-After on a 429 raised by a route
+            resp.headers[k] = v
+        return resp
 
     # -- health ---------------------------------------------------------------------------------------------------------
     @app.get(f"{API}/health")
-    def health_():
+    async def health_():
+        # on the event loop, not in a worker thread: liveness still answers while every worker is busy
         return {"status": "ok"}
 
     @app.get(f"{API}/ready")
@@ -427,8 +472,8 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     @app.get(f"{API}/integrations")
     def targets(u: dict = Depends(need("integrations.read"))):
         rows = integration.list_targets(db)
-        if u["role"] != "admin":                       # config names credential variables and hosts: admins only
-            rows = [{k: v for k, v in t.items() if k != "config"} for t in rows]
+        if u["role"] != "admin":                       # config names credential variables, base_url the host: admins only
+            rows = [{k: v for k, v in t.items() if k not in ("config", "base_url")} for t in rows]
         return rows
 
     @app.post(f"{API}/integrations", status_code=201)
@@ -446,7 +491,10 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
 
     @app.get(f"{API}/integrations/{{target_id}}/items")
     def target_items(target_id: str, status: str | None = None, u: dict = Depends(need("integrations.read"))):
-        return integration.items(db, target_id, status)
+        rows = integration.items(db, target_id, status)
+        if u["role"] != "admin":                       # the status says that it failed; the error text stays with admins
+            rows = [{**r, "last_error": WITHHELD if r.get("last_error") else r.get("last_error")} for r in rows]
+        return rows
 
     @app.post(f"{API}/integrations/{{target_id}}/items/{{wo_id}}/requeue")
     def requeue(target_id: str, wo_id: str, body: ReasonBody, u: dict = Depends(need("integrations.manage"))):
@@ -474,7 +522,8 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
         return b
 
     @app.get(f"{API}/ingest/staleness")
-    def staleness(max_age_h: float = 6.0, site_id: str | None = None, u: dict = Depends(need("read"))):
+    def staleness(max_age_h: float = Query(default=6.0, gt=0, le=24 * 365, allow_inf_nan=False), site_id: str | None = None,
+                  u: dict = Depends(need("read"))):
         return ingest.staleness(db, max_age_ms=int(max_age_h * 3_600_000), site_id=site_id)
 
     # -- assessments and states -------------------------------------------------------------------------------------------
@@ -484,7 +533,54 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
 
     @app.post(f"{API}/assets/{{asset_id}}/assess-range")
     def assess_range(asset_id: str, body: AssessRangeBody, u: dict = Depends(need("assess"))):
-        return health.assess_range(db, asset_id, policy_set, parse_ts(body.start), parse_ts(body.end), body.step_minutes * 60_000, actor=u["user_id"])
+        """Assess every step from start to end, oldest first (e.g. after a periodic export arrives).
+
+        Cost: every step is a full assessment, so the request costs one rate-limit token per RANGE_STEPS_PER_TOKEN (10)
+        steps, at least one (the request's own token counts). A bucket that cannot pay now is refused with 429 and
+        Retry-After before any work; a range that costs more than the bucket can ever hold is refused with 422 (split it).
+        The whole range is checked first: the asset (id or tag), end >= start, end no later than now plus the allowed
+        clock skew, and at most health.MAX_RANGE_STEPS steps. A refused range stores nothing. The work runs in a worker
+        thread, never on the event loop.
+
+        Concurrency: one range per user at a time, and at most RANGE_WORKERS (2) on the server, so ranges can never hold
+        the worker threads the other routes need. A range over either limit is refused at once (429, Retry-After), not
+        queued, and is not charged beyond its request's own token.
+        """
+        a = registry.get_asset(db, asset_id)
+        if a is None:
+            raise HTTPException(404, f"unknown asset {asset_id}")
+        start, end, step = parse_ts(body.start), parse_ts(body.end), body.step_minutes * 60_000
+        if end < start:
+            raise health.AssessmentError("assess-range needs end >= start")
+        if end > now_ms() + health.MAX_FUTURE_SKEW_MS:
+            raise health.AssessmentError(f"range end {iso(end)} is in the future; assessments are for now or the past")
+        n = (end - start) // step + 1
+        if n > health.MAX_RANGE_STEPS:
+            raise health.AssessmentError(f"{n} steps requested; at most {health.MAX_RANGE_STEPS} per call")
+        cost = max(1, -(-n // RANGE_STEPS_PER_TOKEN))
+        if cost > limiter.capacity:
+            raise health.AssessmentError(f"{n} steps cost {cost} rate-limit tokens, more than this server's bucket holds "
+                                         f"({limiter.capacity:.0f}, i.e. {limiter.capacity * RANGE_STEPS_PER_TOKEN:.0f} steps): split the range")
+        uid = u["user_id"]
+        with range_lock:                               # refused, never queued: a waiting range would still hold a worker thread
+            if uid in range_users:
+                raise HTTPException(429, "your previous assess-range call is still running: send the next range when it has finished",
+                                    headers=_retry_after(RANGE_BUSY_RETRY_S))
+            if not range_slots.acquire(blocking=False):
+                raise HTTPException(429, f"{RANGE_WORKERS} assess-range calls are already running on this server: retry later",
+                                    headers=_retry_after(RANGE_BUSY_RETRY_S))
+            range_users.add(uid)
+        try:
+            if cost > 1:
+                ok, retry = limiter.allow(_bucket(u), cost - 1)      # the envelope already took the request's own token
+                if not ok:                             # a retry pays the envelope's token again first: wait for the whole cost
+                    raise HTTPException(429, f"rate limit exceeded: {n} steps cost {cost} tokens",
+                                        headers=_retry_after(retry + (1 / limiter.rate if limiter.rate > 0 else 0)))
+            return health.assess_range(db, a.asset_id, policy_set, start, end, step, actor=uid)
+        finally:
+            with range_lock:
+                range_users.discard(uid)
+            range_slots.release()
 
     @app.get(f"{API}/assets/{{asset_id}}/assessment")
     def latest(asset_id: str, u: dict = Depends(need("read"))):
@@ -528,6 +624,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     def create_order(body: CreateOrderBody, idempotency_key: str | None = Header(default=None), u: dict = Depends(need("workorders.write"))):
         if not idempotency_key:
             raise HTTPException(400, "the Idempotency-Key header is required to create a work order")
+        _client_key(idempotency_key)
         if registry.get_asset(db, body.asset_id) is None:
             raise HTTPException(404, f"unknown asset {body.asset_id}")
         return workorders.create(db, asset_id=body.asset_id, job_type=body.job_type, priority_class=body.priority_class, title=body.title,
@@ -537,7 +634,7 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     @app.post(f"{API}/work-orders/{{wo_id}}/transitions")
     def transition(wo_id: str, body: TransitionBody, idempotency_key: str | None = Header(default=None), u: dict = Depends(need("workorders.write"))):
         return workorders.transition(db, wo_id, body.action, actor=u["user_id"], role=u["role"], reason=body.reason, data=body.data,
-                                     expected_version=body.expected_version, idempotency_key=idempotency_key)
+                                     expected_version=body.expected_version, idempotency_key=_client_key(idempotency_key))
 
     @app.post(f"{API}/work-orders/{{wo_id}}/reprioritise")
     def reprioritise(wo_id: str, body: ReprioritiseBody, u: dict = Depends(need("workorders.write"))):
@@ -546,16 +643,23 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
             raise HTTPException(404, f"unknown work order {wo_id}")
         return workorders.reprioritise(db, wo_id, body.priority_class, None, parse_ts(body.due_by) if body.due_by else None,
                                        {**(o.get("explanation") or {}), "manual_reprioritisation": body.reason}, actor=u["user_id"], role=u["role"],
-                                       reason=body.reason)
+                                       reason=body.reason, expected_version=body.expected_version)
 
     @app.post(f"{API}/work-orders/{{wo_id}}/complete")
     def complete(wo_id: str, body: CompleteBody, idempotency_key: str | None = Header(default=None), u: dict = Depends(need("workorders.write"))):
         return workorders.complete(db, wo_id, actor=u["user_id"], role=u["role"], outcome=body.outcome, expected_version=body.expected_version,
-                                   idempotency_key=idempotency_key)
+                                   idempotency_key=_client_key(idempotency_key), non_clearing_jobs=decision.non_clearing_jobs(dcfg))
 
     # -- schedules ------------------------------------------------------------------------------------------------------
     @app.post(f"{API}/schedules")
     def plan(body: PlanBody, u: dict = Depends(need("schedules"))):
+        if body.policy == "milp":                      # building the MILP does not stop at time_limit_s: bound its size first
+            n_slots = math.floor(body.horizon_h / body.slot_h)
+            n_orders = sum(1 for o in workorders.list_orders(db, states_in=["APPROVED"])
+                           if (a := registry.get_asset(db, o["asset_id"])) is not None and a.site_id == body.site_id)
+            if n_orders * n_slots > MILP_MAX_ORDER_SLOTS:
+                raise HTTPException(422, f"milp is limited to {MILP_MAX_ORDER_SLOTS:,} approved orders x slots; site {body.site_id} has {n_orders} "
+                                         f"approved orders x {n_slots} slots: use risk_greedy, a shorter horizon_h or a longer slot_h")
         return planning.plan(db, body.site_id, body.policy, actor=u["user_id"], role=u["role"], t0=parse_ts(body.t0) if body.t0 else None,
                              horizon_h=body.horizon_h, slot_h=body.slot_h)
 
@@ -573,22 +677,27 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
     # -- models ---------------------------------------------------------------------------------------------------------
     @app.get(f"{API}/models")
     def models_(asset_type_id: str | None = None, status: str | None = None, u: dict = Depends(need("read"))):
-        return modelreg.list_models(db, asset_type_id=asset_type_id, status=status)
+        return [_model_view(u, m) for m in modelreg.list_models(db, asset_type_id=asset_type_id, status=status)]
 
     @app.post(f"{API}/models/{{model_id}}/decision")
     def model_decision(model_id: str, body: ModelDecisionBody, u: dict = Depends(need("models.decide"))):
-        return modelreg.decide(db, model_id, body.decision, actor=u["user_id"], role=u["role"], reason=body.reason)
+        return _model_view(u, modelreg.decide(db, model_id, body.decision, actor=u["user_id"], role=u["role"], reason=body.reason))
 
     @app.post(f"{API}/models/rollback")
     def rollback(body: RollbackBody, u: dict = Depends(need("models.decide"))):
-        return modelreg.rollback(db, body.asset_type_id, body.to_model_id, actor=u["user_id"], role=u["role"], reason=body.reason)
+        return _model_view(u, modelreg.rollback(db, body.asset_type_id, body.to_model_id, actor=u["user_id"], role=u["role"], reason=body.reason))
 
     # -- audit ----------------------------------------------------------------------------------------------------------
     @app.get(f"{API}/audit/verify")
-    def audit_verify(anchor_seq: int | None = None, anchor_hash: str | None = None, u: dict = Depends(need("audit.read"))):
-        anchor = {"seq": anchor_seq, "hash": anchor_hash} if anchor_seq is not None and anchor_hash else None
+    def audit_verify(anchor_seq: int | None = Query(default=None, ge=1, le=SQLITE_MAX_INT),
+                     anchor_hash: str | None = Query(default=None, pattern=r"^[0-9a-f]{64}$"), u: dict = Depends(need("audit.read"))):
+        """Without an anchor only the chain's internal consistency is checked (deleting the newest events cannot be
+        detected): the result then says anchor_checked: false. An anchor needs both anchor_seq and anchor_hash."""
+        if (anchor_seq is None) != (anchor_hash is None):
+            raise HTTPException(422, "an anchor needs both anchor_seq and anchor_hash")
+        anchor = {"seq": anchor_seq, "hash": anchor_hash} if anchor_seq is not None else None
         with db.connect() as c:
-            return auditlog.verify(c, db.audit_key, anchor=anchor)
+            return {**auditlog.verify(c, db.audit_key, anchor=anchor), "anchor_checked": anchor is not None}
 
     @app.get(f"{API}/audit/anchor")
     def audit_anchor(u: dict = Depends(need("audit.read"))):
@@ -600,7 +709,10 @@ def create_app(db, policy_set, decision_cfg: decision.DecisionConfig | None = No
         if entity not in OPEN_AUDIT_ENTITIES and not security.allowed(u["role"], "audit.read"):
             raise PermissionDenied(f"role {u['role']!r} may not read the audit history of {entity!r} records")
         with db.connect() as c:
-            return auditlog.history(c, entity, entity_id)
+            rows = auditlog.history(c, entity, entity_id)
+        if u["role"] != "admin":                       # integration hosts and error text, for audit.read too: see WITHHELD
+            rows = [_withhold_integration_detail(r) for r in rows]
+        return rows
 
     # -- exports --------------------------------------------------------------------------------------------------------
     @app.get(f"{API}/export/work-orders.csv", response_class=PlainTextResponse)

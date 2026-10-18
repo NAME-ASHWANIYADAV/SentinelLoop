@@ -134,8 +134,9 @@ class ConsoleClient:
         return self._req("GET", f"/integrations/{target_id}/items", params={"status": status} if status else None)
 
 
-def explanation_lines(wo: dict) -> list[str]:
-    """Human-readable lines for an order's explanation; never shows a probability that does not exist."""
+def explanation_lines(wo: dict, fmt_time=str) -> list[str]:
+    """Human-readable lines for an order's explanation; never shows a probability that does not exist. `fmt_time`
+    formats instants (the console passes its site-local formatter)."""
     ex = wo.get("explanation") or {}
     out = []
     if ex.get("why"):
@@ -148,5 +149,5 @@ def explanation_lines(wo: dict) -> list[str]:
     else:
         out.append("No failure probability: the model gives none for this case (anomaly model, or no valid prediction).")
     if ex.get("due_by"):
-        out.append(f"Due by {ex['due_by']} ({ex.get('due_by_rule', '')})")
+        out.append(f"Due by {fmt_time(ex['due_by'])} ({ex.get('due_by_rule', '')})")
     return out

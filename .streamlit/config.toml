@@ -8,3 +8,7 @@ port = 8501
 
 [browser]
 gatherUsageStats = false
+
+[client]
+# Never show tracebacks (with server paths) in the browser; errors stay in the server log (re-review api-security-console-10).
+showErrorDetails = "none"

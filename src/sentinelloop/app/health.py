@@ -5,12 +5,18 @@ version and checksum, and the resolved policy, and is audited in the same transa
 Order of checks: generic data quality (required signals present and fresh, missing and suspect shares), then model
 selection (approved, checksum-verified), then scope (history length, operating envelope, regime), then model-specific
 data quality (stuck sensors, conflicting redundant sensors), then scoring. A prediction is exposed only when data
-quality and scope pass; otherwise the state says why and the RUL fields stay empty.
+quality and scope pass; otherwise the state says why and the RUL fields stay empty. Model checks that do not depend on
+the regime run even out of scope (no model in scope, or no commissioned baseline), so a data failure takes precedence.
 
-Instants: an assessment instant later than now (plus a small clock skew) is refused. An assessment for an instant
-earlier than the last one applied to the asset is stored as a historical replay (applied_to_state = 0): it never moves
-the live state, and `latest_assessment` ignores it. Replays therefore cannot silence recommendations or clear a data
-failure; a forward replay after a data gap (oldest instant first) is applied normally.
+Instants: an assessment instant later than now (plus a small clock skew), earlier than MIN_AS_OF_MS (2000-01-01T00:00Z)
+or earlier than the asset's first reading (minus the same skew) is refused; `assess_range` checks every instant before it
+applies any. An assessment for an instant at or before the last one applied to the asset is stored as a historical replay
+(applied_to_state = 0): it never moves the live state, and `latest_assessment` ignores it. Replays therefore cannot
+silence recommendations or clear a data failure; a forward replay after a data gap (oldest instant first) is applied
+normally. Latching is monotone toward more risk, so a replay that is URGENT_REVIEW or INSPECTION_RECOMMENDED still
+raises the latched risk (states.escalate), and says so in its reasons and in the audit log; unless an earlier assessment
+for the same instant already had that finding, which a person has cleared since (the scheduled job on an export-fed site
+assesses the same latest reading until the next export, and must not undo a dismissal or a completed inspection).
 """
 from __future__ import annotations
 
@@ -33,6 +39,7 @@ class AssessmentError(ValueError):
 
 log = logging.getLogger("sentinelloop.health")
 MAX_FUTURE_SKEW_MS = 5 * 60 * 1000
+MIN_AS_OF_MS = parse_ts("2000-01-01T00:00:00Z")     # no monitored record predates it; also keeps every instant displayable
 MAX_RANGE_STEPS = 2000
 DQ_CODES = ("missing_signal", "stale_data", "excessive_missing", "out_of_range", "stuck_signal", "conflicting_readings", "data_delivery_delay")
 
@@ -80,6 +87,24 @@ def _default_as_of(db, asset, atype, pol=None) -> int:
     return now_ms()
 
 
+def _check_instants(db, asset, instants) -> None:
+    """Refuse instants no assessment can be for: later than now plus the clock skew, before MIN_AS_OF_MS, or before the
+    asset's first reading (no window can hold any of its data) by more than the same skew, which ingest also allows for
+    device clocks (a new asset whose first readings are a little ahead can still be assessed now). Raises before anything
+    is stored."""
+    with db.connect() as c:
+        first = c.execute("SELECT MIN(ts_ms) FROM readings WHERE asset_id = ?", (asset.asset_id,)).fetchone()[0]
+    latest = now_ms() + MAX_FUTURE_SKEW_MS
+    for t in instants:
+        if t > latest:
+            raise AssessmentError(f"assessment instant {iso(t)} is in the future; assessments are for now or the past")
+        if t < MIN_AS_OF_MS:
+            raise AssessmentError(f"assessment instant {iso(t)} is before {iso(MIN_AS_OF_MS)}, the earliest instant the platform assesses")
+        if first is not None and t < first - MAX_FUTURE_SKEW_MS:
+            raise AssessmentError(f"assessment instant {iso(t)} is before the first reading of {asset.asset_id} ({iso(first)}); "
+                                  f"no window can hold its data")
+
+
 def generic_quality(window: pd.DataFrame, last_seen: dict, required: list[str], as_of: int, pol: dict) -> dict:
     reasons, detail = [], {"missing_frac": {}, "suspect_frac": {}, "age_hours": {}}
     n = len(window)
@@ -118,8 +143,7 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
     atype = registry.get_asset_type(db, asset.asset_type_id)
     pol = policy.for_type(atype.asset_type_id)
     as_of = int(as_of_ms) if as_of_ms is not None else _default_as_of(db, asset, atype, pol)
-    if as_of > now_ms() + MAX_FUTURE_SKEW_MS:
-        raise AssessmentError(f"assessment instant {iso(as_of)} is in the future; assessments are for now or the past")
+    _check_instants(db, asset, [as_of])
     required = [s.name for s in atype.signals if s.required]
     model_ok, in_scope, reasons = True, True, []
     dq_generic = {"ok": True, "reasons": [], "detail": {}}
@@ -179,9 +203,11 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
             if failures:
                 model_ok = False
             in_scope = False
-        elif dq_generic["ok"] and in_scope:
+        elif dq_generic["ok"] and (in_scope or getattr(bundle, "quality_independent_of_scope", False)):
+            # model data checks come before the no-baseline scope decision (PD-13): a stuck sensor on an uncommissioned turbine
+            # is a data failure, not a scope statement
             dq_model = bundle.quality(raw, int(pol.assessment["stuck_min_run"]), float(pol.assessment["max_conflict_frac"]))
-            if dq_model["ok"]:
+            if dq_model["ok"] and in_scope:
                 sens = b.applicability(raw, float(pol.assessment["envelope_tolerance"]), float(pol.assessment["max_out_of_envelope_frac"]), sensors=True)
                 if not sens["in_scope"]:
                     in_scope, app = False, {"in_scope": False, "reasons": [f"{chosen['model_id']}: {r}" for r in sens["reasons"]], "detail": sens["detail"]}
@@ -238,9 +264,24 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
         prev = _state_from_conn(c, asset.asset_id) or AssetState()
         applied = prev.last_applied_as_of_ms is None or as_of > prev.last_applied_as_of_ms
         record["applied_to_state"] = applied
+        escalated = None
         if not applied:
             record["reasons"] = record["reasons"] + [f"historical replay: stored, not applied to the live state (an assessment for "
                                                      f"{iso(prev.last_applied_as_of_ms)} is already applied)"]
+            # latching is monotone toward more risk: a replayed urgent or inspection finding still raises the latch
+            note = (f"latch escalated by a historical replay: the assessment for {iso(as_of)} is {cl.state.value}; nothing else in the "
+                    f"live state changed")
+            recorded = [r[0] for r in c.execute("SELECT DISTINCT health_state FROM assessments WHERE asset_id = ? AND as_of_ms = ?",
+                                                (asset.asset_id, as_of))]
+            escalated = states.escalate(prev, cl, note=note, now_ms=now_ms(), recorded=recorded)
+            if escalated is prev:
+                escalated = None
+                if states.escalate(prev, cl, note=note) is not prev:      # held back only by the earlier finding for this instant
+                    record["reasons"] = record["reasons"] + [f"latch not raised: an earlier assessment for {iso(as_of)} already had this "
+                                                             f"finding, and it was cleared by a person since"]
+            else:
+                record["reasons"] = record["reasons"] + [f"{note} (latched risk {prev.latched_risk} -> {escalated.latched_risk})"]
+        record["latch_escalated"] = escalated is not None
         c.execute("INSERT INTO assessments (assessment_id, asset_id, as_of_ms, created_at, model_id, health_state, reasons_json, data_quality_json, "
                   "applicability_json, rul_unit, rul_point, rul_lower, rul_upper, interval_level, rul_point_hours, rul_lower_hours, rul_upper_hours, "
                   "risk_json, anomaly_score, anomaly_flag, top_deviations_json, inputs_json, policy_json, applied_to_state) "
@@ -256,40 +297,60 @@ def assess(db, asset_id: str, policy, as_of_ms: int | None = None, actor: str = 
             new = states.advance(prev, cl, pol.states, now_ms=t)
             new = states.replace(new, last_applied_as_of_ms=as_of, last_applied_at_ms=t)
             _store_state(c, asset.asset_id, new, record["assessment_id"])
+        elif escalated is not None:
+            new = escalated
+            _store_state(c, asset.asset_id, new, None)           # the last applied assessment stays the one of record
+            auditlog.append(c, actor=actor, action="asset_state.escalated_by_replay", entity="asset", entity_id=asset.asset_id,
+                            payload={"assessment_id": record["assessment_id"], "as_of": iso(as_of), "health_state": record["health_state"],
+                                     "before": prev.labels(), "after": new.labels(), "latched_risk": new.latched_risk,
+                                     "latched_since": iso(new.latched_since_ms)}, key=db.audit_key, key_id=db.audit_key_id)
         else:
             new = prev
         auditlog.append(c, actor=actor, action="assessment.created", entity="assessment", entity_id=record["assessment_id"],
                         payload={"asset_id": asset.asset_id, "as_of": iso(as_of), "health_state": record["health_state"], "model_id": record["model_id"],
                                  "rul": [record["rul_lower"], record["rul_point"], record["rul_upper"]], "p_fail_decision_horizon": p_fail,
                                  "reasons": record["reasons"], "feature_sha256": inputs.get("feature_sha256"), "policy_sha256": pol.sha256,
-                                 "asset_state": new.labels(), "applied_to_state": applied}, key=db.audit_key, key_id=db.audit_key_id)
+                                 "asset_state": new.labels(), "applied_to_state": applied, "latch_escalated": record["latch_escalated"]},
+                        key=db.audit_key, key_id=db.audit_key_id)
     record["asset_state"] = new.labels()
     return record
 
 
 def assess_range(db, asset_id: str, policy, start_ms: int, end_ms: int, step_ms: int, actor: str = "system") -> dict:
-    """Assess at every step from start to end (oldest first), e.g. after a periodic export arrives. Bounded."""
+    """Assess at every step from start to end (oldest first), e.g. after a periodic export arrives. Bounded. Every instant is
+    checked before any is assessed, so a refused range stores nothing. `replays_escalated` counts the replays that raised
+    the latched risk (they are not counted in `applied`)."""
     if step_ms < 60_000 or end_ms < start_ms:
         raise AssessmentError("assess_range needs end >= start and a step of at least one minute")
     n = (end_ms - start_ms) // step_ms + 1
     if n > MAX_RANGE_STEPS:
         raise AssessmentError(f"{n} steps requested; at most {MAX_RANGE_STEPS} per call")
-    counts, applied = {}, 0
-    for k in range(int(n)):
-        r = assess(db, asset_id, policy, as_of_ms=start_ms + k * step_ms, actor=actor)
+    asset = registry.get_asset(db, asset_id)
+    if asset is None:
+        raise AssessmentError(f"unknown asset {asset_id}")
+    instants = [start_ms + k * step_ms for k in range(int(n))]
+    _check_instants(db, asset, instants)
+    counts, applied, escalated = {}, 0, 0
+    for t in instants:
+        r = assess(db, asset.asset_id, policy, as_of_ms=t, actor=actor)
         counts[r["health_state"]] = counts.get(r["health_state"], 0) + 1
         applied += int(r["applied_to_state"])
-    return {"asset_id": asset_id, "assessments": int(n), "applied": applied, "states": counts, "asset_state": asset_state(db, asset_id).labels()}
+        escalated += int(r["latch_escalated"])
+    return {"asset_id": asset.asset_id, "assessments": int(n), "applied": applied, "replays_escalated": escalated, "states": counts,
+            "asset_state": asset_state(db, asset.asset_id).labels()}
 
 
 def asset_view(db, asset, policy, now: int | None = None) -> dict:
     """What a person should see for an asset: its labels, when it was last assessed, and ASSESSMENT_OVERDUE when the
-    assessment job has not run within the policy limit (a stopped job must never leave a fleet looking healthy)."""
+    assessment job has not run within the policy limit (a stopped job must never leave a fleet looking healthy), or when
+    the state shows a result but no time of assessment is on record (e.g. a row restored without its assessments)."""
     s = asset_state(db, asset.asset_id)
     now = int(now if now is not None else now_ms())
     labels = s.labels() if s else ["NOT_ASSESSED"]
     last_at = s.last_applied_at_ms if s else None
-    if last_at is not None:
+    if last_at is None and s is not None and s.last_health is not None:
+        labels = labels + ["ASSESSMENT_OVERDUE"]
+    elif last_at is not None:
         limit_h = float(policy.for_type(asset.asset_type_id).assessment.get("max_assessment_age_hours", 6.0))
         if now - last_at > limit_h * HOUR_MS:
             labels = labels + ["ASSESSMENT_OVERDUE"]

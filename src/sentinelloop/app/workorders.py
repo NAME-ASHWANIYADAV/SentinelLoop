@@ -253,23 +253,63 @@ NON_CLEARING_JOBS = {"instrument_check", "desk_review"}                         
 HUMAN_CLEARERS = {"technician", "planner", "reliability_engineer", "admin"}
 
 
-def _latch_keep_reasons(o, out: "Outcome", role: str, s) -> list[str]:
+def clears_latches(o, extra_non_clearing=()) -> bool:
+    """Whether the order's job addresses the equipment. Data and review jobs never do, whatever a site calls them: the
+    shipped names, the data and review jobs recorded in a system order's explanation (the decision config it was raised
+    under), and any the caller names (the site's decision config, `recorded_non_clearing_jobs`)."""
+    ex = o["explanation"] if "explanation" in o.keys() else json.loads(o["explanation_json"] or "{}")
+    pol = (ex or {}).get("policy") or {}
+    recorded = {pol.get(k) for k in ("data_job", "review_job")} - {None}
+    return o["job_type"] not in NON_CLEARING_JOBS | recorded | set(extra_non_clearing or ())
+
+
+def recorded_non_clearing_jobs(c) -> set:
+    """The data and review jobs of every decision config the engine has applied in this database (each system order's
+    explanation records its policy). Completion uses them for every order, manual and external ones too, so a site's
+    renamed data or review job never clears a latch whichever path completes it (fail closed: names are never dropped)."""
+    rows = c.execute("SELECT DISTINCT json_extract(explanation_json, '$.policy.data_job'), json_extract(explanation_json, '$.policy.review_job') "
+                     "FROM work_orders WHERE origin = 'system'")
+    return {j for r in rows for j in r if isinstance(j, str)}
+
+
+def addresses_latch(c, o, since_ms: int) -> bool:
+    """Whether the order belongs to the latched condition that began at `since_ms`: raised after it began, or linked to
+    it by a system escalation recorded after it began. The decision engine escalates an order awaiting approval (or
+    deferred, which brings it back for approval) that predates a new or escalated latch in place instead of raising a
+    duplicate, but only for the recommended, inspection or urgent job (decision._decide); the escalation event is the
+    link. Re-prioritisation by a person, or before the latch began, does not link."""
+    if parse_ts(o["created_at"]) >= since_ms:
+        return True
+    return any(parse_ts(r["ts"]) >= since_ms for r in c.execute(
+        "SELECT ts FROM work_order_events WHERE wo_id = ? AND action = 'reprioritise' AND role = 'system'", (o["wo_id"],)))
+
+
+def _latch_keep_reasons(c, o, out: "Outcome", role: str, s, extra_non_clearing=()) -> list[str]:
     """Why completing this order must NOT clear the asset's latched risk (empty list: it may)."""
     keep = []
     if out.findings_code not in CLEARING_FINDINGS:
         keep.append(f"outcome '{out.findings_code}' does not record an inspection")
-    if o["job_type"] in NON_CLEARING_JOBS:
+    if not clears_latches(o, extra_non_clearing):
         keep.append(f"a {o['job_type']} does not address a latched equipment risk")
     if role not in HUMAN_CLEARERS:
         keep.append(f"completed by the '{role}' role, not by a person")
     if s.latched_since_ms is None:                     # fail closed: an unknown start cannot be shown to precede the order
         keep.append("the start of the latched condition is unknown; dismiss it with a reason or let a new assessment decide")
-    elif parse_ts(o["created_at"]) < s.latched_since_ms:
-        keep.append("the order was raised before the latched condition began")
+    elif not addresses_latch(c, o, s.latched_since_ms):
+        keep.append("the order was raised before the recorded start of the latched condition (on a database upgraded to schema 7 that start "
+                    "may be an upper bound backfilled at upgrade); raise a new order, or dismiss the warning with a reason")
     return keep
 
 
-def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_version: int | None = None, idempotency_key: str | None = None) -> dict:
+def _audit_asset(db, c, actor, action, asset_id, payload):
+    """Latch changes belong to the asset's own audit history (entity 'asset'), like dismissals."""
+    auditlog.append(c, actor=actor, action=action, entity="asset", entity_id=asset_id, payload=payload, key=db.audit_key, key_id=db.audit_key_id)
+
+
+def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_version: int | None = None, idempotency_key: str | None = None,
+             non_clearing_jobs=None) -> dict:
+    """`non_clearing_jobs`: the site's data and review job names (decision.non_clearing_jobs), which never clear a latch.
+    Those recorded by the engine in this database (`recorded_non_clearing_jobs`) apply whether or not the caller passes them."""
     out = Outcome(**outcome)
     if out.returned_to_service_at:
         parse_ts(out.returned_to_service_at)
@@ -287,7 +327,8 @@ def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_vers
             raise ConcurrencyConflict(f"work order {wo_id} is at version {o['version']}, request expected {expected_version}")
         flags = _flags(o, out)
         s = health._state_from_conn(c, o["asset_id"])
-        keep = _latch_keep_reasons(o, out, role, s) if s is not None and s.latched_risk != "NONE" else []
+        nc = set(non_clearing_jobs or ()) | recorded_non_clearing_jobs(c)
+        keep = _latch_keep_reasons(c, o, out, role, s, nc) if s is not None and s.latched_risk != "NONE" else []
         if keep:
             flags.append("latch_kept")
         _apply(db, c, o, "complete", actor, role, "", {"outcome": out.model_dump(), "flags": flags}, idempotency_key)
@@ -300,12 +341,13 @@ def complete(db, wo_id: str, actor: str, role: str, outcome: dict, expected_vers
         if s is not None and s.latched_risk != "NONE" and keep:
             kept = states.replace(s, notes=tuple(list(s.notes) + [f"latch kept after {wo_id} completed: " + "; ".join(keep)]))
             health._store_state(c, o["asset_id"], kept, None)
-            _audit(db, c, actor, "asset_state.latch_kept", o["asset_id"], {"wo_id": wo_id, "reasons": keep, "state": s.labels()})
+            _audit_asset(db, c, actor, "asset_state.latch_kept", o["asset_id"], {"wo_id": wo_id, "role": role, "reasons": keep, "state": s.labels()})
         elif s is not None and s.latched_risk != "NONE":
             new = states.clear_risk(s, event="maintenance_completed", actor=actor, role=role,
                                     reason=f"{wo_id} completed: {out.findings_code}; {out.actions_taken}")
             health._store_state(c, o["asset_id"], new, None)
-            _audit(db, c, actor, "asset_state.maintenance_completed", o["asset_id"], {"wo_id": wo_id, "before": s.labels(), "after": new.labels()})
+            _audit_asset(db, c, actor, "asset_state.maintenance_completed", o["asset_id"],
+                         {"wo_id": wo_id, "role": role, "before": s.labels(), "after": new.labels()})
         return _row(c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone(), c)
 
 
@@ -314,9 +356,15 @@ REPRIORITISABLE = {"DRAFT", "PENDING_APPROVAL", "APPROVED", "SCHEDULED", "DEFERR
 
 
 def reprioritise(db, wo_id: str, priority_class: str, priority_score: float | None, due_by_ms: int | None, explanation: dict, actor: str, role: str,
-                 reason: str) -> dict:
-    """Change an open order's priority and due date (no state change), with an event and an audit record. A deferred order
-    escalated to P1 comes back for approval: a deferral must not hide a newly urgent condition."""
+                 reason: str, bring_back: bool = False, expected_version: int | None = None) -> dict:
+    """Change an open order's priority and due date (no state change), with an event and an audit record.
+
+    - A score of None keeps the order's score: a manual re-prioritisation does not recompute the evidence.
+    - A system escalation never postpones work: the earlier of the two due dates is kept. A person may set any date.
+    - An empty explanation keeps the order's explanation; its due date is kept in step with the order's.
+    - The event records only the fields that changed.
+    A deferred order escalated to P1, or with `bring_back` (the decision engine: a higher class, or a new latched
+    condition), comes back for approval under the caller's role: a deferral must not hide a newly urgent condition."""
     if role not in REPRIORITISERS:
         raise RolePermissionError(f"role {role!r} may not re-prioritise work orders")
     if priority_class not in CLASS_ORDER:
@@ -329,28 +377,48 @@ def reprioritise(db, wo_id: str, priority_class: str, priority_score: float | No
             raise WorkflowError(f"unknown work order {wo_id}")
         if o["state"] not in REPRIORITISABLE:
             raise WorkflowError(f"cannot re-prioritise a work order in state {o['state']}")
+        if expected_version is not None and int(expected_version) != o["version"]:
+            raise ConcurrencyConflict(f"work order {wo_id} is at version {o['version']}, request expected {expected_version}")
         ts = now_iso()
-        data = {"from": [o["priority_class"], o["due_by_ms"]], "to": [priority_class, due_by_ms]}
-        c.execute("UPDATE work_orders SET priority_class = ?, priority_score = ?, due_by_ms = COALESCE(?, due_by_ms), explanation_json = ?, version = version + 1, "
-                  "updated_at = ? WHERE wo_id = ?", (priority_class, priority_score, due_by_ms, json.dumps(explanation or {}), ts, wo_id))
+        due = o["due_by_ms"] if due_by_ms is None else int(due_by_ms)
+        if role == "system" and o["due_by_ms"] is not None:
+            due = min(due, o["due_by_ms"])
+        score = o["priority_score"] if priority_score is None else priority_score
+        ex = dict(explanation) if explanation else json.loads(o["explanation_json"] or "{}")
+        if due is not None and ex.get("due_by") is not None and ex["due_by"] != iso(due):
+            ex["due_by_rule"] = (f"the earlier due date of {wo_id} was kept (this assessment's rule gave {ex['due_by']}: {ex.get('due_by_rule', '')})"
+                                 if role == "system" else f"set by {actor} ({role}): {reason}")
+            ex["due_by"] = iso(due)
+        old = {"priority_class": o["priority_class"], "due_by_ms": o["due_by_ms"], "priority_score": o["priority_score"]}
+        new = {"priority_class": priority_class, "due_by_ms": due, "priority_score": score}
+        changed = [k for k in old if old[k] != new[k]]
+        data = {"from": {k: old[k] for k in changed}, "to": {k: new[k] for k in changed}}
+        c.execute("UPDATE work_orders SET priority_class = ?, priority_score = ?, due_by_ms = ?, explanation_json = ?, version = version + 1, "
+                  "updated_at = ? WHERE wo_id = ?", (priority_class, score, due, json.dumps(ex), ts, wo_id))
         c.execute("INSERT INTO work_order_events (wo_id, ts, actor, role, action, from_state, to_state, reason, data_json) VALUES (?,?,?,?,'reprioritise',?,?,?,?)",
                   (wo_id, ts, actor, role, o["state"], o["state"], reason, json.dumps(data)))
         _audit(db, c, actor, "work_order.reprioritise", wo_id, {**data, "role": role, "reason": reason})
-        if o["state"] == "DEFERRED" and priority_class == "P1":
+        if o["state"] == "DEFERRED" and (priority_class == "P1" or bring_back):
             o2 = c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone()
-            _apply(db, c, o2, "reactivate", actor, "system", f"escalated to P1 while deferred: {reason}", {}, None)
+            _apply(db, c, o2, "reactivate", actor, role, f"escalated to {priority_class} while deferred: {reason}", {}, None)
         return _row(c.execute("SELECT * FROM work_orders WHERE wo_id = ?", (wo_id,)).fetchone(), c)
 
 
 def reactivate_due(db, now_ms: int, actor: str = "system", asset_ids: set | None = None) -> list[dict]:
-    """Deferred orders whose 'back for approval' date has passed return to PENDING_APPROVAL (audited)."""
+    """Deferred orders whose 'back for approval' date has passed return to PENDING_APPROVAL (audited). Each order is
+    handled on its own: a failure is reported (`error`, with the order) and the others still come back."""
     out = []
     with db.connect() as c:
-        due = [r["wo_id"] for r in c.execute("SELECT wo_id, asset_id FROM work_orders WHERE state = 'DEFERRED' AND deferred_until_ms IS NOT NULL "
-                                             "AND deferred_until_ms <= ?", (int(now_ms),)) if asset_ids is None or r["asset_id"] in asset_ids]
-    for w in due:
-        o = transition(db, w, "reactivate", actor=actor, role="system", reason="deferral period ended; back for approval",
-                       idempotency_key=f"reactivate:{w}:{int(now_ms) // 60000}")
+        due = [(r["wo_id"], r["asset_id"]) for r in c.execute("SELECT wo_id, asset_id FROM work_orders WHERE state = 'DEFERRED' AND deferred_until_ms "
+                                                               "IS NOT NULL AND deferred_until_ms <= ?", (int(now_ms),))
+               if asset_ids is None or r["asset_id"] in asset_ids]
+    for w, asset_id in due:
+        try:
+            o = transition(db, w, "reactivate", actor=actor, role="system", reason="deferral period ended; back for approval",
+                           idempotency_key=f"reactivate:{w}:{int(now_ms) // 60000}")
+        except Exception as e:                                 # e.g. a state change since the query, or a key already used
+            out.append({"asset_id": asset_id, "action": "error", "wo_id": w, "note": f"reactivation failed: {type(e).__name__}: {e}"})
+            continue
         out.append({"asset_id": o["asset_id"], "action": "reactivated", "wo_id": w, "priority_class": o["priority_class"]})
     return out
 

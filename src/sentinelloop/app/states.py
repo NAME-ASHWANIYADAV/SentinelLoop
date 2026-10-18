@@ -24,9 +24,13 @@ Evolution rules (tests/test_app_states.py, tests/test_app_remediation.py):
   with a written reason by a reliability engineer, planner or admin clears it. Bad data or a model problem never hides it.
 - INSPECTION_RECOMMENDED latches the same way and upgrades to URGENT_REVIEW when the risk grows. While a data, scope or
   model problem is shown instead, the label INSPECTION_PENDING stays next to it.
-- DATA_QUALITY_FAILURE clears only after `dq_clear_after` consecutive assessments without a data failure.
+- DATA_QUALITY_FAILURE clears only after `dq_clear_after` consecutive assessments without a data failure (an assessment
+  shown as MODEL_UNAVAILABLE whose data checks failed is not one of them).
 - After a latch is cleared the asset shows AWAITING_ASSESSMENT, not NORMAL_MONITORING, until it is assessed again.
-- Only assessments for an instant later than the last applied one move the state; earlier instants are replays.
+- Only assessments for an instant later than the last applied one move the state; earlier instants are replays. A replay
+  that is URGENT_REVIEW or INSPECTION_RECOMMENDED still raises the latched risk (`escalate`): never lowers it, and changes
+  nothing else. It raises nothing when an earlier assessment for the same instant already had that finding: the latch
+  carried it then, and a person has cleared it since.
 A warning, an escalation or a cleared state is information for people; none of them makes a machine safe.
 """
 from __future__ import annotations
@@ -85,6 +89,7 @@ class Thresholds:
 class Classification:
     state: HealthState
     reasons: list = field(default_factory=list)
+    data_ok: bool = True                       # the data checks passed (a model failure takes precedence in `state`)
 
 
 def classify(model_ok: bool, data_ok: bool, in_scope: bool, p_fail: float | None, sustained_anomaly: bool, thr: Thresholds,
@@ -96,9 +101,9 @@ def classify(model_ok: bool, data_ok: bool, in_scope: bool, p_fail: float | None
     a severe sustained deviation an urgent review, anything else normal monitoring."""
     reasons = list(reasons or [])
     if not model_ok:
-        return Classification(HealthState.MODEL_UNAVAILABLE, reasons)
+        return Classification(HealthState.MODEL_UNAVAILABLE, reasons, data_ok=bool(data_ok))
     if not data_ok:
-        return Classification(HealthState.DATA_QUALITY_FAILURE, reasons)
+        return Classification(HealthState.DATA_QUALITY_FAILURE, reasons, data_ok=False)
     if not in_scope:
         return Classification(HealthState.MODEL_OUT_OF_SCOPE, reasons)
     if p_fail is None:
@@ -181,6 +186,8 @@ def advance(s: AssetState, cl: Classification, thr: Thresholds, now_ms: int | No
         since = int(now_ms) if now_ms is not None else _wall_ms()      # never 0: an unknown start must not let old work clear it
     if cl.state == HealthState.DATA_QUALITY_FAILURE:
         dq_active, streak = True, 0
+    elif not cl.data_ok:                        # e.g. MODEL_UNAVAILABLE with failing data: not an assessment without a data failure
+        dq_active, streak = s.dq_failure_active, 0
     else:
         streak = s.dq_ok_streak + 1
         dq_active = s.dq_failure_active and streak < thr.dq_clear_after
@@ -188,6 +195,29 @@ def advance(s: AssetState, cl: Classification, thr: Thresholds, now_ms: int | No
     return replace(s, effective=eff, latched_risk=latched, dq_failure_active=dq_active, dq_ok_streak=min(streak, 10_000),
                    last_health=cl.state, notes=tuple(notes + list(cl.reasons)), latched_since_ms=since if latched != "NONE" else None,
                    awaiting_assessment=False)
+
+
+_RISK_RANK = {"NONE": 0, "INSPECTION": 1, "URGENT": 2}
+_FINDING_RISK = {HealthState.URGENT_REVIEW: "URGENT", HealthState.INSPECTION_RECOMMENDED: "INSPECTION"}
+
+
+def escalate(s: AssetState, cl: Classification, note: str, now_ms: int | None = None, recorded=()) -> AssetState:
+    """A historical replay never moves the live state, except toward more risk: an URGENT_REVIEW or INSPECTION_RECOMMENDED
+    replay raises the latch (with `now_ms`, wall clock, as its start) when it is higher than the latched risk. The last
+    health, the data-quality streak and the last applied instant are left as they are. Returns `s` itself otherwise.
+
+    `recorded`: the states of the earlier assessments for the same instant. A finding one of them already had is not new:
+    the latch carried it when it was stored, so a latch now lower was cleared by a person since (a dismissal or a completed
+    inspection), and a replay of that instant (e.g. the scheduled job on an export-fed site, until the next export) must
+    not undo it. More risk than recorded, or a first finding for the instant (late data, another model), still raises it."""
+    want = _FINDING_RISK.get(cl.state)
+    if want is None or _RISK_RANK[want] <= _RISK_RANK[s.latched_risk]:
+        return s
+    if any(_RISK_RANK[_FINDING_RISK.get(HealthState(r), "NONE")] >= _RISK_RANK[want] for r in recorded):
+        return s
+    eff, notes = _effective(want, s.dq_failure_active, s.last_health)
+    return replace(s, effective=eff, latched_risk=want, latched_since_ms=int(now_ms) if now_ms is not None else _wall_ms(),
+                   notes=tuple(notes + [note] + [n for n in s.notes if n not in notes]))
 
 
 def clear_risk(s: AssetState, event: str, actor: str, role: str, reason: str) -> AssetState:
