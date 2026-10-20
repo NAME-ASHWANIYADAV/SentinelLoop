@@ -1,5 +1,7 @@
 # SentinelLoop
 
+**New to the project? Start with [`PROJECT_HANDOVER_GUIDE.md`](PROJECT_HANDOVER_GUIDE.md):** what it is, why it is built this way, how to run it, and what is still missing.
+
 > **Product status (2026-10-18). Read this before anything else in the repository.**
 >
 > **What it is.** An advisory maintenance-decision prototype. It assesses asset data and flags assets for inspection. It drafts work orders, and a named person must approve each one. It runs as a REST API (`src/sentinelloop/app/`) with a Streamlit operator console (`src/sentinelloop/console/`).
