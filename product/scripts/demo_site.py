@@ -5,7 +5,8 @@ fault on WT03), an approved wind NBM trained on a separate synthetic fleet, comm
 a part, assessments at the end of the record, and generated recommendations. Users and their API keys are written to
 <dir>/demo_credentials.json (keep it local; the directory is git-ignored when it is under artifacts_demo/).
 
-Usage: SENTINELLOOP_AUDIT_KEY=<hex> python product/scripts/demo_site.py artifacts_demo
+Usage: SENTINELLOOP_AUDIT_KEY=<hex> python product/scripts/demo_site.py [artifacts_demo/console]
+(the default is the directory product/scripts/run_demo_api.py reads)
 """
 import json
 import os
@@ -66,4 +67,4 @@ def main(out_dir: str):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "artifacts_demo")
+    main(sys.argv[1] if len(sys.argv) > 1 else "artifacts_demo/console")

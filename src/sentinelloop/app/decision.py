@@ -192,7 +192,7 @@ def _plan_one(asset, asset_type, eff, state, cfg, p, safety):
         why.append("inspection recommended by the assessment")
         if safety and p is not None and p >= cfg.p_safety:
             pc = "P1"
-            why.append(f"safety-impact asset with P(failure) {p:.2f} >= safety limit {cfg.p_safety}")
+            why.append(f"safety-impact asset with P(failure) {p:.2f} (model-implied, not calibrated) >= safety limit {cfg.p_safety}")
     elif eff in (H.MODEL_OUT_OF_SCOPE, H.MODEL_UNAVAILABLE) and state.latched_risk == "INSPECTION":
         job, pc = cfg.inspection_job, "P2"
         why.append(f"{eff.value}, but an inspection recommended earlier is still pending; it is not cancelled by the model's silence")
@@ -204,7 +204,8 @@ def _plan_one(asset, asset_type, eff, state, cfg, p, safety):
         why.append(f"{eff.value}: no valid prediction for a criticality-A asset; a person reviews it instead of assuming health")
     elif eff == H.NORMAL_MONITORING and safety and p is not None and p >= cfg.p_safety:
         job, pc = cfg.inspection_job, "P2"
-        why.append(f"safety-critical asset: P(failure) {p:.2f} >= safety limit {cfg.p_safety} although below the inspection threshold")
+        why.append(f"safety-critical asset: P(failure) {p:.2f} (model-implied, not calibrated) >= safety limit {cfg.p_safety} "
+                   "although below the inspection threshold")
     else:
         return None
     return job, pc, why

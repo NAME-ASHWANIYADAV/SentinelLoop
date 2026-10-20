@@ -280,7 +280,8 @@ def odoo_payload(wo: dict, asset, equipment_id: int | None) -> dict:
     if ex.get("due_by"):
         lines.append(f"<p>Due by (UTC): {_html(ex['due_by'])} ({_html(ex.get('due_by_rule', ''))})</p>")
     if ex.get("p_fail_decision_horizon") is not None:
-        lines.append(f"<p>P(failure before {e(ex.get('decision_horizon_hours'))} h): {float(ex['p_fail_decision_horizon']):.2f}</p>")
+        lines.append(f"<p>P(failure before {e(ex.get('decision_horizon_hours'))} h): {float(ex['p_fail_decision_horizon']):.2f} "
+                     "(model-implied, not calibrated; see SentinelLoop KNOWN_LIMITATIONS E6)</p>")
     lines.append("<p>Advisory only: created by SentinelLoop for review; it does not authorise work by itself.</p>")
     p = {"name": f"[SentinelLoop] {wo['title']}"[:250], "description": "".join(lines), "priority": PRIORITY[wo["priority_class"]],
          "maintenance_type": "preventive", "duration": float(wo["duration_h"])}

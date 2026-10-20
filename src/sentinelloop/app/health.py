@@ -390,6 +390,11 @@ def asset_state(db, asset_id: str) -> AssetState | None:
 
 
 def clear_latched_risk(db, asset_id: str, event: str, actor: str, role: str, reason: str) -> AssetState:
+    """A reasoned dismissal of a latched warning. Maintenance clears a latch only through its completed work order
+    (workorders.complete), so no caller of this service may record 'maintenance_completed' (PD-16)."""
+    if event != "dismissed":
+        raise states.TransitionError(f"only a reasoned dismissal can be recorded here, not {event!r}: maintenance clears a latch "
+                                     "only through its completed work order")
     with db.tx() as c:
         s = _state_from_conn(c, asset_id)
         if s is None:

@@ -1,0 +1,62 @@
+{
+ "machine": {
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+  "cpus": 12,
+  "python": "3.12.1"
+ },
+ "turbines": 50,
+ "days": 8,
+ "data_class": "SYNTHETIC",
+ "ingestion": {
+  "requests": 400,
+  "rows": 576000,
+  "errors": 0,
+  "wall_s": 39.3,
+  "rows_per_s": 14670,
+  "p50_ms": 385.8,
+  "p95_ms": 432.1,
+  "clients": 4,
+  "rows_per_request": 1440
+ },
+ "commissioned": 45,
+ "assessment": {
+  "assets": 50,
+  "sequential_wall_s": 14.5,
+  "parallel4_wall_s": 5.0,
+  "p50_ms": 285.6,
+  "p95_ms": 310.6,
+  "errors": 0,
+  "states": {
+   "URGENT_REVIEW": 2,
+   "MODEL_OUT_OF_SCOPE": 28,
+   "NORMAL_MONITORING": 20
+  },
+  "budget_s": 600,
+  "fits_10_min_interval": true
+ },
+ "decisions": {
+  "wall_s": 0.62,
+  "status": 200,
+  "created": 10
+ },
+ "reads": {
+  "clients": 8,
+  "duration_s": 20,
+  "requests": 1800,
+  "status_codes": {
+   "200": 1800
+  },
+  "assets_p50_ms": 287.7,
+  "assets_p95_ms": 457.2,
+  "assets_p99_ms": 558.4,
+  "work_orders_p50_ms": 40.9,
+  "work_orders_p95_ms": 129.4,
+  "throughput_rps": 90.0
+ },
+ "audit_after_load": {
+  "valid": true,
+  "events": 615
+ },
+ "db_bytes": 68829184
+}

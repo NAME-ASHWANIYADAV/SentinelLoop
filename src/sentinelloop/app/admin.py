@@ -30,6 +30,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+DEFAULT_POLICY = Path(__file__).resolve().parents[3] / "configs" / "platform.yaml"   # found from any working directory
+
 from . import auditlog, db as dbmod, security
 
 
@@ -159,6 +161,20 @@ def cmd_verify_audit(args) -> int:
     return 0 if res["valid"] else 1
 
 
+def _request_log_to_stdout():
+    """The API writes one JSON line per request (request id, method, path, status, user) at INFO on `sentinelloop.api`;
+    without a handler nothing would be emitted. Send the `sentinelloop` loggers to stdout, once."""
+    import logging
+    lg = logging.getLogger("sentinelloop")
+    if not any(getattr(h, "_sentinelloop_stdout", False) for h in lg.handlers):
+        h = logging.StreamHandler(sys.stdout)
+        h.setFormatter(logging.Formatter("%(message)s"))
+        h._sentinelloop_stdout = True
+        lg.addHandler(h)
+    lg.setLevel(logging.INFO)
+    lg.propagate = False
+
+
 def cmd_serve(args) -> int:
     import uvicorn
 
@@ -181,6 +197,7 @@ def cmd_serve(args) -> int:
         print("warning: no --decision-config: downtime cost 0 and illustrative due dates (placeholder defaults; /ready reports this)",
               file=sys.stderr)
     app = api.create_app(d, policymod.load(args.policy), decision_cfg=dcfg, rate_limit=(int(cap), refill))
+    _request_log_to_stdout()
     uvicorn.run(app, host=args.host, port=args.port, log_level="info", proxy_headers=args.behind_proxy, forwarded_allow_ips=args.trusted_proxy)
     return 0
 
@@ -212,7 +229,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = with_db(sub.add_parser("serve"))
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--port", type=int, default=8080)
-    p.add_argument("--policy", default="configs/platform.yaml")
+    p.add_argument("--policy", default=str(DEFAULT_POLICY), help="assessment policy file (default: the repository's configs/platform.yaml)")
     p.add_argument("--behind-proxy", action="store_true", help="trust X-Forwarded-For from --trusted-proxy (for rate limiting by client address)")
     p.add_argument("--trusted-proxy", default="127.0.0.1")
     p.add_argument("--rate-limit", default="120,2.0", help="token bucket per user or client: CAPACITY,REFILL_PER_SECOND")

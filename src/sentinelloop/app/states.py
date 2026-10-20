@@ -115,9 +115,9 @@ def classify(model_ok: bool, data_ok: bool, in_scope: bool, p_fail: float | None
             return Classification(HealthState.INSPECTION_RECOMMENDED, reasons + ["sustained deviation from normal behaviour (no failure-time estimate)"])
         return Classification(HealthState.NORMAL_MONITORING, reasons)
     if p_fail >= thr.p_urgent:
-        return Classification(HealthState.URGENT_REVIEW, reasons + [f"P(failure before horizon) {p_fail:.2f} >= urgent threshold {thr.p_urgent}"])
+        return Classification(HealthState.URGENT_REVIEW, reasons + [f"P(failure before horizon) {p_fail:.2f} (model-implied, not calibrated) >= urgent threshold {thr.p_urgent}"])
     if p_fail >= thr.p_inspect:
-        return Classification(HealthState.INSPECTION_RECOMMENDED, reasons + [f"P(failure before horizon) {p_fail:.2f} >= inspection threshold {thr.p_inspect}"])
+        return Classification(HealthState.INSPECTION_RECOMMENDED, reasons + [f"P(failure before horizon) {p_fail:.2f} (model-implied, not calibrated) >= inspection threshold {thr.p_inspect}"])
     if sustained_anomaly:
         return Classification(HealthState.INSPECTION_RECOMMENDED, reasons + ["sustained anomaly while predicted risk is low (conflicting evidence)"])
     return Classification(HealthState.NORMAL_MONITORING, reasons)

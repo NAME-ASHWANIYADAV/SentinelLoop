@@ -64,7 +64,7 @@ RES = {
     "technician-6": ("FIXED", "same as om_manager-7", T_LATCH),
     "technician-7": ("PARTIAL", "hand-back, bring-back from deferral and a reprioritise route. Raising a follow-up job and a shift editor in the console: OPEN", T_LATCH),
     "technician-8": ("PARTIAL", "plain-language states and signal descriptions. Deviations in degC against expected: OPEN", "-"),
-    "technician-9": ("FIXED", "times in the site's time zone on every page, including work-order times and return-to-service entry (completed in the re-review fixes, api-security-console-3)", "tests/test_console.py"),
+    "technician-9": ("FIXED", "times in the site's time zone on the Fleet, Asset and Schedule pages and on work-order views, including return-to-service entry (completed in the re-review fixes, api-security-console-3); the Audit page lists event times as stored (UTC)", "tests/test_console.py"),
     "technician-10": ("PARTIAL", "downtime required, return to service, flags shown for review. Instrument-specific finding codes and re-commissioning prompts: OPEN", "tests/test_console.py"),
     "technician-11": ("OPEN", "no offline or mobile mode, English only (KNOWN_LIMITATIONS P7)", "-"),
     "technician-12": ("OPEN", "no 'my jobs' view; technician resources not linked to users (KNOWN_LIMITATIONS P10)", "-"),
@@ -176,7 +176,7 @@ def rereview_section() -> list:
     from collections import Counter
     vc, sc, rc = Counter(x["verdict"] for x in v.values()), Counter(x["severity_after"] for x in v.values()), Counter(RES2[k][0] for k in f)
     L = ["", "## Re-review of the fixes", "",
-         f"{d['method']} Each fix was then made test-first by one of four implementers owning disjoint files, checked by an adversarial verifier "
+         f"{d['method']} Each code fix was then made test-first (a failing test before the change) by one of four implementers owning disjoint files, checked by an adversarial verifier "
          "that re-ran the original reproductions, and repaired where the verifier found the fix incomplete or a regression (workflow wf_bbb578cf-f89).", "",
          f"**Findings:** {len(f)}. **Verifier:** {', '.join(f'{n} {k}' for k, n in sorted(vc.items()))}. "
          f"**Severity after verification:** {', '.join(f'{n} {k}' for k, n in sorted(sc.items()))}. "
@@ -239,13 +239,13 @@ def main():
     L += [f"| {a} | {b} | {c} |" for a, b, c in FOLLOW_UPS]
     L += rereview_section()
     L += ["", "## What the review changed in the product's position", "",
-          "- The latching guarantee (PD-08) was not true as built: four separate paths cleared or hid an urgent warning without an inspection. All four are fixed and covered by regression tests.",
+          "- The latching guarantee (PD-08) was not true as built: four separate paths cleared or hid an urgent warning without an inspection. All four are fixed and covered by regression tests. Since the final handoff audit the service layer also refuses a free-standing 'maintenance completed', so the rule no longer depends on the API route (`tests/test_app_handoff_fixes.py`).",
           "- The simulated scheduling advantages under parts shortage were an artefact of right-censored downtime and fleet collapse. They are withdrawn; see `SCHEDULING_EVALUATION.md` (S2).",
-          "- The model-implied failure probability is not calibrated on the team's own simulated data (C2). It is labelled as such wherever it is shown.",
-          "- On synthetic data the original wind thresholds gave more false-alarm episodes than the proposed pilot ceiling. Thresholds were revisited on separate synthetic fleets before any real data (W2), and the G0 pre-registration was amended before download. After the re-review's gating fixes the setting was chosen again (W3, protocol committed before the run): on fresh synthetic fleets it gives 0.44 healthy alarm episodes per turbine-year (95% interval up to about 2.45). The real rate stays unknown until real data (G0) measure it.",
+          "- The model-implied failure probability is not calibrated on the team's own simulated data (C2). It is labelled as such wherever the platform shows it: assessment and decision reasons, the console and the CMMS request description (completed after the final handoff audit, `tests/test_app_handoff_fixes.py`).",
+          "- On synthetic data the original wind thresholds gave more false-alarm episodes than the proposed pilot ceiling. Thresholds were revisited on separate synthetic fleets before any real data (W2), and the G0 pre-registration was amended before download. After the re-review's gating fixes the setting was chosen again (W3, protocol committed before the run): on fresh synthetic fleets it gives 0.44 healthy alarm episodes per turbine-year (95% interval up to about 2.45). Counted as the pilot's alarm-burden criterion counts (drifting-sensor turbines included) the burden is about 13 episodes per turbine-year, far above the proposed ceiling of 2. The real rate stays unknown until real data (G0) measure it.",
           "- Several status documents had drifted from the code. They were synchronised in this phase, and the claim matrix marks what exists only in the frozen competition pipeline.",
-          "- The re-review showed that the first round of fixes was itself incomplete in places: a recovering stuck sensor could raise an urgent warning from rejected readings, an open sensor check or desk review could absorb an urgent recommendation, replayed exports could hide an urgent episode, upgraded databases lost the replay protection, and lost or overlapping CMMS dispatches could duplicate requests. These were fixed test-first and checked again against the original reproductions.", ""]
-    (ROOT / "product" / "ADVERSARIAL_REVIEW.md").write_text("\n".join(L) + "\n", encoding="utf-8")
+          "- The re-review showed that the first round of fixes was itself incomplete in places: a recovering stuck sensor could raise an urgent warning from rejected readings, an open sensor check or desk review could absorb an urgent recommendation, replayed exports could hide an urgent episode, upgraded databases lost the replay protection, and lost or overlapping CMMS dispatches could duplicate requests. Their code fixes were made test-first and checked again against the original reproductions.", ""]
+    (ROOT / "product" / "ADVERSARIAL_REVIEW.md").write_bytes(("\n".join(L) + "\n").encode("utf-8"))     # LF on every platform
     print(f"written: {sum(counts.values())} findings; resolution {st}")
 
 

@@ -2,7 +2,8 @@
 
 | item | status |
 |---|---|
-| the procedure below | tested **on one Windows 11 development laptop** (load test L1, recovery drill R1, console checked in a browser against a local synthetic demo site) |
+| exercised in parts, on one Windows 11 development laptop | Python 3.12, in a venv built from the full development lock (`requirements.lock.txt`) plus `pip install -e . --no-deps` (`README.md`, Setup), always through scripts or local launch configurations started from the repository root, never by following this guide: `admin init`, `create-admin`, `backup`, `restore`, `verify-audit` and restarts of `admin serve --policy configs/platform.yaml` (recovery drill R1, `product/experiments/r1_recovery_drill.py`, `product/evidence/recovery/r1.md`); one `admin serve` process under load, with a raised rate limit (L1, `product/experiments/l1_load.py`, `product/evidence/load/l1.md` and `l1_run1.md`). R1 and L1 ran before migrations 0008–0009 (c7370b7), the re-review fixes and the final `serve` changes (the default policy path and the stdout request log), with the server's stdout and stderr discarded (`subprocess.DEVNULL` in both scripts), and have not been repeated on the current code: the current nine-migration `init` was not drilled and the per-request log writes were not part of L1; the console (`python -m streamlit run src/sentinelloop/console/app.py --server.port 8502`) in a browser against a local synthetic demo site, with the API started by `product/scripts/run_demo_api.py` (`product/evidence/demo/local_demo_check.md`) |
+| not exercised | the platform-only install (§2) into a fresh venv; `--behind-proxy` and `--trusted-proxy`; the reverse proxy and TLS (§5); the scheduled jobs (§6) under cron or Task Scheduler; an upgrade (§7) of a deployed database |
 | deployment on a customer server | **never done** |
 | deployment on a hardened Linux host | **never done** |
 | production readiness | **not claimed** (`PRODUCT_STATUS.md`) |
@@ -12,7 +13,7 @@
 | component | process | binds to |
 |---|---|---|
 | REST API | `python -m sentinelloop.app.admin serve` (uvicorn, one process) | 127.0.0.1:8080 by default |
-| Operator console | `streamlit run src/sentinelloop/console/app.py`, started **from the repository root** so that `.streamlit/config.toml` applies | 127.0.0.1:8501 (`.streamlit/config.toml`: `address = "127.0.0.1"`, `port = 8501`, `headless = true`; `[client] showErrorDetails = "none"`, so the browser shows a generic message and never a traceback with server paths) |
+| Operator console | `python -m streamlit run src/sentinelloop/console/app.py`, started **from the repository root** so that `.streamlit/config.toml` applies | 127.0.0.1:8501 (`.streamlit/config.toml`: `address = "127.0.0.1"`, `port = 8501`, `headless = true`; `[client] showErrorDetails = "none"`, so the browser shows a generic message and never a traceback with server paths) |
 | Reverse proxy (not ours) | e.g. nginx or Caddy: TLS, external access, request limits | 443 |
 | Scheduled jobs | data loads, assessments, recommendations (which also bring back deferred orders), CMMS dispatch, backup and audit verification (§6) | — |
 | Data | one SQLite file (WAL), model bundle directory, backups and their anchor files (anchors also copied off the host) | local disk |
@@ -23,14 +24,28 @@ If the console is started from another directory, Streamlit does not read `.stre
 
 - Python 3.12 (as tested).
 - About 1 GB RAM for one site at the tested scale. In the L1 re-run, 50 turbines × 8 days used 69.0 MB of database (`product/evidence/load/l1.md`). That is about 0.17 MB per turbine-day of 10-minute SCADA (10 signals, including indexes and audit); 100 turbines for a year is roughly 6 GB. A retention policy is PLANNED.
-- Install **the platform requirement set only**. It excludes mlflow, which the platform never imports (`SECURITY_REVIEW.md` §3):
+- Install **the platform requirement set only**, then the `sentinelloop` package itself, from a checkout of the repository. The requirement set excludes mlflow, which the platform never imports (`SECURITY_REVIEW.md` §3). It holds third-party packages only; the code is in a `src/` layout, so nothing below can import `sentinelloop` until the package is installed.
+
+Windows (the tested layout; PowerShell or cmd):
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements-platform.txt -c requirements.lock.txt
+.venv\Scripts\python.exe -m pip install -e . --no-deps
+```
+
+Linux or macOS:
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-platform.txt -c requirements.lock.txt
+.venv/bin/python -m pip install -e . --no-deps
 ```
-```bash
-.venv/bin/pip install -r requirements-platform.txt -c requirements.lock.txt
-```
+
+- `--no-deps` is required. `pyproject.toml` still declares the competition pipeline's dependencies (mlflow, SQLAlchemy, plotly, matplotlib, joblib), so installing the package without it would install mlflow (TECHNICAL_DEBT D7).
+- Install it editable (`-e`) from the checkout, as tested. The default policy file of `serve` is the checkout's `configs/platform.yaml`, located from the package's own path (`admin.DEFAULT_POLICY`), and the console is started from the checkout (§1). A non-editable `pip install --no-deps .` has not been tried. With it, the default policy path points inside the venv, where no policy file exists, so `--policy` is needed (§4 always passes it). `pyproject.toml` also declares no package data, so check that the migration files (`sentinelloop/app/migrations/*.sql`) were installed before relying on such an install.
+- What was checked: on the laptop's venv the first `pip` command resolves with everything already installed (an offline dry run, `--dry-run --no-index`, 2026-10-18), and the package is installed editable as above. A fresh platform-only venv has not been built: that needs package downloads.
+- In the commands below, `python` means the venv's interpreter (`.venv\Scripts\python.exe` or `.venv/bin/python`). The `VAR=value command` form is POSIX shell; on Windows set the variable first.
 
 ## 3. Secrets and configuration
 
@@ -49,7 +64,7 @@ python -m venv .venv
 
 | file | flag | content |
 |---|---|---|
-| platform policy | `--policy` (default `configs/platform.yaml`) | data-quality limits, scope tolerances, state thresholds, `assess_at` and `max_assessment_age_hours`, per asset type. Its SHA-256 is stored with every assessment |
+| platform policy | `--policy` (default: the checkout's `configs/platform.yaml`, found from any working directory with the editable install of §2; give the path explicitly, §4) | data-quality limits, scope tolerances, state thresholds, `assess_at` and `max_assessment_age_hours`, per asset type. Its SHA-256 is stored with every assessment |
 | site decision parameters | `--decision-config FILE` (example: `configs/decision.example.yaml`) | downtime and labour cost per hour, default due dates, rejection-suppression periods, RUL acceptance probabilities, job names. Refused when the file is loaded (`decision.load_config_text`): unknown keys; `p_accept` or `p_safety` outside [0, 1); negative costs; `default_due_h` or `reject_suppress_h` without exactly the keys P1, P2 and P3, or with hours above 8,760 (one year; due dates must also be above 0); booleans, strings, null, NaN or infinite values where a number belongs; empty job names; an `urgent_job` or `inspection_job` named like a data or review job. A file refused at load stops `serve` with a Python traceback (`ValueError`) and exit code 1: `admin.main` turns only configuration errors into exit 2. `serve` also refuses to start (exit 2) when a registered asset type lacks the file's `inspection_job` (`admin.cmd_serve`); the urgent, data and review jobs fall back to the inspection job on a type that lacks them. Without a file the server prints a warning and runs with placeholder defaults (downtime cost 0), and `/api/v1/ready` reports `decision_config` as "placeholder defaults ..." instead of "site-configured" (PD-24, PD-28) |
 
 **Sites that deliver periodic exports** (for example daily OEM-portal files) instead of a live feed: set `assess_at: latest_reading` for the asset type in the policy file, so that the default assessment instant is the latest reading rather than "now", and keep `max_assessment_age_hours` above the export interval (the wind default is 26 h). Then replay each export with `assess-range` (§6) as soon as it is loaded, before any assessment at the default instant (the scheduled `/assess` or the console's "Assess now"). Do not also assess such assets at "now": once an assessment for "now" is applied, every earlier instant is stored as a replay. A replay that finds URGENT_REVIEW or INSPECTION_RECOMMENDED not already recorded for its instant still raises the latch (PD-28), but a replay never lowers a latch or moves the live state, so the export's data failures, recoveries and normal readings are not applied (PD-17).
@@ -69,19 +84,29 @@ The admin key is printed **once**; store it in the password manager. Then:
 - **Through the API as a reliability engineer:** approve the model (`POST /api/v1/models/{id}/decision`) and commission the turbines (`POST /api/v1/assets/{id}/baseline`) (`USER_WORKFLOWS.md` W1–W3).
 
 ```bash
-python -m sentinelloop.app.admin serve --db /srv/sentinelloop/plant.db --port 8080 --behind-proxy --trusted-proxy 127.0.0.1 --decision-config /srv/sentinelloop/decision.yaml
+python -m sentinelloop.app.admin serve --db /srv/sentinelloop/plant.db --policy /srv/sentinelloop/platform.yaml --port 8080 --behind-proxy --trusted-proxy 127.0.0.1 --decision-config /srv/sentinelloop/decision.yaml
 ```
 
+- `--policy` names the site's copy of `configs/platform.yaml`, kept beside the database under change control. Without it `serve` uses the checkout's `configs/platform.yaml`, found from any working directory when the package is installed editable (`admin.DEFAULT_POLICY`; `test_serve_finds_its_default_policy_from_any_working_directory`). A policy file that does not exist, such as that default after a non-editable install, stops `serve` with a `FileNotFoundError` traceback and exit code 1 (`policy.load`; `admin.main` turns only configuration errors into exit 2).
 - `--behind-proxy` makes the rate limiter see real client addresses. Without it, all requests appear to come from the proxy.
 - `--rate-limit CAPACITY,REFILL_PER_SECOND` (default `120,2.0`) sets each user's token bucket. It also sets the largest `assess-range` call (§6).
 - With `--decision-config`, `serve` checks the file against the asset types registered at start-up and exits with code 2, naming them, if one lacks the file's `inspection_job`. Restart `serve` after adding an asset type, so the check covers it.
 - `/api/v1/ready` reports database, schema currency, approved models, audit-key status and whether the decision parameters are site-configured. Use it as the health check; expect `decision_config: site-configured` before any pilot.
 
-Start the console from the repository root:
+Start the console from the repository root, with the venv's interpreter (§2; a bare `streamlit` is on the PATH only in an activated venv):
 
 ```bash
-SENTINELLOOP_API_URL=http://127.0.0.1:8080/api/v1 streamlit run src/sentinelloop/console/app.py
+SENTINELLOOP_API_URL=http://127.0.0.1:8080/api/v1 python -m streamlit run src/sentinelloop/console/app.py
 ```
+
+Windows (PowerShell):
+
+```powershell
+$env:SENTINELLOOP_API_URL = "http://127.0.0.1:8080/api/v1"
+.venv\Scripts\python.exe -m streamlit run src/sentinelloop/console/app.py
+```
+
+`http://127.0.0.1:8080/api/v1` is also the console's default when the variable is unset (`console/app.py`).
 
 ## 5. Reverse proxy
 
@@ -114,7 +139,7 @@ Nothing runs inside the server on a timer (KNOWN_LIMITATIONS P5). Operations mus
 ## 7. Upgrades
 
 1. Back up.
-2. Install the new version.
+2. Install the new version (§2: the requirement set, then the package with `--no-deps`).
 3. Run `admin init`. Migrations are forward-only and checksummed; an edited migration is refused.
    - 0007 sets the start of latches that existed before 0006 to the time their state was last written, so older work cannot clear them.
    - 0008 backfills the last applied assessment instant and time on databases upgraded from before 0006. Each instant counts at most up to the time it was stored plus 5 minutes. Back-dated assessments are then replays there too, and ASSESSMENT_OVERDUE works. An asset whose state row has no stored assessments shows ASSESSMENT_OVERDUE until its next applied assessment.
@@ -135,8 +160,7 @@ To roll back, restore the pre-upgrade backup to a new path and start the previou
 - Linux service units or a container image for the platform itself.
 - High availability. One process and one SQLite file is the design (PD-06); the recovery drill re-run measured a restore-to-ready of 6.34 s on the test laptop (`product/evidence/recovery/r1.md`).
 - A built-in job scheduler (§6).
-- Centralised log shipping, and logging configuration. `admin serve` starts uvicorn with its default logging (`log_level="info"`, no `log_config`) and never configures the `sentinelloop.*` loggers, so they run at WARNING with no handler. As a result:
-  - The API's JSON line per request (request id, method, path, status, duration, user; `api.py`, request envelope) is **not emitted**.
-  - uvicorn's own access log goes to stdout: client address, method, path and status, with no request id or user.
-  - Unhandled errors (`unhandled error <request_id>` with the traceback), model-unavailable warnings and scoring failures reach **stderr** through Python's last-resort handler, as bare messages without timestamps.
-  - Capture both stdout and stderr with the host's tools. Configuring the `sentinelloop` loggers (INFO to stdout) in `serve` is PLANNED.
+- Centralised log shipping, log rotation and a configurable log format. What `admin serve` emits now: it sends the `sentinelloop` loggers to **stdout** at INFO, as bare messages (`admin._request_log_to_stdout`), and starts uvicorn with its default logging (`log_level="info"`). `test_serve_emits_the_json_request_log` checks that the logger is enabled and has a handler, not the lines themselves. The JSON request lines were seen on stdout in in-process checks on 2026-10-18 (`serve` with uvicorn stubbed, requests through a test client): `/health` (200) and `/assets` without a key (401) each wrote one line, and a test route that raises returned 500 and wrote only `unhandled error <request_id>` and the traceback. The other streams below follow from the code and the default logging of uvicorn and Starlette, and were not observed in those checks.
+  - On stdout: one JSON line per request that completes through the request envelope, `{"request_id", "method", "path", "status", "ms", "user"}` (`api.py`, `envelope`), with no timestamp. A request that ends in an unhandled error (HTTP 500) has **no** JSON line: `call_next` re-raises before the line is written, so only `unhandled error <request_id>` with the traceback appears (`api.py`, `_any`). Also on stdout: model-unavailable warnings and scoring failures, with no timestamp or level; and uvicorn's access log (client address, method, path and status, with no request id or user).
+  - On stderr: uvicorn's start-up and error messages, including a second copy of each unhandled error's traceback ("Exception in ASGI application": Starlette's `ServerErrorMiddleware` re-raises after sending the 500), and `serve`'s own warnings (for example the placeholder decision-config warning).
+  - Capture both streams with the host's tools and add timestamps there.
