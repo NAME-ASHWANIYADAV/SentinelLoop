@@ -1,0 +1,1179 @@
+[
+ {
+  "id": 1,
+  "unit": 4,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 106,
+  "updated_cycle": 106,
+  "due_by_cycle": 150,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 78.94085849839423,
+  "rul_lower": 44.98032394082468,
+  "rul_upper": 131.23213891381437,
+  "top_sensors": [
+   "s20",
+   "s8_rs",
+   "s17"
+  ],
+  "anomaly_score": 2.6116292967129144,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 2,
+  "unit": 5,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 98,
+  "updated_cycle": 98,
+  "due_by_cycle": 147,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 81.43604603560495,
+  "rul_lower": 49.97269998660389,
+  "rul_upper": 132.29622896254187,
+  "top_sensors": [
+   "s4",
+   "s12_slope",
+   "s21_rm"
+  ],
+  "anomaly_score": 2.6231041176878525,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 3,
+  "unit": 8,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 166,
+  "updated_cycle": 166,
+  "due_by_cycle": 214,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 89.28958416244042,
+  "rul_lower": 48.47450001847502,
+  "rul_upper": 132.34595626848295,
+  "top_sensors": [
+   "s13_rs",
+   "s11_rs",
+   "s12"
+  ],
+  "anomaly_score": 2.7134728282883445,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 4,
+  "unit": 18,
+  "type": "INSPECTION",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 133,
+  "updated_cycle": 133,
+  "due_by_cycle": 157,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 49.433024278301396,
+  "rul_lower": 24.73220523155492,
+  "rul_upper": 123.83184604074079,
+  "top_sensors": [
+   "s20_slope",
+   "s8_slope",
+   "s12_slope"
+  ],
+  "anomaly_score": 3.708899140495991,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_HIGH",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 5,
+  "unit": 20,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 184,
+  "updated_cycle": 184,
+  "due_by_cycle": 186,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 10.103435581828778,
+  "rul_lower": 2.2002105709063873,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s20",
+   "s11",
+   "s21"
+  ],
+  "anomaly_score": 4.380782633965115,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 6,
+  "unit": 24,
+  "type": "INSPECTION",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 186,
+  "updated_cycle": 186,
+  "due_by_cycle": 200,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 25.34450584358191,
+  "rul_lower": 14.644449816118243,
+  "rul_upper": 110.00459094588562,
+  "top_sensors": [
+   "s14_rs",
+   "s14_slope",
+   "s9"
+  ],
+  "anomaly_score": 11.159734021500336,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_HIGH",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 7,
+  "unit": 31,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 196,
+  "updated_cycle": 196,
+  "due_by_cycle": 202,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 16.059897653946464,
+  "rul_lower": 6.578703482432234,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s12",
+   "s4_rm",
+   "s2_rm"
+  ],
+  "anomaly_score": 4.550198070171676,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 8,
+  "unit": 34,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 203,
+  "updated_cycle": 203,
+  "due_by_cycle": 203,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 6.562589668924429,
+  "rul_lower": 0.0,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s12",
+   "s11",
+   "s11_rm"
+  ],
+  "anomaly_score": 4.648494428612983,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 9,
+  "unit": 35,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 198,
+  "updated_cycle": 198,
+  "due_by_cycle": 201,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 13.417127400916605,
+  "rul_lower": 3.538989537468968,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s15_rm",
+   "s4_rm",
+   "s21_rm"
+  ],
+  "anomaly_score": 4.6695160940618665,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 10,
+  "unit": 36,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 126,
+  "updated_cycle": 126,
+  "due_by_cycle": 136,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 18.982127162804055,
+  "rul_lower": 10.505235350845389,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s3_rm",
+   "s4_rm",
+   "s15"
+  ],
+  "anomaly_score": 4.185638247881678,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 11,
+  "unit": 37,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 121,
+  "updated_cycle": 121,
+  "due_by_cycle": 149,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 36.64500403430011,
+  "rul_lower": 28.246013473643977,
+  "rul_upper": 124.04108285268377,
+  "top_sensors": [
+   "s8_slope",
+   "s14_slope",
+   "s20_slope"
+  ],
+  "anomaly_score": 4.9680164338753,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 12,
+  "unit": 40,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 133,
+  "updated_cycle": 133,
+  "due_by_cycle": 153,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 42.01308101000305,
+  "rul_lower": 20.83528775024286,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s17_rm",
+   "s20_rm",
+   "s3_rm"
+  ],
+  "anomaly_score": 3.8180426610071967,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 13,
+  "unit": 41,
+  "type": "INSPECTION",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 123,
+  "updated_cycle": 123,
+  "due_by_cycle": 142,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 47.371836244406126,
+  "rul_lower": 19.056594483188555,
+  "rul_upper": 119.03797630607467,
+  "top_sensors": [
+   "s20_rs",
+   "s15_slope",
+   "s13_slope"
+  ],
+  "anomaly_score": 3.4384918425667874,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_HIGH",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 14,
+  "unit": 42,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 156,
+  "updated_cycle": 156,
+  "due_by_cycle": 159,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 13.568059287698564,
+  "rul_lower": 3.5228671615686267,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s13_slope",
+   "s7",
+   "s8_slope"
+  ],
+  "anomaly_score": 4.76540336309087,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 15,
+  "unit": 43,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 172,
+  "updated_cycle": 172,
+  "due_by_cycle": 213,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 82.00316886081059,
+  "rul_lower": 41.82850119862256,
+  "rul_upper": 130.33955912789884,
+  "top_sensors": [
+   "s7",
+   "s11_slope",
+   "s4"
+  ],
+  "anomaly_score": 2.6206901144316643,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 16,
+  "unit": 45,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 152,
+  "updated_cycle": 152,
+  "due_by_cycle": 186,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 65.02920028829857,
+  "rul_lower": 34.785893669667956,
+  "rul_upper": 121.07446202679658,
+  "top_sensors": [
+   "s20",
+   "s3",
+   "s20_slope"
+  ],
+  "anomaly_score": 2.510582575481732,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 17,
+  "unit": 49,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 303,
+  "updated_cycle": 303,
+  "due_by_cycle": 310,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 16.757567699937688,
+  "rul_lower": 7.89161761195988,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s3",
+   "s15_rm",
+   "s21_rm"
+  ],
+  "anomaly_score": 4.106562013671895,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 18,
+  "unit": 52,
+  "type": "INSPECTION",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 189,
+  "updated_cycle": 189,
+  "due_by_cycle": 209,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 31.525659767867484,
+  "rul_lower": 20.00484785534481,
+  "rul_upper": 120.6286446190738,
+  "top_sensors": [
+   "s14_rs",
+   "s14_slope",
+   "s9_slope"
+  ],
+  "anomaly_score": 11.50986034347231,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_HIGH",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 19,
+  "unit": 53,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 164,
+  "updated_cycle": 164,
+  "due_by_cycle": 189,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 29.82645358918999,
+  "rul_lower": 25.132880405396694,
+  "rul_upper": 107.32568609178382,
+  "top_sensors": [
+   "s14_slope",
+   "s14_rs",
+   "s9_slope"
+  ],
+  "anomaly_score": 8.389199802636627,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 20,
+  "unit": 56,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 136,
+  "updated_cycle": 136,
+  "due_by_cycle": 142,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 14.7070805706405,
+  "rul_lower": 6.008845647327757,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s12_rm",
+   "s21_rm",
+   "s4_rm"
+  ],
+  "anomaly_score": 4.136036862524856,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 21,
+  "unit": 61,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 159,
+  "updated_cycle": 159,
+  "due_by_cycle": 177,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 28.07653455291722,
+  "rul_lower": 18.536941072009476,
+  "rul_upper": 81.6156734683684,
+  "top_sensors": [
+   "s3",
+   "s3_rm",
+   "s13_rs"
+  ],
+  "anomaly_score": 3.229081126699395,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 22,
+  "unit": 62,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 232,
+  "updated_cycle": 232,
+  "due_by_cycle": 267,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 49.14153943038781,
+  "rul_lower": 35.1527441712465,
+  "rul_upper": 121.20214510417297,
+  "top_sensors": [
+   "s9_slope",
+   "s9",
+   "s9_rm"
+  ],
+  "anomaly_score": 4.778223067442882,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 23,
+  "unit": 64,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 168,
+  "updated_cycle": 168,
+  "due_by_cycle": 188,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 32.95306820094819,
+  "rul_lower": 20.792840361575276,
+  "rul_upper": 77.64916425533157,
+  "top_sensors": [
+   "s7",
+   "s8",
+   "s20_rm"
+  ],
+  "anomaly_score": 2.953292179590937,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 24,
+  "unit": 66,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 147,
+  "updated_cycle": 147,
+  "due_by_cycle": 153,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 10.930354596997539,
+  "rul_lower": 6.472668558053918,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s14_slope",
+   "s14_rs",
+   "s9_slope"
+  ],
+  "anomaly_score": 8.924280329587244,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 25,
+  "unit": 68,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 187,
+  "updated_cycle": 187,
+  "due_by_cycle": 190,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 9.130008091428577,
+  "rul_lower": 3.5693614252585526,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s17_rm",
+   "s3_rm",
+   "s2_rm"
+  ],
+  "anomaly_score": 4.466067139551213,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 26,
+  "unit": 72,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 131,
+  "updated_cycle": 131,
+  "due_by_cycle": 177,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 73.59753712322977,
+  "rul_lower": 46.26043884946713,
+  "rul_upper": 131.15901522373014,
+  "top_sensors": [
+   "s11_slope",
+   "s13_slope",
+   "s14_slope"
+  ],
+  "anomaly_score": 2.3893382558724428,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 27,
+  "unit": 76,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 205,
+  "updated_cycle": 205,
+  "due_by_cycle": 207,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 9.01165643895247,
+  "rul_lower": 2.7270826655063836,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s14_slope",
+   "s9",
+   "s14_rs"
+  ],
+  "anomaly_score": 7.302318103715524,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 28,
+  "unit": 77,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 162,
+  "updated_cycle": 162,
+  "due_by_cycle": 185,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 40.32752896969755,
+  "rul_lower": 23.35315229704514,
+  "rul_upper": 96.3903185278203,
+  "top_sensors": [
+   "s8",
+   "s12",
+   "s17"
+  ],
+  "anomaly_score": 3.475026595269626,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 29,
+  "unit": 81,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 213,
+  "updated_cycle": 213,
+  "due_by_cycle": 214,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 9.610637981061101,
+  "rul_lower": 1.0193735594221112,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s3_rm",
+   "s2_rm",
+   "s12"
+  ],
+  "anomaly_score": 4.724334890350133,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 30,
+  "unit": 82,
+  "type": "MAINTENANCE",
+  "severity": "CRITICAL",
+  "status": "OPEN",
+  "created_cycle": 162,
+  "updated_cycle": 162,
+  "due_by_cycle": 164,
+  "n_decisions": 1,
+  "action": "STOP_AND_REPAIR",
+  "rul_point": 8.924264053514266,
+  "rul_lower": 2.1460386261972886,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s11_slope",
+   "s13_slope",
+   "s7"
+  ],
+  "anomaly_score": 5.431506647337548,
+  "reasons": [],
+  "rules_fired": [
+   "R_CRITICAL"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 31,
+  "unit": 84,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 172,
+  "updated_cycle": 172,
+  "due_by_cycle": 205,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 62.26297292066268,
+  "rul_lower": 33.214641173089795,
+  "rul_upper": 120.19943537984001,
+  "top_sensors": [
+   "s13",
+   "s9_slope",
+   "s2"
+  ],
+  "anomaly_score": 2.7758899503030428,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 32,
+  "unit": 90,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 146,
+  "updated_cycle": 146,
+  "due_by_cycle": 165,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 38.62641943091459,
+  "rul_lower": 19.803617606475424,
+  "rul_upper": 80.2805507824658,
+  "top_sensors": [
+   "s11_slope",
+   "s9",
+   "s11"
+  ],
+  "anomaly_score": 3.86094564169249,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 33,
+  "unit": 91,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 234,
+  "updated_cycle": 234,
+  "due_by_cycle": 248,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 21.394474634265794,
+  "rul_lower": 14.75222010787498,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s21_rm",
+   "s12_rm",
+   "s2_rm"
+  ],
+  "anomaly_score": 3.99263193569839,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 34,
+  "unit": 92,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 150,
+  "updated_cycle": 150,
+  "due_by_cycle": 163,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 20.41879693817301,
+  "rul_lower": 13.78213264520404,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s7",
+   "s2",
+   "s17_rm"
+  ],
+  "anomaly_score": 4.619546789473864,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 35,
+  "unit": 93,
+  "type": "MAINTENANCE",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 244,
+  "updated_cycle": 244,
+  "due_by_cycle": 266,
+  "n_decisions": 1,
+  "action": "SCHEDULE_MAINTENANCE",
+  "rul_point": 46.19084939025133,
+  "rul_lower": 22.96140853995658,
+  "rul_upper": 71.36399261809619,
+  "top_sensors": [
+   "s14_slope",
+   "s4_rm",
+   "s12_rm"
+  ],
+  "anomaly_score": 3.58941379722715,
+  "reasons": [],
+  "rules_fired": [
+   "R_HIGH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 36,
+  "unit": 98,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 121,
+  "updated_cycle": 121,
+  "due_by_cycle": 157,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 70.35841692833024,
+  "rul_lower": 36.27626872687768,
+  "rul_upper": 126.11635221806056,
+  "top_sensors": [
+   "s17_slope",
+   "s3",
+   "s20_rs"
+  ],
+  "anomaly_score": 3.0420635816491393,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 37,
+  "unit": 100,
+  "type": "INSPECTION",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "created_cycle": 198,
+  "updated_cycle": 198,
+  "due_by_cycle": 211,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 19.8087891305948,
+  "rul_lower": 13.355586528142155,
+  "rul_upper": 95.59956846960789,
+  "top_sensors": [
+   "s14_rs",
+   "s14_slope",
+   "s9"
+  ],
+  "anomaly_score": 12.56560857934127,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_HIGH",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:45",
+  "mode": "batch"
+ },
+ {
+  "id": 1,
+  "unit": 3,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 95,
+  "updated_cycle": 118,
+  "due_by_cycle": 142,
+  "n_decisions": 13,
+  "action": "INSPECT",
+  "rul_point": 64.24831044155262,
+  "rul_lower": 38.2664959285345,
+  "rul_upper": 121.97681074729316,
+  "top_sensors": [
+   "s12",
+   "s11_slope",
+   "s2_rm"
+  ],
+  "anomaly_score": 2.281234042740673,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:57",
+  "mode": "stream"
+ },
+ {
+  "id": 2,
+  "unit": 5,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 98,
+  "updated_cycle": 98,
+  "due_by_cycle": 147,
+  "n_decisions": 1,
+  "action": "INSPECT",
+  "rul_point": 81.43604603560495,
+  "rul_lower": 49.97269998660389,
+  "rul_upper": 132.29622896254187,
+  "top_sensors": [
+   "s4",
+   "s12_slope",
+   "s21_rm"
+  ],
+  "anomaly_score": 2.6231041176878525,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:56",
+  "mode": "stream"
+ },
+ {
+  "id": 3,
+  "unit": 4,
+  "type": "INSPECTION",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "created_cycle": 101,
+  "updated_cycle": 106,
+  "due_by_cycle": 149,
+  "n_decisions": 2,
+  "action": "INSPECT",
+  "rul_point": 78.94085849839423,
+  "rul_lower": 44.98032394082468,
+  "rul_upper": 131.23213891381437,
+  "top_sensors": [
+   "s20",
+   "s8_rs",
+   "s17"
+  ],
+  "anomaly_score": 2.6116292967129144,
+  "reasons": [
+   "insufficient_evidence"
+  ],
+  "rules_fired": [
+   "R_MEDIUM",
+   "R_ESC_WIDTH"
+  ],
+  "model_version": "c5135791fb1c4447918dd71a3fa00c3e",
+  "ts": "2026-10-18T05:33:57",
+  "mode": "stream"
+ }
+]

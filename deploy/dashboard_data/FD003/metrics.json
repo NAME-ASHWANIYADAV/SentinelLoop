@@ -1,0 +1,118 @@
+{
+ "subset": "FD003",
+ "n_test_units": 100,
+ "rul_cap": 125,
+ "fast": false,
+ "seed": 42,
+ "hgbr_rmse_capped": 13.570354149285656,
+ "hgbr_rmse_raw": 15.318231864935278,
+ "hgbr_phm08": 355.99697090239385,
+ "cqr_point_rmse_capped": 13.538573941198052,
+ "cqr_point_rmse_raw": 15.23895817039276,
+ "cqr_point_phm08": 364.0340367516173,
+ "picp_test_capped": 0.92,
+ "picp_test_raw": 0.81,
+ "mpiw_test": 71.55752482216977,
+ "conformal_qhat": 4.988949172065688,
+ "agent_max_width": 116.09971895455969,
+ "agent_thresholds": {
+  "t_critical": 10.0,
+  "t_high": 25.0,
+  "t_medium": 50.0,
+  "max_width": 116.09971895455969,
+  "quality_max_imputed_frac": 0.1
+ },
+ "quality_flag_rate_test": 0.0,
+ "anomaly_threshold": 7.083805544134628,
+ "anomaly_flag_rate_test_last_cycle": 0.22,
+ "drift_share_test": 0.029411764705882353,
+ "drift_alarm_test": false,
+ "quality_test": {
+  "missing_frac": 0.0,
+  "out_of_range_frac": 4.430550238895269e-06,
+  "critical_out_of_range_frac": 0.0,
+  "n_rows": 16596
+ },
+ "phm08_convention": "PHM08 score: d = pred - true; early (d < 0): exp(-d/13) - 1; late (d >= 0): exp(d/10) - 1; summed over engines (late predictions are penalised more). Saxena et al. 2008: a1=13 (early, d<0), a2=10 (late, d>=0).",
+ "data_hashes": {
+  "train": "2abbe9968cc5e8eb091980f51b20f62bb4127336d3482cb52071d53bf23329e2",
+  "test": "299babd63c8d987cef079c4a425429f33b3a34797d803bbe2ad48c29dbd0d790",
+  "rul": "df1e0566306b174a2de41c67a3e7a51877889598b78643fc3e5685259091b7cb"
+ },
+ "config_hash": "f8eed41381fa",
+ "dropped_sensors": [
+  "s1",
+  "s5",
+  "s16",
+  "s18",
+  "s19"
+ ],
+ "n_features": 66,
+ "mlflow_run_id": "62b89cbac8df4ccbbd19bc0a59b5afb9",
+ "model_alias": "champion",
+ "mlflow_tracking_uri": "sqlite:///C:/Users/HP/OneDrive/Desktop/tata/artifacts/mlflow.db",
+ "severity_counts_test": {
+  "NONE": 52,
+  "MEDIUM": 22,
+  "CRITICAL": 12,
+  "HIGH": 11,
+  "WATCH": 3
+ },
+ "escalation_share_test": 0.1,
+ "decision_outcomes_test": {
+  "n": 100,
+  "bands": [
+   "<=10",
+   "11-25",
+   "26-50",
+   ">50"
+  ],
+  "counts": {
+   "CRITICAL": {
+    "<=10": 6,
+    "11-25": 6,
+    "26-50": 0,
+    ">50": 0
+   },
+   "HIGH": {
+    "<=10": 0,
+    "11-25": 4,
+    "26-50": 6,
+    ">50": 1
+   },
+   "MEDIUM": {
+    "<=10": 0,
+    "11-25": 0,
+    "26-50": 7,
+    ">50": 15
+   },
+   "WATCH": {
+    "<=10": 0,
+    "11-25": 0,
+    "26-50": 0,
+    ">50": 3
+   },
+   "NONE": {
+    "<=10": 0,
+    "11-25": 0,
+    "26-50": 0,
+    ">50": 52
+   }
+  },
+  "lower_bound_above_truth_rate": 0.08,
+  "serious_truth_missed_rate": 0.0,
+  "confident_order_on_healthy_rate": 0.01,
+  "confident_order_on_healthy_count": 1,
+  "anomaly_flag_rate_by_band": {
+   "<=25": 0.6875,
+   "26-50": 0.5384615384615384,
+   ">50": 0.056338028169014086
+  }
+ },
+ "n_work_orders_batch": 23,
+ "n_work_orders_stream": 2,
+ "audit_chain_valid": true,
+ "audit_records": 897,
+ "audit_terminal_hash": "97e13ff4780712dc8840f504444e5adf874fa4d4698f463fe4457d0fca744df6",
+ "elapsed_s": 36.3
+}

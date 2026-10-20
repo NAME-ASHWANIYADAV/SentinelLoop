@@ -1,0 +1,245 @@
+[
+ {
+  "run": "e4_retrain_gate",
+  "subset": "FD002",
+  "scenario": "A_accept_more_data",
+  "expected": "PROMOTE",
+  "decision": "PROMOTE",
+  "as_expected": true,
+  "champion_rmse": 15.04963914110509,
+  "challenger_rmse": 15.212836117176138,
+  "champion_picp": 0.9230769230769231,
+  "challenger_picp": 0.9038461538461539,
+  "champion_late_rate": 0.0,
+  "challenger_late_rate": 0.0,
+  "reasons": "",
+  "champion_late_rate_high": 0.0,
+  "challenger_late_rate_high": 0.0,
+  "late_threshold": 10.0,
+  "mlflow_run_id": "185467d1b43f4fb4b39e27c447a513dd",
+  "champion_alias_version": 2,
+  "ts": "2026-10-18T06:09:46",
+  "checks": {
+   "rmse": {
+    "champion": 15.04963914110509,
+    "challenger": 15.212836117176138,
+    "limit": 15.35063192392719,
+    "ok": true
+   },
+   "picp": {
+    "challenger": 0.9038461538461539,
+    "min": 0.85,
+    "ok": true
+   },
+   "late_rate": {
+    "champion": 0.0,
+    "challenger": 0.0,
+    "limit": 0.02,
+    "ok": true,
+    "threshold": 10.0
+   }
+  }
+ },
+ {
+  "run": "e4_retrain_gate",
+  "subset": "FD002",
+  "scenario": "B_reject_corrupted_data",
+  "expected": "REJECT",
+  "decision": "PROMOTE",
+  "as_expected": false,
+  "champion_rmse": 15.04963914110509,
+  "challenger_rmse": 15.25874461253407,
+  "champion_picp": 0.9230769230769231,
+  "challenger_picp": 0.9038461538461539,
+  "champion_late_rate": 0.0,
+  "challenger_late_rate": 0.0,
+  "reasons": "",
+  "champion_late_rate_high": 0.0,
+  "challenger_late_rate_high": 0.0,
+  "late_threshold": 10.0,
+  "mlflow_run_id": "aecfde9aba314b178d5f0a4836e5d515",
+  "champion_alias_version": 3,
+  "ts": "2026-10-18T06:10:01",
+  "checks": {
+   "rmse": {
+    "champion": 15.04963914110509,
+    "challenger": 15.25874461253407,
+    "limit": 15.35063192392719,
+    "ok": true
+   },
+   "picp": {
+    "challenger": 0.9038461538461539,
+    "min": 0.85,
+    "ok": true
+   },
+   "late_rate": {
+    "champion": 0.0,
+    "challenger": 0.0,
+    "limit": 0.02,
+    "ok": true,
+    "threshold": 10.0
+   }
+  }
+ },
+ {
+  "run": "e4_retrain_gate",
+  "subset": "FD002",
+  "scenario": "C_drift_trigger",
+  "false_alarms_in_20_clean_windows": 0,
+  "regime_shift_alarm": true,
+  "regime_shift_critical": [
+   "os1",
+   "os2"
+  ],
+  "bias_alarm": true,
+  "bias_severe": [
+   "s2",
+   "s3",
+   "s2_rm",
+   "s3_rm"
+  ],
+  "bias_share": 0.05555555555555555
+ },
+ {
+  "run": "e4_retrain_gate_secondary",
+  "subset": "FD002",
+  "scenario": "A_accept_more_data",
+  "expected": "PROMOTE",
+  "decision": "PROMOTE",
+  "as_expected": true,
+  "champion_rmse": 16.34793178727936,
+  "challenger_rmse": 16.145505427426635,
+  "champion_picp": 0.9375,
+  "challenger_picp": 0.9057692307692308,
+  "champion_late_rate": 0.0,
+  "challenger_late_rate": 0.0,
+  "reasons": "",
+  "champion_late_rate_high": 0.0,
+  "challenger_late_rate_high": 0.0,
+  "late_threshold": 10.0,
+  "mlflow_run_id": "a68ac9e82dca48628da371b126f9a74a",
+  "champion_alias_version": 5,
+  "ts": "2026-10-18T06:12:45",
+  "checks": {
+   "rmse": {
+    "champion": 16.34793178727936,
+    "challenger": 16.145505427426635,
+    "limit": 16.674890423024948,
+    "ok": true
+   },
+   "picp": {
+    "challenger": 0.9057692307692308,
+    "min": 0.85,
+    "ok": true
+   },
+   "late_rate": {
+    "champion": 0.0,
+    "challenger": 0.0,
+    "limit": 0.02,
+    "ok": true,
+    "threshold": 10.0
+   }
+  }
+ },
+ {
+  "run": "e4_retrain_gate_secondary",
+  "subset": "FD002",
+  "scenario": "B_reject_corrupted_data",
+  "expected": "REJECT",
+  "decision": "REJECT",
+  "as_expected": true,
+  "champion_rmse": 16.34793178727936,
+  "challenger_rmse": 16.797452961222707,
+  "champion_picp": 0.9375,
+  "challenger_picp": 0.8990384615384616,
+  "champion_late_rate": 0.0,
+  "challenger_late_rate": 0.0,
+  "reasons": "rmse 16.797 > 16.675 (champion 16.348 + 2%)",
+  "champion_late_rate_high": 0.0,
+  "challenger_late_rate_high": 0.0,
+  "late_threshold": 10.0,
+  "mlflow_run_id": "2c553763b85f42e3a1620332588908a0",
+  "champion_alias_version": 4,
+  "ts": "2026-10-18T06:13:00",
+  "checks": {
+   "rmse": {
+    "champion": 16.34793178727936,
+    "challenger": 16.797452961222707,
+    "limit": 16.674890423024948,
+    "ok": false
+   },
+   "picp": {
+    "challenger": 0.8990384615384616,
+    "min": 0.85,
+    "ok": true
+   },
+   "late_rate": {
+    "champion": 0.0,
+    "challenger": 0.0,
+    "limit": 0.02,
+    "ok": true,
+    "threshold": 10.0
+   }
+  }
+ },
+ {
+  "run": "e4_retrain_gate_secondary",
+  "subset": "FD002",
+  "scenario": "B2_reject_label_corruption",
+  "expected": "REJECT",
+  "decision": "REJECT",
+  "as_expected": true,
+  "champion_rmse": 16.34793178727936,
+  "challenger_rmse": 20.819437873221545,
+  "champion_picp": 0.9375,
+  "challenger_picp": 0.8951923076923077,
+  "champion_late_rate": 0.0,
+  "challenger_late_rate": 0.0,
+  "reasons": "rmse 20.819 > 16.675 (champion 16.348 + 2%)",
+  "champion_late_rate_high": 0.0,
+  "challenger_late_rate_high": 0.0,
+  "late_threshold": 10.0,
+  "mlflow_run_id": "b1d1eca30bbf47a2ab19861419067b69",
+  "champion_alias_version": 4,
+  "ts": "2026-10-18T06:13:13",
+  "checks": {
+   "rmse": {
+    "champion": 16.34793178727936,
+    "challenger": 20.819437873221545,
+    "limit": 16.674890423024948,
+    "ok": false
+   },
+   "picp": {
+    "challenger": 0.8951923076923077,
+    "min": 0.85,
+    "ok": true
+   },
+   "late_rate": {
+    "champion": 0.0,
+    "challenger": 0.0,
+    "limit": 0.02,
+    "ok": true,
+    "threshold": 10.0
+   }
+  }
+ },
+ {
+  "run": "e4_retrain_gate_secondary",
+  "subset": "FD002",
+  "scenario": "C_drift_trigger",
+  "false_alarms_in_20_clean_windows": 0,
+  "regime_shift_alarm": true,
+  "regime_shift_critical": [
+   "os1",
+   "os2"
+  ],
+  "bias_alarm": true,
+  "bias_severe": [
+   "s2",
+   "s3",
+   "s2_rm",
+   "s3_rm"
+  ],
+  "bias_share": 0.05555555555555555
+ }
+]
