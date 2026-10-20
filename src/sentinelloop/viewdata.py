@@ -68,7 +68,7 @@ def load_bundle(out_dir: str | Path, subset: str) -> Bundle:
 def fleet_table(b: Bundle) -> pd.DataFrame:
     if b.decisions.empty:
         return pd.DataFrame(columns=["unit", "severity", "rul_lower", "rul_point"])
-    cols = [c for c in ["unit", "severity", "rul_lower", "rul_point", "rul_upper", "action", "escalate", "reasons", "quality_flag", "imputed_frac", "drift_flag",
+    cols = [c for c in ["unit", "severity", "rul_lower", "rul_point", "rul_upper", "action", "escalate", "reasons", "rules", "quality_flag", "imputed_frac", "drift_flag",
                         "anomaly_flag", "anomaly_score", "top_sensors", "order_event", "rul_true_capped", "cycle"] if c in b.decisions.columns]
     t = b.decisions[cols].copy()
     for c in ("reasons", "top_sensors"):

@@ -12,3 +12,29 @@ gatherUsageStats = false
 [client]
 # Never show tracebacks (with server paths) in the browser; errors stay in the server log (re-review api-security-console-10).
 showErrorDetails = "none"
+toolbarMode = "minimal"
+
+
+[theme]
+# SentinelLoop design tokens (src/sentinelloop/ui/theme.py): graphite-navy shell, teal for healthy and primary actions,
+# amber for warnings, red for critical. Shared by the dashboard and the operator console.
+base = "dark"
+primaryColor = "#2CC7B4"
+backgroundColor = "#0E1621"
+secondaryBackgroundColor = "#152131"
+textColor = "#E6EDF5"
+borderColor = "#26374C"
+dataframeHeaderBackgroundColor = "#1C2B3E"
+baseRadius = "0.5rem"
+redColor = "#E5484D"
+orangeColor = "#EE7B3E"
+yellowColor = "#E8A33D"
+greenColor = "#2CC7B4"
+blueColor = "#7A9CC6"
+font = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+headingFontWeights = 600
+
+[theme.sidebar]
+backgroundColor = "#0B121B"
+secondaryBackgroundColor = "#152131"
+borderColor = "#1E2D40"

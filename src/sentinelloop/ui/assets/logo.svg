@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 40" role="img" aria-label="SentinelLoop">
+  <g fill="none" stroke-linecap="round">
+    <path d="M28 20a10 10 0 1 1-4.2-8.1" stroke="#2CC7B4" stroke-width="3.2"/>
+    <circle cx="27.6" cy="12.6" r="2.4" fill="#2CC7B4" stroke="none"/>
+    <path d="M12.5 20h4l2-4 3 8 2-4h3" stroke="#E6EDF5" stroke-width="1.8" stroke-linejoin="round"/>
+  </g>
+  <text x="44" y="26.5" font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#E6EDF5" letter-spacing="-0.2">SentinelLoop</text>
+</svg>
